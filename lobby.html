@@ -475,10 +475,16 @@
 
     .char-top {
       display: flex;
-      align-items: stretch;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 0;
+    }
+
+    .char-portrait-row {
+      display: flex;
+      align-items: center;
       justify-content: center;
       gap: 24px;
-      margin-bottom: 0;
     }
 
     .char-bottom {
@@ -554,14 +560,14 @@
     }
 
     .char-portrait {
-      width: 140px;
-      height: 180px;
+      width: 210px;
+      height: 270px;
       border-radius: 14px;
       background: linear-gradient(135deg, var(--accent-light), var(--accent));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 72px;
+      font-size: 60px;
       font-weight: 700;
       color: var(--paper-light);
       box-shadow: 0 8px 24px rgba(139, 90, 43, 0.28);
@@ -835,6 +841,7 @@
       flex-direction: column;
       justify-content: space-between;
       transition: background 0.2s ease;
+      position: relative;
     }
 
     .item-card:hover {
@@ -846,15 +853,18 @@
       font-weight: 600;
       color: var(--ink);
       line-height: 1.5;
+      padding-right: 42px;
     }
 
     .item-equipped {
+      position: absolute;
+      top: 12px;
+      right: 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      gap: 5px;
+      font-size: 11px;
       color: var(--accent);
-      margin-bottom: 8px;
     }
 
     .item-equipped::before {
@@ -872,6 +882,851 @@
       padding-top: 12px;
     }
 
+    /* 物品悬浮提示 */
+    .item-tooltip {
+      position: fixed;
+      z-index: 1000;
+      background: var(--paper-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 24px rgba(61, 43, 31, 0.18);
+      min-width: 200px;
+      max-width: 280px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .item-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .item-tooltip-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .item-tooltip-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    /* 物品右键菜单 */
+    .item-context-menu {
+      position: fixed;
+      z-index: 1001;
+      background: var(--paper-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 0;
+      box-shadow: 0 8px 24px rgba(61, 43, 31, 0.2);
+      min-width: 140px;
+      display: none;
+    }
+
+    .item-context-menu.visible {
+      display: block;
+    }
+
+    .item-context-menu .menu-action {
+      display: block;
+      width: 100%;
+      padding: 10px 18px;
+      font-size: 14px;
+      color: var(--ink);
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s ease;
+    }
+
+    .item-context-menu .menu-action:hover {
+      background: rgba(184, 115, 51, 0.08);
+    }
+
+    .item-context-menu .menu-action:first-child {
+      border-radius: 10px 10px 0 0;
+    }
+
+    .item-context-menu .menu-action:last-child {
+      border-radius: 0 0 10px 10px;
+    }
+
+    /* 标签内容切换 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 职业&属性面板 */
+    .class-panel {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 2px 12px var(--shadow);
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .class-race {
+      font-size: 15px;
+      color: var(--ink-soft);
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .class-icon {
+      font-size: 56px;
+      line-height: 1;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 2px 4px rgba(139, 90, 43, 0.2));
+    }
+
+    .class-subclass {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .class-level {
+      font-size: 16px;
+      color: var(--ink-soft);
+      margin-bottom: 28px;
+    }
+
+    .ability-scores {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .ability {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ability-star {
+      font-size: 13px;
+      color: var(--accent);
+      height: 14px;
+    }
+
+    .ability-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .ability-value {
+      width: 46px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      background: rgba(61, 43, 31, 0.06);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    .ability-value.highlighted {
+      background: var(--accent);
+      color: var(--paper-light);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(107, 78, 61, 0.35), transparent);
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-list li {
+      font-size: 15px;
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s ease;
+    }
+
+    .feature-list li:hover {
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .feature-list li .feature-arrow {
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: transform 0.2s ease;
+    }
+
+    .feature-list li .feature-arrow svg {
+      width: 12px;
+      height: 8px;
+      fill: none;
+      stroke: var(--ink-soft);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-list li.expanded .feature-arrow {
+      transform: rotate(180deg);
+    }
+
+    .feature-detail {
+      display: none;
+      font-size: 13px;
+      color: var(--ink-soft);
+      padding: 8px 12px 4px;
+      line-height: 1.7;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 0 0 8px 8px;
+      margin-top: -2px;
+    }
+
+    .feature-list li.expanded + .feature-detail {
+      display: block;
+    }
+
+    /* 熟练加值面板 */
+    .prof-bonus {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .prof-bonus .star {
+      color: var(--accent);
+      font-size: 18px;
+    }
+
+    .skills-panel {
+      text-align: left;
+    }
+
+    .skill-section {
+      margin-bottom: 8px;
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: background 0.2s ease;
+    }
+
+    .skill-row:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .skill-name {
+      color: var(--ink);
+    }
+
+    .skill-value {
+      font-weight: 700;
+      color: var(--ink);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .skill-value.positive {
+      color: var(--accent);
+    }
+
+    .skill-value.negative {
+      color: #b54a3f;
+    }
+
+    /* 人物背景面板 */
+    .bg-panel {
+      text-align: left;
+    }
+
+    .bg-info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .bg-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: background 0.2s ease;
+    }
+
+    .bg-info-row:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .bg-info-label {
+      color: var(--ink-soft);
+    }
+
+    .bg-info-value {
+      color: var(--ink);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .bg-story {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      line-height: 1.9;
+    }
+
+    .bg-story p {
+      font-size: 14px;
+      color: var(--ink-soft);
+      text-indent: 2em;
+      margin-bottom: 12px;
+    }
+
+    .bg-story p:last-child {
+      margin-bottom: 0;
+    }
+
+    .bg-traits {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .bg-trait {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .bg-trait-title {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .bg-trait-text {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .saving-throw-scores {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 8px 0 12px;
+      flex-wrap: wrap;
+    }
+
+    .saving-throw {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .saving-throw-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .saving-throw-value {
+      width: 46px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      background: rgba(61, 43, 31, 0.06);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    /* ===== 冒险剧本选择（书架） ===== */
+    .bookshelf {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 32px 0 0;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .bookshelf::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: -20px;
+      width: calc(100% + 40px);
+      max-width: 600px;
+      height: 20px;
+      background: linear-gradient(to bottom, #5C3D2E, #3B2515, #5C3D2E);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(255, 220, 150, 0.1) inset;
+    }
+
+    .campaign-book {
+      width: 100px;
+      height: 280px;
+      border-radius: 4px 12px 12px 4px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow:
+        2px 0 6px rgba(0, 0, 0, 0.25),
+        -1px 0 2px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 8px;
+    }
+
+    .campaign-book:hover {
+      transform: translateY(-8px) rotate(-2deg);
+      box-shadow:
+        6px 4px 16px rgba(0, 0, 0, 0.35),
+        -1px 0 2px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+    }
+
+    .campaign-book.light {
+      background: linear-gradient(135deg, #d69a5c 0%, #b87333 30%, #8b5a2b 60%, #7a4a20 100%);
+      color: var(--paper-light);
+    }
+
+    .campaign-book.dark {
+      background: linear-gradient(135deg, #5a3a2a 0%, #3d2b1f 30%, #2b1f16 60%, #1a1210 100%);
+      color: var(--paper-light);
+    }
+
+    .book-spine-title {
+      writing-mode: vertical-rl;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      margin-bottom: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      flex: 1;
+    }
+
+    .book-spine-bands {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 60%;
+    }
+
+    .book-band {
+      height: 3px;
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+
+    .campaign-book.light .book-band {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .campaign-book.dark .book-band {
+      background: rgba(200, 160, 60, 0.35);
+    }
+
+    .book-page-edge {
+      position: absolute;
+      right: 2px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 1px;
+    }
+
+    .campaign-detail {
+      display: none;
+    }
+
+    .campaign-detail.active {
+      display: block;
+    }
+
+    .back-to-campaigns {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: color 0.2s ease;
+    }
+
+    .back-to-campaigns:hover {
+      color: var(--ink);
+    }
+
+    .back-to-campaigns svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ===== 英雄档案（我的角色）页面 ===== */
+    .hero-archive {
+      padding: 32px 0 0;
+    }
+
+    .hero-archive-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-archive-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hero-archive-title svg {
+      width: 36px;
+      height: 36px;
+      color: var(--accent);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .hero-archive-title h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .hero-archive-title p {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .btn-create-char {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--paper-card);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: default;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn-create-char:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-create-char svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .character-card {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px var(--shadow);
+      cursor: default;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .character-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(61, 43, 31, 0.15);
+    }
+
+    .character-card-portrait-wrap {
+      position: relative;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .character-card-portrait {
+      font-size: 110px;
+      font-weight: 700;
+      color: rgba(232, 213, 181, 0.35);
+      line-height: 1;
+      z-index: 1;
+    }
+
+    .character-card-level {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(43, 31, 22, 0.65);
+      color: var(--paper-light);
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    .character-card-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: linear-gradient(to top, rgba(43, 31, 22, 0.85), transparent);
+      color: var(--paper-light);
+      z-index: 2;
+    }
+
+    .character-card-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .character-card-race {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    .character-card-class {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--paper-card);
+    }
+
+    .class-icon-small {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(184, 115, 51, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .class-icon-small svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .class-label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 1px;
+    }
+
+    .class-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .character-card.light .character-card-portrait-wrap {
+      background: linear-gradient(135deg, #d4b896, #c49a6c);
+    }
+
+    .character-card.dark .character-card-portrait-wrap {
+      background: linear-gradient(135deg, #3d2b1f, #2b1f16);
+    }
+
+    .character-detail {
+      padding-top: 8px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--paper-card);
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: default;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .back-button:hover {
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .back-button svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* 法术页面 */
+    .spells-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .spells-level {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .spells-subclass {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .skill-block {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      text-align: center;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .skill-block:hover {
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    @media (max-width: 720px) {
+      .skill-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 1024px) {
       .stats {
         grid-template-columns: repeat(2, 1fr);
@@ -879,6 +1734,123 @@
 
       .columns {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      aside {
+        width: 64px;
+        align-items: center;
+      }
+
+      .brand {
+        padding: 0 0 28px;
+        justify-content: center;
+      }
+
+      .brand span,
+      .nav-item span {
+        display: none;
+      }
+
+      .nav-item {
+        justify-content: center;
+        padding: 12px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header h1 {
+        font-size: 26px;
+      }
+
+      .char-top {
+        gap: 12px;
+      }
+
+      .slot {
+        width: 44px;
+        height: 44px;
+      }
+
+      .char-portrait {
+        width: 110px;
+        height: 150px;
+        font-size: 56px;
+      }
+
+      .char-name {
+        font-size: 22px;
+      }
+
+      .class-panel {
+        padding: 24px 20px;
+      }
+
+      .ability-scores {
+        gap: 10px;
+      }
+
+      .ability-value {
+        width: 40px;
+        height: 46px;
+        font-size: 17px;
+      }
+
+      .prof-bonus {
+        font-size: 18px;
+      }
+
+      .skill-row {
+        padding: 9px 8px;
+        font-size: 14px;
+      }
+
+      .bg-info-row {
+        padding: 9px 8px;
+        font-size: 14px;
+      }
+
+      .saving-throw-scores {
+        gap: 10px;
+      }
+
+      .saving-throw-value {
+        width: 40px;
+        height: 46px;
+        font-size: 15px;
+      }
+
+      .hero-archive {
+        padding-top: 16px;
+      }
+
+      .hero-archive-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero-archive-title h1 {
+        font-size: 22px;
+      }
+
+      .character-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .character-card-portrait-wrap {
+        height: 200px;
+      }
+
+      .character-card-portrait {
+        font-size: 80px;
       }
     }
 
@@ -975,6 +1947,40 @@
 
     <div class="content">
       <div class="panel-content active" data-panel="adventure">
+      <div id="campaign-select">
+      <div class="page-header">
+        <h1>冒险剧本</h1>
+        <p>选择一个已加入的冒险世界，继续书写你的传奇故事。</p>
+      </div>
+
+      <div class="bookshelf">
+        <div class="campaign-book light" data-campaign="dnd">
+          <div class="book-spine-title">龙与地下城</div>
+          <div class="book-spine-bands">
+            <div class="book-band"></div>
+            <div class="book-band"></div>
+            <div class="book-band"></div>
+          </div>
+          <div class="book-page-edge"></div>
+        </div>
+
+        <div class="campaign-book dark">
+          <div class="book-spine-title">暗影之塔</div>
+          <div class="book-spine-bands">
+            <div class="book-band"></div>
+            <div class="book-band"></div>
+            <div class="book-band"></div>
+          </div>
+          <div class="book-page-edge"></div>
+        </div>
+      </div>
+      </div>
+
+      <div id="campaign-detail" class="campaign-detail">
+      <div class="back-to-campaigns" id="back-to-campaigns">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        返回剧本列表
+      </div>
       <div class="page-header">
         <h1>龙与地下城</h1>
         <p>这里记载着一段传奇的冒险历史，随意翻阅，就像在下一本未完的史诗。</p>
@@ -1232,6 +2238,7 @@
         </div>
       </div>
       </div>
+      </div>
 
       <div class="panel-content" data-panel="friends">
         <div class="page-header">
@@ -1264,13 +2271,88 @@
       </div>
 
       <div class="panel-content" data-panel="characters">
-        <div class="page-header">
-          <h1>我的角色</h1>
-          <p>管理你的角色卡，查看冒险履历与角色详情。</p>
+        <div class="hero-archive" id="hero-archive">
+          <div class="hero-archive-header">
+            <div class="hero-archive-title">
+              <div>
+                <h1>英雄档案</h1>
+                <p>传颂于大陆各地的名字，记录着每一位踏上旅途的英雄。</p>
+              </div>
+            </div>
+            <button class="btn-create-char" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              创建新角色
+            </button>
+          </div>
+
+          <div class="character-grid">
+            <div class="character-card light" data-char="elias">
+              <div class="character-card-portrait-wrap">
+                <div class="character-card-portrait">埃</div>
+                <div class="character-card-level">等级 4</div>
+                <div class="character-card-info">
+                  <div class="character-card-name">埃利亚斯·灰溪</div>
+                  <div class="character-card-race">人类 Human</div>
+                </div>
+              </div>
+              <div class="character-card-class">
+                <div class="class-icon-small">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+                    <path d="M13 19l6-6"></path>
+                    <path d="M16 16l4 4"></path>
+                    <path d="M19 21l2-2"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="class-label">职业</div>
+                  <div class="class-name">战士 warrior</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="character-card dark" data-char="audric">
+              <div class="character-card-portrait-wrap">
+                <div class="character-card-portrait">奥</div>
+                <div class="character-card-level">等级 3</div>
+                <div class="character-card-info">
+                  <div class="character-card-name">奥德里奇</div>
+                  <div class="character-card-race">高等精灵 High Elf</div>
+                </div>
+              </div>
+              <div class="character-card-class">
+                <div class="class-icon-small">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                </div>
+                <div>
+                  <div class="class-label">职业</div>
+                  <div class="class-name">法师 wizard</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="container">
+
+        <div class="character-detail" id="character-detail" style="display: none;">
+          <button class="back-button" id="back-to-archive" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回英雄档案
+          </button>
+          <div class="container">
           <div class="char-card">
             <div class="char-top">
+              <div class="char-name">埃利亚斯·灰溪</div>
+              <div class="char-portrait-row">
               <div class="equipment-column left-slots">
                 <div class="slot"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7v3H4v2h16v-2h-1V9a7 7 0 0 0-7-7z"></path></svg></div>
                 <div class="slot"><svg viewBox="0 0 24 24"><path d="M6 3h12l3 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path></svg></div>
@@ -1278,10 +2360,17 @@
                 <div class="slot"><svg viewBox="0 0 24 24"><path d="M17 14h-4l-2-7a3 3 0 0 0-3-3H4v8h2l2 7h10a3 3 0 0 0 0-6z"></path></svg></div>
               </div>
 
-              <div class="char-portrait-wrap">
-                <div class="char-name">埃利亚斯·灰溪</div>
-                <div class="char-portrait">埃</div>
-                <div class="combat-stats">
+              <div class="char-portrait">埃</div>
+
+              <div class="equipment-column right-slots">
+                <div class="slot"><svg viewBox="0 0 24 24"><path d="M4 4h4l4 8 4-8h4l-8 16z"></path></svg></div>
+                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
+                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
+                <div class="slot"><svg viewBox="0 0 24 24"><path d="M8 22c-3 0-5-2-5-5s2-5 5-5 5 2 5 5-2 5-5 5z"></path><path d="M13 12l7-7"></path><path d="M19 5l2 2"></path></svg></div>
+              </div>
+              </div>
+
+              <div class="combat-stats">
                   <div class="combat-stat">
                     <div class="combat-stat-icon">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1302,14 +2391,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class="equipment-column right-slots">
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M4 4h4l4 8 4-8h4l-8 16z"></path></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M8 22c-3 0-5-2-5-5s2-5 5-5 5 2 5 5-2 5-5 5z"></path><path d="M13 12l7-7"></path><path d="M19 5l2 2"></path></svg></div>
-              </div>
-            </div>
 
             <div class="char-bottom">
               <div class="weapon-slot-group">
@@ -1355,12 +2436,14 @@
           </div>
 
           <div class="tabs">
-            <button class="tab active" type="button">物品栏</button>
-            <button class="tab" type="button">职业&属性</button>
-            <button class="tab" type="button">技能&特性</button>
-            <button class="tab" type="button">人物背景</button>
+            <button class="tab active" type="button" data-tab="inventory">物品栏</button>
+            <button class="tab" type="button" data-tab="class-attr">职业&特性</button>
+            <button class="tab" type="button" data-tab="skills">熟练加值</button>
+            <button class="tab" type="button" data-tab="spells">技能&法术</button>
+            <button class="tab" type="button" data-tab="background">人物背景</button>
           </div>
 
+          <div class="tab-content active" id="inventory">
           <div class="inventory-panel">
             <div class="inventory-header">
               <div class="inventory-title">
@@ -1414,6 +2497,318 @@
               </div>
             </div>
           </div>
+          </div>
+
+          <div class="tab-content" id="class-attr">
+            <div class="class-panel">
+              <div class="class-race">人类</div>
+              <div class="class-icon">&#9876;&#65039;</div>
+              <div class="class-subclass">战斗大师</div>
+              <div class="class-level">等级5 战士</div>
+
+              <div class="ability-scores">
+                <div class="ability">
+                  <div class="ability-star">&#9733;</div>
+                  <div class="ability-label">力</div>
+                  <div class="ability-value highlighted">17</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-star"></div>
+                  <div class="ability-label">敏</div>
+                  <div class="ability-value">13</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-star"></div>
+                  <div class="ability-label">体</div>
+                  <div class="ability-value highlighted">15</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-star"></div>
+                  <div class="ability-label">智</div>
+                  <div class="ability-value">10</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-star"></div>
+                  <div class="ability-label">感</div>
+                  <div class="ability-value">12</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-star"></div>
+                  <div class="ability-label">魅</div>
+                  <div class="ability-value">8</div>
+                </div>
+              </div>
+
+              <div class="divider"><span>状态</span></div>
+              <ul class="feature-list">
+                <li>识破隐形 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>极乐孢子 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+              </ul>
+
+              <div class="divider"><span>抗性</span></div>
+              <ul class="feature-list">
+                <li>中毒抗性 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+              </ul>
+
+              <div class="divider"><span>职业特性</span></div>
+              <ul class="feature-list">
+                <li>巨武器大师：全力一击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>巨武器大师：附赠攻击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>重甲专精 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+              </ul>
+
+              <div class="divider"><span>重要特性</span></div>
+              <ul class="feature-list">
+                <li>人类通才 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>借机攻击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>心灵反冲 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>恃强凌弱 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+                <li>旗开得胜 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+                <div class="feature-detail">详细描述待补充</div>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content" id="skills">
+            <div class="class-panel skills-panel">
+              <div class="prof-bonus">
+                <span class="star">★</span>
+                <span>熟练项加值 (+3)</span>
+              </div>
+
+              <div class="skill-section">
+                <div class="divider"><span>力量 (+3)</span></div>
+                <div class="skill-row">
+                  <span class="skill-name">运动</span>
+                  <span class="skill-value positive">+7</span>
+                </div>
+              </div>
+
+              <div class="skill-section">
+                <div class="divider"><span>敏捷 (+1)</span></div>
+                <div class="skill-row">
+                  <span class="skill-name">巧手</span>
+                  <span class="skill-value positive">+2</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">隐匿</span>
+                  <span class="skill-value positive">+1</span>
+                </div>
+              </div>
+
+              <div class="skill-section">
+                <div class="divider"><span>智力 (0)</span></div>
+                <div class="skill-row">
+                  <span class="skill-name">奥秘</span>
+                  <span class="skill-value">0</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">历史</span>
+                  <span class="skill-value">0</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">调查</span>
+                  <span class="skill-value">0</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">自然</span>
+                  <span class="skill-value">0</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">宗教</span>
+                  <span class="skill-value">0</span>
+                </div>
+              </div>
+
+              <div class="skill-section">
+                <div class="divider"><span>感知 (+1)</span></div>
+                <div class="skill-row">
+                  <span class="skill-name">驯兽</span>
+                  <span class="skill-value positive">+1</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">洞悉</span>
+                  <span class="skill-value positive">+1</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">医药</span>
+                  <span class="skill-value positive">+1</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">察觉</span>
+                  <span class="skill-value positive">+1</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">求生</span>
+                  <span class="skill-value positive">+4</span>
+                </div>
+              </div>
+
+              <div class="skill-section">
+                <div class="divider"><span>魅力 (-1)</span></div>
+                <div class="skill-row">
+                  <span class="skill-name">欺瞒</span>
+                  <span class="skill-value negative">-1</span>
+                </div>
+                <div class="skill-row">
+                  <span class="skill-name">威吓</span>
+                  <span class="skill-value positive">+2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="spells">
+            <div class="class-panel">
+              <div class="spells-header">
+                <span class="spells-level">5级</span>
+                <span class="spells-subclass">战斗大师</span>
+              </div>
+
+              <div class="divider"><span>常规动作</span></div>
+              <div class="skill-grid">
+                <div class="skill-block">跳跃</div>
+                <div class="skill-block">投掷</div>
+                <div class="skill-block">快速奔跑</div>
+              </div>
+
+              <div class="divider"><span>职业动作</span></div>
+              <div class="skill-grid">
+                <div class="skill-block">斗气如潮</div>
+                <div class="skill-block">回复</div>
+                <div class="skill-block">附加攻击</div>
+              </div>
+
+              <div class="divider"><span>被动技能</span></div>
+              <div class="skill-grid">
+                <div class="skill-block">巨武器使用</div>
+              </div>
+
+              <div class="divider"><span>1环法术</span></div>
+              <div class="skill-grid">
+                <div class="skill-block">火球术</div>
+                <div class="skill-block">治愈术</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="background">
+            <div class="class-panel bg-panel">
+              <div class="bg-info-list">
+                <div class="bg-info-row">
+                  <span class="bg-info-label">职业</span>
+                  <span class="bg-info-value">5级战士 战斗大师</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">种族</span>
+                  <span class="bg-info-value">人类</span>
+                </div>
+              </div>
+
+              <div class="divider"><span>属性</span></div>
+
+              <div class="bg-info-list">
+                <div class="bg-info-row">
+                  <span class="bg-info-label">移动速度</span>
+                  <span class="bg-info-value">3格</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">黑暗视觉范围</span>
+                  <span class="bg-info-value">2格</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">远程攻击范围</span>
+                  <span class="bg-info-value">4格</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">近战攻击范围</span>
+                  <span class="bg-info-value">1格</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">投掷范围</span>
+                  <span class="bg-info-value">4格</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">体型</span>
+                  <span class="bg-info-value">中型</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">重量</span>
+                  <span class="bg-info-value">65kg</span>
+                </div>
+                <div class="bg-info-row">
+                  <span class="bg-info-label">负重</span>
+                  <span class="bg-info-value">200kg</span>
+                </div>
+              </div>
+
+              <div class="divider"><span>豁免检定加值</span></div>
+
+              <div class="ability-scores" style="margin-bottom: 0;">
+                <div class="ability">
+                  <div class="ability-label">力</div>
+                  <div class="ability-value highlighted">+9</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-label">敏</div>
+                  <div class="ability-value highlighted">+4</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-label">体</div>
+                  <div class="ability-value highlighted">+8</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-label">智</div>
+                  <div class="ability-value highlighted">+3</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-label">感</div>
+                  <div class="ability-value highlighted">+4</div>
+                </div>
+                <div class="ability">
+                  <div class="ability-label">魅</div>
+                  <div class="ability-value highlighted">+2</div>
+                </div>
+              </div>
+
+              <div class="divider"><span>人物故事</span></div>
+
+              <div class="bg-traits">
+                <div class="bg-trait">
+                  <div class="bg-trait-title">个人特点</div>
+                  <div class="bg-trait-text">沉默寡言但观察敏锐，说话慢条斯理，总能在混乱中找到关键线索。</div>
+                </div>
+                <div class="bg-trait">
+                  <div class="bg-trait-title">理想</div>
+                  <div class="bg-trait-text">守护弱者。每一个无辜者都值得有人为他们挺身而出。</div>
+                </div>
+                <div class="bg-trait">
+                  <div class="bg-trait-title">牵绊</div>
+                  <div class="bg-trait-text">随身携带父亲的旧军牌，那是他踏上征途的唯一理由。</div>
+                </div>
+                <div class="bg-trait">
+                  <div class="bg-trait-title">缺点</div>
+                  <div class="bg-trait-text">过度自责。每当同伴受伤，他总认为是自己保护不力的结果。</div>
+                </div>
+              </div>
+
+              <div class="bg-story" style="margin-top: 12px;">
+                <p>埃利亚斯出生于灰溪镇的一个人类家庭，父亲是退役骑士，母亲是镇上的药剂师。十五岁那年，兽人部落洗劫了镇子，父母将他藏在地窖中逃过一劫。此后他被王国军队收留，成为了一名士兵。</p>
+                <p>在一次边境战役中，他独自守住了被围困的哨站，因此被骑士团看中，由此成为了一名战士。如今他游历大陆，寻找当年屠戮家乡的兽人首领，也在旅途之中帮助那些无力自保的弱者。</p>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
 
@@ -1462,6 +2857,256 @@
         switchPanel(card.dataset.nav);
       });
     });
+
+    /* 人物卡标签切换 */
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const parent = tab.closest('.panel-content');
+        parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        if (target) {
+          document.getElementById(target)?.classList.add('active');
+        }
+      });
+    });
+
+    /* 特性展开/折叠 */
+    document.querySelectorAll('.feature-list li').forEach(li => {
+      li.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('expanded');
+      });
+    });
+
+    /* 冒险剧本选择切换 */
+    const campaignSelect = document.getElementById('campaign-select');
+    const campaignDetail = document.getElementById('campaign-detail');
+    const backToCampaigns = document.getElementById('back-to-campaigns');
+
+    if (campaignSelect && campaignDetail) {
+      document.querySelectorAll('.campaign-book[data-campaign]').forEach(card => {
+        card.addEventListener('click', () => {
+          campaignSelect.style.display = 'none';
+          campaignDetail.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      if (backToCampaigns) {
+        backToCampaigns.addEventListener('click', () => {
+          campaignDetail.classList.remove('active');
+          campaignSelect.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    }
+
+    /* 离开冒险日记面板时重置为剧本选择 */
+    const adventureNav = document.querySelector('.nav-item[data-panel="adventure"]');
+    if (adventureNav) {
+      adventureNav.addEventListener('click', () => {
+        if (campaignSelect && campaignDetail) {
+          campaignSelect.style.display = 'block';
+          campaignDetail.classList.remove('active');
+        }
+      });
+    }
+
+    /* 物品悬浮提示 + 右键菜单 */
+    (function() {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'item-tooltip';
+      document.body.appendChild(tooltip);
+
+      const contextMenu = document.createElement('div');
+      contextMenu.className = 'item-context-menu';
+      document.body.appendChild(contextMenu);
+
+      let hoverTimer = null;
+      let currentItemCard = null;
+      let isEquipped = false;
+
+      function showTooltip(e, card) {
+        const name = card.querySelector('.item-name')?.textContent || '';
+        const equipped = card.querySelector('.item-equipped');
+        isEquipped = !!equipped;
+        const eqText = isEquipped ? '（已装备）' : '';
+        tooltip.innerHTML = `
+          <div class="item-tooltip-name">${name} ${eqText}</div>
+          <div class="item-tooltip-desc">详细属性待补充</div>
+        `;
+        const rect = tooltip.getBoundingClientRect();
+        let x = e.clientX + 14;
+        let y = e.clientY - 10;
+        if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+        tooltip.classList.add('visible');
+      }
+
+      function hideTooltip() {
+        tooltip.classList.remove('visible');
+      }
+
+      function showContextMenu(e, card) {
+        e.preventDefault();
+        hideTooltip();
+        clearTimeout(hoverTimer);
+        const equipped = !!card.querySelector('.item-equipped');
+        contextMenu.innerHTML = `
+          <button class="menu-action" data-action="equip">${equipped ? '卸下' : '装备'}</button>
+          <button class="menu-action" data-action="discard">丢弃</button>
+          <button class="menu-action" data-action="gift">赠送</button>
+        `;
+        let x = e.clientX;
+        let y = e.clientY;
+        const rect = contextMenu.getBoundingClientRect();
+        if (x + 150 > window.innerWidth) x = window.innerWidth - 150;
+        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+        contextMenu.style.left = x + 'px';
+        contextMenu.style.top = y + 'px';
+        contextMenu.classList.add('visible');
+        contextMenu._card = card;
+
+        contextMenu.querySelectorAll('.menu-action').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            const name = card.querySelector('.item-name')?.textContent || '';
+            if (action === 'equip') {
+              const existing = card.querySelector('.item-equipped');
+              if (existing) {
+                existing.remove();
+              } else {
+                const eq = document.createElement('div');
+                eq.className = 'item-equipped';
+                eq.textContent = '已装备';
+                const nameEl = card.querySelector('.item-name');
+                if (nameEl && nameEl.parentNode) {
+                  nameEl.parentNode.insertBefore(eq, nameEl);
+                }
+              }
+            }
+            console.log(`${action}: ${name}`);
+            contextMenu.classList.remove('visible');
+          });
+        });
+      }
+
+      function hideContextMenu() {
+        contextMenu.classList.remove('visible');
+      }
+
+      document.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('mouseenter', function(e) {
+          currentItemCard = this;
+          hoverTimer = setTimeout(() => showTooltip(e, this), 500);
+        });
+
+        card.addEventListener('mousemove', function(e) {
+          if (tooltip.classList.contains('visible')) {
+            showTooltip(e, this);
+          }
+        });
+
+        card.addEventListener('mouseleave', function() {
+          clearTimeout(hoverTimer);
+          hideTooltip();
+          currentItemCard = null;
+        });
+
+        card.addEventListener('contextmenu', function(e) {
+          showContextMenu(e, this);
+        });
+      });
+
+      /* 技能块悬浮提示 */
+      document.querySelectorAll('.skill-block').forEach(block => {
+        block.addEventListener('mouseenter', function(e) {
+          currentItemCard = this;
+          hoverTimer = setTimeout(() => {
+            const name = this.textContent.trim();
+            tooltip.innerHTML = `
+              <div class="item-tooltip-name">${name}</div>
+              <div class="item-tooltip-desc">技能详情待补充</div>
+            `;
+            let x = e.clientX + 14;
+            let y = e.clientY - 10;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            const rect = tooltip.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+            if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            tooltip.classList.add('visible');
+          }, 500);
+        });
+
+        block.addEventListener('mousemove', function(e) {
+          if (tooltip.classList.contains('visible') && currentItemCard === this) {
+            let x = e.clientX + 14;
+            let y = e.clientY - 10;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            const rect = tooltip.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+            if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+          }
+        });
+
+        block.addEventListener('mouseleave', function() {
+          clearTimeout(hoverTimer);
+          hideTooltip();
+          currentItemCard = null;
+        });
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.item-context-menu')) {
+          hideContextMenu();
+        }
+      });
+
+      document.addEventListener('scroll', function() {
+        hideTooltip();
+        hideContextMenu();
+      });
+    })();
+
+    /* 英雄档案与角色详情切换 */
+    const heroArchive = document.getElementById('hero-archive');
+    const characterDetail = document.getElementById('character-detail');
+    const backButton = document.getElementById('back-to-archive');
+
+    document.querySelectorAll('.character-card[data-char="elias"]').forEach(card => {
+      card.addEventListener('click', () => {
+        if (heroArchive) heroArchive.style.display = 'none';
+        if (characterDetail) characterDetail.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    if (backButton) {
+      backButton.addEventListener('click', () => {
+        if (characterDetail) characterDetail.style.display = 'none';
+        if (heroArchive) heroArchive.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    /* 离开我的角色面板时重置为英雄档案 */
+    const charactersNav = document.querySelector('.nav-item[data-panel="characters"]');
+    if (charactersNav) {
+      charactersNav.addEventListener('click', () => {
+        if (heroArchive) heroArchive.style.display = 'block';
+        if (characterDetail) characterDetail.style.display = 'none';
+      });
+    }
   </script>
 </body>
 </html>

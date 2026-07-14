@@ -431,6 +431,139 @@
       padding-top: 12px;
     }
 
+    /* 标签内容切换 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 职业&属性面板 */
+    .class-panel {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 2px 12px var(--shadow);
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .class-race {
+      font-size: 14px;
+      color: var(--ink-soft);
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .class-icon {
+      font-size: 56px;
+      line-height: 1;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 2px 4px rgba(139, 90, 43, 0.2));
+    }
+
+    .class-subclass {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .class-level {
+      font-size: 16px;
+      color: var(--ink-soft);
+      margin-bottom: 28px;
+    }
+
+    .ability-scores {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .ability {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ability-star {
+      font-size: 13px;
+      color: var(--accent);
+      height: 14px;
+    }
+
+    .ability-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .ability-value {
+      width: 46px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      background: rgba(61, 43, 31, 0.06);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    .ability-value.highlighted {
+      background: var(--accent);
+      color: var(--paper-light);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-list li {
+      font-size: 15px;
+      color: var(--ink);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
     @media (max-width: 720px) {
       aside {
         width: 64px;
@@ -474,6 +607,20 @@
 
       .char-name {
         font-size: 22px;
+      }
+
+      .class-panel {
+        padding: 24px 20px;
+      }
+
+      .ability-scores {
+        gap: 10px;
+      }
+
+      .ability-value {
+        width: 40px;
+        height: 46px;
+        font-size: 17px;
       }
     }
   </style>
@@ -599,66 +746,158 @@
       </div>
 
       <div class="tabs">
-        <button class="tab active" type="button">物品栏</button>
-        <button class="tab" type="button">职业&属性</button>
-        <button class="tab" type="button">技能&特性</button>
-        <button class="tab" type="button">人物背景</button>
+        <button class="tab active" type="button" data-tab="inventory">物品栏</button>
+        <button class="tab" type="button" data-tab="class-attr">职业&属性</button>
+        <button class="tab" type="button" data-tab="skills">技能&特性</button>
+        <button class="tab" type="button" data-tab="background">人物背景</button>
       </div>
 
-      <div class="inventory-panel">
-        <div class="inventory-header">
-          <div class="inventory-title">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            背包物资
+      <div class="tab-content active" id="inventory">
+        <div class="inventory-panel">
+          <div class="inventory-header">
+            <div class="inventory-title">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              背包物资
+            </div>
+            <div class="inventory-gold">500 G</div>
           </div>
-          <div class="inventory-gold">500 G</div>
+
+          <div class="items-grid">
+            <div class="item-card">
+              <div>
+                <div class="item-name">旅行服装</div>
+              </div>
+              <div class="item-quantity">x1</div>
+            </div>
+
+            <div class="item-card">
+              <div>
+                <div class="item-equipped">已装备</div>
+                <div class="item-name">胸甲 Breastplate</div>
+              </div>
+              <div class="item-quantity">x1</div>
+            </div>
+
+            <div class="item-card">
+              <div>
+                <div class="item-equipped">已装备</div>
+                <div class="item-name">盾牌</div>
+              </div>
+              <div class="item-quantity">x1</div>
+            </div>
+
+            <div class="item-card">
+              <div>
+                <div class="item-equipped">已装备</div>
+                <div class="item-name">徽章 Emblem</div>
+              </div>
+              <div class="item-quantity">x1</div>
+            </div>
+
+            <div class="item-card">
+              <div>
+                <div class="item-name">普通服装 Common Clothes</div>
+              </div>
+              <div class="item-quantity">x1</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="items-grid">
-          <div class="item-card">
-            <div>
-              <div class="item-name">旅行服装</div>
+      <div class="tab-content" id="class-attr">
+        <div class="class-panel">
+          <div class="class-race">人类</div>
+          <div class="class-icon">⚔️</div>
+          <div class="class-subclass">战斗大师</div>
+          <div class="class-level">等级5 战士</div>
+
+          <div class="ability-scores">
+            <div class="ability">
+              <div class="ability-star">★</div>
+              <div class="ability-label">力</div>
+              <div class="ability-value highlighted">17</div>
             </div>
-            <div class="item-quantity">x1</div>
+            <div class="ability">
+              <div class="ability-star"></div>
+              <div class="ability-label">敏</div>
+              <div class="ability-value">13</div>
+            </div>
+            <div class="ability">
+              <div class="ability-star"></div>
+              <div class="ability-label">体</div>
+              <div class="ability-value highlighted">15</div>
+            </div>
+            <div class="ability">
+              <div class="ability-star"></div>
+              <div class="ability-label">智</div>
+              <div class="ability-value">10</div>
+            </div>
+            <div class="ability">
+              <div class="ability-star"></div>
+              <div class="ability-label">感</div>
+              <div class="ability-value">12</div>
+            </div>
+            <div class="ability">
+              <div class="ability-star"></div>
+              <div class="ability-label">魅</div>
+              <div class="ability-value">8</div>
+            </div>
           </div>
 
-          <div class="item-card">
-            <div>
-              <div class="item-equipped">已装备</div>
-              <div class="item-name">胸甲 Breastplate</div>
-            </div>
-            <div class="item-quantity">x1</div>
-          </div>
+          <div class="divider"><span>状态</span></div>
+          <ul class="feature-list">
+            <li>识破隐形</li>
+            <li>极乐孢子</li>
+          </ul>
 
-          <div class="item-card">
-            <div>
-              <div class="item-equipped">已装备</div>
-              <div class="item-name">盾牌</div>
-            </div>
-            <div class="item-quantity">x1</div>
-          </div>
+          <div class="divider"><span>抗性</span></div>
+          <ul class="feature-list">
+            <li>中毒抗性</li>
+          </ul>
 
-          <div class="item-card">
-            <div>
-              <div class="item-equipped">已装备</div>
-              <div class="item-name">徽章 Emblem</div>
-            </div>
-            <div class="item-quantity">x1</div>
-          </div>
+          <div class="divider"><span>重要特性</span></div>
+          <ul class="feature-list">
+            <li>巨武器大师：全力一击</li>
+            <li>巨武器大师：附赠攻击</li>
+            <li>人类通才</li>
+            <li>借机攻击</li>
+            <li>心灵反冲</li>
+            <li>恃强凌弱</li>
+            <li>旗开得胜</li>
+          </ul>
+        </div>
+      </div>
 
-          <div class="item-card">
-            <div>
-              <div class="item-name">普通服装 Common Clothes</div>
-            </div>
-            <div class="item-quantity">x1</div>
-          </div>
+      <div class="tab-content" id="skills">
+        <div class="class-panel">
+          <p style="color: var(--ink-soft); padding: 40px 0;">技能&特性内容待补充</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="background">
+        <div class="class-panel">
+          <p style="color: var(--ink-soft); padding: 40px 0;">人物背景内容待补充</p>
         </div>
       </div>
     </div>
   </main>
+
+  <script>
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        if (target) {
+          document.getElementById(target)?.classList.add('active');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1445,6 +1445,885 @@
       stroke-linejoin: round;
     }
 
+    /* ===== 剧本章节列表 ===== */
+    .chapters-view,
+    .chapter-detail-view {
+      display: none;
+    }
+
+    .chapters-view.active,
+    .chapter-detail-view.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .chapters-view {
+      padding-top: 8px;
+    }
+
+    .chapters-header {
+      margin-bottom: 32px;
+    }
+
+    .chapters-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .chapters-header p {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .chapter-directory {
+      margin-bottom: 32px;
+    }
+
+    .directory-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: background 0.2s ease;
+    }
+
+    .directory-title:hover {
+      background: #fff;
+    }
+
+    .directory-title svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.25s ease;
+    }
+
+    .chapter-directory.collapsed .directory-title svg {
+      transform: rotate(-90deg);
+    }
+
+    .directory-chapters {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 0 0 24px;
+    }
+
+    .chapter-directory.collapsed .directory-chapters {
+      display: none;
+    }
+
+    .chapter-timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .chapter-timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+
+    .chapter-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 20px;
+      padding: 18px 20px;
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chapter-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(61, 43, 31, 0.12);
+    }
+
+    .chapter-item::before {
+      content: "";
+      position: absolute;
+      left: -21px;
+      top: 28px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--paper-light);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .chapter-vol {
+      width: 72px;
+      height: 96px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #3d2b1f, #2b1f16);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--paper-light);
+      flex-shrink: 0;
+    }
+
+    .chapter-vol-label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+
+    .chapter-vol-num {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+      font-family: Georgia, serif;
+    }
+
+    .chapter-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chapter-info-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .chapter-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .chapter-date {
+      font-size: 12px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+
+    .chapter-tags {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .chapter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(184, 115, 51, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .chapter-tag svg {
+      width: 10px;
+      height: 10px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chapter-summary {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ===== 章节详情页 ===== */
+    .chapter-detail-view {
+      padding-top: 8px;
+    }
+
+    .chapter-detail-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .chapter-detail-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .chapter-detail-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .chapter-detail-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .chapter-detail-tab.active {
+      background: rgba(184, 115, 51, 0.12);
+      color: var(--ink);
+    }
+
+    .chapter-detail-tab svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chapter-detail-content {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .chapter-detail-section {
+      display: none;
+    }
+
+    .chapter-detail-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .chapter-intro {
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--ink);
+      padding: 18px 20px;
+      border-left: 3px solid var(--accent);
+      background: rgba(184, 115, 51, 0.06);
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+
+    .chapter-body h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 28px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chapter-body p {
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .chapter-body .scene-location {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .ai-summary {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ai-summary-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .ai-summary-title svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ai-summary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ai-summary-item {
+    }
+
+    .ai-summary-item h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ai-summary-item p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      padding-left: 0;
+    }
+
+    .ai-summary-item ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .ai-summary-item li {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .ai-summary-item li::before {
+      content: "-";
+      position: absolute;
+      left: 4px;
+      color: var(--ink-soft);
+    }
+
+    .back-to-chapters {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: color 0.2s ease;
+    }
+
+    .back-to-chapters:hover {
+      color: var(--ink);
+    }
+
+    .back-to-chapters svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ===== 任务面板 ===== */
+    .task-board {
+      display: none;
+    }
+
+    .task-board.active {
+      display: block;
+    }
+
+    .back-to-campaign-detail {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: color 0.2s ease;
+    }
+
+    .back-to-campaign-detail:hover {
+      color: var(--ink);
+    }
+
+    .back-to-campaign-detail svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .task-columns {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .task-sidebar {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .task-category {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-category-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(61, 43, 31, 0.04);
+      margin-bottom: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .task-category-title:hover {
+      background: rgba(61, 43, 31, 0.08);
+    }
+
+    .task-category-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      color: var(--ink-soft);
+      transition: transform 0.25s ease;
+    }
+
+    .task-category-arrow svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .task-category.collapsed .task-category-arrow {
+      transform: rotate(-90deg);
+    }
+
+    .task-category.collapsed .task-category-list {
+      display: none;
+    }
+
+    .task-category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .task-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .task-nav-item:hover {
+      background: rgba(184, 115, 51, 0.08);
+    }
+
+    .task-nav-item.active {
+      background: rgba(184, 115, 51, 0.16);
+      color: var(--ink);
+      box-shadow: inset 2px 0 0 var(--accent);
+    }
+
+    .task-nav-item.task-completed {
+      color: var(--ink-soft);
+    }
+
+    .task-nav-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-nav-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--ink-soft);
+      transition: transform 0.25s ease;
+    }
+
+    .task-nav-arrow svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .task-nav-item.expanded .task-nav-arrow {
+      transform: rotate(180deg);
+    }
+
+    .task-nav-item.no-expand {
+      padding-right: 12px;
+    }
+
+    .task-nav-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .task-nav-status.ongoing {
+      color: var(--paper-light);
+      background: var(--accent);
+    }
+
+    .task-nav-status.completed {
+      color: var(--ink-soft);
+      background: rgba(61, 43, 31, 0.08);
+    }
+
+    .task-sub-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px 7px 28px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .task-sub-nav-item:hover {
+      background: rgba(184, 115, 51, 0.06);
+    }
+
+    .task-sub-nav-item.active {
+      background: rgba(184, 115, 51, 0.12);
+      color: var(--ink);
+    }
+
+    .task-sub-nav-item .sub-nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .task-sub-nav-item.completed .sub-nav-dot {
+      background: var(--accent);
+      opacity: 0.5;
+    }
+
+    .task-sub-nav-item.completed {
+      color: var(--ink-soft);
+    }
+
+    .task-sub-nav-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-detail {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px var(--shadow);
+      min-height: 420px;
+    }
+
+    .task-detail-header {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task-detail-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .task-detail-tag.ongoing {
+      color: var(--paper-light);
+      background: var(--accent);
+    }
+
+    .task-detail-tag.completed {
+      color: var(--ink-soft);
+      background: rgba(61, 43, 31, 0.08);
+    }
+
+    .task-detail-header h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .task-detail-date {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .task-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .task-section-title::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .task-subtasks {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 24px;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .subtask {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .subtask:last-child {
+      border-bottom: none;
+    }
+
+    .subtask:hover {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .subtask-check {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .subtask-check svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .subtask.completed .subtask-check {
+      color: var(--accent);
+    }
+
+    .subtask:not(.completed) .subtask-check {
+      color: rgba(61, 43, 31, 0.25);
+    }
+
+    .subtask-text {
+      flex: 1;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .subtask.completed .subtask-text {
+      color: var(--ink-soft);
+    }
+
+    .subtask-expand {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--ink-soft);
+      transition: transform 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .subtask-expand svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .subtask.expanded .subtask-expand {
+      transform: rotate(180deg);
+    }
+
+    .subtask-detail {
+      display: none;
+      padding: 0 16px 14px 46px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      background: rgba(255, 255, 255, 0.45);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .subtask-detail:last-child {
+      border-bottom: none;
+    }
+
+    .subtask.expanded + .subtask-detail {
+      display: block;
+    }
+
+    .task-description {
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--ink);
+    }
+
+    .task-description p + p {
+      margin-top: 12px;
+    }
+
+    .task-empty-detail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      color: var(--ink-soft);
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .task-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .task-sidebar {
+        order: 1;
+      }
+
+      .task-detail {
+        order: 0;
+      }
+    }
+
     /* ===== 英雄档案（我的角色）页面 ===== */
     .hero-archive {
       padding: 32px 0 0;
@@ -1852,6 +2731,45 @@
       .character-card-portrait {
         font-size: 80px;
       }
+
+      .chapters-header h1 {
+        font-size: 26px;
+      }
+
+      .chapter-item {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .chapter-vol {
+        width: 100%;
+        height: 64px;
+        flex-direction: row;
+        gap: 8px;
+      }
+
+      .chapter-vol-num {
+        font-size: 28px;
+      }
+
+      .chapter-timeline {
+        padding-left: 20px;
+      }
+
+      .chapter-item::before {
+        left: -14px;
+        top: 22px;
+        width: 8px;
+        height: 8px;
+      }
+
+      .chapter-detail-header h1 {
+        font-size: 24px;
+      }
+
+      .chapter-detail-content {
+        padding: 20px;
+      }
     }
 
     /* 页面进入动画 */
@@ -1979,7 +2897,7 @@
       <div id="campaign-detail" class="campaign-detail">
       <div class="back-to-campaigns" id="back-to-campaigns">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        返回剧本列表
+        返回剧本详情
       </div>
       <div class="page-header">
         <h1>龙与地下城</h1>
@@ -2000,7 +2918,7 @@
           <div class="stat-sub">NPC、地点与线索</div>
         </div>
 
-        <div class="stat-card">
+        <div class="stat-card clickable" data-nav="chapters">
           <div class="stat-label">
             <span>剧本章节</span>
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2008,7 +2926,7 @@
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
             </svg>
           </div>
-          <div class="stat-value">11</div>
+          <div class="stat-value">3</div>
           <div class="stat-sub">传奇故事章节</div>
         </div>
 
@@ -2049,7 +2967,7 @@
                 </svg>
                 当前任务
               </div>
-              <span class="panel-more">查看全部任务 →</span>
+              <span class="panel-more" id="view-all-tasks" style="cursor: pointer;">查看全部任务 →</span>
             </div>
             <div class="task-list">
               <div class="task-item">
@@ -2234,6 +3152,203 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapters-view" id="chapters-view">
+        <div class="chapters-header">
+          <h1>剧本章节</h1>
+          <p>在命运的羊皮纸上，记录每一次掷骰与抉择的足迹。</p>
+        </div>
+
+        <div class="chapter-directory" id="chapter-directory">
+          <div class="directory-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            第一章
+          </div>
+          <div class="directory-chapters chapter-timeline">
+            <div class="chapter-item" data-chapter="1">
+              <div class="chapter-vol">
+                <span class="chapter-vol-label">VOL</span>
+                <span class="chapter-vol-num">01</span>
+              </div>
+              <div class="chapter-info">
+                <div class="chapter-info-header">
+                  <div class="chapter-title">第一回：费伦大陆与匕首滩</div>
+                  <div class="chapter-date">1492 · 风爪之月01</div>
+                </div>
+                <div class="chapter-tags">
+                  <span class="chapter-tag">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    第1天
+                  </span>
+                  <span class="chapter-tag">匕首滩</span>
+                </div>
+                <div class="chapter-summary">当金币在酒杯间碰撞发出悦耳脆响时，命运的齿轮已悄然咬合。一支名为“VIVO50”的冒险小队在匕首滩享受着任务完成后的狂欢，却被一位神秘的维斯塔尼信使打破了平静。</div>
+              </div>
+            </div>
+
+            <div class="chapter-item" data-chapter="2">
+              <div class="chapter-vol">
+                <span class="chapter-vol-label">VOL</span>
+                <span class="chapter-vol-num">02</span>
+              </div>
+              <div class="chapter-info">
+                <div class="chapter-info-header">
+                  <div class="chapter-title">第二回：迷雾森林的阴影</div>
+                  <div class="chapter-date">1492 · 风爪之月01</div>
+                </div>
+                <div class="chapter-tags">
+                  <span class="chapter-tag">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    第1天
+                  </span>
+                  <span class="chapter-tag">迷雾森林</span>
+                </div>
+                <div class="chapter-summary">穿过迷雾森林的扭曲小径，VIVO50小队终于抵达了地图上不存在之地——巴洛维亚。阴森的城堡高耸于浓雾之中，而村庄里的居民却仿佛看不见这些外来者。</div>
+              </div>
+            </div>
+
+            <div class="chapter-item" data-chapter="3">
+              <div class="chapter-vol">
+                <span class="chapter-vol-label">VOL</span>
+                <span class="chapter-vol-num">03</span>
+              </div>
+              <div class="chapter-info">
+                <div class="chapter-info-header">
+                  <div class="chapter-title">第三回：巴洛维亚的石门</div>
+                  <div class="chapter-date">1492 · 风爪之月02</div>
+                </div>
+                <div class="chapter-tags">
+                  <span class="chapter-tag">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    第2天
+                  </span>
+                  <span class="chapter-tag">巴洛维亚</span>
+                </div>
+                <div class="chapter-summary">在村长伊琳娜的指引下，冒险者们来到石质大门前。自动开启的铁门后传来尸臭与狼嚎，火漆印为“B”的神秘信件被紧握在年轻死者的手中。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-detail-view" id="chapter-detail-view">
+        <div class="back-to-chapters" id="back-to-chapters">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          返回章节列表
+        </div>
+
+        <div class="chapter-detail-header">
+          <h1>第一回：费伦大陆与匕首滩</h1>
+          <div class="chapter-detail-tabs">
+            <button class="chapter-detail-tab active" type="button" data-section="notes">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              冒险笔记
+            </button>
+            <button class="chapter-detail-tab" type="button" data-section="script">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              剧本原文
+            </button>
+          </div>
+        </div>
+
+        <div class="chapter-detail-content">
+          <div class="chapter-detail-section active" id="chapter-notes">
+            <div class="chapter-intro">当金币在酒杯间碰撞发出悦耳脆响时，命运的齿轮已悄然咬合。一支名为“VIVO50”的冒险小队在匕首滩享受着任务完成后的狂欢，却被一位神秘的维斯塔尼信使打破了平静。一封来自地图上不存在之地——“巴洛维亚”的求助信，将他们引向了迷雾森林深处。</div>
+
+            <div class="chapter-body">
+              <p class="scene-location">——匕首滩，“野牛与火”酒馆</p>
+              <p>匕首滩的夜晚被喧嚣填满，野牛与火酒馆内，壁炉的火光映照着每一张因酒精而酡红的脸庞。对于刚刚完成护送任务的“VIVO50”小队来说，今晚是属于胜利与金币的。</p>
+              <p>那个名叫卡德里克的半身人无疑是全场最聒噪的存在。他踩在板凳上，努力模仿着矮人的粗哑声线吼叫着要酒，却在破音中引发了一阵哄笑。他拍打着腰间鼓胀的钱袋，吹嘘着那是劫匪的“慈善捐赠”。</p>
+              <p>当六扎满溢泡沫的麦酒被半身人像表演杂技一般“砸”在橡木桌上时，庆功宴正式开始了。每人一百枚金币的酬劳，足够让最疲惫的灵魂重新焕发光彩。</p>
+              <p>“干杯！哈哈哈，终于有钱了！”凯瑞·多里安·埃蒙大笑着举杯，豪爽地宣布，“大家敞开肚子随便吃，今天的消费由埃蒙家族买单！再来几杯，免得隔壁桌以为我们喝不起！”</p>
+              <p>相比于多里安的豪放，奥利奥显得更为务实，他一边提醒财不外露，一边还是诚实地接过了酒杯。埃利亚斯·灰溪坐在角落，手指无意识地摩挲着父亲的旧军牌，目光却始终留意着酒馆门口。</p>
+              <p>就在这时，一个披着深色斗篷的陌生人推门而入。他的皮肤苍白得近乎透明，颈间挂着维斯塔尼人特有的银质护身符。他没有要酒，而是径直走向VIVO50的桌子，将一封火漆封缄的信件放在桌上。</p>
+              <p>“巴洛维亚需要你们。”他低声说道，随即转身消失在夜色中。信封上的火漆印是一枚黑色的玫瑰。</p>
+            </div>
+
+            <div class="ai-summary">
+              <div class="ai-summary-title">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                本回总结
+              </div>
+              <div class="ai-summary-list">
+                <div class="ai-summary-item">
+                  <h4>📍 地点/时间</h4>
+                  <p>当前位置：匕首滩“野牛与火”酒馆。时间：1492年风爪之月1日，夜晚。</p>
+                </div>
+                <div class="ai-summary-item">
+                  <h4>👁 关键目击</h4>
+                  <p>神秘维斯塔尼信使现身，留下一封火漆印为黑色玫瑰的求助信。</p>
+                </div>
+                <div class="ai-summary-item">
+                  <h4>🎭 NPC动态</h4>
+                  <p>卡德里克醉倒庆祝；埃利亚斯保持警觉；信使行踪不明。</p>
+                </div>
+                <div class="ai-summary-item">
+                  <h4>📦 物品/线索</h4>
+                  <p>黑色玫瑰火漆信件：来自“巴洛维亚”的求助，引向下一段旅程。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chapter-detail-section" id="chapter-script">
+            <div class="chapter-body">
+              <p class="scene-location">——匕首滩，“野牛与火”酒馆</p>
+              <p>费伦大陆，这片被巨龙双翼投下的千年阴影所笼罩的土地。从无尽荒地的风沙到宝剑海岸的怒涛，魔法既是希望的源泉，也是毁灭的载体。无数怀揣梦想的年轻人踏上征途，但唯有真正的勇者能在历史上刻下名字。</p>
+              <p>而在剑湾北岸，迷雾森林的边缘，匕首滩正沐浴在它最为繁华的喧嚣中。</p>
+              <p>杉木尖顶的房屋沿河而建，空气中混杂着码头的鱼腥味、陈年老木头的霉味，以及——从“野牛与火”酒馆里飘出的浓烈麦酒香。</p>
+              <p>“砰！”</p>
+              <p>一只沾满沼泽泥浆的鹿皮靴重重地踩在橡木板凳上，震得桌上的残羹冷炙一阵乱颤。</p>
+              <p>“老板！把地窖里泡龙息辣椒的矮人烈酒全搬来！”</p>
+              <p>卡德里克·铜币，半身人游荡者，正站在板凳上向整个酒馆发表他的胜利演说。他的钱袋鼓胀得像是快要爆开的麦穗，那是他们刚刚从一群不请自来的“山道收税官”手中回收的合法报酬。</p>
+              <p>DM提示：此时酒馆内的其他顾客对VIVO50小队投来或羡慕或警惕的目光。任何想要收集情报的玩家可以进行一次感知（察觉）检定，DC 12。</p>
+              <p>正当庆祝达到高潮时，酒馆的木门被推开。冷风裹挟着雨丝涌入，一个披着深灰斗篷的身影站在门口。他的面容隐藏在兜帽之下，但颈间的银质护身符在火光中闪烁——那是维斯塔尼人的标志。</p>
+              <p>他没有走向吧台，而是径直来到你们的桌前。一只苍白的手从斗篷下探出，将一封黑色火漆封缄的信件放在桌上。</p>
+              <p>“巴洛维亚的迷雾正在吞没一切。”他的声音低沉而急促，“如果你们还有勇气，就在黎明前出发。穿过迷雾森林，找到那扇自动开启的石门。”</p>
+              <p>说完，他转身离去，仿佛从未出现过。只留下那枚火漆印——一朵黑色的玫瑰——在烛光下泛着幽暗的光泽。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div id="task-board" class="task-board" style="display: none;">
+        <div class="back-to-campaign-detail" id="back-to-campaign-detail">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          返回剧本详情
+        </div>
+        <div class="page-header">
+          <h1>任务列表 (<span id="task-total-count">0</span>)</h1>
+          <p>追踪你的冒险目标，完成每一个阶段。</p>
+        </div>
+
+        <div class="task-columns">
+          <div class="task-sidebar">
+            <div id="task-sidebar-content"></div>
+          </div>
+
+          <div class="task-detail" id="task-detail-content">
+            <!-- 右侧详情由 JS 渲染 -->
           </div>
         </div>
       </div>
@@ -2854,7 +3969,12 @@
     /* 统计卡片跳转 */
     document.querySelectorAll('.stat-card.clickable').forEach(card => {
       card.addEventListener('click', () => {
-        switchPanel(card.dataset.nav);
+        const nav = card.dataset.nav;
+        if (nav === 'chapters') {
+          showChaptersView();
+        } else {
+          switchPanel(nav);
+        }
       });
     });
 
@@ -2896,6 +4016,13 @@
 
       if (backToCampaigns) {
         backToCampaigns.addEventListener('click', () => {
+          // 如果章节视图或任务面板处于活跃状态，返回剧本详情
+          const chaptersActive = chaptersView && chaptersView.classList.contains('active');
+          const chapterDetailActive = chapterDetailView && chapterDetailView.classList.contains('active');
+          if (chaptersActive || chapterDetailActive || (taskBoard && taskBoard.classList.contains('active'))) {
+            backToCampaignMain();
+            return;
+          }
           campaignDetail.classList.remove('active');
           campaignSelect.style.display = 'block';
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2911,7 +4038,540 @@
           campaignSelect.style.display = 'block';
           campaignDetail.classList.remove('active');
         }
+        if (taskBoard) {
+          taskBoard.style.display = 'none';
+          taskBoard.classList.remove('active');
+        }
+        const campaignMain = document.getElementById('campaign-main-content');
+        if (campaignMain) campaignMain.style.display = 'block';
+        resetChapterViews();
       });
+    }
+
+    /* ===== 剧本章节切换 ===== */
+    const chaptersView = document.getElementById('chapters-view');
+    const chapterDetailView = document.getElementById('chapter-detail-view');
+    const chapterDirectory = document.getElementById('chapter-directory');
+    const backToChapters = document.getElementById('back-to-chapters');
+
+    function resetChapterViews() {
+      if (chaptersView) chaptersView.classList.remove('active');
+      if (chapterDetailView) chapterDetailView.classList.remove('active');
+    }
+
+    function showChaptersView() {
+      if (campaignMainContent) campaignMainContent.style.display = 'none';
+      if (taskBoard) {
+        taskBoard.style.display = 'none';
+        taskBoard.classList.remove('active');
+      }
+      resetChapterViews();
+      if (chaptersView) chaptersView.classList.add('active');
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = '';
+      if (campaignPageHeader) campaignPageHeader.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showChapterDetail() {
+      if (chaptersView) chaptersView.classList.remove('active');
+      if (chapterDetailView) chapterDetailView.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function backToCampaignMain() {
+      resetChapterViews();
+      if (campaignMainContent) campaignMainContent.style.display = 'block';
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = '';
+      if (campaignPageHeader) campaignPageHeader.style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 第一章目录展开/折叠
+    if (chapterDirectory) {
+      const dirTitle = chapterDirectory.querySelector('.directory-title');
+      if (dirTitle) {
+        dirTitle.addEventListener('click', () => {
+          chapterDirectory.classList.toggle('collapsed');
+        });
+      }
+    }
+
+    // 点击章节条目进入详情
+    document.querySelectorAll('.chapter-item').forEach(item => {
+      item.addEventListener('click', () => {
+        showChapterDetail();
+      });
+    });
+
+    // 从章节详情返回列表
+    if (backToChapters) {
+      backToChapters.addEventListener('click', showChaptersView);
+    }
+
+    // 章节详情页内标签切换
+    document.querySelectorAll('.chapter-detail-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const parent = tab.closest('.chapter-detail-view');
+        if (!parent) return;
+        parent.querySelectorAll('.chapter-detail-tab').forEach(t => t.classList.remove('active'));
+        parent.querySelectorAll('.chapter-detail-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        const section = tab.getAttribute('data-section');
+        if (section === 'notes') {
+          const el = document.getElementById('chapter-notes');
+          if (el) el.classList.add('active');
+        } else if (section === 'script') {
+          const el = document.getElementById('chapter-script');
+          if (el) el.classList.add('active');
+        }
+      });
+    });
+
+    // 返回剧本列表时重置章节视图
+    if (backToCampaigns) {
+      backToCampaigns.addEventListener('click', () => {
+        resetChapterViews();
+        if (campaignMainContent) campaignMainContent.style.display = 'block';
+      });
+    }
+
+    /* ===== 任务面板 ===== */
+    const taskBoard = document.getElementById('task-board');
+    const taskSidebarContent = document.getElementById('task-sidebar-content');
+    const taskDetailContent = document.getElementById('task-detail-content');
+    const taskTotalCount = document.getElementById('task-total-count');
+    const viewAllTasks = document.getElementById('view-all-tasks');
+    const backToCampaignDetail = document.getElementById('back-to-campaign-detail');
+    const campaignMainContent = document.createElement('div');
+    campaignMainContent.id = 'campaign-main-content';
+
+    // 将剧本详情页的主要内容包装起来，方便与任务面板切换
+    const campaignDetailEl = document.getElementById('campaign-detail');
+    if (campaignDetailEl) {
+      const statsEl = campaignDetailEl.querySelector('.stats');
+      const columnsEl = campaignDetailEl.querySelector('.columns');
+      if (statsEl && columnsEl) {
+        const existingMain = document.getElementById('campaign-main-content');
+        if (!existingMain) {
+          campaignMainContent.appendChild(statsEl);
+          campaignMainContent.appendChild(columnsEl);
+          campaignDetailEl.appendChild(campaignMainContent);
+        }
+      }
+    }
+
+    const quests = [
+      {
+        id: 'dark-gold',
+        category: 'main',
+        categoryLabel: '主线任务(Main Quest)',
+        region: null,
+        title: '暗金碎片的契约',
+        status: '进行中',
+        date: '2025/1/23',
+        completed: false,
+        description: '我们在碾骨老磨坊被夜鬼婆杀害。一个坐在断手王座上的神秘存在复活了我们。<br><br>我们失去了部分属性和装备，作为交换，必须为他收集一种封存着黑暗阴影和时间法则的“暗金色碎片”。<br><br>寻找这些碎片，否则我们的存在可能会消散。',
+        subtasks: [
+          { text: '遭遇神秘存在', completed: true, detail: '在碾骨老磨坊被夜鬼婆杀害后，一个坐在断手王座上的神秘存在复活了我们。' },
+          { text: '寻找第一块暗金色碎片', completed: false, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'eva-prophecy',
+        category: 'main',
+        categoryLabel: '主线任务(Main Quest)',
+        region: null,
+        title: '伊娃夫人的预言',
+        status: '进行中',
+        date: '2025/1/24',
+        completed: false,
+        description: '伊娃夫人留下了关于黑暗命运的预言，等待进一步揭示。',
+        subtasks: [
+          { text: '拜访伊娃夫人', completed: false, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'strahd-curse',
+        category: 'main',
+        categoryLabel: '主线任务(Main Quest)',
+        region: null,
+        title: '斯特拉德的诅咒',
+        status: '进行中',
+        date: '2025/1/24',
+        completed: false,
+        description: '吸血鬼领主斯特拉德的阴影笼罩着这片土地。',
+        subtasks: [
+          { text: '调查诅咒源头', completed: false, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'mist-invitation',
+        category: 'main',
+        categoryLabel: '主线任务(Main Quest)',
+        region: null,
+        title: '来自迷雾的邀请',
+        status: '进行中',
+        date: '2025/1/24',
+        completed: false,
+        description: '迷雾深处似乎有什么在召唤着冒险者。',
+        subtasks: [
+          { text: '穿越迷雾', completed: false, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'escort-irena',
+        category: 'region',
+        categoryLabel: null,
+        region: '巴洛维亚(Barovia)',
+        title: '护送伊丽娜',
+        status: '进行中',
+        date: '2025/1/23',
+        completed: false,
+        description: '护送伊丽娜安全抵达目的地。',
+        subtasks: [
+          { text: '与伊丽娜汇合', completed: false, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'missing-golinda',
+        category: 'region',
+        categoryLabel: null,
+        region: '巴洛维亚村(Village of Barovia)',
+        title: '失踪的歌尔图达',
+        status: '已完成',
+        date: '2025/1/20',
+        completed: true,
+        description: '歌尔图达已经找到，任务完成。',
+        subtasks: [
+          { text: '寻找歌尔图达', completed: true, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'vampire-doru',
+        category: 'region',
+        categoryLabel: null,
+        region: '巴洛维亚村(Village of Barovia)',
+        title: '吸血鬼多鲁',
+        status: '已完成',
+        date: '2025/1/18',
+        completed: true,
+        description: '多鲁的威胁已经解除。',
+        subtasks: [
+          { text: '击败多鲁', completed: true, detail: '详细描述待补充。' }
+        ]
+      },
+      {
+        id: 'peaceful-mayor',
+        category: 'region',
+        categoryLabel: null,
+        region: '巴洛维亚村(Village of Barovia)',
+        title: '安详村长',
+        status: '已完成',
+        date: '2025/1/15',
+        completed: true,
+        description: '村长恢复了往日的安宁。',
+        subtasks: [
+          { text: '协助村长', completed: true, detail: '详细描述待补充。' }
+        ]
+      }
+    ];
+
+    function checkQuestCompletion(quest) {
+      if (quest.subtasks && quest.subtasks.length > 0) {
+        const allDone = quest.subtasks.every(st => st.completed);
+        if (allDone) {
+          quest.completed = true;
+          quest.status = '已完成';
+        }
+      }
+    }
+
+    function getQuestCategories() {
+      const main = [];
+      const regions = {};
+      const completed = [];
+
+      quests.forEach(q => {
+        checkQuestCompletion(q);
+        if (q.completed) {
+          completed.push(q);
+        } else if (q.category === 'main') {
+          main.push(q);
+        } else if (q.region) {
+          if (!regions[q.region]) regions[q.region] = [];
+          regions[q.region].push(q);
+        }
+      });
+
+      return { main, regions, completed };
+    }
+
+    // 状态: 哪些任务展开了子任务列表, 当前选中的子任务
+    let expandedQuestIds = new Set();
+    let selectedSubtask = null; // {questId, subtaskIdx}
+
+    function renderTaskSidebar(selectedQuestId) {
+      const { main, regions, completed } = getQuestCategories();
+      const total = quests.length;
+      if (taskTotalCount) taskTotalCount.textContent = total;
+
+      let html = '';
+
+      if (main.length > 0) {
+        html += `
+          <div class="task-category" data-category="main">
+            <div class="task-category-title" data-category-toggle="main">
+              <span>主线任务(Main Quest)</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${main.map(q => renderNavItem(q, selectedQuestId)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      Object.keys(regions).forEach((region, idx) => {
+        const list = regions[region];
+        const catKey = 'region-' + idx;
+        html += `
+          <div class="task-category" data-category="${catKey}">
+            <div class="task-category-title" data-category-toggle="${catKey}">
+              <span>${region}</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${list.map(q => renderNavItem(q, selectedQuestId)).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      if (completed.length > 0) {
+        html += `
+          <div class="task-category" data-category="completed">
+            <div class="task-category-title" data-category-toggle="completed">
+              <span>已完成任务</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${completed.map(q => renderNavItem(q, selectedQuestId)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (taskSidebarContent) taskSidebarContent.innerHTML = html;
+
+      // 分类折叠/展开
+      document.querySelectorAll('.task-category-title').forEach(title => {
+        title.addEventListener('click', () => {
+          const category = title.closest('.task-category');
+          if (category) category.classList.toggle('collapsed');
+        });
+      });
+
+      // 任务项点击 - 切换右侧详情
+      document.querySelectorAll('.task-nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const questId = item.dataset.questId;
+          const quest = quests.find(q => q.id === questId);
+          if (!quest) return;
+
+          // 如果点击的是展开箭头区域
+          const arrowEl = item.querySelector('.task-nav-arrow');
+          if (arrowEl && arrowEl.contains(e.target)) {
+            // 切换展开/折叠
+            if (expandedQuestIds.has(questId)) {
+              expandedQuestIds.delete(questId);
+            } else {
+              expandedQuestIds.add(questId);
+            }
+            // 清除子任务选中
+            if (selectedSubtask && selectedSubtask.questId === questId) {
+              selectedSubtask = null;
+            }
+            renderTaskSidebar(selectedQuestId);
+            // 展开/折叠后重新渲染右侧详情
+            if (selectedSubtask) {
+              renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
+            } else {
+              renderTaskDetail(questId);
+            }
+            return;
+          }
+
+          // 普通点击 - 选中任务，显示详情
+          selectedSubtask = null;
+          renderTaskDetail(questId);
+        });
+      });
+
+      // 子任务项点击
+      document.querySelectorAll('.task-sub-nav-item').forEach(sub => {
+        sub.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const questId = sub.dataset.questId;
+          const subtaskIdx = parseInt(sub.dataset.subtaskIdx);
+          selectedSubtask = { questId, subtaskIdx };
+          renderSubtaskDetail(questId, subtaskIdx);
+        });
+      });
+    }
+
+    function renderNavItem(quest, selectedQuestId) {
+      const isActive = quest.id === selectedQuestId;
+      const completedClass = quest.completed ? 'task-completed' : '';
+      const statusClass = quest.completed ? 'completed' : 'ongoing';
+      const statusText = quest.completed ? '已完成' : '进行中';
+      const hasSubtasks = quest.subtasks && quest.subtasks.length > 0;
+      const isExpanded = expandedQuestIds.has(quest.id);
+      const expandClass = isExpanded ? 'expanded' : '';
+      const noExpandClass = !hasSubtasks ? 'no-expand' : '';
+
+      let subtaskRows = '';
+      if (hasSubtasks && isExpanded) {
+        subtaskRows = quest.subtasks.map((st, idx) => {
+          const subCompleted = st.completed ? 'completed' : '';
+          const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? 'active' : '';
+          const subName = st.text + (st.completed ? '（已完成）' : '');
+          return `
+            <div class="task-sub-nav-item ${subCompleted} ${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
+              <span class="sub-nav-dot"></span>
+              <span class="task-sub-nav-name">${subName}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      return `
+        <div class="task-nav-item ${isActive ? 'active' : ''} ${completedClass} ${expandClass} ${noExpandClass}" data-quest-id="${quest.id}">
+          <span class="task-nav-name">${quest.title}</span>
+          <span class="task-nav-status ${statusClass}">${statusText}</span>
+          ${hasSubtasks ? `
+            <span class="task-nav-arrow">
+              <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+            </span>
+          ` : ''}
+        </div>
+        ${subtaskRows}
+      `;
+    }
+
+    function renderTaskDetail(questId) {
+      renderTaskSidebar(questId);
+      const quest = quests.find(q => q.id === questId);
+      if (!quest || !taskDetailContent) return;
+
+      const tagClass = quest.completed ? 'completed' : 'ongoing';
+      const tagText = quest.completed ? '已完成' : '进行中';
+      const hasSubtasks = quest.subtasks && quest.subtasks.length > 0;
+
+      let subtasksHtml = '';
+      if (hasSubtasks) {
+        subtasksHtml = `
+          <div class="task-section-title">阶段目标</div>
+          <div class="task-subtasks">
+            ${quest.subtasks.map(st => `
+              <div class="subtask ${st.completed ? 'completed' : ''}">
+                <div class="subtask-check">
+                  ${st.completed
+                    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>'}
+                </div>
+                <div class="subtask-text">${st.text}${st.completed ? '（已完成）' : ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      taskDetailContent.innerHTML = `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${quest.title}</h2>
+          <div class="task-detail-date">${quest.date}</div>
+        </div>
+        <div class="task-detail-body">
+          ${subtasksHtml}
+          <div class="task-description">
+            ${quest.description}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubtaskDetail(questId, subtaskIdx) {
+      renderTaskSidebar(questId);
+      const quest = quests.find(q => q.id === questId);
+      if (!quest || !taskDetailContent) return;
+      const st = quest.subtasks && quest.subtasks[subtaskIdx];
+      if (!st) return;
+
+      const tagClass = st.completed ? 'completed' : 'ongoing';
+      const tagText = st.completed ? '已完成' : '进行中';
+
+      taskDetailContent.innerHTML = `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${st.text}</h2>
+          <div class="task-detail-date">${quest.title} · ${quest.date}</div>
+        </div>
+        <div class="task-detail-body">
+          <div class="task-description">
+            <p>${st.detail || '详细描述待补充。'}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function openTaskBoard() {
+      if (!taskBoard) return;
+      const { main } = getQuestCategories();
+      const defaultQuest = main[0] || quests[0];
+      renderTaskDetail(defaultQuest.id);
+      if (campaignMainContent) campaignMainContent.style.display = 'none';
+      resetChapterViews();
+      // 隐藏剧本详情页的返回按钮和标题
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetailEl ? campaignDetailEl.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = 'none';
+      if (campaignPageHeader) campaignPageHeader.style.display = 'none';
+      taskBoard.style.display = 'block';
+      taskBoard.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeTaskBoard() {
+      if (taskBoard) {
+        taskBoard.style.display = 'none';
+        taskBoard.classList.remove('active');
+      }
+      if (campaignMainContent) campaignMainContent.style.display = 'block';
+      resetChapterViews();
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetailEl ? campaignDetailEl.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = '';
+      if (campaignPageHeader) campaignPageHeader.style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (viewAllTasks) {
+      viewAllTasks.addEventListener('click', openTaskBoard);
+    }
+
+    if (backToCampaignDetail) {
+      backToCampaignDetail.addEventListener('click', closeTaskBoard);
     }
 
     /* 物品悬浮提示 + 右键菜单 */

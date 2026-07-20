@@ -2324,6 +2324,423 @@
       }
     }
 
+    /* ===== 情报手记 ===== */
+    .intelligence-notes {
+      display: none;
+    }
+
+    .intelligence-notes.active {
+      display: block;
+    }
+
+    .intel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .intel-title-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .intel-title-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(184, 115, 51, 0.12);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .intel-title-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-header h1 {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .intel-header p {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    .intel-count {
+      color: var(--accent);
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    .btn-add-intel {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--ink);
+      color: var(--paper-light);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: default;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn-add-intel:hover {
+      background: #4a3526;
+      transform: translateY(-1px);
+    }
+
+    .btn-add-intel svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-toolbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .intel-filters {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .intel-filter-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .intel-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--paper-card);
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .intel-filter svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .intel-filter:hover {
+      background: rgba(184, 115, 51, 0.08);
+      color: var(--ink);
+    }
+
+    .intel-filter.active {
+      background: var(--ink);
+      color: var(--paper-light);
+      border-color: var(--ink);
+    }
+
+    .intel-search {
+      position: relative;
+      width: 260px;
+      flex-shrink: 0;
+    }
+
+    .intel-search svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: var(--ink-soft);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .intel-search input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--paper-card);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .intel-search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
+    }
+
+    .intel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .intel-card {
+      background: var(--paper-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intel-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+    }
+
+    .intel-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(61, 43, 31, 0.14);
+    }
+
+    .intel-card[data-type="person"]::before { background: #5b8bd0; }
+    .intel-card[data-type="location"]::before { background: #4caf7c; }
+    .intel-card[data-type="clue"]::before { background: #a855f7; }
+    .intel-card[data-type="legend"]::before { background: #d4a03d; }
+    .intel-card[data-type="item"]::before { background: #e67c52; }
+    .intel-card[data-type="monster"]::before { background: #c45c5c; }
+
+    .intel-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .intel-card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(61, 43, 31, 0.05);
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .intel-card-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-card-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .intel-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .intel-card-type {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .intel-card-desc {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 66px;
+    }
+
+    .intel-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: auto;
+    }
+
+    .intel-card-region {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .intel-card-region svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-card-date {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .intel-card-date svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink-soft);
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    .intel-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .intel-page-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--paper-card);
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .intel-page-btn:hover:not(:disabled) {
+      background: rgba(184, 115, 51, 0.1);
+      color: var(--ink);
+    }
+
+    .intel-page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .intel-page-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-page-info {
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    @media (max-width: 900px) {
+      .intel-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .intel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .intel-toolbar {
+        flex-direction: column;
+      }
+
+      .intel-search {
+        width: 100%;
+      }
+    }
+
     /* ===== 英雄档案（我的角色）页面 ===== */
     .hero-archive {
       padding: 32px 0 0;
@@ -2904,8 +3321,9 @@
         <p>这里记载着一段传奇的冒险历史，随意翻阅，就像在下一本未完的史诗。</p>
       </div>
 
+      <div id="campaign-main-content">
       <div class="stats">
-        <div class="stat-card">
+        <div class="stat-card clickable" data-nav="intelligence">
           <div class="stat-label">
             <span>目前可以公开的情报</span>
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2938,7 +3356,7 @@
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
-          <div class="stat-value">埃利亚斯·灰溪</div>
+          <div class="stat-value">埃利亚斯</div>
           <div class="stat-sub">战士 Lv.5</div>
         </div>
 
@@ -3155,6 +3573,7 @@
           </div>
         </div>
       </div>
+      </div>
 
       <div class="chapters-view" id="chapters-view">
         <div class="chapters-header">
@@ -3330,7 +3749,6 @@
           </div>
         </div>
       </div>
-    </div>
 
       <div id="task-board" class="task-board" style="display: none;">
         <div class="back-to-campaign-detail" id="back-to-campaign-detail">
@@ -3352,8 +3770,123 @@
           </div>
         </div>
       </div>
+
+      <div id="intelligence-notes" class="intelligence-notes" style="display: none;">
+        <div class="back-to-campaign-detail" id="back-to-campaign-detail-intel">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          返回剧本详情
+        </div>
+
+        <div class="intel-header">
+          <div class="intel-title-wrap">
+            <div class="intel-title-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1>情报手记</h1>
+              <p>在剑与魔法的交织中，将每一次奇遇篆刻为不朽的史诗。<span class="intel-count">当前已记录 <strong>64</strong> 条情报。</span></p>
+            </div>
+          </div>
+          <button class="btn-add-intel" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            添加情报
+          </button>
+        </div>
+
+        <div class="intel-toolbar">
+          <div class="intel-filters">
+            <div class="intel-filter-row" id="intel-type-filters">
+              <button class="intel-filter active" data-type="all">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+                全部
+              </button>
+              <button class="intel-filter" data-type="person">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                人物
+              </button>
+              <button class="intel-filter" data-type="location">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                地点
+              </button>
+              <button class="intel-filter" data-type="clue">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                线索
+              </button>
+              <button class="intel-filter" data-type="legend">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                传说
+              </button>
+              <button class="intel-filter" data-type="item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                物品
+              </button>
+              <button class="intel-filter" data-type="monster">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M9.5 15a3.5 3.5 0 0 0 5 0"></path></svg>
+                怪物
+              </button>
+            </div>
+            <div class="intel-filter-row" id="intel-region-filters">
+              <button class="intel-filter active" data-region="all">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                全部地点
+              </button>
+              <button class="intel-filter" data-region="瓦拉吉">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                瓦拉吉
+              </button>
+              <button class="intel-filter" data-region="巴洛维亚">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                巴洛维亚
+              </button>
+              <button class="intel-filter" data-region="橡木湖营地">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                橡木湖营地
+              </button>
+              <button class="intel-filter" data-region="碾骨老磨坊">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                碾骨老磨坊
+              </button>
+              <button class="intel-filter" data-region="巴洛维亚村">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                巴洛维亚村
+              </button>
+            </div>
+          </div>
+          <div class="intel-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="intel-search-input" placeholder="搜索情报...">
+          </div>
+        </div>
+
+        <div class="intel-grid" id="intel-grid">
+          <!-- 情报卡片由 JS 渲染 -->
+        </div>
+
+        <div class="intel-pagination">
+          <button class="intel-page-btn" id="intel-prev-page" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <span class="intel-page-info">第 <span id="intel-current-page">1</span> 页 / 共 <span id="intel-total-pages">1</span> 页</span>
+          <button class="intel-page-btn" id="intel-next-page" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
-      </div>
+    </div>
+  </div>
 
       <div class="panel-content" data-panel="friends">
         <div class="page-header">
@@ -3938,6 +4471,7 @@
       </div>
 
     </div>
+    </div>
   </main>
 
   <script>
@@ -3972,6 +4506,8 @@
         const nav = card.dataset.nav;
         if (nav === 'chapters') {
           showChaptersView();
+        } else if (nav === 'intelligence') {
+          openIntelligenceNotes();
         } else {
           switchPanel(nav);
         }
@@ -4016,10 +4552,12 @@
 
       if (backToCampaigns) {
         backToCampaigns.addEventListener('click', () => {
-          // 如果章节视图或任务面板处于活跃状态，返回剧本详情
+          // 如果章节视图、任务面板或情报手记处于活跃状态，返回剧本详情
           const chaptersActive = chaptersView && chaptersView.classList.contains('active');
           const chapterDetailActive = chapterDetailView && chapterDetailView.classList.contains('active');
-          if (chaptersActive || chapterDetailActive || (taskBoard && taskBoard.classList.contains('active'))) {
+          const taskBoardActive = taskBoard && taskBoard.classList.contains('active');
+          const intelActive = intelligenceNotes && intelligenceNotes.classList.contains('active');
+          if (chaptersActive || chapterDetailActive || taskBoardActive || intelActive) {
             backToCampaignMain();
             return;
           }
@@ -4041,6 +4579,10 @@
         if (taskBoard) {
           taskBoard.style.display = 'none';
           taskBoard.classList.remove('active');
+        }
+        if (intelligenceNotes) {
+          intelligenceNotes.style.display = 'none';
+          intelligenceNotes.classList.remove('active');
         }
         const campaignMain = document.getElementById('campaign-main-content');
         if (campaignMain) campaignMain.style.display = 'block';
@@ -4064,6 +4606,10 @@
       if (taskBoard) {
         taskBoard.style.display = 'none';
         taskBoard.classList.remove('active');
+      }
+      if (intelligenceNotes) {
+        intelligenceNotes.style.display = 'none';
+        intelligenceNotes.classList.remove('active');
       }
       resetChapterViews();
       if (chaptersView) chaptersView.classList.add('active');
@@ -4146,23 +4692,7 @@
     const taskTotalCount = document.getElementById('task-total-count');
     const viewAllTasks = document.getElementById('view-all-tasks');
     const backToCampaignDetail = document.getElementById('back-to-campaign-detail');
-    const campaignMainContent = document.createElement('div');
-    campaignMainContent.id = 'campaign-main-content';
-
-    // 将剧本详情页的主要内容包装起来，方便与任务面板切换
-    const campaignDetailEl = document.getElementById('campaign-detail');
-    if (campaignDetailEl) {
-      const statsEl = campaignDetailEl.querySelector('.stats');
-      const columnsEl = campaignDetailEl.querySelector('.columns');
-      if (statsEl && columnsEl) {
-        const existingMain = document.getElementById('campaign-main-content');
-        if (!existingMain) {
-          campaignMainContent.appendChild(statsEl);
-          campaignMainContent.appendChild(columnsEl);
-          campaignDetailEl.appendChild(campaignMainContent);
-        }
-      }
-    }
+    const campaignMainContent = document.getElementById('campaign-main-content');
 
     const quests = [
       {
@@ -4572,6 +5102,202 @@
 
     if (backToCampaignDetail) {
       backToCampaignDetail.addEventListener('click', closeTaskBoard);
+    }
+
+    /* ===== 情报手记 ===== */
+    const intelligenceNotes = document.getElementById('intelligence-notes');
+    const intelGrid = document.getElementById('intel-grid');
+    const intelSearchInput = document.getElementById('intel-search-input');
+    const intelTypeFilters = document.getElementById('intel-type-filters');
+    const intelRegionFilters = document.getElementById('intel-region-filters');
+    const intelCurrentPage = document.getElementById('intel-current-page');
+    const intelTotalPages = document.getElementById('intel-total-pages');
+    const intelPrevPage = document.getElementById('intel-prev-page');
+    const intelNextPage = document.getElementById('intel-next-page');
+    const backToCampaignDetailIntel = document.getElementById('back-to-campaign-detail-intel');
+    const intelligenceCard = document.querySelector('.stat-card[data-nav="intelligence"]');
+
+    const intelItems = [
+      { id: 1, title: '维克托的秘密', type: 'clue', typeLabel: '线索', region: '瓦拉吉', date: '2026/1/24', desc: '镇长家顶楼有紫色闪光和人员失踪的传闻，维克托的未婚妻在结婚前发疯。维克托可能在进行秘密的危险活动，而不仅仅是读书。' },
+      { id: 2, title: '斯特拉·瓦赫特', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '瓦赫特夫人的小女儿。曾与镇长之子维克托订婚，后来突然疯了。这导致瓦赫特家与镇长家彻底决裂。埃利亚斯以此为切入点接近了瓦赫特家。' },
+      { id: 3, title: '猎狼人', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '小镇知名的猎狼人。本事不错，也被小镇雇佣去清理狼患。可被雇佣。常在蓝水旅店喝酒，拿狼头抵债。两人表情很冷，眼神凶悍。' },
+      { id: 4, title: '尼古拉 & 卡尔·瓦赫特', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '瓦赫特家少爷。灰头发的年轻双胞胎，穿着华丽绸缎外套，佩戴精致短剑。经常在旅店喝酒的纨绔子弟。尼古拉脾气暴躁且酗酒；卡尔冷静而狡猾。' },
+      { id: 5, title: '美酒巫师庄园', type: 'location', typeLabel: '地点', region: '瓦拉吉', date: '2026/1/24', desc: '美酒供应地。本该送货却迟迟未到，处于失联状态。厄尔文对此表示担忧。' },
+      { id: 6, title: '蓝水旅店', type: 'location', typeLabel: '地点', region: '瓦拉吉', date: '2026/1/24', desc: '两层木屋，外墙刷着亮蓝色油漆，屋顶有渡鸦扑腾。门上方挂了块木招牌，画着一道道具的蓝色瀑布。外侧有段木楼梯贴着墙，通向二楼客房。' },
+      { id: 7, title: '厄尔文·马可夫', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/23', desc: '蓝水旅店老板。性格随和、有些怕老婆（自称是爱）。没有见过面，但看到埃利亚斯的脸时有一种惊讶和困惑感。向小队提供了关于美酒庄园的线索。' },
+      { id: 8, title: '达妮卡·朵拉科娃', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/22', desc: '蓝水旅店老板娘。穿着黑色哥特式长裙，戴饰有羽毛的宽边帽。在吧台后读一本厚重的黑皮书，对丈夫厄尔文非常有威慑力，气质高冷。' },
+      { id: 9, title: '笼中囚犯', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/22', desc: '包括两个男人、两个女人和两个男孩。因公开诋毁庆典而被关押示众，面容憔悴。艾泽克拒绝释放他们。' },
+      { id: 10, title: '伊丽娜', type: 'person', typeLabel: '人物', region: '巴洛维亚', date: '2026/1/21', desc: '巴洛维亚村长之女，拥有神秘的银发与预知梦境。她请求冒险者护送她前往瓦拉吉。' },
+      { id: 11, title: '断手王座', type: 'legend', typeLabel: '传说', region: '碾骨老磨坊', date: '2026/1/20', desc: '一个位于阴影位面的神秘王座，据说能赋予濒死者第二次生命，但代价是成为某位古老存在的契约仆从。' },
+      { id: 12, title: '暗金碎片', type: 'item', typeLabel: '物品', region: '巴洛维亚', date: '2026/1/19', desc: '封存着黑暗阴影与时间法则的神秘碎片，据说是维持契约者存在的关键。' },
+      { id: 13, title: '夜鬼婆', type: 'monster', typeLabel: '怪物', region: '碾骨老磨坊', date: '2026/1/18', desc: '栖息在老磨坊中的恐怖生物，擅长伪装与诅咒，曾在迷雾中猎杀旅人。' },
+      { id: 14, title: '维斯塔尼护身符', type: 'item', typeLabel: '物品', region: '橡木湖营地', date: '2026/1/17', desc: '银质护身符，是维斯塔尼人的标志，据说能抵御巴洛维亚迷雾的侵蚀。' },
+      { id: 15, title: '黑色玫瑰火漆', type: 'clue', typeLabel: '线索', region: '巴洛维亚村', date: '2026/1/16', desc: '神秘信件上的火漆印记，一朵黑色玫瑰，与斯特拉德家族的徽记有着某种关联。' },
+      { id: 16, title: '石质大门', type: 'location', typeLabel: '地点', region: '巴洛维亚村', date: '2026/1/15', desc: '迷雾森林中会自动开启的石门，门后传来尸臭与狼嚎，是通往古老遗迹的入口。' }
+    ];
+
+    let intelState = {
+      type: 'all',
+      region: 'all',
+      search: '',
+      page: 1,
+      pageSize: 9
+    };
+
+    const typeIcons = {
+      person: '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+      location: '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+      clue: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+      legend: '<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>',
+      item: '<svg viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 5-3.5 9.5-7 11-3.5-1.5-7-6-7-11V6l7-4z"></path></svg>',
+      monster: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>'
+    };
+
+    function getFilteredIntel() {
+      return intelItems.filter(item => {
+        const typeMatch = intelState.type === 'all' || item.type === intelState.type;
+        const regionMatch = intelState.region === 'all' || item.region === intelState.region;
+        const searchMatch = !intelState.search || item.title.toLowerCase().includes(intelState.search.toLowerCase()) || item.desc.toLowerCase().includes(intelState.search.toLowerCase());
+        return typeMatch && regionMatch && searchMatch;
+      });
+    }
+
+    function renderIntelGrid() {
+      if (!intelGrid) return;
+      const filtered = getFilteredIntel();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / intelState.pageSize));
+      if (intelState.page > totalPages) intelState.page = totalPages;
+      if (intelState.page < 1) intelState.page = 1;
+
+      const start = (intelState.page - 1) * intelState.pageSize;
+      const pageItems = filtered.slice(start, start + intelState.pageSize);
+
+      if (pageItems.length === 0) {
+        intelGrid.innerHTML = '<div class="intel-empty">未找到匹配的情报。</div>';
+      } else {
+        intelGrid.innerHTML = pageItems.map(item => `
+          <div class="intel-card" data-type="${item.type}">
+            <div class="intel-card-header">
+              <div class="intel-card-icon">${typeIcons[item.type] || typeIcons.clue}</div>
+              <div class="intel-card-title-wrap">
+                <div class="intel-card-title">${item.title}</div>
+                <div class="intel-card-type">${item.typeLabel}</div>
+              </div>
+            </div>
+            <div class="intel-card-desc">${item.desc}</div>
+            <div class="intel-card-meta">
+              <span class="intel-card-region">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                ${item.region}
+              </span>
+              <span class="intel-card-date">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                ${item.date}
+              </span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      if (intelCurrentPage) intelCurrentPage.textContent = intelState.page;
+      if (intelTotalPages) intelTotalPages.textContent = totalPages;
+      if (intelPrevPage) intelPrevPage.disabled = intelState.page <= 1;
+      if (intelNextPage) intelNextPage.disabled = intelState.page >= totalPages;
+    }
+
+    function setIntelFilter(type, value) {
+      if (type === 'type') intelState.type = value;
+      if (type === 'region') intelState.region = value;
+      intelState.page = 1;
+      renderIntelGrid();
+    }
+
+    if (intelTypeFilters) {
+      intelTypeFilters.querySelectorAll('.intel-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+          intelTypeFilters.querySelectorAll('.intel-filter').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          setIntelFilter('type', btn.dataset.type);
+        });
+      });
+    }
+
+    if (intelRegionFilters) {
+      intelRegionFilters.querySelectorAll('.intel-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+          intelRegionFilters.querySelectorAll('.intel-filter').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          setIntelFilter('region', btn.dataset.region);
+        });
+      });
+    }
+
+    if (intelSearchInput) {
+      intelSearchInput.addEventListener('input', () => {
+        intelState.search = intelSearchInput.value.trim();
+        intelState.page = 1;
+        renderIntelGrid();
+      });
+    }
+
+    if (intelPrevPage) {
+      intelPrevPage.addEventListener('click', () => {
+        if (intelState.page > 1) {
+          intelState.page--;
+          renderIntelGrid();
+        }
+      });
+    }
+
+    if (intelNextPage) {
+      intelNextPage.addEventListener('click', () => {
+        const totalPages = Math.max(1, Math.ceil(getFilteredIntel().length / intelState.pageSize));
+        if (intelState.page < totalPages) {
+          intelState.page++;
+          renderIntelGrid();
+        }
+      });
+    }
+
+    function openIntelligenceNotes() {
+      if (campaignMainContent) campaignMainContent.style.display = 'none';
+      if (taskBoard) {
+        taskBoard.style.display = 'none';
+        taskBoard.classList.remove('active');
+      }
+      if (chaptersView) chaptersView.classList.remove('active');
+      if (chapterDetailView) chapterDetailView.classList.remove('active');
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = 'none';
+      if (campaignPageHeader) campaignPageHeader.style.display = 'none';
+      if (intelligenceNotes) {
+        intelligenceNotes.style.display = 'block';
+        intelligenceNotes.classList.add('active');
+      }
+      renderIntelGrid();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeIntelligenceNotes() {
+      if (intelligenceNotes) {
+        intelligenceNotes.style.display = 'none';
+        intelligenceNotes.classList.remove('active');
+      }
+      if (campaignMainContent) campaignMainContent.style.display = 'block';
+      const backToCampaigns = document.getElementById('back-to-campaigns');
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
+      if (backToCampaigns) backToCampaigns.style.display = '';
+      if (campaignPageHeader) campaignPageHeader.style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (intelligenceCard) {
+      intelligenceCard.addEventListener('click', openIntelligenceNotes);
+    }
+
+    if (backToCampaignDetailIntel) {
+      backToCampaignDetailIntel.addEventListener('click', closeIntelligenceNotes);
     }
 
     /* 物品悬浮提示 + 右键菜单 */

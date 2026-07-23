@@ -1,0 +1,203 @@
+{
+  "type": "armor",
+  "items": {
+    "padded": {
+      "id": "padded",
+      "name": "软垫甲",
+      "type": "armor",
+      "subtype": "light_armor",
+      "rarity": "common",
+      "description": "填充棉絮的护甲，轻便但易燃。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "11 + 敏捷调整值",
+        "weight": "8磅",
+        "stealth": "劣势"
+      }
+    },
+    "leather": {
+      "id": "leather",
+      "name": "皮甲",
+      "type": "armor",
+      "subtype": "light_armor",
+      "rarity": "common",
+      "description": "硬化皮革制成的护甲，适合潜行者。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "11 + 敏捷调整值",
+        "weight": "10磅",
+        "stealth": "—"
+      }
+    },
+    "studded_leather": {
+      "id": "studded_leather",
+      "name": "镶钉皮甲",
+      "type": "armor",
+      "subtype": "light_armor",
+      "rarity": "common",
+      "description": "在关键部位镶有金属铆钉的皮甲。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "12 + 敏捷调整值",
+        "weight": "13磅",
+        "stealth": "—"
+      }
+    },
+    "hide": {
+      "id": "hide",
+      "name": "兽皮甲",
+      "type": "armor",
+      "subtype": "medium_armor",
+      "rarity": "common",
+      "description": "由厚兽皮缝制而成的中型护甲。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "12 + 敏捷调整值（最高+2）",
+        "weight": "12磅",
+        "stealth": "—"
+      }
+    },
+    "chain_shirt": {
+      "id": "chain_shirt",
+      "name": "锁子甲衫",
+      "type": "armor",
+      "subtype": "medium_armor",
+      "rarity": "common",
+      "description": "贴身的锁子甲，提供良好防护同时保持灵活。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "13 + 敏捷调整值（最高+2）",
+        "weight": "20磅",
+        "stealth": "—"
+      }
+    },
+    "breastplate": {
+      "id": "breastplate",
+      "name": "胸甲",
+      "type": "armor",
+      "subtype": "medium_armor",
+      "rarity": "common",
+      "description": "覆盖躯干正面的金属胸甲，兼顾防护与机动。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "14 + 敏捷调整值（最高+2）",
+        "weight": "20磅",
+        "stealth": "—"
+      }
+    },
+    "half_plate": {
+      "id": "half_plate",
+      "name": "半身板甲",
+      "type": "armor",
+      "subtype": "medium_armor",
+      "rarity": "rare",
+      "description": "覆盖大部分身体的金属护甲，沉重但坚固。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "15 + 敏捷调整值（最高+2）",
+        "weight": "40磅",
+        "stealth": "劣势"
+      }
+    },
+    "ring_mail": {
+      "id": "ring_mail",
+      "name": "环甲",
+      "type": "armor",
+      "subtype": "heavy_armor",
+      "rarity": "common",
+      "description": "由金属环缝制在皮革上的重型护甲。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "14",
+        "weight": "40磅",
+        "stealth": "劣势"
+      }
+    },
+    "chain_mail": {
+      "id": "chain_mail",
+      "name": "锁子甲",
+      "type": "armor",
+      "subtype": "heavy_armor",
+      "rarity": "common",
+      "description": "由金属环编织而成的全身护甲。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "16",
+        "weight": "55磅",
+        "stealth": "劣势",
+        "requirement": "力量 13"
+      }
+    },
+    "plate": {
+      "id": "plate",
+      "name": "板甲",
+      "type": "armor",
+      "subtype": "heavy_armor",
+      "rarity": "rare",
+      "description": "全套金属板甲，提供最高级别的防护。",
+      "icon": "chestplate",
+      "properties": {
+        "ac": "18",
+        "weight": "65磅",
+        "stealth": "劣势",
+        "requirement": "力量 15"
+      }
+    },
+    "shield": {
+      "id": "shield",
+      "name": "盾牌",
+      "type": "armor",
+      "subtype": "shield",
+      "rarity": "common",
+      "description": "手持盾牌，可提升护甲等级。",
+      "icon": "shield",
+      "properties": {
+        "ac": "+2",
+        "weight": "6磅",
+        "stealth": "—"
+      }
+    },
+    "travel_clothes": {
+      "id": "travel_clothes",
+      "name": "旅行服装",
+      "type": "armor",
+      "subtype": "clothes",
+      "rarity": "common",
+      "description": "适合长途旅行的结实衣物和斗篷。",
+      "icon": "clothes",
+      "properties": {
+        "ac": "—",
+        "weight": "4磅",
+        "stealth": "—"
+      }
+    },
+    "common_clothes": {
+      "id": "common_clothes",
+      "name": "普通服装",
+      "type": "armor",
+      "subtype": "clothes",
+      "rarity": "common",
+      "description": "日常穿着的朴素衣物。",
+      "icon": "clothes",
+      "properties": {
+        "ac": "—",
+        "weight": "3磅",
+        "stealth": "—"
+      }
+    },
+    "fine_clothes": {
+      "id": "fine_clothes",
+      "name": "精美服装",
+      "type": "armor",
+      "subtype": "clothes",
+      "rarity": "common",
+      "description": "做工精细的礼服，适合出席正式场合。",
+      "icon": "clothes",
+      "properties": {
+        "ac": "—",
+        "weight": "6磅",
+        "stealth": "—"
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "elias",
+  "name": "埃利亚斯·灰溪",
+  "portrait": "埃",
+  "theme": "light",
+  "race": "人类",
+  "race_en": "Human",
+  "class": "战士",
+  "class_en": "warrior",
+  "subclass": "战斗大师",
+  "level": 4,
+  "combat": {
+    "ac": 12,
+    "hp": "36 / 36"
+  },
+  "xp": {
+    "current": 0,
+    "max": 6500,
+    "display": "0 / 6,500"
+  },
+  "attack": {
+    "melee": {
+      "label": "近战",
+      "bonus": "+13",
+      "damage": "6~16"
+    },
+    "ranged": {
+      "label": "远程",
+      "bonus": "+11",
+      "damage": "3~12"
+    }
+  },
+  "abilities": {
+    "str": { "label": "力", "value": 17, "save_bonus": "+9", "highlighted": true },
+    "dex": { "label": "敏", "value": 13, "save_bonus": "+4", "highlighted": false },
+    "con": { "label": "体", "value": 15, "save_bonus": "+8", "highlighted": true },
+    "int": { "label": "智", "value": 10, "save_bonus": "+3", "highlighted": false },
+    "wis": { "label": "感", "value": 12, "save_bonus": "+4", "highlighted": false },
+    "cha": { "label": "魅", "value": 8, "save_bonus": "+2", "highlighted": false }
+  },
+  "inventory": {
+    "gold": 500,
+    "items": [
+      { "equipment_id": "travel_clothes", "name": "旅行服装", "quantity": 1, "equipped": false },
+      { "equipment_id": "breastplate", "name": "胸甲 Breastplate", "quantity": 1, "equipped": true },
+      { "equipment_id": "shield", "name": "盾牌", "quantity": 1, "equipped": true },
+      { "equipment_id": "emblem", "name": "徽章 Emblem", "quantity": 1, "equipped": true },
+      { "equipment_id": "common_clothes", "name": "普通服装 Common Clothes", "quantity": 1, "equipped": false }
+    ]
+  },
+  "features": {
+    "status": [
+      { "name": "识破隐形", "detail": "详细描述待补充" },
+      { "name": "极乐孢子", "detail": "详细描述待补充" }
+    ],
+    "resistances": [
+      { "name": "中毒抗性", "detail": "详细描述待补充" }
+    ],
+    "class": [
+      { "name": "巨武器大师：全力一击", "detail": "详细描述待补充" },
+      { "name": "巨武器大师：附赠攻击", "detail": "详细描述待补充" },
+      { "name": "重甲专精", "detail": "详细描述待补充" }
+    ],
+    "important": [
+      { "name": "人类通才", "detail": "详细描述待补充" },
+      { "name": "借机攻击", "detail": "详细描述待补充" },
+      { "name": "心灵反冲", "detail": "详细描述待补充" },
+      { "name": "恃强凌弱", "detail": "详细描述待补充" },
+      { "name": "旗开得胜", "detail": "详细描述待补充" }
+    ]
+  },
+  "skills": {
+    "proficiency_bonus": "+3",
+    "sections": [
+      {
+        "ability": "力量",
+        "modifier": "+3",
+        "skills": [
+          { "name": "运动", "value": "+7", "type": "positive" }
+        ]
+      },
+      {
+        "ability": "敏捷",
+        "modifier": "+1",
+        "skills": [
+          { "name": "巧手", "value": "+2", "type": "positive" },
+          { "name": "隐匿", "value": "+1", "type": "positive" }
+        ]
+      },
+      {
+        "ability": "智力",
+        "modifier": "0",
+        "skills": [
+          { "name": "奥秘", "value": "0", "type": "neutral" },
+          { "name": "历史", "value": "0", "type": "neutral" },
+          { "name": "调查", "value": "0", "type": "neutral" },
+          { "name": "自然", "value": "0", "type": "neutral" },
+          { "name": "宗教", "value": "0", "type": "neutral" }
+        ]
+      },
+      {
+        "ability": "感知",
+        "modifier": "+1",
+        "skills": [
+          { "name": "驯兽", "value": "+1", "type": "positive" },
+          { "name": "洞悉", "value": "+1", "type": "positive" },
+          { "name": "医药", "value": "+1", "type": "positive" },
+          { "name": "察觉", "value": "+1", "type": "positive" },
+          { "name": "求生", "value": "+4", "type": "positive" }
+        ]
+      },
+      {
+        "ability": "魅力",
+        "modifier": "-1",
+        "skills": [
+          { "name": "欺瞒", "value": "-1", "type": "negative" },
+          { "name": "威吓", "value": "+2", "type": "positive" }
+        ]
+      }
+    ]
+  },
+  "spells": {
+    "level": 4,
+    "subclass": "战斗大师",
+    "actions": {
+      "normal": ["跳跃", "投掷", "快速奔跑"],
+      "class": ["斗气如潮", "回复", "附加攻击"]
+    },
+    "passive": ["巨武器使用"],
+    "spells_level_1": ["火球术", "治愈术"]
+  },
+  "background": {
+    "class": "4级战士 战斗大师",
+    "race": "人类",
+    "attributes": {
+      "move_speed": "3格",
+      "darkvision": "2格",
+      "ranged_range": "4格",
+      "melee_range": "1格",
+      "throw_range": "4格",
+      "size": "中型",
+      "weight": "65kg",
+      "carry_weight": "200kg"
+    },
+    "traits": {
+      "personality": "沉默寡言但观察敏锐，说话慢条斯理，总能在混乱中找到关键线索。",
+      "ideal": "守护弱者。每一个无辜者都值得有人为他们挺身而出。",
+      "bond": "随身携带父亲的旧军牌，那是他踏上征途的唯一理由。",
+      "flaw": "过度自责。每当同伴受伤，他总认为是自己保护不力的结果。"
+    },
+    "story": [
+      "埃利亚斯出生于灰溪镇的一个人类家庭，父亲是退役骑士，母亲是镇上的药剂师。十五岁那年，兽人部落洗劫了镇子，父母将他藏在地窖中逃过一劫。此后他被王国军队收留，成为了一名士兵。",
+      "在一次边境战役中，他独自守住了被围困的哨站，因此被骑士团看中，由此成为了一名战士。如今他游历大陆，寻找当年屠戮家乡的兽人首领，也在旅途之中帮助那些无力自保的弱者。"
+    ]
+  }
+}

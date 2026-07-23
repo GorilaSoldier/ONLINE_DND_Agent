@@ -1,0 +1,117 @@
+{
+  "type": "weapon",
+  "items": {
+    "longsword": {
+      "id": "longsword",
+      "name": "长剑",
+      "type": "weapon",
+      "subtype": "sword",
+      "rarity": "common",
+      "description": "一把标准的长剑，适合单手或双手持握。",
+      "icon": "sword",
+      "properties": {
+        "damage": "1d8 挥砍",
+        "weight": "3磅",
+        "properties": " versatile（两用）"
+      }
+    },
+    "greatsword": {
+      "id": "greatsword",
+      "name": "巨剑",
+      "type": "weapon",
+      "subtype": "sword",
+      "rarity": "common",
+      "description": "一柄沉重双手巨剑，能造成毁灭性伤害。",
+      "icon": "greatsword",
+      "properties": {
+        "damage": "2d6 挥砍",
+        "weight": "6磅",
+        "properties": "heavy, two-handed"
+      }
+    },
+    "shortsword": {
+      "id": "shortsword",
+      "name": "短剑",
+      "type": "weapon",
+      "subtype": "sword",
+      "rarity": "common",
+      "description": "轻便灵活的短剑，适合快速攻击。",
+      "icon": "sword",
+      "properties": {
+        "damage": "1d6 穿刺",
+        "weight": "2磅",
+        "properties": "finesse, light"
+      }
+    },
+    "dagger": {
+      "id": "dagger",
+      "name": "匕首",
+      "type": "weapon",
+      "subtype": "dagger",
+      "rarity": "common",
+      "description": "短小精悍的匕首，可作副手武器或投掷。",
+      "icon": "dagger",
+      "properties": {
+        "damage": "1d4 穿刺",
+        "weight": "1磅",
+        "properties": "finesse, light, thrown (20/60)"
+      }
+    },
+    "longbow": {
+      "id": "longbow",
+      "name": "长弓",
+      "type": "weapon",
+      "subtype": "bow",
+      "rarity": "common",
+      "description": "强力的长弓，能在远距离精准射击。",
+      "icon": "bow",
+      "properties": {
+        "damage": "1d8 穿刺",
+        "weight": "2磅",
+        "properties": "heavy, two-handed, ammunition (150/600)"
+      }
+    },
+    "shortbow": {
+      "id": "shortbow",
+      "name": "短弓",
+      "type": "weapon",
+      "subtype": "bow",
+      "rarity": "common",
+      "description": "便于携带的短弓，适合游侠和侦察兵。",
+      "icon": "bow",
+      "properties": {
+        "damage": "1d6 穿刺",
+        "weight": "2磅",
+        "properties": "two-handed, ammunition (80/320)"
+      }
+    },
+    "quarterstaff": {
+      "id": "quarterstaff",
+      "name": "长棍",
+      "type": "weapon",
+      "subtype": "staff",
+      "rarity": "common",
+      "description": "一根结实的木杖，可作双手武器或施法焦点。",
+      "icon": "staff",
+      "properties": {
+        "damage": "1d6 钝击",
+        "weight": "4磅",
+        "properties": "versatile (1d8)"
+      }
+    },
+    "warhammer": {
+      "id": "warhammer",
+      "name": "战锤",
+      "type": "weapon",
+      "subtype": "hammer",
+      "rarity": "common",
+      "description": "沉重的战锤，能击破最坚固的护甲。",
+      "icon": "hammer",
+      "properties": {
+        "damage": "1d8 钝击",
+        "weight": "2磅",
+        "properties": "versatile (1d10)"
+      }
+    }
+  }
+}

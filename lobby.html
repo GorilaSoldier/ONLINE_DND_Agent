@@ -731,6 +731,14 @@
       width: 120px;
     }
 
+    .attack-weapon-group:first-child {
+      margin-right:110px;
+    }
+
+    .attack-weapon-group:last-child {
+      margin-left: 110px;
+    }
+
     .attack-value {
       font-size: 20px;
       font-weight: 700;
@@ -846,6 +854,38 @@
 
     .item-card:hover {
       background: rgba(255, 255, 255, 0.6);
+    }
+
+    .item-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .item-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+
+    .item-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
 
     .item-name {
@@ -1317,58 +1357,105 @@
       display: flex;
       align-items: flex-end;
       justify-content: flex-start;
-      gap: 8px;
-      padding: 32px 0 0;
-      margin-bottom: 24px;
+      gap: 16px;
+      padding: 48px 32px 0;
+      margin-bottom: 40px;
       position: relative;
+      background:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 0%, transparent 20%),
+        linear-gradient(90deg, #3a2110 0%, #4d2d16 25%, #4d2d16 75%, #3a2110 100%);
+      border-radius: 6px;
+      box-shadow:
+        inset 0 2px 14px rgba(0, 0, 0, 0.5),
+        0 12px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .bookshelf::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 16px;
+      background: linear-gradient(to bottom, #6b4328, #4a2c15);
+      border-radius: 6px 6px 0 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
     }
 
     .bookshelf::after {
       content: "";
       position: absolute;
-      bottom: -12px;
-      left: -20px;
-      width: calc(100% + 40px);
-      max-width: 600px;
-      height: 20px;
-      background: linear-gradient(to bottom, #5C3D2E, #3B2515, #5C3D2E);
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(255, 220, 150, 0.1) inset;
+      bottom: -20px;
+      left: -14px;
+      right: -14px;
+      height: 32px;
+      background: linear-gradient(to bottom, #6b4328, #2f1a0c 55%, #5c3a22);
+      border-radius: 6px;
+      box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.45),
+        inset 0 1px 3px rgba(255, 220, 150, 0.12);
     }
 
     .campaign-book {
-      width: 100px;
+      width: 92px;
       height: 280px;
-      border-radius: 4px 12px 12px 4px;
+      border-radius: 3px 10px 10px 3px;
       cursor: pointer;
       position: relative;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow:
-        2px 0 6px rgba(0, 0, 0, 0.25),
-        -1px 0 2px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 24px 8px;
+      padding: 24px 10px;
+      color: var(--paper-light);
+      box-shadow:
+        inset 2px 0 4px rgba(255, 255, 255, 0.1),
+        inset -4px 0 6px rgba(0, 0, 0, 0.35),
+        4px 0 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 书脊左侧高光 */
+    .campaign-book::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 24%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), transparent);
+      border-radius: 3px 0 0 3px;
+      pointer-events: none;
+    }
+
+    /* 书页厚度：右侧很淡的阴影边，不像白线 */
+    .campaign-book::before {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 0 5px 5px 0;
+      filter: blur(1px);
     }
 
     .campaign-book:hover {
-      transform: translateY(-8px) rotate(-2deg);
+      transform: translateY(-10px);
       box-shadow:
-        6px 4px 16px rgba(0, 0, 0, 0.35),
-        -1px 0 2px rgba(0, 0, 0, 0.1);
+        inset 2px 0 4px rgba(255, 255, 255, 0.12),
+        inset -4px 0 6px rgba(0, 0, 0, 0.3),
+        10px 12px 24px rgba(0, 0, 0, 0.35);
       z-index: 2;
     }
 
     .campaign-book.light {
-      background: linear-gradient(135deg, #d69a5c 0%, #b87333 30%, #8b5a2b 60%, #7a4a20 100%);
-      color: var(--paper-light);
+      background: linear-gradient(135deg, #d4a574 0%, #b8783e 25%, #8b5a2b 60%, #6b4220 100%);
     }
 
     .campaign-book.dark {
-      background: linear-gradient(135deg, #5a3a2a 0%, #3d2b1f 30%, #2b1f16 60%, #1a1210 100%);
-      color: var(--paper-light);
+      background: linear-gradient(135deg, #5a3a2a 0%, #3d2b1f 30%, #2b1f16 60%, #15100c 100%);
     }
 
     .book-spine-title {
@@ -1376,40 +1463,36 @@
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 4px;
-      margin-bottom: 12px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      margin-bottom: 16px;
+      padding-top: 8px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
       flex: 1;
     }
 
     .book-spine-bands {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      width: 60%;
+      gap: 8px;
+      width: 55%;
     }
 
     .book-band {
-      height: 3px;
+      height: 4px;
       border-radius: 2px;
-      opacity: 0.5;
+      opacity: 0.55;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     }
 
     .campaign-book.light .book-band {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.45);
     }
 
     .campaign-book.dark .book-band {
-      background: rgba(200, 160, 60, 0.35);
+      background: rgba(200, 160, 60, 0.4);
     }
 
     .book-page-edge {
-      position: absolute;
-      right: 2px;
-      top: 8px;
-      bottom: 8px;
-      width: 3px;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 1px;
+      display: none;
     }
 
     .campaign-detail {
@@ -3936,55 +4019,8 @@
             </button>
           </div>
 
-          <div class="character-grid">
-            <div class="character-card light" data-char="elias">
-              <div class="character-card-portrait-wrap">
-                <div class="character-card-portrait">埃</div>
-                <div class="character-card-level">等级 4</div>
-                <div class="character-card-info">
-                  <div class="character-card-name">埃利亚斯·灰溪</div>
-                  <div class="character-card-race">人类 Human</div>
-                </div>
-              </div>
-              <div class="character-card-class">
-                <div class="class-icon-small">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
-                    <path d="M13 19l6-6"></path>
-                    <path d="M16 16l4 4"></path>
-                    <path d="M19 21l2-2"></path>
-                  </svg>
-                </div>
-                <div>
-                  <div class="class-label">职业</div>
-                  <div class="class-name">战士 warrior</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="character-card dark" data-char="audric">
-              <div class="character-card-portrait-wrap">
-                <div class="character-card-portrait">奥</div>
-                <div class="character-card-level">等级 3</div>
-                <div class="character-card-info">
-                  <div class="character-card-name">奥德里奇</div>
-                  <div class="character-card-race">高等精灵 High Elf</div>
-                </div>
-              </div>
-              <div class="character-card-class">
-                <div class="class-icon-small">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                  </svg>
-                </div>
-                <div>
-                  <div class="class-label">职业</div>
-                  <div class="class-name">法师 wizard</div>
-                </div>
-              </div>
-            </div>
+          <div class="character-grid" id="character-grid">
+            <!-- 人物卡由后端 JSON 数据动态渲染 -->
           </div>
         </div>
 
@@ -3997,90 +4033,8 @@
             返回英雄档案
           </button>
           <div class="container">
-          <div class="char-card">
-            <div class="char-top">
-              <div class="char-name">埃利亚斯·灰溪</div>
-              <div class="char-portrait-row">
-              <div class="equipment-column left-slots">
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7v3H4v2h16v-2h-1V9a7 7 0 0 0-7-7z"></path></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M6 3h12l3 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M8 3h8v5h3v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8h3z"></path></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M17 14h-4l-2-7a3 3 0 0 0-3-3H4v8h2l2 7h10a3 3 0 0 0 0-6z"></path></svg></div>
-              </div>
-
-              <div class="char-portrait">埃</div>
-
-              <div class="equipment-column right-slots">
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M4 4h4l4 8 4-8h4l-8 16z"></path></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
-                <div class="slot"><svg viewBox="0 0 24 24"><path d="M8 22c-3 0-5-2-5-5s2-5 5-5 5 2 5 5-2 5-5 5z"></path><path d="M13 12l7-7"></path><path d="M19 5l2 2"></path></svg></div>
-              </div>
-              </div>
-
-              <div class="combat-stats">
-                  <div class="combat-stat">
-                    <div class="combat-stat-icon">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                      </svg>
-                    </div>
-                    <div class="combat-stat-value">12</div>
-                    <div class="combat-stat-label">护甲等级</div>
-                  </div>
-                  <div class="combat-stat">
-                    <div class="combat-stat-icon">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                      </svg>
-                    </div>
-                    <div class="combat-stat-value">36 / 36</div>
-                    <div class="combat-stat-label">生命值</div>
-                  </div>
-                </div>
-              </div>
-
-            <div class="char-bottom">
-              <div class="weapon-slot-group">
-                <div class="weapon-slot-label">近战</div>
-                <div class="weapon-slots">
-                  <div class="slot"><svg viewBox="0 0 24 24"><path d="M6 18l4-4 9-9 3 3-9 9-4 4z"></path><path d="M15 4l5 5"></path><path d="M4 22l4-4"></path></svg></div>
-                  <div class="slot"><svg viewBox="0 0 24 24"><path d="M6 18l4-4 9-9 3 3-9 9-4 4z"></path><path d="M15 4l5 5"></path><path d="M4 22l4-4"></path></svg></div>
-                </div>
-              </div>
-
-              <div class="char-level">
-                <div class="level-badge">
-                  <span class="num">4</span>
-                  <span>等级</span>
-                </div>
-                <div class="xp-bar"><div class="xp-fill"></div></div>
-                <span>XP 0 / 6,500</span>
-              </div>
-
-              <div class="weapon-slot-group">
-                <div class="weapon-slot-label">远程</div>
-                <div class="weapon-slots">
-                  <div class="slot"><svg viewBox="0 0 24 24"><path d="M12 2c-6 6-6 14 0 20 6-6 6-14 0-20z"></path><path d="M12 2v20"></path><path d="M7 7l10 5-10 5"></path></svg></div>
-                  <div class="slot"><svg viewBox="0 0 24 24"><path d="M12 2c-6 6-6 14 0 20 6-6 6-14 0-20z"></path><path d="M12 2v20"></path><path d="M7 7l10 5-10 5"></path></svg></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="attack-stats">
-              <div class="attack-weapon-group">
-                <div class="attack-value">+13</div>
-                <div class="attack-value">6~16</div>
-              </div>
-              <div class="attack-labels">
-                <div class="attack-label">攻击加值</div>
-                <div class="attack-label">伤害</div>
-              </div>
-              <div class="attack-weapon-group">
-                <div class="attack-value">+11</div>
-                <div class="attack-value">3~12</div>
-              </div>
-            </div>
+          <div class="char-card" id="char-detail-card">
+            <!-- 人物卡头部信息由后端 JSON 渲染 -->
           </div>
 
           <div class="tabs">
@@ -4092,369 +4046,23 @@
           </div>
 
           <div class="tab-content active" id="inventory">
-          <div class="inventory-panel">
-            <div class="inventory-header">
-              <div class="inventory-title">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                背包物资
-              </div>
-              <div class="inventory-gold">500 G</div>
-            </div>
-
-            <div class="items-grid">
-              <div class="item-card">
-                <div>
-                  <div class="item-name">旅行服装</div>
-                </div>
-                <div class="item-quantity">x1</div>
-              </div>
-
-              <div class="item-card">
-                <div>
-                  <div class="item-equipped">已装备</div>
-                  <div class="item-name">胸甲 Breastplate</div>
-                </div>
-                <div class="item-quantity">x1</div>
-              </div>
-
-              <div class="item-card">
-                <div>
-                  <div class="item-equipped">已装备</div>
-                  <div class="item-name">盾牌</div>
-                </div>
-                <div class="item-quantity">x1</div>
-              </div>
-
-              <div class="item-card">
-                <div>
-                  <div class="item-equipped">已装备</div>
-                  <div class="item-name">徽章 Emblem</div>
-                </div>
-                <div class="item-quantity">x1</div>
-              </div>
-
-              <div class="item-card">
-                <div>
-                  <div class="item-name">普通服装 Common Clothes</div>
-                </div>
-                <div class="item-quantity">x1</div>
-              </div>
-            </div>
-          </div>
+            <!-- 由后端 JSON 渲染 -->
           </div>
 
           <div class="tab-content" id="class-attr">
-            <div class="class-panel">
-              <div class="class-race">人类</div>
-              <div class="class-icon">&#9876;&#65039;</div>
-              <div class="class-subclass">战斗大师</div>
-              <div class="class-level">等级5 战士</div>
-
-              <div class="ability-scores">
-                <div class="ability">
-                  <div class="ability-star">&#9733;</div>
-                  <div class="ability-label">力</div>
-                  <div class="ability-value highlighted">17</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-star"></div>
-                  <div class="ability-label">敏</div>
-                  <div class="ability-value">13</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-star"></div>
-                  <div class="ability-label">体</div>
-                  <div class="ability-value highlighted">15</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-star"></div>
-                  <div class="ability-label">智</div>
-                  <div class="ability-value">10</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-star"></div>
-                  <div class="ability-label">感</div>
-                  <div class="ability-value">12</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-star"></div>
-                  <div class="ability-label">魅</div>
-                  <div class="ability-value">8</div>
-                </div>
-              </div>
-
-              <div class="divider"><span>状态</span></div>
-              <ul class="feature-list">
-                <li>识破隐形 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>极乐孢子 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-              </ul>
-
-              <div class="divider"><span>抗性</span></div>
-              <ul class="feature-list">
-                <li>中毒抗性 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-              </ul>
-
-              <div class="divider"><span>职业特性</span></div>
-              <ul class="feature-list">
-                <li>巨武器大师：全力一击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>巨武器大师：附赠攻击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>重甲专精 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-              </ul>
-
-              <div class="divider"><span>重要特性</span></div>
-              <ul class="feature-list">
-                <li>人类通才 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>借机攻击 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>心灵反冲 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>恃强凌弱 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-                <li>旗开得胜 <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-                <div class="feature-detail">详细描述待补充</div>
-              </ul>
-            </div>
+            <!-- 由后端 JSON 渲染 -->
           </div>
 
           <div class="tab-content" id="skills">
-            <div class="class-panel skills-panel">
-              <div class="prof-bonus">
-                <span class="star">★</span>
-                <span>熟练项加值 (+3)</span>
-              </div>
-
-              <div class="skill-section">
-                <div class="divider"><span>力量 (+3)</span></div>
-                <div class="skill-row">
-                  <span class="skill-name">运动</span>
-                  <span class="skill-value positive">+7</span>
-                </div>
-              </div>
-
-              <div class="skill-section">
-                <div class="divider"><span>敏捷 (+1)</span></div>
-                <div class="skill-row">
-                  <span class="skill-name">巧手</span>
-                  <span class="skill-value positive">+2</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">隐匿</span>
-                  <span class="skill-value positive">+1</span>
-                </div>
-              </div>
-
-              <div class="skill-section">
-                <div class="divider"><span>智力 (0)</span></div>
-                <div class="skill-row">
-                  <span class="skill-name">奥秘</span>
-                  <span class="skill-value">0</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">历史</span>
-                  <span class="skill-value">0</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">调查</span>
-                  <span class="skill-value">0</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">自然</span>
-                  <span class="skill-value">0</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">宗教</span>
-                  <span class="skill-value">0</span>
-                </div>
-              </div>
-
-              <div class="skill-section">
-                <div class="divider"><span>感知 (+1)</span></div>
-                <div class="skill-row">
-                  <span class="skill-name">驯兽</span>
-                  <span class="skill-value positive">+1</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">洞悉</span>
-                  <span class="skill-value positive">+1</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">医药</span>
-                  <span class="skill-value positive">+1</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">察觉</span>
-                  <span class="skill-value positive">+1</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">求生</span>
-                  <span class="skill-value positive">+4</span>
-                </div>
-              </div>
-
-              <div class="skill-section">
-                <div class="divider"><span>魅力 (-1)</span></div>
-                <div class="skill-row">
-                  <span class="skill-name">欺瞒</span>
-                  <span class="skill-value negative">-1</span>
-                </div>
-                <div class="skill-row">
-                  <span class="skill-name">威吓</span>
-                  <span class="skill-value positive">+2</span>
-                </div>
-              </div>
-            </div>
+            <!-- 由后端 JSON 渲染 -->
           </div>
 
           <div class="tab-content" id="spells">
-            <div class="class-panel">
-              <div class="spells-header">
-                <span class="spells-level">5级</span>
-                <span class="spells-subclass">战斗大师</span>
-              </div>
-
-              <div class="divider"><span>常规动作</span></div>
-              <div class="skill-grid">
-                <div class="skill-block">跳跃</div>
-                <div class="skill-block">投掷</div>
-                <div class="skill-block">快速奔跑</div>
-              </div>
-
-              <div class="divider"><span>职业动作</span></div>
-              <div class="skill-grid">
-                <div class="skill-block">斗气如潮</div>
-                <div class="skill-block">回复</div>
-                <div class="skill-block">附加攻击</div>
-              </div>
-
-              <div class="divider"><span>被动技能</span></div>
-              <div class="skill-grid">
-                <div class="skill-block">巨武器使用</div>
-              </div>
-
-              <div class="divider"><span>1环法术</span></div>
-              <div class="skill-grid">
-                <div class="skill-block">火球术</div>
-                <div class="skill-block">治愈术</div>
-              </div>
-            </div>
+            <!-- 由后端 JSON 渲染 -->
           </div>
 
           <div class="tab-content" id="background">
-            <div class="class-panel bg-panel">
-              <div class="bg-info-list">
-                <div class="bg-info-row">
-                  <span class="bg-info-label">职业</span>
-                  <span class="bg-info-value">5级战士 战斗大师</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">种族</span>
-                  <span class="bg-info-value">人类</span>
-                </div>
-              </div>
-
-              <div class="divider"><span>属性</span></div>
-
-              <div class="bg-info-list">
-                <div class="bg-info-row">
-                  <span class="bg-info-label">移动速度</span>
-                  <span class="bg-info-value">3格</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">黑暗视觉范围</span>
-                  <span class="bg-info-value">2格</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">远程攻击范围</span>
-                  <span class="bg-info-value">4格</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">近战攻击范围</span>
-                  <span class="bg-info-value">1格</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">投掷范围</span>
-                  <span class="bg-info-value">4格</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">体型</span>
-                  <span class="bg-info-value">中型</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">重量</span>
-                  <span class="bg-info-value">65kg</span>
-                </div>
-                <div class="bg-info-row">
-                  <span class="bg-info-label">负重</span>
-                  <span class="bg-info-value">200kg</span>
-                </div>
-              </div>
-
-              <div class="divider"><span>豁免检定加值</span></div>
-
-              <div class="ability-scores" style="margin-bottom: 0;">
-                <div class="ability">
-                  <div class="ability-label">力</div>
-                  <div class="ability-value highlighted">+9</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-label">敏</div>
-                  <div class="ability-value highlighted">+4</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-label">体</div>
-                  <div class="ability-value highlighted">+8</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-label">智</div>
-                  <div class="ability-value highlighted">+3</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-label">感</div>
-                  <div class="ability-value highlighted">+4</div>
-                </div>
-                <div class="ability">
-                  <div class="ability-label">魅</div>
-                  <div class="ability-value highlighted">+2</div>
-                </div>
-              </div>
-
-              <div class="divider"><span>人物故事</span></div>
-
-              <div class="bg-traits">
-                <div class="bg-trait">
-                  <div class="bg-trait-title">个人特点</div>
-                  <div class="bg-trait-text">沉默寡言但观察敏锐，说话慢条斯理，总能在混乱中找到关键线索。</div>
-                </div>
-                <div class="bg-trait">
-                  <div class="bg-trait-title">理想</div>
-                  <div class="bg-trait-text">守护弱者。每一个无辜者都值得有人为他们挺身而出。</div>
-                </div>
-                <div class="bg-trait">
-                  <div class="bg-trait-title">牵绊</div>
-                  <div class="bg-trait-text">随身携带父亲的旧军牌，那是他踏上征途的唯一理由。</div>
-                </div>
-                <div class="bg-trait">
-                  <div class="bg-trait-title">缺点</div>
-                  <div class="bg-trait-text">过度自责。每当同伴受伤，他总认为是自己保护不力的结果。</div>
-                </div>
-              </div>
-
-              <div class="bg-story" style="margin-top: 12px;">
-                <p>埃利亚斯出生于灰溪镇的一个人类家庭，父亲是退役骑士，母亲是镇上的药剂师。十五岁那年，兽人部落洗劫了镇子，父母将他藏在地窖中逃过一劫。此后他被王国军队收留，成为了一名士兵。</p>
-                <p>在一次边境战役中，他独自守住了被围困的哨站，因此被骑士团看中，由此成为了一名战士。如今他游历大陆，寻找当年屠戮家乡的兽人首领，也在旅途之中帮助那些无力自保的弱者。</p>
-              </div>
-            </div>
+            <!-- 由后端 JSON 渲染 -->
           </div>
         </div>
         </div>
@@ -4528,12 +4136,13 @@
       });
     });
 
-    /* 特性展开/折叠 */
-    document.querySelectorAll('.feature-list li').forEach(li => {
-      li.addEventListener('click', function(e) {
-        e.stopPropagation();
-        this.classList.toggle('expanded');
-      });
+    /* 特性展开/折叠（事件委托，兼容动态渲染） */
+    document.addEventListener('click', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const li = e.target.closest('.feature-list li');
+      if (!li) return;
+      e.stopPropagation();
+      li.classList.toggle('expanded');
     });
 
     /* 冒险剧本选择切换 */
@@ -5074,7 +4683,7 @@
       resetChapterViews();
       // 隐藏剧本详情页的返回按钮和标题
       const backToCampaigns = document.getElementById('back-to-campaigns');
-      const campaignPageHeader = campaignDetailEl ? campaignDetailEl.querySelector('.page-header') : null;
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
       if (backToCampaigns) backToCampaigns.style.display = 'none';
       if (campaignPageHeader) campaignPageHeader.style.display = 'none';
       taskBoard.style.display = 'block';
@@ -5090,7 +4699,7 @@
       if (campaignMainContent) campaignMainContent.style.display = 'block';
       resetChapterViews();
       const backToCampaigns = document.getElementById('back-to-campaigns');
-      const campaignPageHeader = campaignDetailEl ? campaignDetailEl.querySelector('.page-header') : null;
+      const campaignPageHeader = campaignDetail ? campaignDetail.querySelector('.page-header') : null;
       if (backToCampaigns) backToCampaigns.style.display = '';
       if (campaignPageHeader) campaignPageHeader.style.display = '';
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5315,13 +4924,14 @@
       let isEquipped = false;
 
       function showTooltip(e, card) {
-        const name = card.querySelector('.item-name')?.textContent || '';
+        const name = card.dataset.name || card.querySelector('.item-name')?.textContent || '';
+        const description = card.dataset.description || '';
         const equipped = card.querySelector('.item-equipped');
         isEquipped = !!equipped;
         const eqText = isEquipped ? '（已装备）' : '';
         tooltip.innerHTML = `
           <div class="item-tooltip-name">${name} ${eqText}</div>
-          <div class="item-tooltip-desc">详细属性待补充</div>
+          <div class="item-tooltip-desc">${description || '详细属性待补充'}</div>
         `;
         const rect = tooltip.getBoundingClientRect();
         let x = e.clientX + 14;
@@ -5360,7 +4970,7 @@
         contextMenu.querySelectorAll('.menu-action').forEach(btn => {
           btn.addEventListener('click', () => {
             const action = btn.dataset.action;
-            const name = card.querySelector('.item-name')?.textContent || '';
+            const name = card.dataset.name || card.querySelector('.item-name')?.textContent || '';
             if (action === 'equip') {
               const existing = card.querySelector('.item-equipped');
               if (existing) {
@@ -5385,74 +4995,96 @@
         contextMenu.classList.remove('visible');
       }
 
-      document.querySelectorAll('.item-card').forEach(card => {
-        card.addEventListener('mouseenter', function(e) {
-          currentItemCard = this;
-          hoverTimer = setTimeout(() => showTooltip(e, this), 500);
-        });
+      /* 物品悬浮提示 + 右键菜单（事件委托，兼容动态渲染） */
+      document.addEventListener('mouseenter', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const card = e.target.closest('.item-card');
+        if (!card) return;
+        currentItemCard = card;
+        hoverTimer = setTimeout(() => showTooltip(e, card), 500);
+      }, true);
 
-        card.addEventListener('mousemove', function(e) {
-          if (tooltip.classList.contains('visible')) {
-            showTooltip(e, this);
-          }
-        });
-
-        card.addEventListener('mouseleave', function() {
-          clearTimeout(hoverTimer);
-          hideTooltip();
-          currentItemCard = null;
-        });
-
-        card.addEventListener('contextmenu', function(e) {
-          showContextMenu(e, this);
-        });
+      document.addEventListener('mousemove', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const card = e.target.closest('.item-card');
+        if (!card) return;
+        if (tooltip.classList.contains('visible')) {
+          showTooltip(e, card);
+        }
       });
 
-      /* 技能块悬浮提示 */
-      document.querySelectorAll('.skill-block').forEach(block => {
-        block.addEventListener('mouseenter', function(e) {
-          currentItemCard = this;
-          hoverTimer = setTimeout(() => {
-            const name = this.textContent.trim();
-            tooltip.innerHTML = `
-              <div class="item-tooltip-name">${name}</div>
-              <div class="item-tooltip-desc">技能详情待补充</div>
-            `;
-            let x = e.clientX + 14;
-            let y = e.clientY - 10;
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
-            const rect = tooltip.getBoundingClientRect();
-            if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
-            if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
-            tooltip.classList.add('visible');
-          }, 500);
-        });
+      document.addEventListener('mouseleave', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const card = e.target.closest('.item-card');
+        if (!card) return;
+        clearTimeout(hoverTimer);
+        hideTooltip();
+        currentItemCard = null;
+      }, true);
 
-        block.addEventListener('mousemove', function(e) {
-          if (tooltip.classList.contains('visible') && currentItemCard === this) {
-            let x = e.clientX + 14;
-            let y = e.clientY - 10;
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
-            const rect = tooltip.getBoundingClientRect();
-            if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
-            if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
-          }
-        });
-
-        block.addEventListener('mouseleave', function() {
-          clearTimeout(hoverTimer);
-          hideTooltip();
-          currentItemCard = null;
-        });
+      document.addEventListener('contextmenu', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const card = e.target.closest('.item-card');
+        if (!card) return;
+        showContextMenu(e, card);
       });
+
+      /* 技能块悬浮提示（事件委托，兼容动态渲染） */
+      document.addEventListener('mouseenter', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const block = e.target.closest('.skill-block');
+        if (!block) return;
+        currentItemCard = block;
+        hoverTimer = setTimeout(() => {
+          const name = block.textContent.trim();
+          tooltip.innerHTML = `
+            <div class="item-tooltip-name">${name}</div>
+            <div class="item-tooltip-desc">技能详情待补充</div>
+          `;
+          let x = e.clientX + 14;
+          let y = e.clientY - 10;
+          tooltip.style.left = x + 'px';
+          tooltip.style.top = y + 'px';
+          const rect = tooltip.getBoundingClientRect();
+          if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+          if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+          tooltip.style.left = x + 'px';
+          tooltip.style.top = y + 'px';
+          tooltip.classList.add('visible');
+        }, 500);
+      }, true);
+
+      document.addEventListener('mousemove', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const block = e.target.closest('.skill-block');
+        if (!block) return;
+        if (tooltip.classList.contains('visible') && currentItemCard === block) {
+          let x = e.clientX + 14;
+          let y = e.clientY - 10;
+          tooltip.style.left = x + 'px';
+          tooltip.style.top = y + 'px';
+          const rect = tooltip.getBoundingClientRect();
+          if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+          if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+          tooltip.style.left = x + 'px';
+          tooltip.style.top = y + 'px';
+        }
+      });
+
+      document.addEventListener('mouseleave', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        const block = e.target.closest('.skill-block');
+        if (!block) return;
+        clearTimeout(hoverTimer);
+        hideTooltip();
+        currentItemCard = null;
+      }, true);
 
       document.addEventListener('click', function(e) {
+        if (!e.target || typeof e.target.closest !== 'function') {
+          hideContextMenu();
+          return;
+        }
         if (!e.target.closest('.item-context-menu')) {
           hideContextMenu();
         }
@@ -5469,12 +5101,14 @@
     const characterDetail = document.getElementById('character-detail');
     const backButton = document.getElementById('back-to-archive');
 
-    document.querySelectorAll('.character-card[data-char="elias"]').forEach(card => {
-      card.addEventListener('click', () => {
-        if (heroArchive) heroArchive.style.display = 'none';
-        if (characterDetail) characterDetail.style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+    /* 点击角色卡片进入详情（事件委托，兼容动态渲染） */
+    document.addEventListener('click', (e) => {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.character-card[data-char="elias"]');
+      if (!card) return;
+      if (heroArchive) heroArchive.style.display = 'none';
+      if (characterDetail) characterDetail.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     if (backButton) {
@@ -5493,6 +5127,454 @@
         if (characterDetail) characterDetail.style.display = 'none';
       });
     }
+
+    /* ===== 从后端 JSON 动态加载并渲染人物卡 ===== */
+    const API_BASE = window.location.origin;
+    const DEFAULT_CHAR_ID = 'elias';
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    async function loadCharacter(charId) {
+      const res = await fetch(`${API_BASE}/api/characters/${charId}`);
+      if (!res.ok) throw new Error(`Failed to load character ${charId}: ${res.status}`);
+      return res.json();
+    }
+
+    async function loadEquipmentCatalog() {
+      const res = await fetch(`${API_BASE}/api/equipment`);
+      if (!res.ok) throw new Error(`Failed to load equipment catalog: ${res.status}`);
+      return res.json();
+    }
+
+    // 异步加载装备 SVG 图标，带缓存和同步 fallback
+    const svgIconCache = {};
+
+    async function loadSvgIcon(iconName) {
+      if (svgIconCache[iconName] !== undefined) {
+        return svgIconCache[iconName];
+      }
+      try {
+        const res = await fetch(`${API_BASE}/assets/icons/equipment/${iconName}.svg?v=${Date.now()}`);
+        if (!res.ok) throw new Error(`Failed to load icon ${iconName}: ${res.status}`);
+        const svgText = await res.text();
+        svgIconCache[iconName] = svgText;
+        return svgText;
+      } catch (err) {
+        console.warn('loadSvgIcon failed:', err);
+        svgIconCache[iconName] = getEquipmentIconSvg(iconName);
+        return svgIconCache[iconName];
+      }
+    }
+
+    function renderHeroArchiveCard(char) {
+      return `
+        <div class="character-card ${escapeHtml(char.theme || 'light')}" data-char="${escapeHtml(char.id)}">
+          <div class="character-card-portrait-wrap">
+            <div class="character-card-portrait">${escapeHtml(char.portrait)}</div>
+            <div class="character-card-level">等级 ${char.level}</div>
+            <div class="character-card-info">
+              <div class="character-card-name">${escapeHtml(char.name)}</div>
+              <div class="character-card-race">${escapeHtml(char.race)} ${escapeHtml(char.race_en || '')}</div>
+            </div>
+          </div>
+          <div class="character-card-class">
+            <div class="class-icon-small">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+                <path d="M13 19l6-6"></path>
+                <path d="M16 16l4 4"></path>
+                <path d="M19 21l2-2"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="class-label">职业</div>
+              <div class="class-name">${escapeHtml(char.class)} ${escapeHtml(char.class_en || '')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderCharCard(char) {
+      const xpPercent = char.xp && char.xp.max ? Math.round((char.xp.current / char.xp.max) * 100) : 0;
+      const [
+        helmetSvg,
+        chestplateSvg,
+        greavesSvg,
+        bootsSvg,
+        necklaceSvg,
+        ringSvg,
+        luteSvg,
+        swordSvg,
+        bowSvg
+      ] = await Promise.all([
+        loadSvgIcon('helmet'),
+        loadSvgIcon('chestplate'),
+        loadSvgIcon('greaves'),
+        loadSvgIcon('boots'),
+        loadSvgIcon('necklace'),
+        loadSvgIcon('ring'),
+        loadSvgIcon('lute'),
+        loadSvgIcon('sword'),
+        loadSvgIcon('bow')
+      ]);
+      return `
+        <div class="char-top">
+          <div class="char-name">${escapeHtml(char.name)}</div>
+          <div class="char-portrait-row">
+            <div class="equipment-column left-slots">
+              <div class="slot">${helmetSvg}</div>
+              <div class="slot">${chestplateSvg}</div>
+              <div class="slot">${greavesSvg}</div>
+              <div class="slot">${bootsSvg}</div>
+            </div>
+
+            <div class="char-portrait">${escapeHtml(char.portrait)}</div>
+
+            <div class="equipment-column right-slots">
+              <div class="slot">${necklaceSvg}</div>
+              <div class="slot">${ringSvg}</div>
+              <div class="slot">${ringSvg}</div>
+              <div class="slot">${luteSvg}</div>
+            </div>
+          </div>
+
+          <div class="combat-stats">
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(char.combat.ac)}</div>
+              <div class="combat-stat-label">护甲等级</div>
+            </div>
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(char.combat.hp)}</div>
+              <div class="combat-stat-label">生命值</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="char-bottom">
+          <div class="weapon-slot-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
+            <div class="weapon-slots">
+              <div class="slot">${swordSvg}</div>
+              <div class="slot">${swordSvg}</div>
+            </div>
+          </div>
+
+          <div class="char-level">
+            <div class="level-badge">
+              <span class="num">${char.level}</span>
+              <span>等级</span>
+            </div>
+            <div class="xp-bar"><div class="xp-fill" style="width: ${xpPercent}%;"></div></div>
+            <span>XP ${escapeHtml(char.xp ? char.xp.display : '0 / 0')}</span>
+          </div>
+
+          <div class="weapon-slot-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
+            <div class="weapon-slots">
+              <div class="slot">${bowSvg}</div>
+              <div class="slot">${bowSvg}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="attack-stats">
+          <div class="attack-weapon-group">
+            <div class="attack-value">${escapeHtml(char.attack.melee.bonus)}</div>
+            <div class="attack-value">${escapeHtml(char.attack.melee.damage)}</div>
+          </div>
+          <div class="attack-labels">
+            <div class="attack-label">攻击加值</div>
+            <div class="attack-label">伤害</div>
+          </div>
+          <div class="attack-weapon-group">
+            <div class="attack-value">${escapeHtml(char.attack.ranged.bonus)}</div>
+            <div class="attack-value">${escapeHtml(char.attack.ranged.damage)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getEquipmentIconSvg(iconName) {
+      const icons = {
+        sword: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path><path d="M13 19l6-6"></path><path d="M16 16l4 4"></path><path d="M19 21l2-2"></path></svg>',
+        greatsword: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 22l8-8"></path><path d="M6 18l12-12"></path><path d="M18 6l4-4"></path><path d="M4 20l4-4"></path></svg>',
+        dagger: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 9-3 3-9-9z"></path><path d="M3 21l6-6"></path><path d="M6 18l3 3"></path></svg>',
+        bow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 4c-8 4-8 12 0 16"></path><path d="M18 4v16"></path><path d="M6 12h12"></path></svg>',
+        staff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l12 18"></path><path d="M8 21l-2-2"></path><path d="M18 5l2 2"></path></svg>',
+        hammer: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 12l6-6"></path><path d="M13 10l-6 6-4-4 6-6z"></path><path d="M3 21l4-4"></path></svg>',
+        helmet: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-4 3.5-7 7-7s7 3 7 7v6h-4v-4h-6v4H5V9z"></path></svg>',
+        chestplate: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6c0-1 2-2 3-1l2 3h4l2-3c1-1 3 0 3 1v11c0 2-2 3-7 3S5 19 5 17V6z"></path></svg>',
+        greaves: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16h-4V8h-4v12H6V4z"></path></svg>',
+        boots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6H6v9H3c-1 0-2 1-2 2v1c0 1 1 2 2 2h6c1 0 1-1 1-2V6z"></path><path d="M14 6h4v9h3c1 0 2 1 2 2v1c0 1-1 2-2 2h-6c-1 0-1-1-1-2V6z"></path></svg>',
+        necklace: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 6 4 10 8 10s8-4 8-10"></path><circle cx="12" cy="15" r="3"></circle></svg>',
+        ring: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="6"></circle><path d="M9 8l3-4 3 4H9z"></path></svg>',
+        lute: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21c0-8 4-16 10-16"></path><path d="M6 21h12"></path><path d="M8 21v-8"></path><path d="M11 21v-10"></path><path d="M14 21v-10"></path><path d="M17 21v-8"></path></svg>',
+        armor: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l3 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path><path d="M12 3v17"></path></svg>',
+        shield: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+        clothes: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l2 4v14H4V7z"></path><path d="M12 3v18"></path></svg>',
+        amulet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 6 4 10 8 10s8-4 8-10"></path><circle cx="12" cy="15" r="3"></circle><path d="M12 13v4"></path><path d="M10 15h4"></path></svg>',
+        pouch: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>',
+        crystal: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 6-3 14H7L4 8z"></path><path d="M12 2v22"></path></svg>',
+        cloak: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6l-4 4v6H8v-6L4 10z"></path></svg>',
+        tools: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.3-3.3A8 8 0 0 1 21 12v2"></path><path d="M18 8l-4 4-4-4"></path><path d="M4 20l4-4"></path></svg>'
+      };
+      return icons[iconName] || icons.pouch;
+    }
+
+    async function renderInventory(char, equipmentCatalog) {
+      const catalog = equipmentCatalog || {};
+      const itemsWithSvg = await Promise.all(char.inventory.items.map(async item => {
+        const catalogItem = item.equipment_id ? catalog[item.equipment_id] : null;
+        const displayName = catalogItem ? catalogItem.name : (item.name || '未知物品');
+        const iconName = catalogItem ? catalogItem.icon : 'pouch';
+        const iconSvg = await loadSvgIcon(iconName);
+        const description = catalogItem ? catalogItem.description : '';
+        return { ...item, displayName, iconSvg, description };
+      }));
+      const itemsHtml = itemsWithSvg.map(item => `
+          <div class="item-card" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(item.displayName)}" data-description="${escapeHtml(item.description)}">
+            <div class="item-top">
+              <div class="item-icon">${item.iconSvg}</div>
+              <div class="item-info">
+                ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
+                <div class="item-name">${escapeHtml(item.displayName)}</div>
+              </div>
+            </div>
+            <div class="item-quantity">x${item.quantity}</div>
+          </div>
+        `).join('');
+
+      return `
+        <div class="inventory-panel">
+          <div class="inventory-header">
+            <div class="inventory-title">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              背包物资
+            </div>
+            <div class="inventory-gold">${char.inventory.gold} G</div>
+          </div>
+          <div class="items-grid">
+            ${itemsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFeatureList(features) {
+      return features.map(f => `
+        <li>${escapeHtml(f.name)} <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
+        <div class="feature-detail">${escapeHtml(f.detail)}</div>
+      `).join('');
+    }
+
+    function renderClassAttr(char) {
+      const abilities = char.abilities;
+      const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+      const abilityHtml = abilityOrder.map(key => {
+        const a = abilities[key];
+        return `
+          <div class="ability">
+            <div class="ability-star">${a.highlighted ? '&#9733;' : ''}</div>
+            <div class="ability-label">${escapeHtml(a.label)}</div>
+            <div class="ability-value ${a.highlighted ? 'highlighted' : ''}">${a.value}</div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="class-panel">
+          <div class="class-race">${escapeHtml(char.background.race)}</div>
+          <div class="class-icon">&#9876;&#65039;</div>
+          <div class="class-subclass">${escapeHtml(char.subclass)}</div>
+          <div class="class-level">等级${char.level} ${escapeHtml(char.class)}</div>
+
+          <div class="ability-scores">
+            ${abilityHtml}
+          </div>
+
+          ${char.features.status.length ? `<div class="divider"><span>状态</span></div><ul class="feature-list">${renderFeatureList(char.features.status)}</ul>` : ''}
+          ${char.features.resistances.length ? `<div class="divider"><span>抗性</span></div><ul class="feature-list">${renderFeatureList(char.features.resistances)}</ul>` : ''}
+          ${char.features.class.length ? `<div class="divider"><span>职业特性</span></div><ul class="feature-list">${renderFeatureList(char.features.class)}</ul>` : ''}
+          ${char.features.important.length ? `<div class="divider"><span>重要特性</span></div><ul class="feature-list">${renderFeatureList(char.features.important)}</ul>` : ''}
+        </div>
+      `;
+    }
+
+    function renderSkills(char) {
+      const sectionsHtml = char.skills.sections.map(section => {
+        const rowsHtml = section.skills.map(skill => `
+          <div class="skill-row">
+            <span class="skill-name">${escapeHtml(skill.name)}</span>
+            <span class="skill-value ${skill.type}">${escapeHtml(skill.value)}</span>
+          </div>
+        `).join('');
+        return `
+          <div class="skill-section">
+            <div class="divider"><span>${escapeHtml(section.ability)} (${escapeHtml(section.modifier)})</span></div>
+            ${rowsHtml}
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="class-panel skills-panel">
+          <div class="prof-bonus">
+            <span class="star">★</span>
+            <span>熟练项加值 (${escapeHtml(char.skills.proficiency_bonus)})</span>
+          </div>
+          ${sectionsHtml}
+        </div>
+      `;
+    }
+
+    function renderSpells(char) {
+      const renderBlocks = list => list.map(name => `<div class="skill-block">${escapeHtml(name)}</div>`).join('');
+      return `
+        <div class="class-panel">
+          <div class="spells-header">
+            <span class="spells-level">${char.spells.level}级</span>
+            <span class="spells-subclass">${escapeHtml(char.spells.subclass)}</span>
+          </div>
+
+          <div class="divider"><span>常规动作</span></div>
+          <div class="skill-grid">${renderBlocks(char.spells.actions.normal)}</div>
+
+          <div class="divider"><span>职业动作</span></div>
+          <div class="skill-grid">${renderBlocks(char.spells.actions.class)}</div>
+
+          <div class="divider"><span>被动技能</span></div>
+          <div class="skill-grid">${renderBlocks(char.spells.passive)}</div>
+
+          <div class="divider"><span>1环法术</span></div>
+          <div class="skill-grid">${renderBlocks(char.spells.spells_level_1)}</div>
+        </div>
+      `;
+    }
+
+    function renderBackground(char) {
+      const bg = char.background;
+      const attrsHtml = Object.entries(bg.attributes).map(([key, value]) => {
+        const labelMap = {
+          move_speed: '移动速度',
+          darkvision: '黑暗视觉范围',
+          ranged_range: '远程攻击范围',
+          melee_range: '近战攻击范围',
+          throw_range: '投掷范围',
+          size: '体型',
+          weight: '重量',
+          carry_weight: '负重'
+        };
+        return `
+          <div class="bg-info-row">
+            <span class="bg-info-label">${labelMap[key] || key}</span>
+            <span class="bg-info-value">${escapeHtml(value)}</span>
+          </div>
+        `;
+      }).join('');
+
+      const saveAbilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+      const saveHtml = saveAbilities.map(key => {
+        const a = char.abilities[key];
+        return `
+          <div class="ability">
+            <div class="ability-label">${escapeHtml(a.label)}</div>
+            <div class="ability-value highlighted">${escapeHtml(a.save_bonus)}</div>
+          </div>
+        `;
+      }).join('');
+
+      const traitMap = {
+        personality: '个人特点',
+        ideal: '理想',
+        bond: '牵绊',
+        flaw: '缺点'
+      };
+      const traitsHtml = Object.entries(bg.traits).map(([key, text]) => `
+        <div class="bg-trait">
+          <div class="bg-trait-title">${traitMap[key] || key}</div>
+          <div class="bg-trait-text">${escapeHtml(text)}</div>
+        </div>
+      `).join('');
+
+      const storyHtml = bg.story.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+
+      return `
+        <div class="class-panel bg-panel">
+          <div class="bg-info-list">
+            <div class="bg-info-row">
+              <span class="bg-info-label">职业</span>
+              <span class="bg-info-value">${escapeHtml(bg.class)}</span>
+            </div>
+            <div class="bg-info-row">
+              <span class="bg-info-label">种族</span>
+              <span class="bg-info-value">${escapeHtml(bg.race)}</span>
+            </div>
+          </div>
+
+          <div class="divider"><span>属性</span></div>
+          <div class="bg-info-list">${attrsHtml}</div>
+
+          <div class="divider"><span>豁免检定加值</span></div>
+          <div class="ability-scores" style="margin-bottom: 0;">${saveHtml}</div>
+
+          <div class="divider"><span>人物故事</span></div>
+          <div class="bg-traits">${traitsHtml}</div>
+          <div class="bg-story" style="margin-top: 12px;">${storyHtml}</div>
+        </div>
+      `;
+    }
+
+    async function initCharacters() {
+      try {
+        const [char, equipmentCatalog] = await Promise.all([
+          loadCharacter(DEFAULT_CHAR_ID),
+          loadEquipmentCatalog()
+        ]);
+        window.equipmentCatalog = equipmentCatalog;
+
+        const grid = document.getElementById('character-grid');
+        if (grid) grid.innerHTML = renderHeroArchiveCard(char);
+
+        const detailCard = document.getElementById('char-detail-card');
+        if (detailCard) detailCard.innerHTML = await renderCharCard(char);
+
+        const inventory = document.getElementById('inventory');
+        if (inventory) inventory.innerHTML = await renderInventory(char, equipmentCatalog);
+
+        const classAttr = document.getElementById('class-attr');
+        if (classAttr) classAttr.innerHTML = renderClassAttr(char);
+
+        const skills = document.getElementById('skills');
+        if (skills) skills.innerHTML = renderSkills(char);
+
+        const spells = document.getElementById('spells');
+        if (spells) spells.innerHTML = renderSpells(char);
+
+        const background = document.getElementById('background');
+        if (background) background.innerHTML = renderBackground(char);
+      } catch (err) {
+        console.error('加载人物卡失败:', err);
+      }
+    }
+
+    initCharacters();
   </script>
 </body>
 </html>

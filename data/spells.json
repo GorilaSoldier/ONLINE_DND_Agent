@@ -1,0 +1,68 @@
+{
+  "type": "spells",
+  "actions": {
+    "normal": {
+      "jump": {
+        "id": "jump",
+        "name": "跳跃",
+        "description": "进行一次跳跃移动，可跨越障碍物或高低差地形。"
+      },
+      "throw": {
+        "id": "throw",
+        "name": "投掷",
+        "description": "投掷手中的武器或物品，对远程目标造成伤害。"
+      },
+      "dash": {
+        "id": "dash",
+        "name": "快速奔跑",
+        "description": "消耗一个动作进行额外移动，本回合移动距离翻倍。"
+      }
+    },
+    "class": {
+      "fighting_spirit": {
+        "id": "fighting_spirit",
+        "name": "斗气如潮",
+        "description": "战士爆发内在力量，短时间内提升攻击力和防御力。"
+      },
+      "recovery": {
+        "id": "recovery",
+        "name": "回复",
+        "description": "消耗一次短暂休息，恢复部分生命值并重置部分技能。"
+      },
+      "extra_attack": {
+        "id": "extra_attack",
+        "name": "附加攻击",
+        "description": "在同一回合内进行一次额外的近战攻击。"
+      }
+    }
+  },
+  "passive": {
+    "great_weapon_fighting": {
+      "id": "great_weapon_fighting",
+      "name": "巨武器使用",
+      "description": "擅长使用重型双手武器，伤害骰出1或2时可重骰一次。"
+    }
+  },
+  "spells": {
+    "level_1": {
+      "fireball": {
+        "id": "fireball",
+        "name": "火球术",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1动作",
+        "range": "45米",
+        "description": "在指定位置制造一个爆炸火球，对范围内所有生物造成火焰伤害。"
+      },
+      "cure_wounds": {
+        "id": "cure_wounds",
+        "name": "治愈术",
+        "level": 1,
+        "school": "防护",
+        "casting_time": "1动作",
+        "range": "触碰",
+        "description": "引导正能量治愈一个你触碰的生物，恢复一定生命值。"
+      }
+    }
+  }
+}

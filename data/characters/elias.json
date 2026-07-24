@@ -4,6 +4,7 @@
   "portrait": "埃",
   "theme": "light",
   "race": "人类",
+  "race_id": "human",
   "race_en": "Human",
   "class": "战士",
   "class_en": "warrior",
@@ -48,26 +49,13 @@
       { "equipment_id": "common_clothes", "name": "普通服装 Common Clothes", "quantity": 1, "equipped": false }
     ]
   },
+  "class_id": "warrior",
+  "subclass_id": "battle_master",
   "features": {
-    "status": [
-      { "name": "识破隐形", "detail": "详细描述待补充" },
-      { "name": "极乐孢子", "detail": "详细描述待补充" }
-    ],
-    "resistances": [
-      { "name": "中毒抗性", "detail": "详细描述待补充" }
-    ],
-    "class": [
-      { "name": "巨武器大师：全力一击", "detail": "详细描述待补充" },
-      { "name": "巨武器大师：附赠攻击", "detail": "详细描述待补充" },
-      { "name": "重甲专精", "detail": "详细描述待补充" }
-    ],
-    "important": [
-      { "name": "人类通才", "detail": "详细描述待补充" },
-      { "name": "借机攻击", "detail": "详细描述待补充" },
-      { "name": "心灵反冲", "detail": "详细描述待补充" },
-      { "name": "恃强凌弱", "detail": "详细描述待补充" },
-      { "name": "旗开得胜", "detail": "详细描述待补充" }
-    ]
+    "status_ids": ["see_invisibility", "bliss_spores"],
+    "resistance_ids": ["poison_resist"],
+    "class_feature_ids": ["gwm_power_attack", "gwm_bonus_attack", "heavy_armor_mastery"],
+    "trait_ids": ["human_versatility", "opportunity_attack", "psychic_recoil", "bully", "first_strike"]
   },
   "skills": {
     "proficiency_bonus": "+3",
@@ -120,14 +108,15 @@
     ]
   },
   "spells": {
-    "level": 4,
-    "subclass": "战斗大师",
-    "actions": {
-      "normal": ["跳跃", "投掷", "快速奔跑"],
-      "class": ["斗气如潮", "回复", "附加攻击"]
+    "caster_level": 4,
+    "action_ids": {
+      "normal": ["jump", "throw", "dash"],
+      "class": ["fighting_spirit", "recovery", "extra_attack"]
     },
-    "passive": ["巨武器使用"],
-    "spells_level_1": ["火球术", "治愈术"]
+    "passive_ids": ["great_weapon_fighting"],
+    "spell_ids": {
+      "level_1": ["fireball", "cure_wounds"]
+    }
   },
   "background": {
     "class": "4级战士 战斗大师",

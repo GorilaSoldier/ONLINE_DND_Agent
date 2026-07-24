@@ -1,0 +1,338 @@
+{
+  "type": "races",
+  "human": {
+    "id": "human",
+    "name": "人类",
+    "name_en": "Human",
+    "description": "费伦大陆最常见的种族，以坚韧、创造力和无穷潜力著称。虽寿命相对较短，但他们的决心和进取精神推动无数人成为传奇英雄。",
+    "subraces": {},
+    "base_speed": 9,
+    "base_trait_ids": ["human_versatility", "civil_militia"]
+  },
+  "elf": {
+    "id": "elf",
+    "name": "精灵",
+    "name_en": "Elf",
+    "description": "被遗忘国度最古老的种族之一，栖息于广阔的森林和古老的城市中。拥有妖精血统和极长的寿命，精于魔法，对美有着独特的追求。",
+    "base_speed": 9,
+    "base_trait_ids": ["fey_ancestry", "darkvision_12m", "keen_senses", "elf_weapon_training"],
+    "subraces": {
+      "high_elf": {
+        "id": "high_elf",
+        "name": "高精灵",
+        "name_en": "High Elf",
+        "description": "正统精灵，天生精通魔法，居住在古老城市中的优雅贵族。",
+        "extra_trait_ids": ["high_elf_cantrip"]
+      },
+      "wood_elf": {
+        "id": "wood_elf",
+        "name": "木精灵",
+        "name_en": "Wood Elf",
+        "description": "亲近自然的精灵分支，精通剑术与伪装，在森林中迅捷如风。",
+        "base_speed": 10.5,
+        "extra_trait_ids": ["stealth_proficient", "fleet_of_foot"]
+      }
+    }
+  },
+  "drow": {
+    "id": "drow",
+    "name": "卓尔",
+    "name_en": "Drow",
+    "description": "从高等精灵分裂出去的族群，常年居住幽暗地域，适应了黑暗生活。以暗紫色皮肤和银白头发为特征，是费伦公认的危险种族。",
+    "base_speed": 9,
+    "base_trait_ids": ["fey_ancestry", "superior_darkvision_24m", "keen_senses", "drow_weapon_training", "drow_magic"],
+    "subraces": {
+      "lolth_sworn": {
+        "id": "lolth_sworn",
+        "name": "罗斯卓尔",
+        "name_en": "Lolth-Sworn Drow",
+        "description": "由信奉蜘蛛女神罗斯的信徒抚养长大，眼瞳为红色，臭名昭著的恶徒。",
+        "extra_trait_ids": []
+      },
+      "seldarine": {
+        "id": "seldarine",
+        "name": "席德瑞恩卓尔",
+        "name_en": "Seldarine Drow",
+        "description": "卓尔中的少数善良者，追随善良神系席德瑞恩，寻求与地表种族和平共处。",
+        "extra_trait_ids": []
+      }
+    }
+  },
+  "half_elf": {
+    "id": "half_elf",
+    "name": "半精灵",
+    "name_en": "Half-Elf",
+    "description": "人类和精灵的后代，继承了双方优点，在两种社会中都被接纳。拥有精灵的优雅和人类的灵活性。",
+    "base_speed": 9,
+    "base_trait_ids": ["fey_ancestry", "darkvision_12m", "civil_militia"],
+    "subraces": {
+      "high_half_elf": {
+        "id": "high_half_elf",
+        "name": "半高精灵",
+        "name_en": "High Half-Elf",
+        "description": "人类与高精灵的后代，继承了一部分奥术天赋。",
+        "extra_trait_ids": ["high_elf_cantrip"]
+      },
+      "wood_half_elf": {
+        "id": "wood_half_elf",
+        "name": "半木精灵",
+        "name_en": "Wood Half-Elf",
+        "description": "人类与木精灵的后代，继承了森林中的敏捷身法。",
+        "base_speed": 10.5,
+        "extra_trait_ids": ["stealth_proficient", "fleet_of_foot"]
+      },
+      "drow_half_elf": {
+        "id": "drow_half_elf",
+        "name": "半卓尔",
+        "name_en": "Drow Half-Elf",
+        "description": "人类与卓尔的后代，拥有来自幽暗地域的神秘魔法。",
+        "extra_trait_ids": ["dancing_lights"]
+      }
+    }
+  },
+  "half_orc": {
+    "id": "half_orc",
+    "name": "半兽人",
+    "name_en": "Half-Orc",
+    "description": "人类与兽人的后裔，继承了兽人的力量与人类的适应力。外表粗犷但内心可以无比忠诚。",
+    "subraces": {},
+    "base_speed": 9,
+    "base_trait_ids": ["darkvision_12m", "relentless_endurance", "menacing", "savage_attacks"]
+  },
+  "halfling": {
+    "id": "halfling",
+    "name": "半身人",
+    "name_en": "Halfling",
+    "description": "体型虽小但能力不差。大多数半身人喜欢家园的宁静，但他们的幸运和敏捷也能让他们成为出色冒险者。",
+    "base_speed": 7.5,
+    "base_trait_ids": ["lucky", "brave"],
+    "subraces": {
+      "lightfoot": {
+        "id": "lightfoot",
+        "name": "轻足半身人",
+        "name_en": "Lightfoot Halfling",
+        "description": "擅长潜行的半身人，天生就能轻松隐匿身形。",
+        "extra_trait_ids": ["naturally_stealthy"]
+      },
+      "strongheart": {
+        "id": "strongheart",
+        "name": "壮心半身人",
+        "name_en": "Strongheart Halfling",
+        "description": "体格更加强壮的半身人，对毒素有特殊的抵抗力。",
+        "extra_trait_ids": ["strongheart_resilience"]
+      }
+    }
+  },
+  "dwarf": {
+    "id": "dwarf",
+    "name": "矮人",
+    "name_en": "Dwarf",
+    "description": "矮人身材矮小但体魄强壮，是战斗、挖掘和冶炼的大师。比人类长寿且非常注重氏族传统，特别喜欢胡子。",
+    "base_speed": 7.5,
+    "base_trait_ids": ["darkvision_12m", "dwarven_resilience", "dwarven_combat_training"],
+    "subraces": {
+      "gold_dwarf": {
+        "id": "gold_dwarf",
+        "name": "黄金矮人",
+        "name_en": "Gold Dwarf",
+        "description": "传统矮人亚种，注重家庭与工艺，体魄比普通矮人更加坚韧。",
+        "extra_trait_ids": ["dwarven_toughness"]
+      },
+      "shield_dwarf": {
+        "id": "shield_dwarf",
+        "name": "盾矮人",
+        "name_en": "Shield Dwarf",
+        "description": "擅长使用各种护甲的矮人战士，是矮人军队的中坚力量。",
+        "extra_trait_ids": ["light_medium_armor_proficiency"]
+      },
+      "duergar": {
+        "id": "duergar",
+        "name": "灰矮人",
+        "name_en": "Duergar",
+        "description": "矮人中的邪恶分支，住在地下深处。冷酷无情，善于潜行战斗，拥有强大的心灵抗力。",
+        "extra_trait_ids": ["superior_darkvision_24m", "duergar_resilience"]
+      }
+    }
+  },
+  "gnome": {
+    "id": "gnome",
+    "name": "侏儒",
+    "name_en": "Gnome",
+    "description": "侏儒矮小聪慧又充满活力，非常长寿。以创造力和对知识的渴望闻名，遍布被遗忘国度的每个角落。",
+    "base_speed": 7.5,
+    "base_trait_ids": ["gnome_cunning"],
+    "subraces": {
+      "forest_gnome": {
+        "id": "forest_gnome",
+        "name": "森林侏儒",
+        "name_en": "Forest Gnome",
+        "description": "比普通侏儒更矮小，天生能与动物交流，是魔法和工艺的大师。",
+        "extra_trait_ids": ["darkvision_12m", "speak_with_animals"]
+      },
+      "rock_gnome": {
+        "id": "rock_gnome",
+        "name": "岩侏儒",
+        "name_en": "Rock Gnome",
+        "description": "最常见的侏儒，对历史知识和发明创造有独特天赋。",
+        "extra_trait_ids": ["darkvision_12m", "artificer_lore"]
+      },
+      "deep_gnome": {
+        "id": "deep_gnome",
+        "name": "地底侏儒",
+        "name_en": "Deep Gnome",
+        "description": "生活在幽暗地域的侏儒，性格阴沉但生存能力极强，擅长在黑暗中隐匿。",
+        "extra_trait_ids": ["superior_darkvision_24m", "stone_camouflage"]
+      }
+    }
+  },
+  "tiefling": {
+    "id": "tiefling",
+    "name": "提夫林",
+    "name_en": "Tiefling",
+    "description": "人类血统中注入了炼狱基因的后裔。外表带有恶魔特征（角、尾巴、尖牙），被世人畏惧但也拥有独特的黑暗力量。",
+    "base_speed": 9,
+    "base_trait_ids": ["darkvision_12m", "hellish_resistance", "thaumaturgy"],
+    "subraces": {
+      "asmodeus": {
+        "id": "asmodeus",
+        "name": "阿斯蒙蒂斯提夫林",
+        "name_en": "Asmodeus Tiefling",
+        "description": "地狱最深层统治者的后裔，擅长运用火焰与黑暗魔法。",
+        "extra_trait_ids": ["asmodeus_legacy"]
+      },
+      "mephistopheles": {
+        "id": "mephistopheles",
+        "name": "梅菲斯特提夫林",
+        "name_en": "Mephistopheles Tiefling",
+        "description": "精通奥术魔法的提夫林，皮肤通常为灰黑色。",
+        "extra_trait_ids": ["mephistopheles_legacy"]
+      },
+      "zariel": {
+        "id": "zariel",
+        "name": "扎瑞尔提夫林",
+        "name_en": "Zariel Tiefling",
+        "description": "擅长近身战斗的提夫林分支，皮肤通常为黄绿色。",
+        "extra_trait_ids": ["zariel_legacy"]
+      }
+    }
+  },
+  "githyanki": {
+    "id": "githyanki",
+    "name": "吉斯洋基人",
+    "name_en": "Githyanki",
+    "description": "来自星界的顶级战士种族，以银刃和红龙坐骑声名远扬。曾长期被夺心魔奴役，起义后成为跨越多元宇宙的追猎者。",
+    "subraces": {},
+    "base_speed": 9,
+    "base_trait_ids": ["martial_prodigy", "astral_knowledge", "githyanki_psionics"]
+  },
+  "dragonborn": {
+    "id": "dragonborn",
+    "name": "龙裔",
+    "name_en": "Dragonborn",
+    "description": "拥有一部分龙族血脉的战士种族。虽无翅膀和尾巴，但继承了真龙的吐息武器和元素抗性。以氏族荣誉为生命。",
+    "base_speed": 9,
+    "base_trait_ids": ["draconic_ancestry"],
+    "subraces": {
+      "black": {
+        "id": "black",
+        "name": "黑龙龙裔",
+        "name_en": "Black Dragonborn",
+        "breath_type": "acid",
+        "breath_shape": "line",
+        "resistance": "acid",
+        "color": "#2d2d2d",
+        "extra_trait_ids": []
+      },
+      "blue": {
+        "id": "blue",
+        "name": "蓝龙龙裔",
+        "name_en": "Blue Dragonborn",
+        "breath_type": "lightning",
+        "breath_shape": "line",
+        "resistance": "lightning",
+        "color": "#2244aa",
+        "extra_trait_ids": []
+      },
+      "brass": {
+        "id": "brass",
+        "name": "黄铜龙龙裔",
+        "name_en": "Brass Dragonborn",
+        "breath_type": "fire",
+        "breath_shape": "line",
+        "resistance": "fire",
+        "color": "#c4943a",
+        "extra_trait_ids": []
+      },
+      "bronze": {
+        "id": "bronze",
+        "name": "青铜龙龙裔",
+        "name_en": "Bronze Dragonborn",
+        "breath_type": "lightning",
+        "breath_shape": "line",
+        "resistance": "lightning",
+        "color": "#8b6914",
+        "extra_trait_ids": []
+      },
+      "copper": {
+        "id": "copper",
+        "name": "赤铜龙龙裔",
+        "name_en": "Copper Dragonborn",
+        "breath_type": "acid",
+        "breath_shape": "line",
+        "resistance": "acid",
+        "color": "#b87333",
+        "extra_trait_ids": []
+      },
+      "gold": {
+        "id": "gold",
+        "name": "金龙龙裔",
+        "name_en": "Gold Dragonborn",
+        "breath_type": "fire",
+        "breath_shape": "cone",
+        "resistance": "fire",
+        "color": "#d4a017",
+        "extra_trait_ids": []
+      },
+      "green": {
+        "id": "green",
+        "name": "绿龙龙裔",
+        "name_en": "Green Dragonborn",
+        "breath_type": "poison",
+        "breath_shape": "cone",
+        "resistance": "poison",
+        "color": "#3a6b3a",
+        "extra_trait_ids": []
+      },
+      "red": {
+        "id": "red",
+        "name": "红龙龙裔",
+        "name_en": "Red Dragonborn",
+        "breath_type": "fire",
+        "breath_shape": "cone",
+        "resistance": "fire",
+        "color": "#cc3333",
+        "extra_trait_ids": []
+      },
+      "silver": {
+        "id": "silver",
+        "name": "银龙龙裔",
+        "name_en": "Silver Dragonborn",
+        "breath_type": "frost",
+        "breath_shape": "cone",
+        "resistance": "frost",
+        "color": "#c0c0c0",
+        "extra_trait_ids": []
+      },
+      "white": {
+        "id": "white",
+        "name": "白龙龙裔",
+        "name_en": "White Dragonborn",
+        "breath_type": "frost",
+        "breath_shape": "cone",
+        "resistance": "frost",
+        "color": "#e8e8e8",
+        "extra_trait_ids": []
+      }
+    }
+  }
+}

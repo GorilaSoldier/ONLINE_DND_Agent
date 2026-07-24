@@ -863,8 +863,8 @@
     }
 
     .item-icon {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       flex-shrink: 0;
       color: var(--accent);
       opacity: 0.85;
@@ -1864,6 +1864,16 @@
       margin-bottom: 12px;
     }
 
+    .dm-note {
+      font-size: 14px;
+      color: #8b6914;
+      background: rgba(212, 160, 61, 0.1);
+      border-left: 3px solid #d4a03d;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+    }
+
     .ai-summary {
       margin-top: 32px;
       padding-top: 24px;
@@ -2615,6 +2625,7 @@
       border-radius: 12px;
       padding: 18px;
       box-shadow: 0 2px 8px var(--shadow);
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -2802,6 +2813,180 @@
     .intel-page-info {
       font-size: 14px;
       color: var(--ink-soft);
+    }
+
+    /* ===== 情报详情弹窗 ===== */
+    .intel-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 18, 10, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .intel-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .intel-modal {
+      background: var(--paper-card);
+      border-radius: 16px;
+      box-shadow: 0 12px 48px rgba(30, 18, 10, 0.35);
+      max-width: 520px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      padding: 32px 28px 24px;
+      animation: intelModalIn 0.3s ease;
+    }
+
+    @keyframes intelModalIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .intel-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--ink-soft);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .intel-modal-close:hover {
+      color: var(--ink);
+      background: rgba(61, 43, 31, 0.08);
+    }
+
+    .intel-modal-close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .intel-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .intel-modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .intel-modal-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-modal-icon.type-person { background: #5b8bd0; }
+    .intel-modal-icon.type-location { background: #4caf7c; }
+    .intel-modal-icon.type-clue { background: #a855f7; }
+    .intel-modal-icon.type-legend { background: #d4a03d; }
+    .intel-modal-icon.type-item { background: #e67c52; }
+    .intel-modal-icon.type-monster { background: #c45c5c; }
+
+    .intel-modal-title-wrap { flex: 1; min-width: 0; }
+
+    .intel-modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .intel-modal-type {
+      font-size: 13px;
+      color: var(--ink-soft);
+      letter-spacing: 1px;
+    }
+
+    .intel-modal-section {
+      margin-bottom: 16px;
+    }
+
+    .intel-modal-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    .intel-modal-region {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      color: var(--ink-soft);
+      background: var(--slot);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .intel-modal-region svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .intel-modal-description {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--ink);
+    }
+
+    .intel-modal-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .intel-modal-tag {
+      font-size: 13px;
+      color: var(--ink-soft);
+      background: rgba(61, 43, 31, 0.06);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .intel-modal-tag.empty {
+      color: rgba(61, 43, 31, 0.3);
+      font-style: italic;
     }
 
     @media (max-width: 900px) {
@@ -3470,95 +3655,8 @@
               </div>
               <span class="panel-more" id="view-all-tasks" style="cursor: pointer;">查看全部任务 →</span>
             </div>
-            <div class="task-list">
-              <div class="task-item">
-                <div class="task-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                  </svg>
-                </div>
-                <div class="task-body">
-                  <div class="task-title">维克托的秘密</div>
-                  <div class="task-meta">
-                    <span>2025/1/24</span>
-                    <span class="task-tag">线索</span>
-                  </div>
-                </div>
-                <div class="task-arrow">›</div>
-              </div>
-
-              <div class="task-item">
-                <div class="task-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </div>
-                <div class="task-body">
-                  <div class="task-title">斯特拉·瓦赫特</div>
-                  <div class="task-meta">
-                    <span>2025/1/24</span>
-                    <span class="task-tag">NPC</span>
-                  </div>
-                </div>
-                <div class="task-arrow">›</div>
-              </div>
-
-              <div class="task-item">
-                <div class="task-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  </svg>
-                </div>
-                <div class="task-body">
-                  <div class="task-title">猎狼人</div>
-                  <div class="task-meta">
-                    <span>2025/1/24</span>
-                    <span class="task-tag">NPC</span>
-                  </div>
-                </div>
-                <div class="task-arrow">›</div>
-              </div>
-
-              <div class="task-item">
-                <div class="task-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="task-body">
-                  <div class="task-title">第十一回：瓦赫特和瓦格斯</div>
-                  <div class="task-meta">
-                    <span>2025/1/23 · 第7天，风爪之月07，1492</span>
-                  </div>
-                </div>
-                <div class="task-arrow">›</div>
-              </div>
-
-              <div class="task-item">
-                <div class="task-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="task-body">
-                  <div class="task-title">第十回：镇长与瓦赫特</div>
-                  <div class="task-meta">
-                    <span>2025/12/25 · 第7天，风爪之月07，1492</span>
-                  </div>
-                </div>
-                <div class="task-arrow">›</div>
-              </div>
+            <div class="task-list" id="active-quests-list">
+              <!-- 由 JS 从任务数据动态渲染 -->
             </div>
           </div>
         </div>
@@ -3672,69 +3770,8 @@
             </svg>
             第一章
           </div>
-          <div class="directory-chapters chapter-timeline">
-            <div class="chapter-item" data-chapter="1">
-              <div class="chapter-vol">
-                <span class="chapter-vol-label">VOL</span>
-                <span class="chapter-vol-num">01</span>
-              </div>
-              <div class="chapter-info">
-                <div class="chapter-info-header">
-                  <div class="chapter-title">第一回：费伦大陆与匕首滩</div>
-                  <div class="chapter-date">1492 · 风爪之月01</div>
-                </div>
-                <div class="chapter-tags">
-                  <span class="chapter-tag">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    第1天
-                  </span>
-                  <span class="chapter-tag">匕首滩</span>
-                </div>
-                <div class="chapter-summary">当金币在酒杯间碰撞发出悦耳脆响时，命运的齿轮已悄然咬合。一支名为“VIVO50”的冒险小队在匕首滩享受着任务完成后的狂欢，却被一位神秘的维斯塔尼信使打破了平静。</div>
-              </div>
-            </div>
-
-            <div class="chapter-item" data-chapter="2">
-              <div class="chapter-vol">
-                <span class="chapter-vol-label">VOL</span>
-                <span class="chapter-vol-num">02</span>
-              </div>
-              <div class="chapter-info">
-                <div class="chapter-info-header">
-                  <div class="chapter-title">第二回：迷雾森林的阴影</div>
-                  <div class="chapter-date">1492 · 风爪之月01</div>
-                </div>
-                <div class="chapter-tags">
-                  <span class="chapter-tag">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    第1天
-                  </span>
-                  <span class="chapter-tag">迷雾森林</span>
-                </div>
-                <div class="chapter-summary">穿过迷雾森林的扭曲小径，VIVO50小队终于抵达了地图上不存在之地——巴洛维亚。阴森的城堡高耸于浓雾之中，而村庄里的居民却仿佛看不见这些外来者。</div>
-              </div>
-            </div>
-
-            <div class="chapter-item" data-chapter="3">
-              <div class="chapter-vol">
-                <span class="chapter-vol-label">VOL</span>
-                <span class="chapter-vol-num">03</span>
-              </div>
-              <div class="chapter-info">
-                <div class="chapter-info-header">
-                  <div class="chapter-title">第三回：巴洛维亚的石门</div>
-                  <div class="chapter-date">1492 · 风爪之月02</div>
-                </div>
-                <div class="chapter-tags">
-                  <span class="chapter-tag">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    第2天
-                  </span>
-                  <span class="chapter-tag">巴洛维亚</span>
-                </div>
-                <div class="chapter-summary">在村长伊琳娜的指引下，冒险者们来到石质大门前。自动开启的铁门后传来尸臭与狼嚎，火漆印为“B”的神秘信件被紧握在年轻死者的手中。</div>
-              </div>
-            </div>
+          <div class="directory-chapters chapter-timeline" id="chapter-timeline">
+            <!-- 由 JS 动态渲染 -->
           </div>
         </div>
       </div>
@@ -3744,93 +3781,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
           返回章节列表
         </div>
-
-        <div class="chapter-detail-header">
-          <h1>第一回：费伦大陆与匕首滩</h1>
-          <div class="chapter-detail-tabs">
-            <button class="chapter-detail-tab active" type="button" data-section="notes">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-              冒险笔记
-            </button>
-            <button class="chapter-detail-tab" type="button" data-section="script">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-              </svg>
-              剧本原文
-            </button>
-          </div>
-        </div>
-
-        <div class="chapter-detail-content">
-          <div class="chapter-detail-section active" id="chapter-notes">
-            <div class="chapter-intro">当金币在酒杯间碰撞发出悦耳脆响时，命运的齿轮已悄然咬合。一支名为“VIVO50”的冒险小队在匕首滩享受着任务完成后的狂欢，却被一位神秘的维斯塔尼信使打破了平静。一封来自地图上不存在之地——“巴洛维亚”的求助信，将他们引向了迷雾森林深处。</div>
-
-            <div class="chapter-body">
-              <p class="scene-location">——匕首滩，“野牛与火”酒馆</p>
-              <p>匕首滩的夜晚被喧嚣填满，野牛与火酒馆内，壁炉的火光映照着每一张因酒精而酡红的脸庞。对于刚刚完成护送任务的“VIVO50”小队来说，今晚是属于胜利与金币的。</p>
-              <p>那个名叫卡德里克的半身人无疑是全场最聒噪的存在。他踩在板凳上，努力模仿着矮人的粗哑声线吼叫着要酒，却在破音中引发了一阵哄笑。他拍打着腰间鼓胀的钱袋，吹嘘着那是劫匪的“慈善捐赠”。</p>
-              <p>当六扎满溢泡沫的麦酒被半身人像表演杂技一般“砸”在橡木桌上时，庆功宴正式开始了。每人一百枚金币的酬劳，足够让最疲惫的灵魂重新焕发光彩。</p>
-              <p>“干杯！哈哈哈，终于有钱了！”凯瑞·多里安·埃蒙大笑着举杯，豪爽地宣布，“大家敞开肚子随便吃，今天的消费由埃蒙家族买单！再来几杯，免得隔壁桌以为我们喝不起！”</p>
-              <p>相比于多里安的豪放，奥利奥显得更为务实，他一边提醒财不外露，一边还是诚实地接过了酒杯。埃利亚斯·灰溪坐在角落，手指无意识地摩挲着父亲的旧军牌，目光却始终留意着酒馆门口。</p>
-              <p>就在这时，一个披着深色斗篷的陌生人推门而入。他的皮肤苍白得近乎透明，颈间挂着维斯塔尼人特有的银质护身符。他没有要酒，而是径直走向VIVO50的桌子，将一封火漆封缄的信件放在桌上。</p>
-              <p>“巴洛维亚需要你们。”他低声说道，随即转身消失在夜色中。信封上的火漆印是一枚黑色的玫瑰。</p>
-            </div>
-
-            <div class="ai-summary">
-              <div class="ai-summary-title">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                本回总结
-              </div>
-              <div class="ai-summary-list">
-                <div class="ai-summary-item">
-                  <h4>📍 地点/时间</h4>
-                  <p>当前位置：匕首滩“野牛与火”酒馆。时间：1492年风爪之月1日，夜晚。</p>
-                </div>
-                <div class="ai-summary-item">
-                  <h4>👁 关键目击</h4>
-                  <p>神秘维斯塔尼信使现身，留下一封火漆印为黑色玫瑰的求助信。</p>
-                </div>
-                <div class="ai-summary-item">
-                  <h4>🎭 NPC动态</h4>
-                  <p>卡德里克醉倒庆祝；埃利亚斯保持警觉；信使行踪不明。</p>
-                </div>
-                <div class="ai-summary-item">
-                  <h4>📦 物品/线索</h4>
-                  <p>黑色玫瑰火漆信件：来自“巴洛维亚”的求助，引向下一段旅程。</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="chapter-detail-section" id="chapter-script">
-            <div class="chapter-body">
-              <p class="scene-location">——匕首滩，“野牛与火”酒馆</p>
-              <p>费伦大陆，这片被巨龙双翼投下的千年阴影所笼罩的土地。从无尽荒地的风沙到宝剑海岸的怒涛，魔法既是希望的源泉，也是毁灭的载体。无数怀揣梦想的年轻人踏上征途，但唯有真正的勇者能在历史上刻下名字。</p>
-              <p>而在剑湾北岸，迷雾森林的边缘，匕首滩正沐浴在它最为繁华的喧嚣中。</p>
-              <p>杉木尖顶的房屋沿河而建，空气中混杂着码头的鱼腥味、陈年老木头的霉味，以及——从“野牛与火”酒馆里飘出的浓烈麦酒香。</p>
-              <p>“砰！”</p>
-              <p>一只沾满沼泽泥浆的鹿皮靴重重地踩在橡木板凳上，震得桌上的残羹冷炙一阵乱颤。</p>
-              <p>“老板！把地窖里泡龙息辣椒的矮人烈酒全搬来！”</p>
-              <p>卡德里克·铜币，半身人游荡者，正站在板凳上向整个酒馆发表他的胜利演说。他的钱袋鼓胀得像是快要爆开的麦穗，那是他们刚刚从一群不请自来的“山道收税官”手中回收的合法报酬。</p>
-              <p>DM提示：此时酒馆内的其他顾客对VIVO50小队投来或羡慕或警惕的目光。任何想要收集情报的玩家可以进行一次感知（察觉）检定，DC 12。</p>
-              <p>正当庆祝达到高潮时，酒馆的木门被推开。冷风裹挟着雨丝涌入，一个披着深灰斗篷的身影站在门口。他的面容隐藏在兜帽之下，但颈间的银质护身符在火光中闪烁——那是维斯塔尼人的标志。</p>
-              <p>他没有走向吧台，而是径直来到你们的桌前。一只苍白的手从斗篷下探出，将一封黑色火漆封缄的信件放在桌上。</p>
-              <p>“巴洛维亚的迷雾正在吞没一切。”他的声音低沉而急促，“如果你们还有勇气，就在黎明前出发。穿过迷雾森林，找到那扇自动开启的石门。”</p>
-              <p>说完，他转身离去，仿佛从未出现过。只留下那枚火漆印——一朵黑色的玫瑰——在烛光下泛着幽暗的光泽。</p>
-            </div>
-          </div>
-        </div>
+        <!-- 章回详情由 JS 动态渲染 -->
       </div>
 
       <div id="task-board" class="task-board" style="display: none;">
@@ -3870,7 +3821,7 @@
             </div>
             <div>
               <h1>情报手记</h1>
-              <p>在剑与魔法的交织中，将每一次奇遇篆刻为不朽的史诗。<span class="intel-count">当前已记录 <strong>64</strong> 条情报。</span></p>
+              <p>在剑与魔法的交织中，将每一次奇遇篆刻为不朽的史诗。<span class="intel-count">当前已记录 <strong id="intel-total-count">0</strong> 条情报。</span></p>
             </div>
           </div>
           <button class="btn-add-intel" type="button">
@@ -3966,6 +3917,10 @@
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
+        </div>
+        <!-- 情报详情弹窗 -->
+        <div class="intel-modal-overlay" id="intel-modal-overlay">
+          <div class="intel-modal" id="intel-modal"></div>
         </div>
       </div>
     </div>
@@ -4245,6 +4200,150 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    let campaignData = null;
+
+    async function loadCampaign() {
+      if (campaignData) return campaignData;
+      try {
+        const res = await fetch(`${API_BASE}/api/campaign`);
+        if (!res.ok) throw new Error(`Failed to load campaign: ${res.status}`);
+        campaignData = await res.json();
+        return campaignData;
+      } catch (err) {
+        console.error('加载剧本失败:', err);
+        return null;
+      }
+    }
+
+    function renderChapterDirectory() {
+      const timeline = document.getElementById('chapter-timeline');
+      if (!timeline || !campaignData) return;
+      const chapters = campaignData.chapters || [];
+      timeline.innerHTML = chapters.map((ch, idx) => {
+        const volNum = String(ch.vol).padStart(2, '0');
+        const tagsHtml = (ch.tags || []).map((tag, i) => {
+          if (i === 0) {
+            return `<span class="chapter-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>${tag}</span>`;
+          }
+          return `<span class="chapter-tag">${tag}</span>`;
+        }).join('');
+        return `
+          <div class="chapter-item" data-chapter-id="${ch.id}">
+            <div class="chapter-vol">
+              <span class="chapter-vol-label">VOL</span>
+              <span class="chapter-vol-num">${volNum}</span>
+            </div>
+            <div class="chapter-info">
+              <div class="chapter-info-header">
+                <div class="chapter-title">${ch.title}</div>
+                <div class="chapter-date">${ch.date}</div>
+              </div>
+              <div class="chapter-tags">${tagsHtml}</div>
+              <div class="chapter-summary">${ch.summary}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 绑定点击事件
+      timeline.querySelectorAll('.chapter-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const chapterId = item.dataset.chapterId;
+          renderChapterDetail(chapterId);
+          showChapterDetail();
+        });
+      });
+    }
+
+    function renderChapterDetail(chapterId) {
+      if (!chapterDetailView || !campaignData) return;
+      const chapter = (campaignData.chapters || []).find(c => c.id === chapterId);
+      if (!chapter) return;
+
+      const bodyHtml = (bodyArr) => (bodyArr || []).map(p => {
+        if (p.type === 'scene') return `<p class="scene-location">${p.text}</p>`;
+        if (p.type === 'dm') return `<p class="dm-note">${p.text}</p>`;
+        return `<p>${p.text}</p>`;
+      }).join('');
+
+      const summary = chapter.notes.ai_summary || {};
+
+      chapterDetailView.innerHTML = `
+        <div class="back-to-chapters" id="back-to-chapters">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          返回章节列表
+        </div>
+        <div class="chapter-detail-header">
+          <h1>${chapter.title}</h1>
+          <div class="chapter-detail-tabs">
+            <button class="chapter-detail-tab active" type="button" data-section="notes">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              冒险笔记
+            </button>
+            <button class="chapter-detail-tab" type="button" data-section="script">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              剧本原文
+            </button>
+          </div>
+        </div>
+        <div class="chapter-detail-content">
+          <div class="chapter-detail-section active" id="chapter-notes">
+            <div class="chapter-intro">${chapter.notes.intro}</div>
+            <div class="chapter-body">${bodyHtml(chapter.notes.body)}</div>
+            <div class="ai-summary">
+              <div class="ai-summary-title">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                本回总结
+              </div>
+              <div class="ai-summary-list">
+                <div class="ai-summary-item"><h4>📍 地点/时间</h4><p>${summary.location || ''}</p></div>
+                <div class="ai-summary-item"><h4>👁 关键目击</h4><p>${summary.sightings || ''}</p></div>
+                <div class="ai-summary-item"><h4>🎭 NPC动态</h4><p>${summary.npc_dynamics || ''}</p></div>
+                <div class="ai-summary-item"><h4>📦 物品/线索</h4><p>${summary.items_clues || ''}</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="chapter-detail-section" id="chapter-script">
+            <div class="chapter-body">${bodyHtml(chapter.script.body)}</div>
+          </div>
+        </div>
+      `;
+
+      // 重新绑定返回按钮
+      const newBackBtn = document.getElementById('back-to-chapters');
+      if (newBackBtn) newBackBtn.addEventListener('click', showChaptersView);
+
+      // 绑定标签切换
+      chapterDetailView.querySelectorAll('.chapter-detail-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          chapterDetailView.querySelectorAll('.chapter-detail-tab').forEach(t => t.classList.remove('active'));
+          chapterDetailView.querySelectorAll('.chapter-detail-section').forEach(s => s.classList.remove('active'));
+          tab.classList.add('active');
+          const section = tab.getAttribute('data-section');
+          if (section === 'notes') {
+            const el = document.getElementById('chapter-notes');
+            if (el) el.classList.add('active');
+          } else if (section === 'script') {
+            const el = document.getElementById('chapter-script');
+            if (el) el.classList.add('active');
+          }
+        });
+      });
+    }
+
     // 第一章目录展开/折叠
     if (chapterDirectory) {
       const dirTitle = chapterDirectory.querySelector('.directory-title');
@@ -4255,36 +4354,18 @@
       }
     }
 
-    // 点击章节条目进入详情
-    document.querySelectorAll('.chapter-item').forEach(item => {
-      item.addEventListener('click', () => {
-        showChapterDetail();
-      });
-    });
-
     // 从章节详情返回列表
     if (backToChapters) {
       backToChapters.addEventListener('click', showChaptersView);
     }
 
-    // 章节详情页内标签切换
-    document.querySelectorAll('.chapter-detail-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const parent = tab.closest('.chapter-detail-view');
-        if (!parent) return;
-        parent.querySelectorAll('.chapter-detail-tab').forEach(t => t.classList.remove('active'));
-        parent.querySelectorAll('.chapter-detail-section').forEach(s => s.classList.remove('active'));
-        tab.classList.add('active');
-        const section = tab.getAttribute('data-section');
-        if (section === 'notes') {
-          const el = document.getElementById('chapter-notes');
-          if (el) el.classList.add('active');
-        } else if (section === 'script') {
-          const el = document.getElementById('chapter-script');
-          if (el) el.classList.add('active');
-        }
+    // 剧本选择 -> 加载章回目录
+    if (campaignSelect) {
+      campaignSelect.addEventListener('click', async () => {
+        await loadCampaign();
+        renderChapterDirectory();
       });
-    });
+    }
 
     // 返回剧本列表时重置章节视图
     if (backToCampaigns) {
@@ -4303,121 +4384,73 @@
     const backToCampaignDetail = document.getElementById('back-to-campaign-detail');
     const campaignMainContent = document.getElementById('campaign-main-content');
 
-    const quests = [
-      {
-        id: 'dark-gold',
-        category: 'main',
-        categoryLabel: '主线任务(Main Quest)',
-        region: null,
-        title: '暗金碎片的契约',
-        status: '进行中',
-        date: '2025/1/23',
-        completed: false,
-        description: '我们在碾骨老磨坊被夜鬼婆杀害。一个坐在断手王座上的神秘存在复活了我们。<br><br>我们失去了部分属性和装备，作为交换，必须为他收集一种封存着黑暗阴影和时间法则的“暗金色碎片”。<br><br>寻找这些碎片，否则我们的存在可能会消散。',
-        subtasks: [
-          { text: '遭遇神秘存在', completed: true, detail: '在碾骨老磨坊被夜鬼婆杀害后，一个坐在断手王座上的神秘存在复活了我们。' },
-          { text: '寻找第一块暗金色碎片', completed: false, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'eva-prophecy',
-        category: 'main',
-        categoryLabel: '主线任务(Main Quest)',
-        region: null,
-        title: '伊娃夫人的预言',
-        status: '进行中',
-        date: '2025/1/24',
-        completed: false,
-        description: '伊娃夫人留下了关于黑暗命运的预言，等待进一步揭示。',
-        subtasks: [
-          { text: '拜访伊娃夫人', completed: false, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'strahd-curse',
-        category: 'main',
-        categoryLabel: '主线任务(Main Quest)',
-        region: null,
-        title: '斯特拉德的诅咒',
-        status: '进行中',
-        date: '2025/1/24',
-        completed: false,
-        description: '吸血鬼领主斯特拉德的阴影笼罩着这片土地。',
-        subtasks: [
-          { text: '调查诅咒源头', completed: false, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'mist-invitation',
-        category: 'main',
-        categoryLabel: '主线任务(Main Quest)',
-        region: null,
-        title: '来自迷雾的邀请',
-        status: '进行中',
-        date: '2025/1/24',
-        completed: false,
-        description: '迷雾深处似乎有什么在召唤着冒险者。',
-        subtasks: [
-          { text: '穿越迷雾', completed: false, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'escort-irena',
-        category: 'region',
-        categoryLabel: null,
-        region: '巴洛维亚(Barovia)',
-        title: '护送伊丽娜',
-        status: '进行中',
-        date: '2025/1/23',
-        completed: false,
-        description: '护送伊丽娜安全抵达目的地。',
-        subtasks: [
-          { text: '与伊丽娜汇合', completed: false, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'missing-golinda',
-        category: 'region',
-        categoryLabel: null,
-        region: '巴洛维亚村(Village of Barovia)',
-        title: '失踪的歌尔图达',
-        status: '已完成',
-        date: '2025/1/20',
-        completed: true,
-        description: '歌尔图达已经找到，任务完成。',
-        subtasks: [
-          { text: '寻找歌尔图达', completed: true, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'vampire-doru',
-        category: 'region',
-        categoryLabel: null,
-        region: '巴洛维亚村(Village of Barovia)',
-        title: '吸血鬼多鲁',
-        status: '已完成',
-        date: '2025/1/18',
-        completed: true,
-        description: '多鲁的威胁已经解除。',
-        subtasks: [
-          { text: '击败多鲁', completed: true, detail: '详细描述待补充。' }
-        ]
-      },
-      {
-        id: 'peaceful-mayor',
-        category: 'region',
-        categoryLabel: null,
-        region: '巴洛维亚村(Village of Barovia)',
-        title: '安详村长',
-        status: '已完成',
-        date: '2025/1/15',
-        completed: true,
-        description: '村长恢复了往日的安宁。',
-        subtasks: [
-          { text: '协助村长', completed: true, detail: '详细描述待补充。' }
-        ]
+    let quests = [];
+
+    async function loadQuests() {
+      if (quests.length > 0) return quests;
+      try {
+        const res = await fetch(`${API_BASE}/api/quests`);
+        if (!res.ok) throw new Error(`Failed to load quests: ${res.status}`);
+        const data = await res.json();
+        quests = flattenQuests(data);
+        return quests;
+      } catch (err) {
+        console.error('加载任务失败:', err);
+        return [];
       }
-    ];
+    }
+
+    function flattenQuests(data) {
+      const result = [];
+      // 主线任务
+      const categoryLabel = '主线任务(Main Quest)';
+      for (const q of Object.values(data.main || {})) {
+        result.push({
+          id: q.id,
+          category: 'main',
+          categoryLabel,
+          region: null,
+          title: q.title,
+          status: q.status === 'ongoing' ? '进行中' : q.status === 'completed' ? '已完成' : '未开始',
+          completed: q.status === 'completed',
+          description: q.description,
+          npcs_involved: q.npcs_involved || [],
+          items_involved: q.items_involved || [],
+          rewards: q.rewards || [],
+          prerequisites: q.prerequisites || [],
+          subtasks: (q.objectives || []).map(o => ({
+            text: o.text,
+            description: o.description || '',
+            completed: o.completed
+          }))
+        });
+      }
+      // 地区任务
+      for (const regionData of Object.values(data.regions || {})) {
+        for (const q of Object.values(regionData.quests || {})) {
+          result.push({
+            id: q.id,
+            category: 'region',
+            categoryLabel: null,
+            region: q.region || regionData.region_name,
+            title: q.title,
+            status: q.status === 'ongoing' ? '进行中' : q.status === 'completed' ? '已完成' : '未开始',
+            completed: q.status === 'completed',
+            description: q.description,
+            npcs_involved: q.npcs_involved || [],
+            items_involved: q.items_involved || [],
+            rewards: q.rewards || [],
+            prerequisites: q.prerequisites || [],
+            subtasks: (q.objectives || []).map(o => ({
+              text: o.text,
+              description: o.description || '',
+              completed: o.completed
+            }))
+          });
+        }
+      }
+      return result;
+    }
 
     function checkQuestCompletion(quest) {
       if (quest.subtasks && quest.subtasks.length > 0) {
@@ -4639,7 +4672,6 @@
         <div class="task-detail-header">
           <div class="task-detail-tag ${tagClass}">${tagText}</div>
           <h2>${quest.title}</h2>
-          <div class="task-detail-date">${quest.date}</div>
         </div>
         <div class="task-detail-body">
           ${subtasksHtml}
@@ -4664,18 +4696,50 @@
         <div class="task-detail-header">
           <div class="task-detail-tag ${tagClass}">${tagText}</div>
           <h2>${st.text}</h2>
-          <div class="task-detail-date">${quest.title} · ${quest.date}</div>
         </div>
         <div class="task-detail-body">
           <div class="task-description">
-            <p>${st.detail || '详细描述待补充。'}</p>
+            <p>${st.description || '详细描述待补充。'}</p>
           </div>
         </div>
       `;
     }
 
-    function openTaskBoard() {
+    function renderActiveQuests() {
+      const list = document.getElementById('active-quests-list');
+      if (!list) return;
+      const ongoing = quests.filter(q => q.status === '进行中');
+      if (ongoing.length === 0) {
+        list.innerHTML = '<div class="task-item" style="opacity:0.5"><div class="task-body"><div class="task-title">暂无进行中的任务</div></div></div>';
+        return;
+      }
+      const displayquests = ongoing.slice(0, 5);
+      const iconSvgs = {
+        main: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="7" x2="12" y2="13"></line><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"></circle></svg>',
+        region: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>'
+      };
+      list.innerHTML = displayquests.map(q => `
+        <div class="task-item" style="cursor:pointer;" data-quest-id="${q.id}">
+          <div class="task-icon">${iconSvgs[q.category] || iconSvgs.region}</div>
+          <div class="task-body">
+            <div class="task-title">${q.title}</div>
+            <div class="task-meta">
+              <span class="task-tag">${q.categoryLabel || q.region || ''}</span>
+            </div>
+          </div>
+          <div class="task-arrow">›</div>
+        </div>
+      `).join('');
+
+      // 点击打开任务面板
+      list.querySelectorAll('.task-item').forEach(item => {
+        item.addEventListener('click', () => openTaskBoard());
+      });
+    }
+
+    async function openTaskBoard() {
       if (!taskBoard) return;
+      await loadQuests();
       const { main } = getQuestCategories();
       const defaultQuest = main[0] || quests[0];
       renderTaskDetail(defaultQuest.id);
@@ -4723,27 +4787,31 @@
     const intelTotalPages = document.getElementById('intel-total-pages');
     const intelPrevPage = document.getElementById('intel-prev-page');
     const intelNextPage = document.getElementById('intel-next-page');
+    const intelTotalCount = document.getElementById('intel-total-count');
+    const intelModalOverlay = document.getElementById('intel-modal-overlay');
+    const intelModal = document.getElementById('intel-modal');
     const backToCampaignDetailIntel = document.getElementById('back-to-campaign-detail-intel');
     const intelligenceCard = document.querySelector('.stat-card[data-nav="intelligence"]');
 
-    const intelItems = [
-      { id: 1, title: '维克托的秘密', type: 'clue', typeLabel: '线索', region: '瓦拉吉', date: '2026/1/24', desc: '镇长家顶楼有紫色闪光和人员失踪的传闻，维克托的未婚妻在结婚前发疯。维克托可能在进行秘密的危险活动，而不仅仅是读书。' },
-      { id: 2, title: '斯特拉·瓦赫特', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '瓦赫特夫人的小女儿。曾与镇长之子维克托订婚，后来突然疯了。这导致瓦赫特家与镇长家彻底决裂。埃利亚斯以此为切入点接近了瓦赫特家。' },
-      { id: 3, title: '猎狼人', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '小镇知名的猎狼人。本事不错，也被小镇雇佣去清理狼患。可被雇佣。常在蓝水旅店喝酒，拿狼头抵债。两人表情很冷，眼神凶悍。' },
-      { id: 4, title: '尼古拉 & 卡尔·瓦赫特', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/24', desc: '瓦赫特家少爷。灰头发的年轻双胞胎，穿着华丽绸缎外套，佩戴精致短剑。经常在旅店喝酒的纨绔子弟。尼古拉脾气暴躁且酗酒；卡尔冷静而狡猾。' },
-      { id: 5, title: '美酒巫师庄园', type: 'location', typeLabel: '地点', region: '瓦拉吉', date: '2026/1/24', desc: '美酒供应地。本该送货却迟迟未到，处于失联状态。厄尔文对此表示担忧。' },
-      { id: 6, title: '蓝水旅店', type: 'location', typeLabel: '地点', region: '瓦拉吉', date: '2026/1/24', desc: '两层木屋，外墙刷着亮蓝色油漆，屋顶有渡鸦扑腾。门上方挂了块木招牌，画着一道道具的蓝色瀑布。外侧有段木楼梯贴着墙，通向二楼客房。' },
-      { id: 7, title: '厄尔文·马可夫', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/23', desc: '蓝水旅店老板。性格随和、有些怕老婆（自称是爱）。没有见过面，但看到埃利亚斯的脸时有一种惊讶和困惑感。向小队提供了关于美酒庄园的线索。' },
-      { id: 8, title: '达妮卡·朵拉科娃', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/22', desc: '蓝水旅店老板娘。穿着黑色哥特式长裙，戴饰有羽毛的宽边帽。在吧台后读一本厚重的黑皮书，对丈夫厄尔文非常有威慑力，气质高冷。' },
-      { id: 9, title: '笼中囚犯', type: 'person', typeLabel: '人物', region: '瓦拉吉', date: '2026/1/22', desc: '包括两个男人、两个女人和两个男孩。因公开诋毁庆典而被关押示众，面容憔悴。艾泽克拒绝释放他们。' },
-      { id: 10, title: '伊丽娜', type: 'person', typeLabel: '人物', region: '巴洛维亚', date: '2026/1/21', desc: '巴洛维亚村长之女，拥有神秘的银发与预知梦境。她请求冒险者护送她前往瓦拉吉。' },
-      { id: 11, title: '断手王座', type: 'legend', typeLabel: '传说', region: '碾骨老磨坊', date: '2026/1/20', desc: '一个位于阴影位面的神秘王座，据说能赋予濒死者第二次生命，但代价是成为某位古老存在的契约仆从。' },
-      { id: 12, title: '暗金碎片', type: 'item', typeLabel: '物品', region: '巴洛维亚', date: '2026/1/19', desc: '封存着黑暗阴影与时间法则的神秘碎片，据说是维持契约者存在的关键。' },
-      { id: 13, title: '夜鬼婆', type: 'monster', typeLabel: '怪物', region: '碾骨老磨坊', date: '2026/1/18', desc: '栖息在老磨坊中的恐怖生物，擅长伪装与诅咒，曾在迷雾中猎杀旅人。' },
-      { id: 14, title: '维斯塔尼护身符', type: 'item', typeLabel: '物品', region: '橡木湖营地', date: '2026/1/17', desc: '银质护身符，是维斯塔尼人的标志，据说能抵御巴洛维亚迷雾的侵蚀。' },
-      { id: 15, title: '黑色玫瑰火漆', type: 'clue', typeLabel: '线索', region: '巴洛维亚村', date: '2026/1/16', desc: '神秘信件上的火漆印记，一朵黑色玫瑰，与斯特拉德家族的徽记有着某种关联。' },
-      { id: 16, title: '石质大门', type: 'location', typeLabel: '地点', region: '巴洛维亚村', date: '2026/1/15', desc: '迷雾森林中会自动开启的石门，门后传来尸臭与狼嚎，是通往古老遗迹的入口。' }
-    ];
+    let intelItems = [];
+
+    async function loadIntel() {
+      if (intelItems.length > 0) return intelItems;
+      try {
+        const res = await fetch(`${API_BASE}/api/intel`);
+        if (!res.ok) throw new Error(`Failed to load intel: ${res.status}`);
+        const data = await res.json();
+        const typeLabels = { person: '人物', location: '地点', clue: '线索', legend: '传说', item: '物品', monster: '怪物' };
+        intelItems = Object.values(data.items || {}).map(item => ({
+          ...item,
+          typeLabel: typeLabels[item.type] || '其他'
+        }));
+        return intelItems;
+      } catch (err) {
+        console.error('加载情报失败:', err);
+        return [];
+      }
+    }
 
     let intelState = {
       type: 'all',
@@ -4766,7 +4834,7 @@
       return intelItems.filter(item => {
         const typeMatch = intelState.type === 'all' || item.type === intelState.type;
         const regionMatch = intelState.region === 'all' || item.region === intelState.region;
-        const searchMatch = !intelState.search || item.title.toLowerCase().includes(intelState.search.toLowerCase()) || item.desc.toLowerCase().includes(intelState.search.toLowerCase());
+        const searchMatch = !intelState.search || item.title.toLowerCase().includes(intelState.search.toLowerCase()) || item.description.toLowerCase().includes(intelState.search.toLowerCase());
         return typeMatch && regionMatch && searchMatch;
       });
     }
@@ -4785,7 +4853,7 @@
         intelGrid.innerHTML = '<div class="intel-empty">未找到匹配的情报。</div>';
       } else {
         intelGrid.innerHTML = pageItems.map(item => `
-          <div class="intel-card" data-type="${item.type}">
+          <div class="intel-card" data-type="${item.type}" data-intel-id="${item.id}">
             <div class="intel-card-header">
               <div class="intel-card-icon">${typeIcons[item.type] || typeIcons.clue}</div>
               <div class="intel-card-title-wrap">
@@ -4793,15 +4861,11 @@
                 <div class="intel-card-type">${item.typeLabel}</div>
               </div>
             </div>
-            <div class="intel-card-desc">${item.desc}</div>
+            <div class="intel-card-desc">${item.description}</div>
             <div class="intel-card-meta">
               <span class="intel-card-region">
                 <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 ${item.region}
-              </span>
-              <span class="intel-card-date">
-                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                ${item.date}
               </span>
             </div>
           </div>
@@ -4812,6 +4876,7 @@
       if (intelTotalPages) intelTotalPages.textContent = totalPages;
       if (intelPrevPage) intelPrevPage.disabled = intelState.page <= 1;
       if (intelNextPage) intelNextPage.disabled = intelState.page >= totalPages;
+      if (intelTotalCount) intelTotalCount.textContent = intelItems.length;
     }
 
     function setIntelFilter(type, value) {
@@ -4819,6 +4884,73 @@
       if (type === 'region') intelState.region = value;
       intelState.page = 1;
       renderIntelGrid();
+    }
+
+    function openIntelModal(intelId) {
+      const item = intelItems.find(i => i.id === intelId);
+      if (!item || !intelModal || !intelModalOverlay) return;
+
+      const relatedQuestNames = (item.related_quest_ids || []).map(qid => {
+        const q = quests.find(q => q.id === qid);
+        return q ? q.title : qid;
+      });
+
+      intelModal.innerHTML = `
+        <button class="intel-modal-close" id="intel-modal-close-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div class="intel-modal-header">
+          <div class="intel-modal-icon type-${item.type}">${typeIcons[item.type] || typeIcons.clue}</div>
+          <div class="intel-modal-title-wrap">
+            <div class="intel-modal-title">${item.title}</div>
+            <div class="intel-modal-type">${item.typeLabel}</div>
+          </div>
+        </div>
+        <div class="intel-modal-section">
+          <div class="intel-modal-label">地区</div>
+          <span class="intel-modal-region">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            ${item.region}
+          </span>
+        </div>
+        <div class="intel-modal-section">
+          <div class="intel-modal-label">详细描述</div>
+          <div class="intel-modal-description">${item.description}</div>
+        </div>
+        <div class="intel-modal-section">
+          <div class="intel-modal-label">关联任务</div>
+          <div class="intel-modal-tags">
+            ${relatedQuestNames.length
+              ? relatedQuestNames.map(n => `<span class="intel-modal-tag">${n}</span>`).join('')
+              : '<span class="intel-modal-tag empty">暂无关联任务</span>'}
+          </div>
+        </div>
+      `;
+
+      intelModalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      document.getElementById('intel-modal-close-btn').addEventListener('click', closeIntelModal);
+      intelModalOverlay.addEventListener('click', (e) => {
+        if (e.target === intelModalOverlay) closeIntelModal();
+      });
+    }
+
+    function closeIntelModal() {
+      if (intelModalOverlay) intelModalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (intelGrid) {
+      intelGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.intel-card');
+        if (!card) return;
+        const intelId = card.dataset.intelId;
+        if (intelId) openIntelModal(intelId);
+      });
     }
 
     if (intelTypeFilters) {
@@ -4868,7 +5000,7 @@
       });
     }
 
-    function openIntelligenceNotes() {
+    async function openIntelligenceNotes() {
       if (campaignMainContent) campaignMainContent.style.display = 'none';
       if (taskBoard) {
         taskBoard.style.display = 'none';
@@ -4884,6 +5016,7 @@
         intelligenceNotes.style.display = 'block';
         intelligenceNotes.classList.add('active');
       }
+      await loadIntel();
       renderIntelGrid();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -5148,6 +5281,24 @@
       return res.json();
     }
 
+    async function loadSpellsCatalog() {
+      const res = await fetch(`${API_BASE}/api/spells`);
+      if (!res.ok) throw new Error(`Failed to load spells catalog: ${res.status}`);
+      return res.json();
+    }
+
+    async function loadFeaturesCatalog() {
+      const res = await fetch(`${API_BASE}/api/features`);
+      if (!res.ok) throw new Error(`Failed to load features catalog: ${res.status}`);
+      return res.json();
+    }
+
+    async function loadClassesCatalog() {
+      const res = await fetch(`${API_BASE}/api/classes`);
+      if (!res.ok) throw new Error(`Failed to load classes catalog: ${res.status}`);
+      return res.json();
+    }
+
     // 异步加载装备 SVG 图标，带缓存和同步 fallback
     const svgIconCache = {};
 
@@ -5325,7 +5476,7 @@
         armor: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l3 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path><path d="M12 3v17"></path></svg>',
         shield: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
         clothes: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l2 4v14H4V7z"></path><path d="M12 3v18"></path></svg>',
-        amulet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 6 4 10 8 10s8-4 8-10"></path><circle cx="12" cy="15" r="3"></circle><path d="M12 13v4"></path><path d="M10 15h4"></path></svg>',
+        amulet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 6 4 10 8 10s8-4 8-10"></path><circle cx="12" cy="15" r="3"></circle></svg>',
         pouch: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>',
         crystal: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 6-3 14H7L4 8z"></path><path d="M12 2v22"></path></svg>',
         cloak: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6l-4 4v6H8v-6L4 10z"></path></svg>',
@@ -5377,14 +5528,23 @@
       `;
     }
 
-    function renderFeatureList(features) {
-      return features.map(f => `
+    function renderFeatureList(featureItems) {
+      return featureItems.map(f => `
         <li>${escapeHtml(f.name)} <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li>
-        <div class="feature-detail">${escapeHtml(f.detail)}</div>
+        <div class="feature-detail">${escapeHtml(f.description || '')}</div>
       `).join('');
     }
 
-    function renderClassAttr(char) {
+    function renderClassAttr(char, featuresCatalog, classesCatalog) {
+      const features = featuresCatalog || {};
+      const classes = classesCatalog || {};
+      const classData = char.class_id ? classes[char.class_id] : null;
+      const subclassData = classData && char.subclass_id ? (classData.subclasses || {})[char.subclass_id] : null;
+
+      const statusItems = (char.features.status_ids || []).map(id => features.status ? features.status[id] : null).filter(Boolean);
+      const resistanceItems = (char.features.resistance_ids || []).map(id => features.resistances ? features.resistances[id] : null).filter(Boolean);
+      const classFeatureItems = (char.features.class_feature_ids || []).map(id => features.class_features ? features.class_features[id] : null).filter(Boolean);
+      const traitItems = (char.features.trait_ids || []).map(id => features.traits ? features.traits[id] : null).filter(Boolean);
       const abilities = char.abilities;
       const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
       const abilityHtml = abilityOrder.map(key => {
@@ -5402,17 +5562,17 @@
         <div class="class-panel">
           <div class="class-race">${escapeHtml(char.background.race)}</div>
           <div class="class-icon">&#9876;&#65039;</div>
-          <div class="class-subclass">${escapeHtml(char.subclass)}</div>
-          <div class="class-level">等级${char.level} ${escapeHtml(char.class)}</div>
+          <div class="class-subclass">${escapeHtml(subclassData ? subclassData.name : '')}</div>
+          <div class="class-level">等级${char.level} ${escapeHtml(classData ? classData.name : '')}</div>
 
           <div class="ability-scores">
             ${abilityHtml}
           </div>
 
-          ${char.features.status.length ? `<div class="divider"><span>状态</span></div><ul class="feature-list">${renderFeatureList(char.features.status)}</ul>` : ''}
-          ${char.features.resistances.length ? `<div class="divider"><span>抗性</span></div><ul class="feature-list">${renderFeatureList(char.features.resistances)}</ul>` : ''}
-          ${char.features.class.length ? `<div class="divider"><span>职业特性</span></div><ul class="feature-list">${renderFeatureList(char.features.class)}</ul>` : ''}
-          ${char.features.important.length ? `<div class="divider"><span>重要特性</span></div><ul class="feature-list">${renderFeatureList(char.features.important)}</ul>` : ''}
+          ${statusItems.length ? `<div class="divider"><span>状态</span></div><ul class="feature-list">${renderFeatureList(statusItems)}</ul>` : ''}
+          ${resistanceItems.length ? `<div class="divider"><span>抗性</span></div><ul class="feature-list">${renderFeatureList(resistanceItems)}</ul>` : ''}
+          ${classFeatureItems.length ? `<div class="divider"><span>职业特性</span></div><ul class="feature-list">${renderFeatureList(classFeatureItems)}</ul>` : ''}
+          ${traitItems.length ? `<div class="divider"><span>重要特性</span></div><ul class="feature-list">${renderFeatureList(traitItems)}</ul>` : ''}
         </div>
       `;
     }
@@ -5444,26 +5604,39 @@
       `;
     }
 
-    function renderSpells(char) {
+    function renderSpells(char, spellsCatalog, classesCatalog) {
+      const spells = spellsCatalog || {};
+      const classes = classesCatalog || {};
+      const classData = char.class_id ? classes[char.class_id] : null;
+      const subclassData = classData && char.subclass_id ? (classData.subclasses || {})[char.subclass_id] : null;
+
+      const lookupNames = (ids, catalog) =>
+        (ids || []).map(id => (catalog && catalog[id]) ? catalog[id].name : id);
+
+      const normalNames = lookupNames((char.spells.action_ids || {}).normal || [], spells.actions ? spells.actions.normal : null);
+      const classNames = lookupNames((char.spells.action_ids || {}).class || [], spells.actions ? spells.actions.class : null);
+      const passiveNames = lookupNames(char.spells.passive_ids || [], spells.passive);
+      const spellL1Names = lookupNames((char.spells.spell_ids || {}).level_1 || [], spells.spells ? spells.spells.level_1 : null);
+
       const renderBlocks = list => list.map(name => `<div class="skill-block">${escapeHtml(name)}</div>`).join('');
       return `
         <div class="class-panel">
           <div class="spells-header">
-            <span class="spells-level">${char.spells.level}级</span>
-            <span class="spells-subclass">${escapeHtml(char.spells.subclass)}</span>
+            <span class="spells-level">${char.spells.caster_level}级</span>
+            <span class="spells-subclass">${escapeHtml(subclassData ? subclassData.name : '')}</span>
           </div>
 
           <div class="divider"><span>常规动作</span></div>
-          <div class="skill-grid">${renderBlocks(char.spells.actions.normal)}</div>
+          <div class="skill-grid">${renderBlocks(normalNames)}</div>
 
           <div class="divider"><span>职业动作</span></div>
-          <div class="skill-grid">${renderBlocks(char.spells.actions.class)}</div>
+          <div class="skill-grid">${renderBlocks(classNames)}</div>
 
           <div class="divider"><span>被动技能</span></div>
-          <div class="skill-grid">${renderBlocks(char.spells.passive)}</div>
+          <div class="skill-grid">${renderBlocks(passiveNames)}</div>
 
           <div class="divider"><span>1环法术</span></div>
-          <div class="skill-grid">${renderBlocks(char.spells.spells_level_1)}</div>
+          <div class="skill-grid">${renderBlocks(spellL1Names)}</div>
         </div>
       `;
     }
@@ -5543,11 +5716,17 @@
 
     async function initCharacters() {
       try {
-        const [char, equipmentCatalog] = await Promise.all([
+        const [char, equipmentCatalog, spellsCatalog, featuresCatalog, classesCatalog] = await Promise.all([
           loadCharacter(DEFAULT_CHAR_ID),
-          loadEquipmentCatalog()
+          loadEquipmentCatalog(),
+          loadSpellsCatalog(),
+          loadFeaturesCatalog(),
+          loadClassesCatalog()
         ]);
         window.equipmentCatalog = equipmentCatalog;
+        window.spellsCatalog = spellsCatalog;
+        window.featuresCatalog = featuresCatalog;
+        window.classesCatalog = classesCatalog;
 
         const grid = document.getElementById('character-grid');
         if (grid) grid.innerHTML = renderHeroArchiveCard(char);
@@ -5559,16 +5738,20 @@
         if (inventory) inventory.innerHTML = await renderInventory(char, equipmentCatalog);
 
         const classAttr = document.getElementById('class-attr');
-        if (classAttr) classAttr.innerHTML = renderClassAttr(char);
+        if (classAttr) classAttr.innerHTML = renderClassAttr(char, featuresCatalog, classesCatalog);
 
         const skills = document.getElementById('skills');
         if (skills) skills.innerHTML = renderSkills(char);
 
         const spells = document.getElementById('spells');
-        if (spells) spells.innerHTML = renderSpells(char);
+        if (spells) spells.innerHTML = renderSpells(char, spellsCatalog, classesCatalog);
 
         const background = document.getElementById('background');
         if (background) background.innerHTML = renderBackground(char);
+
+        // 加载并渲染当前任务面板
+        await loadQuests();
+        renderActiveQuests();
       } catch (err) {
         console.error('加载人物卡失败:', err);
       }

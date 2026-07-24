@@ -1,0 +1,149 @@
+{
+  "type": "intel",
+  "items": {
+    "viktor_secret": {
+      "id": "viktor_secret",
+      "title": "维克托的秘密",
+      "type": "clue",
+      "region": "瓦拉吉",
+      "description": "镇长家顶楼有紫色闪光和人员失踪的传闻，维克托的未婚妻在结婚前发疯。维克托可能在进行秘密的危险活动，而不仅仅是读书。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "stella_wachter": {
+      "id": "stella_wachter",
+      "title": "斯特拉·瓦赫特",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "瓦赫特夫人的小女儿。曾与镇长之子维克托订婚，后来突然疯了。这导致瓦赫特家与镇长家彻底决裂。埃利亚斯以此为切入点接近了瓦赫特家。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "wolf_hunters": {
+      "id": "wolf_hunters",
+      "title": "猎狼人",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "小镇知名的猎狼人。本事不错，也被小镇雇佣去清理狼患。可被雇佣。常在蓝水旅店喝酒，拿狼头抵债。两人表情很冷，眼神凶悍。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "nikolai_karl_wachter": {
+      "id": "nikolai_karl_wachter",
+      "title": "尼古拉 & 卡尔·瓦赫特",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "瓦赫特家少爷。灰头发的年轻双胞胎，穿着华丽绸缎外套，佩戴精致短剑。经常在旅店喝酒的纨绔子弟。尼古拉脾气暴躁且酗酒；卡尔冷静而狡猾。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "wizard_wines": {
+      "id": "wizard_wines",
+      "title": "美酒巫师庄园",
+      "type": "location",
+      "region": "瓦拉吉",
+      "description": "美酒供应地。本该送货却迟迟未到，处于失联状态。厄尔文对此表示担忧。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "blue_water_inn": {
+      "id": "blue_water_inn",
+      "title": "蓝水旅店",
+      "type": "location",
+      "region": "瓦拉吉",
+      "description": "两层木屋，外墙刷着亮蓝色油漆，屋顶有渡鸦扑腾。门上方挂了块木招牌，画着一道道具的蓝色瀑布。外侧有段木楼梯贴着墙，通向二楼客房。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "urwin_martikov": {
+      "id": "urwin_martikov",
+      "title": "厄尔文·马可夫",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "蓝水旅店老板。性格随和、有些怕老婆（自称是爱）。没有见过面，但看到埃利亚斯的脸时有一种惊讶和困惑感。向小队提供了关于美酒庄园的线索。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "danika_dorakova": {
+      "id": "danika_dorakova",
+      "title": "达妮卡·朵拉科娃",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "蓝水旅店老板娘。穿着黑色哥特式长裙，戴饰有羽毛的宽边帽。在吧台后读一本厚重的黑皮书，对丈夫厄尔文非常有威慑力，气质高冷。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "caged_prisoners": {
+      "id": "caged_prisoners",
+      "title": "笼中囚犯",
+      "type": "person",
+      "region": "瓦拉吉",
+      "description": "包括两个男人、两个女人和两个男孩。因公开诋毁庆典而被关押示众，面容憔悴。艾泽克拒绝释放他们。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "irena": {
+      "id": "irena",
+      "title": "伊丽娜",
+      "type": "person",
+      "region": "巴洛维亚",
+      "description": "巴洛维亚村长之女，拥有神秘的银发与预知梦境。她请求冒险者护送她前往瓦拉吉。",
+      "related_npc_ids": [],
+      "related_quest_ids": ["escort_irena"]
+    },
+    "broken_hand_throne": {
+      "id": "broken_hand_throne",
+      "title": "断手王座",
+      "type": "legend",
+      "region": "碾骨老磨坊",
+      "description": "一个位于阴影位面的神秘王座，据说能赋予濒死者第二次生命，但代价是成为某位古老存在的契约仆从。",
+      "related_npc_ids": [],
+      "related_quest_ids": ["dark_gold"]
+    },
+    "dark_gold_shard": {
+      "id": "dark_gold_shard",
+      "title": "暗金碎片",
+      "type": "item",
+      "region": "巴洛维亚",
+      "description": "封存着黑暗阴影与时间法则的神秘碎片，据说是维持契约者存在的关键。",
+      "related_npc_ids": [],
+      "related_quest_ids": ["dark_gold"]
+    },
+    "night_hag": {
+      "id": "night_hag",
+      "title": "夜鬼婆",
+      "type": "monster",
+      "region": "碾骨老磨坊",
+      "description": "栖息在老磨坊中的恐怖生物，擅长伪装与诅咒，曾在迷雾中猎杀旅人。",
+      "related_npc_ids": [],
+      "related_quest_ids": ["dark_gold"]
+    },
+    "vistani_amulet": {
+      "id": "vistani_amulet",
+      "title": "维斯塔尼护身符",
+      "type": "item",
+      "region": "橡木湖营地",
+      "description": "银质护身符，是维斯塔尼人的标志，据说能抵御巴洛维亚迷雾的侵蚀。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "black_rose_seal": {
+      "id": "black_rose_seal",
+      "title": "黑色玫瑰火漆",
+      "type": "clue",
+      "region": "巴洛维亚村",
+      "description": "神秘信件上的火漆印记，一朵黑色玫瑰，与斯特拉德家族的徽记有着某种关联。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    },
+    "stone_gate": {
+      "id": "stone_gate",
+      "title": "石质大门",
+      "type": "location",
+      "region": "巴洛维亚村",
+      "description": "迷雾森林中会自动开启的石门，门后传来尸臭与狼嚎，是通往古老遗迹的入口。",
+      "related_npc_ids": [],
+      "related_quest_ids": []
+    }
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "type": "quests",
+  "main": {
+    "dark_gold": {
+      "id": "dark_gold",
+      "category": "main",
+      "title": "暗金碎片的契约",
+      "status": "ongoing",
+      "description": "我们在碾骨老磨坊被夜鬼婆杀害。一个坐在断手王座上的神秘存在复活了我们。我们失去了部分属性和装备，作为交换，必须为他收集一种封存着黑暗阴影和时间法则的「暗金色碎片」。寻找这些碎片，否则我们的存在可能会消散。",
+      "prerequisites": [],
+      "npcs_involved": [
+        { "name": "夜鬼婆", "role": "敌人——杀害了冒险者" },
+        { "name": "断手王座之主", "role": "神秘存在——复活冒险者并下达契约" }
+      ],
+      "items_involved": [
+        { "name": "暗金色碎片", "relation": "任务目标——需要收集的契约物品" }
+      ],
+      "rewards": [
+        { "name": "复活之恩", "description": "被神秘存在复活，可以继续冒险" }
+      ],
+      "objectives": [
+        {
+          "id": "dark_gold_01",
+          "text": "遭遇神秘存在",
+          "description": "在碾骨老磨坊被夜鬼婆杀害后，一个坐在断手王座上的神秘存在复活了我们，并提出了收集碎片的契约。",
+          "completed": true
+        },
+        {
+          "id": "dark_gold_02",
+          "text": "寻找第一块暗金色碎片",
+          "description": "暗金色碎片的具体位置尚不明确，需要在巴洛维亚地区探索线索。",
+          "completed": false
+        }
+      ]
+    },
+    "eva_prophecy": {
+      "id": "eva_prophecy",
+      "category": "main",
+      "title": "伊娃夫人的预言",
+      "status": "ongoing",
+      "description": "伊娃夫人是巴洛维亚最著名的维斯塔尼占卜师，她声称看到了关于黑暗命运和斯特拉德诅咒的预言。拜访她，了解预言的全部内容。",
+      "prerequisites": ["dark_gold"],
+      "npcs_involved": [
+        { "name": "伊娃夫人", "role": "占卜师——预言的揭示者" }
+      ],
+      "items_involved": [
+        { "name": "塔罗卡牌", "relation": "占卜工具——伊娃夫人用于揭示命运" }
+      ],
+      "rewards": [
+        { "name": "命运之示", "description": "获知关于斯特拉德诅咒的重要预言线索" }
+      ],
+      "objectives": [
+        {
+          "id": "eva_prophecy_01",
+          "text": "前往维斯塔尼营地",
+          "description": "伊娃夫人位于巴洛维亚郊外的维斯塔尼营地，需要穿越迷雾前往。",
+          "completed": false
+        },
+        {
+          "id": "eva_prophecy_02",
+          "text": "接受塔罗占卜",
+          "description": "让伊娃夫人为你进行塔罗牌占卜，揭示未来的线索。",
+          "completed": false
+        }
+      ]
+    },
+    "strahd_curse": {
+      "id": "strahd_curse",
+      "category": "main",
+      "title": "斯特拉德的诅咒",
+      "status": "ongoing",
+      "description": "吸血鬼领主斯特拉德·冯·扎洛维奇统治着巴洛维亚，整个地区笼罩在他的诅咒之下。调查诅咒的源头，寻找对抗这位黑暗领主的方法。",
+      "prerequisites": ["eva_prophecy"],
+      "npcs_involved": [
+        { "name": "斯特拉德·冯·扎洛维奇", "role": "吸血鬼领主——巴洛维亚的黑暗统治者" }
+      ],
+      "items_involved": [
+        { "name": "斯特拉德的日记", "relation": "线索——记载了斯特拉德诅咒的来龙去脉" },
+        { "name": "琥珀神殿钥匙", "relation": "关键——通往诅咒源头的钥匙" }
+      ],
+      "rewards": [
+        { "name": "日光之剑", "description": "传说中唯一能真正伤害斯特拉德的神器（待获取）" }
+      ],
+      "objectives": [
+        {
+          "id": "strahd_curse_01",
+          "text": "调查诅咒源头",
+          "description": "收集关于斯特拉德诅咒的信息，了解他的弱点和力量来源。",
+          "completed": false
+        },
+        {
+          "id": "strahd_curse_02",
+          "text": "寻找圣物",
+          "description": "传说中存在着能够对抗斯特拉德的圣物，散布在巴洛维亚各处。",
+          "completed": false
+        }
+      ]
+    },
+    "mist_invitation": {
+      "id": "mist_invitation",
+      "category": "main",
+      "title": "来自迷雾的邀请",
+      "status": "ongoing",
+      "description": "迷雾深处似乎有什么在召唤着冒险者。一封来自未知发件人的信函被送到了营地，邀请冒险者前往鸦阁城堡参加晚宴。这很可能是斯特拉德的陷阱，但也可能是近距离了解敌人的机会。",
+      "prerequisites": ["strahd_curse"],
+      "npcs_involved": [
+        { "name": "斯特拉德·冯·扎洛维奇", "role": "邀请人" },
+        { "name": "拉哈丁", "role": "斯特拉德的管家——负责传递邀请函" }
+      ],
+      "items_involved": [
+        { "name": "镶金邀请函", "relation": "信函——斯特拉德亲笔签名的晚宴邀请" }
+      ],
+      "rewards": [
+        { "name": "城堡情报", "description": "深入了解鸦阁城堡内部结构和斯特拉德的秘密" }
+      ],
+      "objectives": [
+        {
+          "id": "mist_invitation_01",
+          "text": "穿越迷雾",
+          "description": "迷雾环绕着通往鸦阁城堡的道路，需要找到安全通过的方法。",
+          "completed": false
+        },
+        {
+          "id": "mist_invitation_02",
+          "text": "参加鸦阁晚宴",
+          "description": "接受斯特拉德的邀请，前往鸦阁城堡赴宴。务必做好万全准备。",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "regions": {
+    "barovia": {
+      "region_id": "barovia",
+      "region_name": "巴洛维亚(Barovia)",
+      "description": "巴洛维亚是整个诅咒之地的核心区域，鸦阁城堡高高矗立在山崖之上，俯视着这片被迷雾笼罩的土地。",
+      "quests": {
+        "escort_irena": {
+          "id": "escort_irena",
+          "category": "region",
+          "region": "巴洛维亚(Barovia)",
+          "title": "护送伊丽娜",
+          "status": "ongoing",
+          "description": "一位名叫伊丽娜的年轻女子需要穿过危险的林地前往邻镇。据说她长相酷似斯特拉德逝去的爱人，因此成为吸血鬼的目标。",
+          "prerequisites": [],
+          "npcs_involved": [
+            { "name": "伊丽娜·科利亚娜", "role": "被护送者——长相酷似斯特拉德逝去的爱人塔季扬娜" },
+            { "name": "伊斯马克·科利亚娜", "role": "伊丽娜的哥哥——请求冒险者帮忙" }
+          ],
+          "items_involved": [
+            { "name": "圣水", "relation": "防护——可暂时驱散吸血鬼衍体" }
+          ],
+          "rewards": [
+            { "name": "50金币", "description": "伊斯马克的感谢酬金" }
+          ],
+          "objectives": [
+            {
+              "id": "escort_irena_01",
+              "text": "与伊丽娜汇合",
+              "description": "在巴洛维亚村找到伊丽娜，确认她的安全并制定转移计划。",
+              "completed": false
+            },
+            {
+              "id": "escort_irena_02",
+              "text": "护送伊丽娜至安全地点",
+              "description": "避开吸血鬼衍体的追杀，将伊丽娜安全送到目的地。",
+              "completed": false
+            }
+          ]
+        }
+      }
+    },
+    "village_barovia": {
+      "region_id": "village_barovia",
+      "region_name": "巴洛维亚村(Village of Barovia)",
+      "description": "巴洛维亚村是进入诅咒之地的第一站，气氛阴郁，村民们生活在斯特拉德的恐惧阴影下。",
+      "quests": {
+        "missing_golinda": {
+          "id": "missing_golinda",
+          "category": "region",
+          "region": "巴洛维亚村(Village of Barovia)",
+          "title": "失踪的歌尔图达",
+          "status": "completed",
+          "description": "歌尔图达是巴洛维亚村的一位普通村民，几天前突然失踪。经过冒险者的调查和搜索，已经成功找到并解救了她。",
+          "prerequisites": [],
+          "npcs_involved": [
+            { "name": "歌尔图达", "role": "失踪村民——已经被找到并解救" }
+          ],
+          "items_involved": [
+            { "name": "歌尔图达的项链", "relation": "线索——在搜寻过程中发现的关键物品" }
+          ],
+          "rewards": [
+            { "name": "30金币", "description": "村民们的感谢筹金" },
+            { "name": "村民好感", "description": "巴洛维亚村村民对冒险者的信任度提升" }
+          ],
+          "objectives": [
+            {
+              "id": "missing_golinda_01",
+              "text": "寻找歌尔图达",
+              "description": "在巴洛维亚村及周边区域搜寻歌尔图达的下落。",
+              "completed": true
+            }
+          ]
+        },
+        "vampire_doru": {
+          "id": "vampire_doru",
+          "category": "region",
+          "region": "巴洛维亚村(Village of Barovia)",
+          "title": "吸血鬼多鲁",
+          "status": "completed",
+          "description": "多鲁是本地牧师多诺维奇的儿子，曾参与反抗斯特拉德的起义。失败后被转化为吸血鬼衍体，被父亲锁在教堂地下室。冒险者发现了他并做出了抉择。",
+          "prerequisites": [],
+          "npcs_involved": [
+            { "name": "多鲁", "role": "吸血鬼衍体——多诺维奇牧师被转化的儿子" },
+            { "name": "多诺维奇", "role": "巴洛维亚村牧师——多鲁的父亲" }
+          ],
+          "items_involved": [
+            { "name": "地下室钥匙", "relation": "开启——多诺维奇牧师持有的教堂地下室钥匙" }
+          ],
+          "rewards": [
+            { "name": "多诺维奇的祝福", "description": "牧师为冒险者提供的治疗服务" }
+          ],
+          "objectives": [
+            {
+              "id": "vampire_doru_01",
+              "text": "击败多鲁",
+              "description": "在教堂地下室面对吸血鬼衍体多鲁，做出你的选择。",
+              "completed": true
+            }
+          ]
+        },
+        "peaceful_mayor": {
+          "id": "peaceful_mayor",
+          "category": "region",
+          "region": "巴洛维亚村(Village of Barovia)",
+          "title": "安详村长",
+          "status": "completed",
+          "description": "巴洛维亚村的村长因长期受到斯特拉德的精神折磨而濒临崩溃。冒险者帮助他摆脱了恐惧，使其恢复了往日的安宁。",
+          "prerequisites": [],
+          "npcs_involved": [
+            { "name": "村长科尔米尔", "role": "巴洛维亚村村长——需要帮助的NPC" }
+          ],
+          "items_involved": [],
+          "rewards": [
+            { "name": "村长令牌", "description": "科尔米尔的信物，可在村中商店享受折扣" }
+          ],
+          "objectives": [
+            {
+              "id": "peaceful_mayor_01",
+              "text": "协助村长",
+              "description": "协助村长科尔米尔摆脱斯特拉德的精神控制，恢复理智。",
+              "completed": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

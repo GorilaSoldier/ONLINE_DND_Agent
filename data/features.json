@@ -1,0 +1,253 @@
+{
+  "type": "features",
+  "status": {
+    "see_invisibility": {
+      "id": "see_invisibility",
+      "name": "识破隐形",
+      "description": "能够看见隐形生物和物体，如同它们可见一般。"
+    },
+    "bliss_spores": {
+      "id": "bliss_spores",
+      "name": "极乐孢子",
+      "description": "体内寄宿着来自妖精荒野的孢子，赋予宿主特殊感知能力，但偶尔会产生不可预知的幻觉。"
+    }
+  },
+  "resistances": {
+    "poison_resist": {
+      "id": "poison_resist",
+      "name": "中毒抗性",
+      "description": "对毒素有天然抗性，在对抗中毒效果的豁免检定中具有优势，且受到的毒素伤害减半。"
+    }
+  },
+  "class_features": {
+    "gwm_power_attack": {
+      "id": "gwm_power_attack",
+      "name": "巨武器大师：全力一击",
+      "description": "使用重型武器攻击时，可以选择承受攻击检定-5的惩罚，换取+10的额外伤害。"
+    },
+    "gwm_bonus_attack": {
+      "id": "gwm_bonus_attack",
+      "name": "巨武器大师：附赠攻击",
+      "description": "当使用近战武器造成重击或击杀敌人时，可以消耗附赠动作进行一次额外的近战攻击。"
+    },
+    "heavy_armor_mastery": {
+      "id": "heavy_armor_mastery",
+      "name": "重甲专精",
+      "description": "擅长穿戴所有类型的重甲，且受到的非魔法武器钝击、挥砍、穿刺伤害减少3点。"
+    }
+  },
+  "traits": {
+    "human_versatility": {
+      "id": "human_versatility",
+      "name": "人类通才",
+      "description": "人类适应性极强，自选1个技能获得熟练项，且负重上限提高25%。"
+    },
+    "opportunity_attack": {
+      "id": "opportunity_attack",
+      "name": "借机攻击",
+      "description": "当敌人离开你的近战攻击范围时，可以消耗反应动作对其进行一次借机攻击。"
+    },
+    "psychic_recoil": {
+      "id": "psychic_recoil",
+      "name": "心灵反冲",
+      "description": "当受到精神攻击时，部分伤害会反弹回施法者，其必须通过感知豁免，否则受到等量的心灵伤害。"
+    },
+    "bully": {
+      "id": "bully",
+      "name": "恃强凌弱",
+      "description": "对体型小于你的目标进行攻击时，攻击检定具有优势。"
+    },
+    "first_strike": {
+      "id": "first_strike",
+      "name": "旗开得胜",
+      "description": "每场战斗中首次攻击命中时，额外造成1d6的伤害。"
+    }
+  },
+  "racial": {
+    "civil_militia": {
+      "id": "civil_militia",
+      "name": "人类民兵",
+      "description": "人类自幼接受民兵训练，获得长矛、长枪、戟、大砍刀、轻甲和盾牌的熟练项。"
+    },
+    "fey_ancestry": {
+      "id": "fey_ancestry",
+      "name": "妖精血统",
+      "description": "拥有妖精血统，对魅惑状态具有豁免优势，且免疫魔法造成的睡眠效果。"
+    },
+    "darkvision_12m": {
+      "id": "darkvision_12m",
+      "name": "黑暗视觉（12m）",
+      "description": "在黑暗环境中可视12米范围，但只能看到灰度画面。"
+    },
+    "superior_darkvision_24m": {
+      "id": "superior_darkvision_24m",
+      "name": "卓越黑暗视觉（24m）",
+      "description": "长期生活在幽暗地域赋予的超常黑暗视觉，可在黑暗中清晰看到24米范围。"
+    },
+    "keen_senses": {
+      "id": "keen_senses",
+      "name": "敏锐感官",
+      "description": "精灵的感官天生敏锐，获得察觉技能的熟练项。"
+    },
+    "elf_weapon_training": {
+      "id": "elf_weapon_training",
+      "name": "精灵武器训练",
+      "description": "精灵自幼学习使用长剑、短剑、长弓和短弓，获得这些武器的熟练项。"
+    },
+    "high_elf_cantrip": {
+      "id": "high_elf_cantrip",
+      "name": "高等精灵戏法",
+      "description": "可以从法师戏法列表中自选1个戏法施放，施法属性为智力。"
+    },
+    "stealth_proficient": {
+      "id": "stealth_proficient",
+      "name": "隐匿熟练",
+      "description": "获得隐匿技能的熟练项。"
+    },
+    "fleet_of_foot": {
+      "id": "fleet_of_foot",
+      "name": "捷足",
+      "description": "基础移动速度额外提高1.5米，比大多数种族移动更快。"
+    },
+    "drow_weapon_training": {
+      "id": "drow_weapon_training",
+      "name": "卓尔武器训练",
+      "description": "卓尔擅长使用细剑、短剑和手弩，获得这些武器的熟练项。"
+    },
+    "drow_magic": {
+      "id": "drow_magic",
+      "name": "卓尔魔法",
+      "description": "因幽暗地域的神秘力量，习得舞光术戏法，3级获得妖火术，5级获得黑暗术，每次长休可施放一次。"
+    },
+    "dancing_lights": {
+      "id": "dancing_lights",
+      "name": "舞光术",
+      "description": "习得舞光术戏法，可在空中制造飘浮的光点来照亮周围环境。"
+    },
+    "lucky": {
+      "id": "lucky",
+      "name": "幸运",
+      "description": "半身人的天生好运气——攻击检定、属性检定或豁免检定投出1时，可以重骰一次。"
+    },
+    "brave": {
+      "id": "brave",
+      "name": "勇敢",
+      "description": "对恐慌状态具有豁免优势。"
+    },
+    "naturally_stealthy": {
+      "id": "naturally_stealthy",
+      "name": "天生隐匿",
+      "description": "身材小巧灵活，进行隐匿检定时具有优势。"
+    },
+    "strongheart_resilience": {
+      "id": "strongheart_resilience",
+      "name": "壮心抗性",
+      "description": "对毒素伤害具有抗性，且对抗中毒状态时具有豁免优势。"
+    },
+    "relentless_endurance": {
+      "id": "relentless_endurance",
+      "name": "不屈耐力",
+      "description": "生命值首次降至0但未直接死亡时，可以保留1点生命值，每次长休限一次。"
+    },
+    "menacing": {
+      "id": "menacing",
+      "name": "凶恶面容",
+      "description": "兽人血统赋予的威慑力，获得威吓技能的熟练项。"
+    },
+    "savage_attacks": {
+      "id": "savage_attacks",
+      "name": "野蛮攻击",
+      "description": "使用近战武器造成暴击时，额外多投一个伤害骰并计入总伤害。"
+    },
+    "dwarven_resilience": {
+      "id": "dwarven_resilience",
+      "name": "矮人韧性",
+      "description": "矮人体格天生坚韧，对毒素伤害具有抗性，且对抗中毒状态时具有豁免优势。"
+    },
+    "dwarven_combat_training": {
+      "id": "dwarven_combat_training",
+      "name": "矮人战斗训练",
+      "description": "矮人自幼习武，获得战斧、手斧、轻锤和战锤的熟练项。"
+    },
+    "dwarven_toughness": {
+      "id": "dwarven_toughness",
+      "name": "矮人体魄",
+      "description": "生命值上限额外+1，之后每升一级再+1。"
+    },
+    "light_medium_armor_proficiency": {
+      "id": "light_medium_armor_proficiency",
+      "name": "轻中甲熟练",
+      "description": "获得轻甲和中甲的熟练项。"
+    },
+    "duergar_resilience": {
+      "id": "duergar_resilience",
+      "name": "灰矮人韧性",
+      "description": "对幻术、魅惑和麻痹状态具有豁免优势。"
+    },
+    "gnome_cunning": {
+      "id": "gnome_cunning",
+      "name": "侏儒狡黠",
+      "description": "进行智力、感知和魅力豁免检定时具有优势。"
+    },
+    "speak_with_animals": {
+      "id": "speak_with_animals",
+      "name": "动物交谈",
+      "description": "习得动物交谈术，可与野兽进行交流。"
+    },
+    "artificer_lore": {
+      "id": "artificer_lore",
+      "name": "工匠学识",
+      "description": "对魔法物品和机关的历史了如指掌，进行历史检定时获得双倍熟练加值。"
+    },
+    "stone_camouflage": {
+      "id": "stone_camouflage",
+      "name": "石之伪装",
+      "description": "在岩石地形进行隐匿检定时具有优势。"
+    },
+    "hellish_resistance": {
+      "id": "hellish_resistance",
+      "name": "炎狱抗性",
+      "description": "炼狱血统赋予的火焰适应力，受到的火焰伤害减半。"
+    },
+    "thaumaturgy": {
+      "id": "thaumaturgy",
+      "name": "奇术",
+      "description": "习得奇术戏法，可制造小型超自然现象（如改变火焰颜色、放大声音等），威吓检定时具有优势。"
+    },
+    "asmodeus_legacy": {
+      "id": "asmodeus_legacy",
+      "name": "阿斯蒙蒂斯遗赠",
+      "description": "继承九狱之主的血脉，1级习得燃火术，3级获得炼狱叱喝，5级获得黑暗术（每次长休各一次）。"
+    },
+    "mephistopheles_legacy": {
+      "id": "mephistopheles_legacy",
+      "name": "梅菲斯特遗赠",
+      "description": "继承寒冰地狱的奥术血脉，1级习得法师之手，3级获得燃烧之手，5级获得火焰刀（每次长休各一次）。"
+    },
+    "zariel_legacy": {
+      "id": "zariel_legacy",
+      "name": "扎瑞尔遗赠",
+      "description": "继承阿弗纳斯的战斗血脉，奇术戏法额外使威吓和表演检定获得优势，3级获得炽焰斩，5级获得印记斩（每次长休各一次）。"
+    },
+    "martial_prodigy": {
+      "id": "martial_prodigy",
+      "name": "军事奇才",
+      "description": "吉斯洋基人生而为战士，获得轻甲、中甲、短剑、长剑和巨剑的熟练项。"
+    },
+    "astral_knowledge": {
+      "id": "astral_knowledge",
+      "name": "星界知识",
+      "description": "从星界汲取古老知识，自选一项属性，与该属性相关的所有技能获得熟练项，长休后可重置。"
+    },
+    "githyanki_psionics": {
+      "id": "githyanki_psionics",
+      "name": "吉斯灵能",
+      "description": "天生的灵能天赋：1级习得法师之手，3级获得跳跃术，5级获得迷踪步（每次长休各一次）。"
+    },
+    "draconic_ancestry": {
+      "id": "draconic_ancestry",
+      "name": "龙族血统",
+      "description": "拥有龙类祖先的遗产，根据亚种获得对应的龙息攻击和元素抗性。"
+    }
+  }
+}

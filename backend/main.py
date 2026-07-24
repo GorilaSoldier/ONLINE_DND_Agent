@@ -20,6 +20,15 @@ app.add_middleware(
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data" / "characters"
 EQUIPMENT_DIR = BASE_DIR / "data" / "equipment"
+DATA_ROOT = BASE_DIR / "data"
+
+
+def _load_json(filename: str) -> dict:
+    file_path = DATA_ROOT / filename
+    if not file_path.exists():
+        return {}
+    with open(file_path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 def _load_character(char_id: str) -> dict:
@@ -89,6 +98,48 @@ def get_equipment_item(equipment_type: str, item_id: str) -> dict:
     if item_id not in items:
         raise HTTPException(status_code=404, detail=f"Equipment '{item_id}' not found in type '{equipment_type}'")
     return items[item_id]
+
+
+@app.get("/api/spells")
+def list_spells() -> dict:
+    """返回法术/动作/被动目录"""
+    return _load_json("spells.json")
+
+
+@app.get("/api/features")
+def list_features() -> dict:
+    """返回所有特性目录（状态/抗性/职业特性/种族特性）"""
+    return _load_json("features.json")
+
+
+@app.get("/api/classes")
+def list_classes() -> dict:
+    """返回职业与子职业定义"""
+    return _load_json("classes.json")
+
+
+@app.get("/api/races")
+def list_races() -> dict:
+    """返回所有种族与亚种族定义"""
+    return _load_json("races.json")
+
+
+@app.get("/api/quests")
+def list_quests() -> dict:
+    """返回所有任务（主线+地区）"""
+    return _load_json("quests.json")
+
+
+@app.get("/api/intel")
+def list_intel() -> dict:
+    """返回情报手记"""
+    return _load_json("intel.json")
+
+
+@app.get("/api/campaign")
+def get_campaign() -> dict:
+    """返回当前剧本数据（含章回内容）"""
+    return _load_json("campaign.json")
 
 
 # 根路径自动跳转到登录页

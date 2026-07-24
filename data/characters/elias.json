@@ -49,7 +49,7 @@
       { "equipment_id": "common_clothes", "name": "普通服装 Common Clothes", "quantity": 1, "equipped": false }
     ]
   },
-  "class_id": "warrior",
+  "class_id": "fighter",
   "subclass_id": "battle_master",
   "features": {
     "status_ids": ["see_invisibility", "bliss_spores"],

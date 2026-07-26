@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNDBOX - 创建人物</title>
+  <style>
+    :root {
+      --ink: #3d2b1f;
+      --ink-soft: #6b4e3d;
+      --paper: #faf6ee;
+      --paper-light: #fdfbf7;
+      --paper-card: #fdfbf7;
+      --sidebar: #000000;
+      --sidebar-hover: rgba(255, 255, 255, 0.08);
+      --sidebar-active: rgba(255, 255, 255, 0.14);
+      --accent: #b87333;
+      --accent-light: #d69a5c;
+      --border: rgba(61, 43, 31, 0.12);
+      --shadow: rgba(61, 43, 31, 0.12);
+      --slot: rgba(61, 43, 31, 0.05);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", Georgia, serif;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(139, 90, 43, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(62, 43, 31, 0.06) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+      background-size: auto, auto, 200px 200px;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    /* 顶部 */
+    header {
+      height: 64px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; border-bottom: 1px solid var(--border);
+      background: rgba(253, 251, 247, 0.5); backdrop-filter: blur(6px);
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: transparent; color: var(--ink-soft);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-back:hover { background: rgba(61, 43, 31, 0.06); color: var(--ink); }
+    .btn-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .header-title { font-size: 18px; font-weight: 700; color: var(--ink); }
+    .btn-finish {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(184, 115, 51, 0.28); transition: background 0.2s;
+    }
+    .btn-finish:hover { background: var(--accent-light); }
+    .btn-finish svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .name-input-wrap { display: flex; align-items: center; gap: 8px; }
+    .name-input-wrap label { font-size: 13px; font-weight: 600; color: var(--ink-soft); white-space: nowrap; }
+    .name-input-wrap input {
+      padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px;
+      background: #fff; font-family: inherit; font-size: 14px; color: var(--ink);
+      width: 140px; transition: border-color 0.2s;
+    }
+    .name-input-wrap input:focus { outline: none; border-color: var(--accent); }
+    .name-input-wrap input::placeholder { color: #bfb8a8; }
+
+    /* 三栏 */
+    .workspace { flex: 1; display: flex; overflow: hidden; }
+
+    /* ===== 左侧 ===== */
+    .step-nav {
+      width: 200px; flex-shrink: 0;
+      background: var(--sidebar); color: var(--paper-light);
+      display: flex; flex-direction: column;
+      padding: 20px 0; overflow-y: auto;
+    }
+    .step-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 20px; margin: 2px 12px; border-radius: 8px;
+      font-size: 14px; color: rgba(255, 255, 255, 0.6);
+      cursor: pointer; user-select: none; transition: background 0.2s, color 0.2s;
+    }
+    .step-item:hover { background: var(--sidebar-hover); color: var(--paper-light); }
+    .step-item.active { background: var(--sidebar-active); color: var(--paper-light); box-shadow: inset 2px 0 0 var(--accent-light); }
+    .step-item.completed { color: var(--paper-light); }
+    .step-marker {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; transition: all 0.2s;
+    }
+    .step-item.active .step-marker { border-color: var(--accent-light); background: var(--accent-light); color: var(--sidebar); }
+    .step-item.completed .step-marker { border-color: var(--accent-light); color: var(--accent-light); }
+
+    /* ===== 中间 ===== */
+    .main-panel {
+      flex: 1; min-width: 0;
+      padding: 32px 40px; overflow-y: auto;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .main-inner { width: 100%; max-width: 700px; }
+    .panel-header { margin-bottom: 24px; text-align: left; }
+    .panel-header h2 { font-size: 26px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+    .panel-header p { font-size: 14px; color: var(--ink-soft); }
+
+    .selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .selection-card {
+      background: var(--paper-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px 18px; text-align: center;
+      cursor: pointer; transition: all 0.2s ease;
+      box-shadow: 0 2px 8px var(--shadow);
+      min-height: 140px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    }
+    .selection-card:hover { border-color: var(--accent-light); transform: translateY(-2px); box-shadow: 0 8px 22px var(--shadow); }
+    .selection-card.selected { border-color: var(--accent); background: rgba(184, 115, 51, 0.08); box-shadow: 0 0 0 2px var(--accent-light); }
+    .selection-card.disabled { opacity: 0.45; cursor: not-allowed; }
+    .selection-icon { font-size: 40px; line-height: 1; }
+    .selection-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+    .selection-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .detail-box {
+      background: var(--paper-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px var(--shadow); margin-top: 16px;
+    }
+    .detail-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--ink); }
+    .detail-box p { font-size: 14px; line-height: 1.7; color: var(--ink-soft); margin-bottom: 12px; }
+    .detail-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .detail-tag {
+      padding: 5px 10px; border-radius: 6px;
+      background: rgba(184, 115, 51, 0.1); border: 1px solid rgba(184, 115, 51, 0.2);
+      font-size: 12px; color: var(--ink);
+    }
+    .detail-tag.trait-hover { cursor: help; }
+    .detail-tag.trait-hover:hover { background: rgba(184, 115, 51, 0.22); border-color: var(--accent-light); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+
+    /* 复选框列表 */
+    .check-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; background: var(--paper-card);
+      border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .check-item:hover { border-color: var(--accent-light); }
+    .check-item input { margin-top: 2px; accent-color: var(--accent); cursor: pointer; }
+    .check-item.disabled { opacity: 0.45; cursor: not-allowed; }
+    .check-label { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+    .check-meta { font-size: 12px; color: var(--ink-soft); }
+    .quota-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 13px; color: var(--ink-soft); }
+    .quota-track { flex: 1; height: 6px; background: rgba(61, 43, 31, 0.08); border-radius: 3px; overflow: hidden; }
+    .quota-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.2s; }
+    .quota-fill.over { background: #c0392b; }
+
+    /* 背景表单 */
+    .bg-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
+    .bg-field.full { grid-column: 1 / -1; }
+    .bg-field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+    .bg-field textarea, .bg-field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font-family: inherit; font-size: 14px; color: var(--ink); resize: vertical; }
+    .bg-field textarea:focus, .bg-field input:focus { outline: none; border-color: var(--accent); }
+    .bg-hint { grid-column: 1 / -1; font-size: 12px; color: var(--accent); font-style: italic; }
+
+    /* 人类通才技能选择 */
+    .human-skill-section { margin-top: 16px; }
+    .human-skill-section h4 { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .human-skill-section p { font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; }
+    .skill-select-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .skill-select-item {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--paper-card); font-size: 13px; color: var(--ink);
+      cursor: pointer; text-align: center; transition: all 0.2s ease;
+    }
+    .skill-select-item:hover { border-color: var(--accent-light); background: rgba(184, 115, 51, 0.06); }
+    .skill-select-item.selected { border-color: var(--accent); background: rgba(184, 115, 51, 0.12); color: var(--accent); font-weight: 700; }
+    .skill-select-item.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    /* 属性步骤 */
+    .ability-grid { display: flex; flex-direction: column; gap: 0; }
+    .ability-row {
+      display: grid; grid-template-columns: 70px 1fr 100px;
+      align-items: center; gap: 16px;
+      padding: 18px 0; border-bottom: 1px solid var(--border);
+    }
+    .ability-row:last-of-type { border-bottom: none; }
+    .ability-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .ability-controls { display: flex; align-items: center; gap: 12px; }
+    .ability-btn {
+      width: 32px; height: 32px; border-radius: 6px;
+      border: 1px solid var(--border); background: #fff;
+      color: var(--ink); font-size: 18px; line-height: 1;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ability-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .ability-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .ability-score { min-width: 28px; text-align: center; font-size: 20px; font-weight: 700; color: var(--ink); }
+
+    .bonus-selector { display: flex; align-items: center; gap: 6px; margin-left: 4px; }
+    .bonus-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border); background: #fff;
+      color: var(--ink-soft); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bonus-dot:hover { border-color: var(--accent); }
+    .bonus-dot.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+    .bonus-label {
+      margin-left: 124px; font-size: 12px; color: var(--ink-soft);
+    }
+
+    .ability-total { text-align: right; font-size: 22px; font-weight: 700; color: var(--ink); }
+
+    .ability-name-hover { cursor: default; }
+    .ability-name-hover:hover { color: var(--accent); }
+
+    /* 属性悬浮提示框 */
+    .ability-tooltip {
+      position: fixed; z-index: 1000;
+      background: var(--paper-card); border: 2px solid var(--accent);
+      border-radius: 12px; padding: 18px 20px; box-shadow: 0 8px 28px rgba(61,43,31,0.22);
+      min-width: 260px; max-width: 320px;
+      pointer-events: none; opacity: 0; transition: opacity 0.15s;
+      display: none;
+    }
+    .ability-tooltip.show { display: block; opacity: 1; }
+    .tooltip-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .tooltip-check { font-size: 14px; font-weight: 600; color: var(--ink-soft); margin-bottom: 10px; }
+    .tooltip-desc { font-size: 13px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .tooltip-save { font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+    .tooltip-breakdown { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; padding-left: 8px; }
+    .tooltip-skills { font-size: 13px; color: var(--ink-soft); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+    .proficiency-line {
+      padding: 10px 0; font-size: 14px; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ability-actions { display: flex; gap: 12px; margin: 20px 0; align-items: center; }
+    .ability-actions button {
+      min-width: 110px; padding: 10px 16px; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff;
+      color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ability-actions button:hover { border-color: var(--accent); color: var(--accent); }
+    .ability-btn2 {
+      min-width: 110px; padding: 10px 16px; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff;
+      color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ability-btn2:hover { border-color: var(--accent); color: var(--accent); }
+    .points-remaining {
+      display: inline-flex; align-items: center; gap: 8px; margin-left: auto;
+      font-size: 14px; color: var(--ink-soft);
+    }
+    .points-remaining .num {
+      font-size: 20px; font-weight: 700; color: var(--accent);
+    }
+    .explain-box {
+      background: rgba(184, 115, 51, 0.06);
+      border: 1px solid rgba(184, 115, 51, 0.15);
+      border-radius: 12px; padding: 16px; margin-top: 20px;
+    }
+    .explain-box p { font-size: 13px; color: var(--ink-soft); line-height: 1.8; margin: 0; }
+
+    /* 步骤按钮 */
+    .step-actions { display: flex; justify-content: space-between; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .step-btn {
+      padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .step-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .step-btn.primary { background: var(--ink); color: var(--paper-light); border-color: var(--ink); }
+    .step-btn.primary:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ===== 右侧预览 ===== */
+    .preview-panel {
+      width: 380px; flex-shrink: 0;
+      background: rgba(253, 251, 247, 0.6);
+      border-left: 1px solid var(--border);
+      padding: 28px; overflow-y: auto;
+    }
+    .preview-card {
+      background: var(--paper-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: 0 4px 16px var(--shadow);
+    }
+    .preview-class-icon { font-size: 56px; text-align: center; line-height: 1; margin-bottom: 12px; }
+    .preview-char-name { text-align: center; font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .preview-char-name.preview-placeholder { color: var(--ink-soft); font-style: italic; font-weight: 400; }
+    .preview-class-name { text-align: center; font-size: 16px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; }
+    .preview-race-info { text-align: center; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+    .preview-hp-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 18px; padding: 8px 0; }
+    .preview-hp-label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+    .preview-hp-value { font-size: 16px; font-weight: 700; color: #c0392b; }
+    .preview-abilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .preview-ability { background: rgba(61, 43, 31, 0.04); border: 1px solid var(--border); border-radius: 10px; padding: 10px 4px; text-align: center; }
+    .preview-ability.primary .ability-label { color: var(--accent); }
+    .ability-label { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-bottom: 4px; }
+    .ability-label .star { color: var(--accent); margin-right: 2px; }
+    .ability-value { font-size: 20px; font-weight: 700; color: var(--ink); }
+    .ability-mod { font-size: 11px; color: var(--ink-soft); }
+
+    .preview-section { margin-bottom: 16px; }
+    .preview-section:last-child { margin-bottom: 0; }
+    .preview-section-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); text-align: center; }
+    .preview-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .preview-pill { padding: 4px 8px; border-radius: 6px; background: rgba(184, 115, 51, 0.1); border: 1px solid rgba(184, 115, 51, 0.2); font-size: 12px; color: var(--ink); }
+    .preview-proficiency-row { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+    .preview-list-item { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+    @media (max-width: 1300px) { .preview-panel { width: 340px; } }
+    @media (max-width: 900px) {
+      .workspace { flex-direction: column; }
+      .step-nav { width: 100%; flex-direction: row; padding: 12px; overflow-x: auto; }
+      .step-item { white-space: nowrap; margin: 0 4px; }
+      .preview-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <button class="btn-back" onclick="location.href='lobby.html'">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回大厅
+      </button>
+      <span class="header-title">创建新角色</span>
+    </div>
+    <div class="name-input-wrap">
+      <label for="charName">角色名称</label>
+      <input type="text" id="charName" placeholder="输入角色名…" value="" oninput="creationState.name=this.value;renderPreview()">
+    </div>
+    <button class="btn-finish" onclick="finishCreation()">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      完成创建
+    </button>
+  </header>
+
+  <div class="workspace">
+    <nav class="step-nav" id="stepNav"></nav>
+
+    <main class="main-panel">
+      <div class="main-inner">
+        <div class="panel-header" id="panelHeader">
+          <h2>选择种族</h2>
+          <p>选择你的角色种族，这将决定你的基础特性和亚种选项。</p>
+        </div>
+        <div id="mainContent"></div>
+        <div class="step-actions" id="stepActions">
+          <button class="step-btn" id="prevBtn" onclick="prevStep()" disabled>上一步</button>
+          <button class="step-btn primary" id="nextBtn" onclick="nextStep()">下一步</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="preview-panel">
+      <div class="preview-card" id="previewCard"></div>
+    </aside>
+  </div>
+
+  <!-- 属性悬浮提示框 -->
+  <div class="ability-tooltip" id="abilityTooltip"></div>
+
+  <script>
+    // ========== 数据 ==========
+    const API_BASE = '';
+    const STEPS = [
+      { id: 'race', name: '种族' },
+      { id: 'subrace', name: '亚种' },
+      { id: 'class', name: '职业' },
+      { id: 'cantrips', name: '戏法' },
+      { id: 'spells', name: '法术' },
+      { id: 'background', name: '背景' },
+      { id: 'abilities', name: '属性' }
+    ];
+    const ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const ABILITY_LABELS = { str: '力量', dex: '敏捷', con: '体质', int: '智力', wis: '感知', cha: '魅力' };
+    const ABILITY_SKILL_MAP = {
+      str: ['运动'], dex: ['体操', '巧手', '隐匿'], con: [],
+      int: ['奥秘', '历史', '调查', '自然', '宗教'],
+      wis: ['驯兽', '洞悉', '医药', '察觉', '求生'],
+      cha: ['欺瞒', '威吓', '表演', '说服']
+    };
+    const POINT_BUY_COST = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
+    const PROFICIENCY_BONUS = 2;
+
+    // 博德之门3 属性描述
+    const ABILITY_DESCRIPTIONS = {
+      str: '影响近战攻击与近战武器的伤害、跳跃距离以及负重能力。',
+      dex: '影响远程攻击、灵巧类武器的命中与伤害，以及先攻和护甲等级。',
+      con: '影响最大生命值上限，也可提高专注检定的稳定性。',
+      int: '影响法师的施法能力，以及与知识相关的技能检定。',
+      wis: '影响牧师、德鲁伊、游侠的施法能力，以及察觉环境与洞悉他人动机的能力。',
+      cha: '影响吟游诗人、圣武士、术士、邪术师的施法能力，以及商人价格和社交互动。'
+    };
+
+    // 种族特性 → 装备熟练项 映射（武器/护甲，来自 features.json）
+    const TRAIT_GEAR_MAP = {
+      'civil_militia': { weapons: ['长矛', '长枪', '戟', '大砍刀'], armors: ['轻甲', '盾牌'] },
+      'elf_weapon_training': { weapons: ['长剑', '短剑', '长弓', '短弓'], armors: [] },
+      'drow_weapon_training': { weapons: ['细剑', '短剑', '手弩'], armors: [] },
+      'dwarven_combat_training': { weapons: ['战斧', '手斧', '轻锤', '战锤'], armors: [] },
+      'martial_prodigy': { weapons: ['短剑', '长剑', '巨剑'], armors: ['轻甲', '中甲'] },
+      'light_medium_armor_proficiency': { weapons: [], armors: ['轻甲', '中甲'] }
+    };
+
+    // 收集角色所有武器/护甲熟练项（职业 + 种族特性）
+    function getCharacterGearProficiencies() {
+      const cls = getClass();
+      const weapons = [...(cls?.weapon_proficiencies || [])];
+      const armors = [...(cls?.armor_proficiencies || [])];
+      const race = getRace();
+      const sub = getSubrace();
+      const traitIds = [
+        ...(race?.base_trait_ids || []),
+        ...(sub?.extra_trait_ids || [])
+      ];
+      for (const tid of traitIds) {
+        const gear = TRAIT_GEAR_MAP[tid];
+        if (gear) {
+          if (gear.weapons) weapons.push(...gear.weapons);
+          if (gear.armors) armors.push(...gear.armors);
+        }
+      }
+      return { weapons: [...new Set(weapons)], armors: [...new Set(armors)] };
+    }
+
+    // 种族特性 → 技能熟练项 映射（来自 features.json）
+    const TRAIT_SKILL_MAP = {
+      'keen_senses': ['察觉'],
+      'stealth_proficient': ['隐匿'],
+      'menacing': ['威吓']
+      // human_versatility 是自选，不在此列出
+    };
+
+    // 收集角色的实际技能熟练项（背景 + 种族 + 职业自选 + 人类通才自选）
+    function getCharacterSkillProficiencies() {
+      const skills = [];
+      const bg = getBackground();
+      if (bg && bg.skill_proficiencies) skills.push(...bg.skill_proficiencies);
+      const race = getRace();
+      const sub = getSubrace();
+      const traitIds = [
+        ...(race?.base_trait_ids || []),
+        ...(sub?.extra_trait_ids || [])
+      ];
+      for (const tid of traitIds) {
+        if (TRAIT_SKILL_MAP[tid]) skills.push(...TRAIT_SKILL_MAP[tid]);
+      }
+      if (creationState.human_skill) skills.push(creationState.human_skill);
+      if (creationState.class_skills.length) skills.push(...creationState.class_skills);
+      return [...new Set(skills)];
+    }
+
+    let tooltipTimer = null;
+    function showAbilityTooltip(e, key) {
+      clearTimeout(tooltipTimer);
+      tooltipTimer = setTimeout(() => {
+        const tip = document.getElementById('abilityTooltip');
+        const total = getAbilityTotal(key);
+        const mod = getAbilityMod(total);
+        const cls = getClass();
+        const hasSaveProf = cls && cls.saving_throws ? cls.saving_throws.some(s => {
+          const map = { '力量':'str','敏捷':'dex','体质':'con','智力':'int','感知':'wis','魅力':'cha' };
+          return map[s] === key;
+        }) : false;
+        const profBonus = hasSaveProf ? PROFICIENCY_BONUS : 0;
+        const saveTotal = mod + profBonus;
+        
+        // 仅显示该属性下角色实际精通的技能
+        const charSkills = getCharacterSkillProficiencies();
+        const allSkills = ABILITY_SKILL_MAP[key] || [];
+        const proficientSkills = allSkills.filter(s => charSkills.includes(s));
+        const skillsText = allSkills.map(s => 
+          proficientSkills.includes(s) ? `<span style="color:var(--accent);font-weight:700">${s}</span>` : s
+        ).join('、');
+
+        tip.innerHTML = `
+          <div class="tooltip-title">${ABILITY_LABELS[key]}（${total}）</div>
+          <div class="tooltip-check">${mod>=0?'+'+mod:mod} 至${ABILITY_LABELS[key]}检定</div>
+          <div class="tooltip-desc">${ABILITY_DESCRIPTIONS[key]}</div>
+          <div class="tooltip-save">${saveTotal>=0?'+'+saveTotal:saveTotal} 至豁免检定</div>
+          <div class="tooltip-breakdown">${mod>=0?'+'+mod:mod} 来自${ABILITY_LABELS[key]}</div>
+          ${hasSaveProf ? `<div class="tooltip-breakdown">+${profBonus} 来自擅长</div>` : ''}
+          ${skillsText ? `<div class="tooltip-skills"><strong>擅长技能：</strong>${skillsText}</div>` : ''}
+        `;
+        // Position below the element
+        const rect = e.target.getBoundingClientRect();
+        let left = rect.left;
+        tip.style.display = 'block';
+        tip.classList.add('show');
+        if (left + tip.offsetWidth > window.innerWidth - 16) {
+          left = window.innerWidth - tip.offsetWidth - 16;
+        }
+        tip.style.left = left + 'px';
+        tip.style.top = (rect.bottom + 8) + 'px';
+      }, 500);
+    }
+
+    function hideAbilityTooltip() {
+      clearTimeout(tooltipTimer);
+      clearTimeout(traitTooltipTimer);
+      clearTimeout(spellTooltipTimer);
+      clearTimeout(actionTooltipTimer);
+      const tip = document.getElementById('abilityTooltip');
+      tip.classList.remove('show');
+    }
+
+    let traitTooltipTimer = null;
+    function showTraitTooltip(e, traitId) {
+      clearTimeout(traitTooltipTimer);
+      traitTooltipTimer = setTimeout(() => {
+        const tip = document.getElementById('abilityTooltip');
+        const f = getFeature(traitId);
+        if (!f) return;
+        tip.innerHTML = `
+          <div class="tooltip-title">${f.name}</div>
+          <div class="tooltip-desc" style="border-bottom:none;margin-bottom:0;padding-bottom:0">${f.description}</div>
+        `;
+        const rect = e.target.getBoundingClientRect();
+        let left = rect.left;
+        tip.style.display = 'block';
+        tip.classList.add('show');
+        if (left + tip.offsetWidth > window.innerWidth - 16) {
+          left = window.innerWidth - tip.offsetWidth - 16;
+        }
+        tip.style.left = left + 'px';
+        tip.style.top = (rect.bottom + 8) + 'px';
+      }, 500);
+    }
+
+    let spellTooltipTimer = null;
+    function showSpellTooltip(e, type, spellId) {
+      clearTimeout(spellTooltipTimer);
+      spellTooltipTimer = setTimeout(() => {
+        const tip = document.getElementById('abilityTooltip');
+        const spells = type === 'cantrip' ? (dataCache.spells?.cantrips || {}) : (dataCache.spells?.spells?.level_1 || {});
+        const s = spells[spellId];
+        if (!s) return;
+        tip.innerHTML = `
+          <div class="tooltip-title">${s.name}</div>
+          <div class="tooltip-desc">${s.description || '暂无描述'}</div>
+          <div class="tooltip-save">${s.school || '—'} · 施法时间：${s.casting_time || '—'}</div>
+          <div class="tooltip-breakdown">射程：${s.range || '—'}</div>
+        `;
+        const rect = e.target.getBoundingClientRect();
+        let left = rect.left;
+        tip.style.display = 'block';
+        tip.classList.add('show');
+        if (left + tip.offsetWidth > window.innerWidth - 16) {
+          left = window.innerWidth - tip.offsetWidth - 16;
+        }
+        tip.style.left = left + 'px';
+        tip.style.top = (rect.bottom + 8) + 'px';
+      }, 500);
+    }
+
+    function hideSpellTooltip() {
+      clearTimeout(spellTooltipTimer);
+      const tip = document.getElementById('abilityTooltip');
+      tip.classList.remove('show');
+    }
+
+    let actionTooltipTimer = null;
+    function showActionTooltip(e, actionId) {
+      clearTimeout(actionTooltipTimer);
+      actionTooltipTimer = setTimeout(() => {
+        const tip = document.getElementById('abilityTooltip');
+        const a = (dataCache.spells?.actions?.normal || {})[actionId]
+               || (dataCache.spells?.actions?.class || {})[actionId];
+        if (!a) return;
+        tip.innerHTML = `
+          <div class="tooltip-title">${a.name}</div>
+          <div class="tooltip-desc">${a.description || '暂无描述'}</div>
+          <div class="tooltip-save">${a.action_type || '—'}</div>
+          <div class="tooltip-breakdown">射程：${a.range || '—'}</div>
+        `;
+        const rect = e.target.getBoundingClientRect();
+        let left = rect.left;
+        tip.style.display = 'block';
+        tip.classList.add('show');
+        if (left + tip.offsetWidth > window.innerWidth - 16) {
+          left = window.innerWidth - tip.offsetWidth - 16;
+        }
+        tip.style.left = left + 'px';
+        tip.style.top = (rect.bottom + 8) + 'px';
+      }, 500);
+    }
+
+    const creationState = {
+      step: 'race',
+      name: '',
+      campaign_id: new URLSearchParams(window.location.search).get('campaign') || '',
+      race_id: null, subrace_id: null, class_id: null,
+      cantrip_ids: [], spell_ids: [],
+      class_skills: [],
+      background_id: null,
+      background: { trait: '', ideal: '', bond: '', flaw: '', story: '' },
+      abilities: { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 },
+      abilityBonus: { plus2: null, plus1: null },
+      abilitiesDone: false,
+      human_skill: null
+    };
+
+    const dataCache = { races: null, classes: null, backgrounds: null, spells: null, features: null };
+
+    // ========== 工具函数 ==========
+    function getAbilityMod(score) { return Math.floor((score - 10) / 2); }
+    function modText(score) { const m = Math.floor((score - 10) / 2); return (m >= 0 ? '+' : '') + m; }
+    function getPointBuyCost(score) { return POINT_BUY_COST[score] ?? 0; }
+    function getSpentPoints() { return Object.values(creationState.abilities).reduce((sum, v) => sum + getPointBuyCost(v), 0); }
+    function getRemainingPoints() { return 27 - getSpentPoints(); }
+    function getAbilityTotal(key) {
+      let total = creationState.abilities[key];
+      if (creationState.abilityBonus.plus2 === key) total += 2;
+      if (creationState.abilityBonus.plus1 === key) total += 1;
+      return total;
+    }
+
+    function isStepCompleted(stepId) {
+      switch (stepId) {
+        case 'race': {
+          if (!creationState.race_id) return false;
+          const race = dataCache.races?.[creationState.race_id];
+          if (race?.base_trait_ids?.includes('human_versatility') && !creationState.human_skill) return false;
+          return true;
+        }
+        case 'subrace': {
+          if (!creationState.race_id) return false;
+          const race = getRace();
+          if (!race) return false;
+          return Object.keys(race.subraces || {}).length === 0 || !!creationState.subrace_id;
+        }
+        case 'class': {
+          if (!creationState.class_id) return false;
+          const cls = getClass();
+          if (!cls) return false;
+          if (cls.skill_choices > 0 && creationState.class_skills.length !== cls.skill_choices) return false;
+          return true;
+        }
+        case 'cantrips': {
+          if (!creationState.class_id) return false;
+          const cls = getClass();
+          if (!cls || !cls.spellcasting || cls.cantrips_known === 0) return true;
+          return creationState.cantrip_ids.length === cls.cantrips_known;
+        }
+        case 'spells': {
+          if (!creationState.class_id) return false;
+          const cls = getClass();
+          if (!cls || !cls.spellcasting || cls.spells_known === 0) return true;
+          return creationState.spell_ids.length === cls.spells_known;
+        }
+        case 'background': return !!creationState.background_id;
+        case 'abilities': return creationState.abilitiesDone;
+        default: return false;
+      }
+    }
+
+    function getRace() { return dataCache.races && creationState.race_id ? dataCache.races[creationState.race_id] : null; }
+    function getSubrace() { const r = getRace(); return r && creationState.subrace_id ? r.subraces?.[creationState.subrace_id] : null; }
+    function getClass() { return dataCache.classes && creationState.class_id ? dataCache.classes[creationState.class_id] : null; }
+    function getBackground() { return dataCache.backgrounds && creationState.background_id ? dataCache.backgrounds[creationState.background_id] : null; }
+    function getAllSkills() {
+      return Object.values(ABILITY_SKILL_MAP).flat();
+    }
+    function getFeature(featureId) {
+      if (!dataCache.features) return null;
+      for (const cat of Object.values(dataCache.features))
+        if (cat && cat[featureId]) return cat[featureId];
+      return null;
+    }
+    function getTraitNames(traitIds) {
+      if (!traitIds || !traitIds.length) return [];
+      return traitIds.map(id => { const f = getFeature(id); return f ? f.name : id; });
+    }
+    function renderTraitTags(traitIds) {
+      if (!traitIds || !traitIds.length) return '';
+      return traitIds.map(id => {
+        const f = getFeature(id);
+        const name = f ? f.name : id;
+        const desc = f ? f.description : '';
+        return `<span class="detail-tag trait-hover" data-trait-id="${id}" 
+          onmouseenter="showTraitTooltip(event,'${id.replace(/'/g,"\\'")}')" 
+          onmouseleave="hideAbilityTooltip()">${name}</span>`;
+      }).join('');
+    }
+    function getPrimaryAbilityKey() {
+      const cls = getClass();
+      if (!cls) return null;
+      const map = { '力量': 'str', '敏捷': 'dex', '体质': 'con', '智力': 'int', '感知': 'wis', '魅力': 'cha' };
+      return map[cls.primary_ability] || null;
+    }
+    function isSpellAvailableToClass(spell, classId) {
+      if (!spell || !classId) return false;
+      const classes = spell.classes || [];
+      if (classes.length === 0) return true;
+      return classes.includes(classId);
+    }
+
+    // ========== 初始化 ==========
+    async function init() {
+      try {
+        const [races, classes, backgrounds, spells, features] = await Promise.all([
+          fetch(`${API_BASE}/api/races`).then(r => r.json()),
+          fetch(`${API_BASE}/api/classes`).then(r => r.json()),
+          fetch(`${API_BASE}/api/backgrounds`).then(r => r.json()),
+          fetch(`${API_BASE}/api/spells`).then(r => r.json()),
+          fetch(`${API_BASE}/api/features`).then(r => r.json())
+        ]);
+        dataCache.races = races; dataCache.classes = classes;
+        dataCache.backgrounds = backgrounds;
+        dataCache.spells = spells; dataCache.features = features;
+        renderAll();
+      } catch (e) {
+        document.getElementById('mainContent').innerHTML =
+          '<div class="empty-state"><p>数据加载失败，请确保后端已启动</p><p style="margin-top:8px;font-size:12px;color:#999">'+e.message+'</p></div>';
+      }
+    }
+
+    function renderAll() { renderStepNav(); renderPanel(); renderPreview(); updateStepButtons(); }
+
+    // ========== 步骤导航 ==========
+    function renderStepNav() {
+      const nav = document.getElementById('stepNav');
+      nav.innerHTML = STEPS.map(step => {
+        const active = creationState.step === step.id;
+        const completed = isStepCompleted(step.id);
+        let marker = '';
+        if (completed) marker = '✓';
+        return `<div class="step-item ${active ? 'active' : ''} ${completed ? 'completed' : ''}" onclick="goToStep('${step.id}')">
+          <span class="step-marker">${marker}</span><span>${step.name}</span></div>`;
+      }).join('');
+    }
+    function goToStep(stepId) { creationState.step = stepId; renderAll(); }
+    function nextStep() {
+      const idx = STEPS.findIndex(s => s.id === creationState.step);
+      if (idx < STEPS.length - 1) goToStep(STEPS[idx + 1].id);
+    }
+    function prevStep() {
+      const idx = STEPS.findIndex(s => s.id === creationState.step);
+      if (idx > 0) goToStep(STEPS[idx - 1].id);
+    }
+    function updateStepButtons() {
+      const idx = STEPS.findIndex(s => s.id === creationState.step);
+      document.getElementById('prevBtn').disabled = idx === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      if (idx === STEPS.length - 1) { nextBtn.textContent = '完成创建'; nextBtn.onclick = finishCreation; }
+      else { nextBtn.textContent = '下一步'; nextBtn.onclick = nextStep; }
+    }
+
+    // ========== 中间面板 ==========
+    function setPanelHeader(title, desc) {
+      document.getElementById('panelHeader').innerHTML = `<h2>${title}</h2><p>${desc}</p>`;
+    }
+    function renderPanel() {
+      switch (creationState.step) {
+        case 'race': renderRaceStep(); break;
+        case 'subrace': renderSubraceStep(); break;
+        case 'class': renderClassStep(); break;
+        case 'cantrips': renderCantripsStep(); break;
+        case 'spells': renderSpellsStep(); break;
+        case 'background': renderBackgroundStep(); break;
+        case 'abilities': renderAbilitiesStep(); break;
+      }
+    }
+
+    // ---- 种族 ----
+    function renderRaceStep() {
+      setPanelHeader('选择种族', '选择你的角色种族，这将决定你的基础特性和亚种选项。');
+      const list = Object.values(dataCache.races || {}).filter(r => r && r.id);
+      const main = document.getElementById('mainContent');
+      let html = '<div class="selection-grid">';
+      for (const race of list) {
+        const selected = creationState.race_id === race.id;
+        html += `<div class="selection-card ${selected ? 'selected' : ''}" onclick="selectRace('${race.id}')">
+          <div class="selection-name">${race.name}</div>
+          <div class="selection-desc">${race.description || ''}</div></div>`;
+      }
+      html += '</div>';
+      const sel = getRace();
+      if (sel) {
+        html += `<div class="detail-box"><h3>${sel.name}</h3><p>${sel.description || ''}</p>
+          ${sel.base_speed ? '<p><strong>移动速度：</strong>'+sel.base_speed+'米</p>' : ''}
+          <div class="detail-tags">${renderTraitTags(sel.base_trait_ids || [])}</div></div>`;
+
+        // 人类通才：自选一个技能熟练项
+        if (sel.base_trait_ids && sel.base_trait_ids.includes('human_versatility')) {
+          const allSkills = getAllSkills();
+          html += `<div class="detail-box human-skill-section">
+            <h4>人类通才 — 选择一个技能熟练项</h4>
+            <p>人类适应性极强，自选1个技能获得熟练项。</p>
+            <div class="skill-select-grid">`;
+          for (const skill of allSkills) {
+            const isSel = creationState.human_skill === skill;
+            html += `<div class="skill-select-item ${isSel ? 'selected' : ''}" onclick="selectHumanSkill('${skill}')">${skill}</div>`;
+          }
+          html += '</div></div>';
+        }
+      }
+      main.innerHTML = html;
+    }
+    function selectRace(raceId) { creationState.race_id = raceId; creationState.subrace_id = null; creationState.human_skill = null; renderAll(); }
+    function selectHumanSkill(skill) { creationState.human_skill = (creationState.human_skill === skill) ? null : skill; renderAll(); }
+
+    // ---- 亚种 ----
+    function renderSubraceStep() {
+      setPanelHeader('选择亚种', '部分种族拥有亚种，它们会赋予你额外的特性。');
+      const race = getRace(); const main = document.getElementById('mainContent');
+      if (!race) { main.innerHTML = '<div class="empty-state">请先选择种族。</div>'; return; }
+      const subs = Object.values(race.subraces || {});
+      if (subs.length === 0) { main.innerHTML = '<div class="empty-state"><p>该种族没有亚种，可直接进入下一步。</p></div>'; return; }
+      let html = '<div class="selection-grid">';
+      for (const sub of subs) {
+        const sel = creationState.subrace_id === sub.id;
+        html += `<div class="selection-card ${sel ? 'selected' : ''}" onclick="selectSubrace('${sub.id}')">
+          <div class="selection-name">${sub.name}</div><div class="selection-desc">${sub.description || ''}</div></div>`;
+      }
+      html += '</div>';
+      const s = getSubrace();
+      if (s) {
+        html += `<div class="detail-box"><h3>${s.name}</h3><p>${s.description || ''}</p>
+          <div class="detail-tags">${renderTraitTags(s.extra_trait_ids || [])}</div>
+          ${s.base_speed ? '<p style="margin-top:12px"><strong>移动速度：</strong>'+s.base_speed+'米</p>' : ''}</div>`;
+      }
+      main.innerHTML = html;
+    }
+    function selectSubrace(id) { creationState.subrace_id = id; renderAll(); }
+
+    // ---- 职业 ----
+    function renderClassStep() {
+      setPanelHeader('选择职业', '选择你的角色职业，决定战斗风格、施法能力和熟练项。');
+      const list = Object.values(dataCache.classes || {}).filter(c => c && c.id);
+      const main = document.getElementById('mainContent');
+      let html = '<div class="selection-grid">';
+      for (const cls of list) {
+        const sel = creationState.class_id === cls.id;
+        html += `<div class="selection-card ${sel ? 'selected' : ''}" onclick="selectClass('${cls.id}')">
+          <div class="selection-icon">${cls.icon || ''}</div><div class="selection-name">${cls.name}</div>
+          <div class="selection-desc">${cls.description || ''}</div></div>`;
+      }
+      html += '</div>';
+      const c = getClass();
+      if (c) {
+        html += `<div class="detail-box"><h3>${c.icon || ''} ${c.name}</h3><p>${c.description || ''}</p>
+          <div class="detail-tags"><span class="detail-tag">生命骰：${c.hit_die || '—'}</span><span class="detail-tag">主属性：${c.primary_ability || '—'}</span><span class="detail-tag">豁免：${(c.saving_throws || []).join('、') || '—'}</span></div>
+          <p style="margin-top:14px"><strong>擅长武器：</strong>${(c.weapon_proficiencies || []).join('、') || '无'}</p>
+          <p><strong>擅长护甲：</strong>${(c.armor_proficiencies || []).join('、') || '无'}</p>
+          <p><strong>工具熟练：</strong>${(c.tool_proficiencies || []).join('、') || '无'}</p>
+          <p><strong>可选技能：</strong>${c.skill_choices || 0}项 / ${(c.skill_options || []).join('、')}</p></div>`;
+
+        // 职业技能选择
+        if (c.skill_choices > 0 && c.skill_options && c.skill_options.length) {
+          const count = creationState.class_skills.length, max = c.skill_choices;
+          html += `<div class="detail-box human-skill-section">
+            <h4>选择 ${max} 项技能熟练</h4>
+            <p style="margin-bottom:12px">${c.name}可以从以下技能中选择 ${max} 项获得熟练项。</p>
+            <div class="quota-bar"><span>已选 ${count} / ${max} 项</span><div class="quota-track"><div class="quota-fill ${count>max?'over':''}" style="width:${Math.min(100,count/max*100)}%"></div></div></div>
+            <div class="skill-select-grid">`;
+          for (const skill of c.skill_options) {
+            const isSel = creationState.class_skills.includes(skill);
+            const disabled = !isSel && count >= max;
+            html += `<div class="skill-select-item ${isSel ? 'selected' : ''} ${disabled ? 'disabled' : ''}" onclick="${disabled ? '' : `selectClassSkill('${skill}')`}">${skill}</div>`;
+          }
+          html += '</div></div>';
+        }
+      }
+      main.innerHTML = html;
+    }
+    function selectClass(classId) {
+      creationState.class_id = classId; creationState.cantrip_ids = []; creationState.spell_ids = [];
+      creationState.class_skills = []; creationState.abilitiesDone = false;
+      creationState.abilityBonus = { plus2: null, plus1: null };
+      resetAbilities(); applyRecommendedAbilities();
+      renderAll();
+    }
+    function selectClassSkill(skill) {
+      const cls = getClass();
+      if (!cls) return;
+      const idx = creationState.class_skills.indexOf(skill);
+      if (idx >= 0) { creationState.class_skills.splice(idx, 1); }
+      else if (creationState.class_skills.length < cls.skill_choices) { creationState.class_skills.push(skill); }
+      else return;
+      renderAll();
+    }
+
+    // ---- 戏法 ----
+    function renderCantripsStep() {
+      setPanelHeader('选择戏法', '戏法是不消耗法术位的低阶法术，可随意施展。鼠标悬停可查看详细效果。');
+      const cls = getClass(); const main = document.getElementById('mainContent');
+      if (!cls || !cls.spellcasting || cls.cantrips_known === 0) { main.innerHTML = '<div class="empty-state"><p>该职业不需要选择戏法，可直接进入下一步。</p></div>'; return; }
+      const list = Object.values(dataCache.spells?.cantrips || {}).filter(s => isSpellAvailableToClass(s, cls.id));
+      const count = creationState.cantrip_ids.length, max = cls.cantrips_known;
+      if (list.length === 0) { main.innerHTML = '<div class="empty-state"><p>暂无可选戏法。</p></div>'; return; }
+      let html = `<div class="quota-bar"><span>已选 ${count} / ${max} 个戏法</span><div class="quota-track"><div class="quota-fill ${count>max?'over':''}" style="width:${Math.min(100,count/max*100)}%"></div></div></div><div class="check-list">`;
+      for (const s of list) {
+        const checked = creationState.cantrip_ids.includes(s.id), disabled = !checked && count >= max;
+        html += `<label class="check-item ${disabled?'disabled':''}" data-spell-type="cantrip" data-spell-id="${s.id}" onmouseenter="showSpellTooltip(event,'cantrip','${s.id}')" onmouseleave="hideSpellTooltip()">
+          <input type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleCantrip('${s.id}',this.checked)">
+          <div><div class="check-label">${s.name}</div><div class="check-meta">${s.school||''} · ${s.range||''} · ${s.casting_time||''}</div></div></label>`;
+      }
+      html += '</div>'; main.innerHTML = html;
+    }
+    function toggleCantrip(id, checked) {
+      if (checked) creationState.cantrip_ids.push(id);
+      else creationState.cantrip_ids = creationState.cantrip_ids.filter(x => x !== id);
+      renderAll();
+    }
+
+    // ---- 法术 ----
+    function renderSpellsStep() {
+      setPanelHeader('选择法术', '1级施法者可以从已准备的法术中选择一定数量的1环法术。鼠标悬停可查看详细效果。');
+      const cls = getClass(); const main = document.getElementById('mainContent');
+      if (!cls || !cls.spellcasting || cls.spells_known === 0) { main.innerHTML = '<div class="empty-state"><p>该职业不需要选择法术，可直接进入下一步。</p></div>'; return; }
+      const list = Object.values(dataCache.spells?.spells?.level_1 || {}).filter(s => isSpellAvailableToClass(s, cls.id));
+      const count = creationState.spell_ids.length, max = cls.spells_known;
+      if (list.length === 0) { main.innerHTML = '<div class="empty-state"><p>暂无可选1环法术。</p></div>'; return; }
+      let html = `<div class="quota-bar"><span>已选 ${count} / ${max} 个1环法术</span><div class="quota-track"><div class="quota-fill ${count>max?'over':''}" style="width:${Math.min(100,count/max*100)}%"></div></div></div><div class="check-list">`;
+      for (const s of list) {
+        const checked = creationState.spell_ids.includes(s.id), disabled = !checked && count >= max;
+        html += `<label class="check-item ${disabled?'disabled':''}" data-spell-type="level_1" data-spell-id="${s.id}" onmouseenter="showSpellTooltip(event,'level_1','${s.id}')" onmouseleave="hideSpellTooltip()">
+          <input type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleSpell('${s.id}',this.checked)">
+          <div><div class="check-label">${s.name}</div><div class="check-meta">${s.school||''} · ${s.range||''} · ${s.casting_time||''}</div></div></label>`;
+      }
+      html += '</div>'; main.innerHTML = html;
+    }
+    function toggleSpell(id, checked) {
+      if (checked) creationState.spell_ids.push(id);
+      else creationState.spell_ids = creationState.spell_ids.filter(x => x !== id);
+      renderAll();
+    }
+
+    // ---- 背景 ----
+    function renderBackgroundStep() {
+      setPanelHeader('选择背景', '背景决定了你成为冒险者之前的生活，并提供技能熟练项与特殊特性。');
+      const list = Object.values(dataCache.backgrounds || {}).filter(b => b && b.id);
+      const main = document.getElementById('mainContent');
+      let html = '<div class="selection-grid">';
+      for (const bg of list) {
+        const sel = creationState.background_id === bg.id;
+        html += `<div class="selection-card ${sel?'selected':''}" onclick="selectBackground('${bg.id}')">
+          <div class="selection-name">${bg.name}</div><div class="selection-desc">${bg.description||''}</div></div>`;
+      }
+      html += '</div>';
+      const b = getBackground();
+      if (b) {
+        html += `<div class="detail-box"><h3>${b.name}</h3><p>${b.description||''}</p>
+          <p><strong>特性：</strong>${b.feature||'—'} — ${b.feature_description||''}</p>
+          <p><strong>技能熟练：</strong>${(b.skill_proficiencies||[]).join('、')||'—'}</p></div>
+          <div class="detail-box"><h3>角色故事</h3><div class="bg-hint">以下均为可选内容，请尽量贴合背景设定。</div>
+          <div class="bg-form">
+            <div class="bg-field"><label>个人特点</label><input type="text" placeholder="例如：我无法抗拒帮助有需要的人" value="${escapeHtml(creationState.background.trait)}" oninput="updateBgField('trait',this.value)"></div>
+            <div class="bg-field"><label>理想</label><input type="text" placeholder="例如：自由——所有人都有权决定自己的命运" value="${escapeHtml(creationState.background.ideal)}" oninput="updateBgField('ideal',this.value)"></div>
+            <div class="bg-field"><label>牵绊</label><input type="text" placeholder="例如：我仍珍藏着故乡的一枚徽章" value="${escapeHtml(creationState.background.bond)}" oninput="updateBgField('bond',this.value)"></div>
+            <div class="bg-field"><label>缺点</label><input type="text" placeholder="例如：我很容易相信别人" value="${escapeHtml(creationState.background.flaw)}" oninput="updateBgField('flaw',this.value)"></div>
+            <div class="bg-field full"><label>故事</label><textarea rows="4" placeholder="写下你的角色背景故事……" oninput="updateBgField('story',this.value)">${escapeHtml(creationState.background.story)}</textarea></div>
+          </div></div>`;
+      }
+      main.innerHTML = html;
+    }
+    function selectBackground(id) { creationState.background_id = id; renderAll(); }
+    function updateBgField(field, value) { creationState.background[field] = value; renderPreview(); }
+    function escapeHtml(str) { return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    // ---- 属性 ----
+    function renderAbilitiesStep() {
+      setPanelHeader('分配属性', '27点自由分配（8-15），外加一个+2和一个+1奖励可分配到任意属性上（不可叠加）。');
+      const main = document.getElementById('mainContent');
+      const remaining = getRemainingPoints();
+      const primaryKey = getPrimaryAbilityKey();
+      const bp = creationState.abilityBonus;
+
+      let html = `<div class="detail-box" style="position:relative">
+        <div class="points-remaining" style="position:absolute;top:20px;right:20px;margin-left:0;">剩余点数：<span class="num" style="color:${remaining<0?'#c0392b':''}">${remaining}</span> / 27</div>
+        <div class="ability-grid" style="padding-top:15px">`;
+      for (const key of ABILITY_KEYS) {
+        const base = creationState.abilities[key];
+        const total = getAbilityTotal(key);
+        const isPrimary = primaryKey === key;
+        const scale = (key === 'str' || key === 'dex') ? 1 : 1; // all same cost
+
+        const costUp = getPointBuyCost(base + 1) - getPointBuyCost(base);
+        const canInc = base < 15 && remaining >= costUp;
+        const canDec = base > 8;
+
+        // Bonus +2 / +1 buttons
+        const hasPlus2 = bp.plus2 === key;
+        const hasPlus1 = bp.plus1 === key;
+
+        const skills = ABILITY_SKILL_MAP[key].join('、') || '—';
+        html += `<div class="ability-row">
+          <div class="ability-name ability-name-hover" data-ability="${key}" onmouseenter="showAbilityTooltip(event,'${key}')" onmouseleave="hideAbilityTooltip()">${ABILITY_LABELS[key]}</div>
+          <div class="ability-controls">
+            <button class="ability-btn" onclick="changeAbility('${key}',-1)" ${canDec?'':'disabled'}>−</button>
+            <span class="ability-score">${base}</span>
+            <button class="ability-btn" onclick="changeAbility('${key}',1)" ${canInc?'':'disabled'}>+</button>
+            <span class="bonus-label">奖励：</span>
+            <span class="bonus-dot ${hasPlus2?'active':''}" onclick="toggleBonus('${key}','plus2')" title="+2 加值">+2</span>
+            <span class="bonus-dot ${hasPlus1?'active':''}" onclick="toggleBonus('${key}','plus1')" title="+1 加值">+1</span>
+          </div>
+          <div class="ability-total">${total}</div>
+        </div>`;
+      }
+      html += '<div class="proficiency-line">★ 熟练项加值：+2（1~4级）</div>';
+
+      html += '</div><div style="display:flex;align-items:center;justify-content:center;margin-top:16px">';
+      html += '<button onclick="resetAbilities()" class="ability-btn2">清除</button>';
+      html += '<button onclick="applyRecommendedAbilities()" class="ability-btn2" style="margin-left:12px">使用推荐</button>';
+      html += '</div>';
+      html += `<div class="explain-box">${getAbilityExplanation()}</div>`;
+      html += '</div>';
+      // 确认分配按钮
+      html += `<div style="margin-top:20px;text-align:center"><button class="step-btn primary" onclick="confirmAbilities()" ${remaining!==0?'disabled':''}>${creationState.abilitiesDone ? '已确认 ✓' : '确认属性分配'}</button></div>`;
+      main.innerHTML = html;
+    }
+
+    function getAbilityExplanation() {
+      return '<p>属性8~13时，每提升1点花费 1 个属性点；13以上每提升1点花费 2 个属性点。<br>+1 和 +2 奖励各1个，可加在任意两个不同属性上，能突破 15 上限。<br>「使用推荐」会根据职业主属性自动分配基础点数。</p>';
+    }
+
+    function changeAbility(key, delta) {
+      const next = creationState.abilities[key] + delta;
+      if (next < 8 || next > 15) return;
+      const cost = getPointBuyCost(next) - getPointBuyCost(creationState.abilities[key]);
+      if (getRemainingPoints() < cost) return;
+      creationState.abilities[key] = next;
+      creationState.abilitiesDone = false;
+      renderAll();
+    }
+
+    function toggleBonus(key, slot) {
+      const bp = creationState.abilityBonus;
+      // Already active on this key → remove
+      if (bp[slot] === key) { bp[slot] = null; }
+      // Active on another key, or not active at all → just move here
+      else {
+        // Can't have +2 and +1 on same key
+        const otherSlot = slot === 'plus2' ? 'plus1' : 'plus2';
+        if (bp[otherSlot] === key) { bp[otherSlot] = null; }
+        bp[slot] = key;
+      }
+      creationState.abilitiesDone = false;
+      renderAll();
+    }
+
+    function confirmAbilities() {
+      if (getRemainingPoints() !== 0) return;
+      creationState.abilitiesDone = true;
+      renderAll();
+    }
+
+    function resetAbilities() {
+      for (const k of ABILITY_KEYS) creationState.abilities[k] = 8;
+      creationState.abilityBonus = { plus2: null, plus1: null };
+      creationState.abilitiesDone = false;
+      renderAll();
+    }
+
+    const CLASS_ABILITY_PRIORITY = {
+      warrior: ['str','con','dex','wis','cha','int'],
+      paladin: ['str','cha','con','wis','dex','int'],
+      ranger: ['dex','wis','con','str','int','cha'],
+      rogue: ['dex','int','cha','con','wis','str'],
+      bard: ['cha','dex','con','int','wis','str'],
+      wizard: ['int','dex','con','wis','cha','str'],
+      cleric: ['wis','con','cha','dex','int','str'],
+      barbarian: ['str','con','dex','wis','cha','int']
+    };
+
+    function applyRecommendedAbilities() {
+      const cls = getClass();
+      const priority = cls && CLASS_ABILITY_PRIORITY[cls.id] ? CLASS_ABILITY_PRIORITY[cls.id] : ABILITY_KEYS;
+      for (const k of ABILITY_KEYS) creationState.abilities[k] = 8;
+      let pts = 27;
+      const targets = [15, 14, 13, 12, 10, 8];
+      for (let i = 0; i < priority.length; i++) {
+        const k = priority[i], target = targets[i] || 8;
+        for (let v = 9; v <= target; v++) {
+          const cost = POINT_BUY_COST[v] - POINT_BUY_COST[v - 1];
+          if (pts >= cost) { creationState.abilities[k] = v; pts -= cost; } else break;
+        }
+      }
+      for (const k of priority) {
+        for (let v = creationState.abilities[k] + 1; v <= 15; v++) {
+          const cost = POINT_BUY_COST[v] - POINT_BUY_COST[v - 1];
+          if (pts >= cost) { creationState.abilities[k] = v; pts -= cost; } else break;
+        }
+      }
+      // Auto-assign +2 to primary ability, +1 to second-highest
+      const primaryKey = getPrimaryAbilityKey() || priority[0];
+      creationState.abilityBonus.plus2 = primaryKey;
+      creationState.abilityBonus.plus1 = priority.find(k => k !== primaryKey) || priority[1];
+      creationState.abilitiesDone = false;
+      renderAll();
+    }
+
+    // ========== 右侧预览 ==========
+    function renderPreview() {
+      const card = document.getElementById('previewCard');
+      const cls = getClass(); const race = getRace(); const sub = getSubrace(); const bg = getBackground();
+      const classIcon = cls ? cls.icon : '';
+      const className = cls ? cls.name : '未选择职业';
+      const primaryKey = getPrimaryAbilityKey();
+
+      let abHtml = '<div class="preview-abilities">';
+      for (const key of ABILITY_KEYS) {
+        const total = getAbilityTotal(key);
+        abHtml += `<div class="preview-ability ${primaryKey===key?'primary':''}">
+          <div class="ability-label">${primaryKey===key?'<span class="star">★</span>':''}${ABILITY_LABELS[key]}</div>
+          <div class="ability-value">${total}</div>
+          <div class="ability-mod">${modText(total)}</div></div>`;
+      }
+      abHtml += '</div>';
+
+      // 戏法/法术名称
+      const cantripNames = creationState.cantrip_ids.map(id => {
+        const s = dataCache.spells?.cantrips?.[id]; return s ? s.name : id;
+      });
+      const spellNames = creationState.spell_ids.map(id => {
+        const s = dataCache.spells?.spells?.level_1?.[id]; return s ? s.name : id;
+      });
+
+      // 动作（通用动作 + 职业专属动作）
+      const actions = [];
+      if (dataCache.spells?.actions?.normal) actions.push(...Object.values(dataCache.spells.actions.normal));
+      if (cls && dataCache.spells?.actions?.class) {
+        const classActions = Object.values(dataCache.spells.actions.class)
+          .filter(a => a.classes && a.classes.includes(cls.id));
+        actions.push(...classActions);
+      }
+
+      // 擅长（职业 + 种族特性合并）
+      const gear = getCharacterGearProficiencies();
+      const weapons = gear.weapons;
+      const armors = gear.armors;
+      const allSkills = getCharacterSkillProficiencies();
+
+      // HP 计算
+      let hpText = '';
+      if (cls && cls.hit_die) {
+        const hitDieMax = parseInt(cls.hit_die.replace('d','')) || 0;
+        const conMod = getAbilityMod(getAbilityTotal('con'));
+        hpText = `${hitDieMax + conMod} (${cls.hit_die}${conMod >= 0 ? '+' : ''}${conMod})`;
+      }
+
+      // 种族/亚种
+      let raceLine = '';
+      if (race) {
+        raceLine = race.name;
+        if (sub) raceLine += ' · ' + sub.name;
+        const speed = (sub?.base_speed != null) ? sub.base_speed : race.base_speed;
+        if (speed) raceLine += ' · ' + speed + '米';
+      }
+
+      card.innerHTML = `
+        ${creationState.name.trim() ? '<div class="preview-char-name">'+escapeHtml(creationState.name.trim())+'</div>' : '<div class="preview-char-name preview-placeholder">未命名角色</div>'}
+        ${classIcon ? '<div class="preview-class-icon">'+classIcon+'</div>' : ''}
+        <div class="preview-class-name">等级 1 ${className}</div>
+        ${raceLine ? '<div class="preview-race-info">'+raceLine+'</div>' : ''}
+        ${hpText ? '<div class="preview-hp-row"><span class="preview-hp-label">生命值</span><span class="preview-hp-value">'+hpText+'</span></div>' : ''}
+        ${abHtml}
+        ${cantripNames.length ? renderSection('戏法', cantripNames) : ''}
+        ${spellNames.length ? renderSection('法术', spellNames) : ''}
+        ${actions.length ? renderActionSection(actions) : ''}
+        ${(weapons.length || armors.length || allSkills.length) ? '<div class="preview-section"><div class="preview-section-title">擅长</div>'+renderProficiencies(weapons, armors, allSkills)+'</div>' : ''}
+        ${bg ? '<div class="preview-section"><div class="preview-section-title">背景</div><div class="preview-list-item">'+bg.name+'</div></div>' : ''}`;
+    }
+
+    function renderSection(title, items) {
+      return `<div class="preview-section"><div class="preview-section-title">${title}</div><div class="preview-pills">${items.map(i => '<span class="preview-pill">'+i+'</span>').join('')}</div></div>`;
+    }
+
+    function renderActionSection(actions) {
+      if (!actions.length) return '';
+      const pills = actions.map(a => 
+        `<span class="preview-pill" data-action-id="${a.id}" onmouseenter="showActionTooltip(event,'${a.id}')" onmouseleave="hideSpellTooltip()">${a.name}</span>`
+      ).join('');
+      return `<div class="preview-section"><div class="preview-section-title">动作</div><div class="preview-pills">${pills}</div></div>`;
+    }
+
+    function renderProficiencies(weapons, armors, skills) {
+      let html = '';
+      if (weapons.length) html += '<div class="preview-proficiency-row"><strong>武器</strong>—'+weapons.join('、')+'</div>';
+      if (armors.length) html += '<div class="preview-proficiency-row"><strong>护甲</strong>—'+armors.join('、')+'</div>';
+      if (skills.length) html += '<div class="preview-proficiency-row"><strong>技能</strong>—'+skills.join('、')+'</div>';
+      return html;
+    }
+
+    // ========== 完成创建 ==========
+    function finishCreation() {
+      if (!creationState.name.trim()) { alert('请先输入角色名称。'); return; }
+      const missing = [];
+      if (!creationState.race_id) missing.push('种族');
+      const race = getRace();
+      if (race && Object.keys(race.subraces||{}).length && !creationState.subrace_id) missing.push('亚种');
+      if (race?.base_trait_ids?.includes('human_versatility') && !creationState.human_skill) missing.push('人类通才技能');
+      if (!creationState.class_id) missing.push('职业');
+      const cls = getClass();
+      if (cls && cls.skill_choices > 0 && creationState.class_skills.length !== cls.skill_choices) missing.push('职业技能('+creationState.class_skills.length+'/'+cls.skill_choices+')');
+      if (!creationState.background_id) missing.push('背景');
+      if (getRemainingPoints() !== 0) { alert('请先完成属性点分配并确认。'); return; }
+      if (!creationState.abilitiesDone) { alert('请先在属性页面确认分配。'); return; }
+      if (missing.length) { alert('请完成以下必要步骤：'+missing.join('、')); return; }
+      if (cls && cls.spellcasting && cls.cantrips_known > 0 && creationState.cantrip_ids.length < cls.cantrips_known) { alert('该职业需要选择 '+cls.cantrips_known+' 个戏法。'); return; }
+      if (cls && cls.spellcasting && cls.spells_known > 0 && creationState.spell_ids.length < cls.spells_known) { alert('该职业需要选择 '+cls.spells_known+' 个1环法术。'); return; }
+
+      // 提交到后端
+      const btn = document.querySelector('.btn-finish');
+      btn.disabled = true; btn.textContent = '保存中…';
+      fetch(`${API_BASE}/api/characters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(creationState)
+      })
+      .then(r => { if (!r.ok) throw new Error('保存失败: '+r.status); return r.json(); })
+      .then(char => {
+        alert('角色「'+char.name+'」创建成功！');
+        window.location.href = '/lobby.html';
+      })
+      .catch(err => {
+        alert('保存失败：'+err.message);
+        btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>完成创建`;
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

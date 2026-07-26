@@ -5,34 +5,57 @@
       "jump": {
         "id": "jump",
         "name": "跳跃",
-        "description": "进行一次跳跃移动，可跨越障碍物或高低差地形。"
+        "action_type": "附赠动作",
+        "range": "自身",
+        "description": "消耗附赠动作和 3 米移动力进行一次跳跃，可跨越障碍物或登高。跳跃距离受力量值影响。"
       },
       "throw": {
         "id": "throw",
         "name": "投掷",
-        "description": "投掷手中的武器或物品，对远程目标造成伤害。"
+        "action_type": "1动作",
+        "range": "可变",
+        "description": "投掷手中的武器、道具或生物作为临时弹药。根据投掷物类型造成对应伤害（钝击/穿刺），小型生物也可被投掷。"
       },
       "dash": {
         "id": "dash",
-        "name": "快速奔跑",
-        "description": "消耗一个动作进行额外移动，本回合移动距离翻倍。"
+        "name": "冲刺",
+        "action_type": "1动作",
+        "range": "自身",
+        "description": "消耗一个动作专注奔跑，本回合移动距离翻倍。可用于快速接近敌人或逃离危险。"
       }
     },
     "class": {
+      "second_wind": {
+        "id": "second_wind",
+        "name": "回气",
+        "action_type": "附赠动作",
+        "range": "自身",
+        "description": "消耗附赠动作，恢复 1d10 + 战士等级 点生命值。每次短休或长休后恢复使用次数。",
+        "classes": ["warrior"]
+      },
       "fighting_spirit": {
         "id": "fighting_spirit",
         "name": "斗气如潮",
-        "description": "战士爆发内在力量，短时间内提升攻击力和防御力。"
+        "action_type": "附赠动作",
+        "range": "自身",
+        "description": "战士激发内在斗志，本回合内获得额外 1d8 的伤害加值，持续至回合结束。",
+        "classes": ["warrior"]
       },
       "recovery": {
         "id": "recovery",
         "name": "回复",
-        "description": "消耗一次短暂休息，恢复部分生命值并重置部分技能。"
+        "action_type": "1动作",
+        "range": "自身",
+        "description": "花费一次短休充能，恢复少量生命值并刷新部分职业技能的可用次数。",
+        "classes": ["warrior"]
       },
       "extra_attack": {
         "id": "extra_attack",
         "name": "附加攻击",
-        "description": "在同一回合内进行一次额外的近战攻击。"
+        "action_type": "自由动作",
+        "range": "自身",
+        "description": "在攻击动作后自动触发，额外进行一次近战或远程攻击，无需消耗额外动作。",
+        "classes": ["warrior"]
       }
     }
   },
@@ -43,6 +66,118 @@
       "description": "擅长使用重型双手武器，伤害骰出1或2时可重骰一次。"
     }
   },
+  "cantrips": {
+    "firebolt": {
+      "id": "firebolt",
+      "name": "火焰箭",
+      "level": 0,
+      "school": "塑能",
+      "casting_time": "1动作",
+      "range": "18米",
+      "classes": ["wizard"],
+      "description": "向目标投掷一团火焰，造成 1d10 火焰伤害。"
+    },
+    "ray_of_frost": {
+      "id": "ray_of_frost",
+      "name": "冷冻射线",
+      "level": 0,
+      "school": "塑能",
+      "casting_time": "1动作",
+      "range": "18米",
+      "classes": ["wizard"],
+      "description": "发射一道冰蓝色光束，造成 1d8 冷冻伤害，并使目标移动速度降低 3 米，持续 1 回合。"
+    },
+    "shocking_grasp": {
+      "id": "shocking_grasp",
+      "name": "电爪",
+      "level": 0,
+      "school": "塑能",
+      "casting_time": "1动作",
+      "range": "触碰",
+      "classes": ["wizard"],
+      "description": "手中释放闪电，造成 1d8 闪电伤害，并使目标失去反应动作。对身穿金属护甲的目标具有攻击优势。"
+    },
+    "mage_hand": {
+      "id": "mage_hand",
+      "name": "法师之手",
+      "level": 0,
+      "school": "咒法",
+      "casting_time": "1动作",
+      "range": "18米",
+      "classes": ["wizard", "bard"],
+      "description": "召唤一只隐形幽灵手，可操纵物体、投掷物品、触发开关或推开敌人。持续至长休。"
+    },
+    "minor_illusion": {
+      "id": "minor_illusion",
+      "name": "小型幻术",
+      "level": 0,
+      "school": "幻术",
+      "casting_time": "1动作",
+      "range": "18米",
+      "classes": ["wizard", "bard"],
+      "description": "制造一个幻象引诱敌人靠近，分散其注意力。调查成功则幻象消散。"
+    },
+    "prestidigitation": {
+      "id": "prestidigitation",
+      "name": "魔法伎俩",
+      "level": 0,
+      "school": "变化",
+      "casting_time": "1动作",
+      "range": "2米",
+      "classes": ["wizard", "bard"],
+      "description": "施展各种小型魔法把戏：点亮/熄灭烛火、清洁/污染物体表面、制造小型非魔法物品等。"
+    },
+    "light": {
+      "id": "light",
+      "name": "光亮术",
+      "level": 0,
+      "school": "塑能",
+      "casting_time": "1动作",
+      "range": "触碰",
+      "classes": ["wizard", "cleric", "bard"],
+      "description": "触碰一个物体使其发光，照亮半径 12 米的区域。持续至长休。"
+    },
+    "sacred_flame": {
+      "id": "sacred_flame",
+      "name": "圣火术",
+      "level": 0,
+      "school": "塑能",
+      "casting_time": "1动作",
+      "range": "18米",
+      "classes": ["cleric"],
+      "description": "召唤圣火从天而降，对目标造成 1d8 光耀伤害。"
+    },
+    "guidance": {
+      "id": "guidance",
+      "name": "神导术",
+      "level": 0,
+      "school": "预言",
+      "casting_time": "1动作",
+      "range": "触碰",
+      "classes": ["cleric"],
+      "description": "祝福一个生物，使其下一次能力检定获得 1d4 加值。持续至长休或再次施放。"
+    },
+    "thaumaturgy": {
+      "id": "thaumaturgy",
+      "name": "奇术",
+      "level": 0,
+      "school": "变化",
+      "casting_time": "1动作",
+      "range": "自身",
+      "classes": ["cleric"],
+      "description": "展现神祇伟力，获得威吓和表演检定的优势。持续至长休。"
+    },
+    "resistance": {
+      "id": "resistance",
+      "name": "抗性术",
+      "level": 0,
+      "school": "防护",
+      "casting_time": "1动作",
+      "range": "触碰",
+      "classes": ["cleric"],
+      "description": "祝福一个生物，使其下一次豁免检定获得 1d4 加值。持续至长休或再次施放。"
+    }
+  },
   "spells": {
     "level_1": {
       "fireball": {
@@ -51,8 +186,9 @@
         "level": 1,
         "school": "塑能",
         "casting_time": "1动作",
-        "range": "45米",
-        "description": "在指定位置制造一个爆炸火球，对范围内所有生物造成火焰伤害。"
+        "range": "18米",
+        "classes": ["wizard"],
+        "description": "发射一颗火球在目标点爆炸，对半径 4 米内所有生物造成 8d6 火焰伤害，敏捷豁免成功则伤害减半。"
       },
       "cure_wounds": {
         "id": "cure_wounds",
@@ -61,7 +197,158 @@
         "school": "防护",
         "casting_time": "1动作",
         "range": "触碰",
-        "description": "引导正能量治愈一个你触碰的生物，恢复一定生命值。"
+        "classes": ["cleric", "bard"],
+        "description": "触碰一个生物，为其恢复 1d8 + 施法属性调整值 点生命值。"
+      },
+      "magic_missile": {
+        "id": "magic_missile",
+        "name": "魔法飞弹",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["wizard"],
+        "description": "发射三枚魔法飞弹，每枚造成 1d4+1 力场伤害，必定命中目标。"
+      },
+      "shield": {
+        "id": "shield",
+        "name": "护盾术",
+        "level": 1,
+        "school": "防护",
+        "casting_time": "1反应",
+        "range": "自身",
+        "classes": ["wizard"],
+        "description": "被攻击或瞄准时反应施放，AC 获得 +5 加值直至下回合开始，且免疫魔法飞弹。"
+      },
+      "mage_armor": {
+        "id": "mage_armor",
+        "name": "法师护甲",
+        "level": 1,
+        "school": "防护",
+        "casting_time": "1动作",
+        "range": "触碰",
+        "classes": ["wizard"],
+        "description": "触碰一个未着装护甲的自愿生物，使其基础 AC 变为 13 + 敏捷调整值。持续至长休。"
+      },
+      "burning_hands": {
+        "id": "burning_hands",
+        "name": "燃烧之手",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1动作",
+        "range": "自身（5米锥形）",
+        "classes": ["wizard"],
+        "description": "从指尖喷射火焰，对前方 5 米锥形范围内的生物造成 3d6 火焰伤害，敏捷豁免成功则伤害减半。"
+      },
+      "chromatic_orb": {
+        "id": "chromatic_orb",
+        "name": "彩色法球",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["wizard"],
+        "description": "投掷一颗能量球，可选择强酸、冷冻、火焰、闪电、毒素或雷鸣伤害，造成 3d8 对应伤害。"
+      },
+      "sleep": {
+        "id": "sleep",
+        "name": "睡眠术",
+        "level": 1,
+        "school": "附魔",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["wizard", "bard"],
+        "description": "使范围内总计 24 点生命值的生物陷入沉睡，持续 2 回合。生命值最低的生物优先受影响。"
+      },
+      "grease": {
+        "id": "grease",
+        "name": "油脂术",
+        "level": 1,
+        "school": "咒法",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["wizard"],
+        "description": "在地面覆盖一层滑腻油脂，进入或经过该区域的生物必须通过敏捷豁免，否则摔倒。"
+      },
+      "identify": {
+        "id": "identify",
+        "name": "鉴定术",
+        "level": 1,
+        "school": "预言",
+        "casting_time": "1动作",
+        "range": "触碰",
+        "classes": ["wizard", "bard"],
+        "description": "辨识一件魔法物品，获知其全部属性、效果、使用方法和是否存在诅咒。"
+      },
+      "inflict_wounds": {
+        "id": "inflict_wounds",
+        "name": "造成伤害",
+        "level": 1,
+        "school": "死灵",
+        "casting_time": "1动作",
+        "range": "触碰",
+        "classes": ["cleric"],
+        "description": "对触碰目标释放负能量，造成 3d10 黯蚀伤害。"
+      },
+      "bless": {
+        "id": "bless",
+        "name": "祝福术",
+        "level": 1,
+        "school": "附魔",
+        "casting_time": "1动作",
+        "range": "9米",
+        "classes": ["cleric"],
+        "description": "祝福最多 3 个生物，使其攻击检定和豁免检定获得 1d4 加值。持续至长休。"
+      },
+      "healing_word": {
+        "id": "healing_word",
+        "name": "治愈真言",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1附赠动作",
+        "range": "18米",
+        "classes": ["cleric", "bard"],
+        "description": "附赠动作施放，为你可见的一个生物恢复 1d4 + 施法属性调整值 点生命值。"
+      },
+      "shield_of_faith": {
+        "id": "shield_of_faith",
+        "name": "信仰护盾",
+        "level": 1,
+        "school": "防护",
+        "casting_time": "1附赠动作",
+        "range": "18米",
+        "classes": ["cleric"],
+        "description": "附赠动作施放，为一个生物提供 +2 AC 加值。持续至长休。"
+      },
+      "guiding_bolt": {
+        "id": "guiding_bolt",
+        "name": "导引箭",
+        "level": 1,
+        "school": "塑能",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["cleric"],
+        "description": "射出一道神圣光芒，造成 4d6 光耀伤害。命中后，下一次对该目标的攻击检定具有优势。"
+      },
+      "command": {
+        "id": "command",
+        "name": "命令术",
+        "level": 1,
+        "school": "附魔",
+        "casting_time": "1动作",
+        "range": "18米",
+        "classes": ["cleric", "bard"],
+        "description": "对目标发出一个单词的命令（逼近、丢弃、倒地、逃跑、停），若其未通过感知豁免则必须服从，持续 1 回合。"
+      },
+      "sanctuary": {
+        "id": "sanctuary",
+        "name": "圣所术",
+        "level": 1,
+        "school": "防护",
+        "casting_time": "1附赠动作",
+        "range": "18米",
+        "classes": ["cleric"],
+        "description": "附赠动作施放，保护一个生物。任何攻击它的敌人必须通过感知豁免，否则必须另选目标。持续至长休。"
       }
     }
   }

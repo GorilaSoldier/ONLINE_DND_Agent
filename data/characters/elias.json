@@ -123,7 +123,7 @@
     "race": "人类",
     "attributes": {
       "move_speed": "3格",
-      "darkvision": "2格",
+      "darkvision": "0",
       "ranged_range": "4格",
       "melee_range": "1格",
       "throw_range": "4格",

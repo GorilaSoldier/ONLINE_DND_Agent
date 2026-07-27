@@ -1,0 +1,16 @@
+{
+  "scripts": [
+    {
+      "id": "forgotten-realms",
+      "name": "被遗忘的国度",
+      "subtitle": "凡戴尔的失落矿坑",
+      "color": "light",
+      "level_range": "1-5级",
+      "sessions": "约8-12次团",
+      "setting": "被遗忘的国度·剑湾北部",
+      "summary": "在剑湾北部的边境小镇凡达林，矮人探矿者甘德伦·碎石者重新发现了失传数百年的潮音洞穴——传说中能制造魔法物品的法术熔炉所在地。然而，一个名为“黑蜘蛛”的神秘人物也盯上了这份力量。从绝冬城出发的冒险者们，将踏上一段穿越荒野、对抗地精部落、揭开古老秘密的旅程……",
+      "detail_file": "adventures/lost-mine-of-phandelver-ch1-3.md",
+      "cover_color": "#8b5a2b"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "id": "char_20260727180516_c8081c",
+  "created_at": "2026-07-27T18:05:16.002212",
+  "name": "爱西利亚",
+  "campaign_id": "",
+  "theme": "light",
+  "portrait": "爱",
+  "race_id": "elf",
+  "race": "精灵",
+  "race_en": "Elf",
+  "subrace_id": "high_elf",
+  "subrace": "高精灵",
+  "class_id": "wizard",
+  "class": "法师",
+  "class_en": "wizard",
+  "subclass_id": null,
+  "subclass": "",
+  "background_id": "sage",
+  "background_name": "智者",
+  "level": 1,
+  "combat": {
+    "ac": 12,
+    "hp": "7 / 7"
+  },
+  "xp": {
+    "current": 0,
+    "max": 300,
+    "display": "0 / 300"
+  },
+  "attack": {
+    "melee": {
+      "label": "近战",
+      "bonus": "-1",
+      "damage": "1d4"
+    },
+    "ranged": {
+      "label": "远程",
+      "bonus": "+2",
+      "damage": "1d4"
+    }
+  },
+  "abilities": {
+    "str": {
+      "label": "力",
+      "value": 8,
+      "save_bonus": "-1",
+      "highlighted": false
+    },
+    "dex": {
+      "label": "敏",
+      "value": 15,
+      "save_bonus": "+2",
+      "highlighted": true
+    },
+    "con": {
+      "label": "体",
+      "value": 13,
+      "save_bonus": "+1",
+      "highlighted": false
+    },
+    "int": {
+      "label": "智",
+      "value": 17,
+      "save_bonus": "+3",
+      "highlighted": true
+    },
+    "wis": {
+      "label": "感",
+      "value": 12,
+      "save_bonus": "+1",
+      "highlighted": false
+    },
+    "cha": {
+      "label": "魅",
+      "value": 10,
+      "save_bonus": "+0",
+      "highlighted": false
+    }
+  },
+  "ability_bonus": {
+    "plus2": "int",
+    "plus1": "dex"
+  },
+  "inventory": {
+    "gold": 100,
+    "items": []
+  },
+  "features": {
+    "status_ids": [],
+    "resistance_ids": [],
+    "class_feature_ids": [],
+    "trait_ids": ["fey_ancestry", "darkvision_12m", "keen_senses", "elf_weapon_training", "high_elf_cantrip"]
+  },
+  "skills": {
+    "proficiency_bonus": "+2",
+    "sections": [
+      {
+        "ability": "力",
+        "modifier": "-1",
+        "skills": [
+          {
+            "name": "运动",
+            "value": "-1",
+            "type": "negative"
+          }
+        ]
+      },
+      {
+        "ability": "敏",
+        "modifier": "+2",
+        "skills": [
+          {
+            "name": "体操",
+            "value": "+2",
+            "type": "neutral"
+          },
+          {
+            "name": "巧手",
+            "value": "+2",
+            "type": "neutral"
+          },
+          {
+            "name": "隐匿",
+            "value": "+2",
+            "type": "neutral"
+          }
+        ]
+      },
+      {
+        "ability": "智",
+        "modifier": "+3",
+        "skills": [
+          {
+            "name": "奥秘",
+            "value": "+5",
+            "type": "positive"
+          },
+          {
+            "name": "历史",
+            "value": "+5",
+            "type": "positive"
+          },
+          {
+            "name": "调查",
+            "value": "+5",
+            "type": "positive"
+          },
+          {
+            "name": "自然",
+            "value": "+3",
+            "type": "neutral"
+          },
+          {
+            "name": "宗教",
+            "value": "+3",
+            "type": "neutral"
+          }
+        ]
+      },
+      {
+        "ability": "感",
+        "modifier": "+1",
+        "skills": [
+          {
+            "name": "驯兽",
+            "value": "+1",
+            "type": "neutral"
+          },
+          {
+            "name": "洞悉",
+            "value": "+3",
+            "type": "positive"
+          },
+          {
+            "name": "医药",
+            "value": "+1",
+            "type": "neutral"
+          },
+          {
+            "name": "察觉",
+            "value": "+3",
+            "type": "positive"
+          },
+          {
+            "name": "求生",
+            "value": "+1",
+            "type": "neutral"
+          }
+        ]
+      },
+      {
+        "ability": "魅",
+        "modifier": "+0",
+        "skills": [
+          {
+            "name": "欺瞒",
+            "value": "+0",
+            "type": "neutral"
+          },
+          {
+            "name": "威吓",
+            "value": "+0",
+            "type": "neutral"
+          },
+          {
+            "name": "表演",
+            "value": "+0",
+            "type": "neutral"
+          },
+          {
+            "name": "说服",
+            "value": "+0",
+            "type": "neutral"
+          }
+        ]
+      }
+    ]
+  },
+  "spells": {
+    "caster_level": 1,
+    "action_ids": {
+      "normal": ["jump", "throw", "dash"],
+      "class": []
+    },
+    "passive_ids": [],
+    "spell_ids": {
+      "level_1": [
+        "grease",
+        "identify",
+        "mage_armor",
+        "burning_hands"
+      ]
+    }
+  },
+  "background": {
+    "class": "1级法师",
+    "race": "精灵 Elf",
+    "attributes": {
+      "move_speed": "9m",
+      "darkvision": "12m",
+      "ranged_range": "18m",
+      "melee_range": "1.5m",
+      "throw_range": "18m",
+      "size": "中型",
+      "weight": "75kg",
+      "carry_weight": "120kg"
+    },
+    "traits": {
+      "personality": "",
+      "ideal": "",
+      "bond": "",
+      "flaw": ""
+    },
+    "story": []
+  },
+  "cantrip_ids": [
+    "firebolt",
+    "mage_hand",
+    "ray_of_frost"
+  ],
+  "spell_ids": [
+    "grease",
+    "identify",
+    "mage_armor",
+    "burning_hands"
+  ],
+  "class_skills": [
+    "洞悉",
+    "调查"
+  ],
+  "human_skill": null,
+  "background_story": {
+    "trait": "",
+    "ideal": "",
+    "bond": "",
+    "flaw": "",
+    "story": ""
+  }
+}

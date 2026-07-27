@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>职业图标预览</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1410;
+      color: #e8dcc8;
+      font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: #d4af37;
+      letter-spacing: 4px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #a89078;
+      font-size: 14px;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: rgba(255, 248, 235, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+    .card img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: #0f0b08;
+    }
+    .name-cn {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f0e6d2;
+      margin-bottom: 4px;
+    }
+    .name-en {
+      font-size: 12px;
+      color: #8b7355;
+      text-transform: capitalize;
+      letter-spacing: 1px;
+    }
+    .note {
+      max-width: 900px;
+      margin: 40px auto 0;
+      padding: 16px 20px;
+      background: rgba(212, 175, 55, 0.08);
+      border-left: 3px solid #d4af37;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #b8a488;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>职业图标预览</h1>
+  <p class="subtitle">参考 职业.jpg 风格生成 · 游侠已改为弓箭主题</p>
+
+  <div class="grid">
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20warrior%20class%20icon%2C%20detailed%20metallic%20longsword%20with%20crossguard%20emblem%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20mystical%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="战士">
+      <div class="name-cn">战士</div>
+      <div class="name-en">warrior</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20monk%20class%20icon%2C%20detailed%20clenched%20fist%20in%20martial%20arts%20stance%20with%20cloth%20wraps%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20mystical%20chi%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="武僧">
+      <div class="name-cn">武僧</div>
+      <div class="name-en">monk</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20paladin%20class%20icon%2C%20detailed%20winged%20shield%20with%20holy%20symbol%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20silver%2C%20divine%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="圣武士">
+      <div class="name-cn">圣武士</div>
+      <div class="name-en">paladin</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20ranger%20class%20icon%2C%20detailed%20longbow%20and%20arrow%20with%20leaf%20motifs%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20mystical%20forest%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="游侠">
+      <div class="name-cn">游侠</div>
+      <div class="name-en">ranger</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20rogue%20class%20icon%2C%20detailed%20crossed%20daggers%20with%20small%20keys%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20shadowy%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="游荡者">
+      <div class="name-cn">游荡者</div>
+      <div class="name-en">rogue</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20sorcerer%20class%20icon%2C%20detailed%20magical%20flame%20with%20dragon%20bloodline%20motif%20and%20red%20gem%2C%20dark%20brown%20background%2C%20embossed%20gold%20with%20red%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="术士">
+      <div class="name-cn">术士</div>
+      <div class="name-en">sorcerer</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20warlock%20class%20icon%2C%20detailed%20mystical%20eldritch%20eye%20with%20arcane%20rays%20and%20tentacle%20motifs%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20purple%20dark%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="邪术师">
+      <div class="name-cn">邪术师</div>
+      <div class="name-en">warlock</div>
+    </div>
+
+    <div class="card">
+      <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ornate%20golden%20fantasy%20D%26D%20wizard%20class%20icon%2C%20detailed%20open%20spellbook%20with%20floating%20stars%20and%20arcane%20runes%2C%20dark%20brown%20background%2C%20embossed%20gold%20and%20bronze%2C%20blue%20magical%20glow%2C%20centered%20symmetrical%2C%20game%20UI%20asset%2C%20high%20detail&image_size=square" alt="法师">
+      <div class="name-cn">法师</div>
+      <div class="name-en">wizard</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>说明：</strong>图标通过 Trae 的 AI 图片接口实时生成，首次加载可能需要几秒钟。如果某张图显示为“生成中”占位图，刷新页面即可重新生成。确定风格后，我可以帮你把满意的图标批量保存到 <code>assets/icons/classes/</code> 目录，并更新 <code>data/classes.json</code>。
+  </div>
+</body>
+</html>

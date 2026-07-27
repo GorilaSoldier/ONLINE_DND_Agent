@@ -3,6 +3,8 @@
   "id": "dnd_chapter1",
   "name": "第一章：费伦大陆与巴洛维亚",
   "description": "一支名为VIVO50的冒险小队在匕首滩完成任务后，被神秘维斯塔尼信使的一封信件引向了地图上不存在之地——巴洛维亚。迷雾、吸血鬼、暗金碎片……命运之轮已开始转动。",
+  "available_races": [],
+  "available_classes": [],
   "chapters": [
     {
       "id": "ch1",

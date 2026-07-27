@@ -1,0 +1,75 @@
+{
+  "type": "backgrounds",
+  "acolyte": {
+    "id": "acolyte",
+    "name": "侍僧",
+    "name_en": "Acolyte",
+    "description": "你毕生投身于服务神庙，学习神圣仪典、祈祷与祭祀之道。你对某个特定神祇怀有深厚信仰，或信仰整个神系。神庙的生活让你熟悉了宗教历史、神圣魔法以及神庙内部的权力结构。",
+    "skill_proficiencies": ["洞悉", "宗教"],
+    "feature": "庇护所",
+    "feature_description": "你和你的冒险伙伴可以在任何有你的神祇信仰者聚居的地方获得食物与庇护。"
+  },
+  "charlatan": {
+    "id": "charlatan",
+    "name": "骗子",
+    "name_en": "Charlatan",
+    "description": "你擅长用谎言、伪造和快速变装的手段骗取他人信任。你可能是冒牌医生、伪造文书专家、江湖郎中，或专门骗取贵族钱财的骗子。",
+    "skill_proficiencies": ["欺瞒", "巧手"],
+    "feature": "虚假身份",
+    "feature_description": "你可以伪造任何你需要的官方文件、印章或身份证明，并凭借它在短时期内冒充某个虚构身份。"
+  },
+  "criminal": {
+    "id": "criminal",
+    "name": "罪犯",
+    "name_en": "Criminal",
+    "description": "你有过犯罪的经历，无论是偷窃、走私、勒索还是其他非法勾当。你与地下世界保持着联系，知道如何在城市的阴暗角落里生存。",
+    "skill_proficiencies": ["欺瞒", "隐匿"],
+    "feature": "犯罪分子联络网",
+    "feature_description": "你仍然保有一批地下世界的关系网，可以帮你获取非法物品、情报或寻找销赃渠道。"
+  },
+  "entertainer": {
+    "id": "entertainer",
+    "name": "艺人",
+    "name_en": "Entertainer",
+    "description": "你以表演为生，可能是吟游诗人、舞者、默剧演员、乐器演奏家或马戏团艺人。你习惯在人群面前展示自己，擅长用才艺取悦观众。",
+    "skill_proficiencies": ["体操", "表演"],
+    "feature": "受欢迎的表演者",
+    "feature_description": "你可以在任何有表演需求的地方获得免费食宿，并且当地居民会把你当作朋友而非陌生人。"
+  },
+  "noble": {
+    "id": "noble",
+    "name": "贵族",
+    "name_en": "Noble",
+    "description": "你出身贵族世家，自幼接受礼仪、权谋和骑术教育。你熟悉上流社会的规矩，知道如何在宫廷和沙龙中周旋，也习惯于被人服侍。",
+    "skill_proficiencies": ["历史", "说服"],
+    "feature": "贵胄特权",
+    "feature_description": "你可以被贵族和其他上流社会成员以礼相待，并能通过家族关系获得当地权贵的接见。"
+  },
+  "sage": {
+    "id": "sage",
+    "name": "智者",
+    "name_en": "Sage",
+    "description": "你花费多年时间钻研古籍、星象、炼金术或失传语言。你可能是学者、图书馆管理员、抄写员或占星师。你的知识渊博，擅长从碎片信息中拼凑出隐藏的真相。",
+    "skill_proficiencies": ["奥秘", "历史"],
+    "feature": "研究者",
+    "feature_description": "当你需要获取某个特定知识时，你知道该去哪里查找资料或向谁请教，通常能在短时间内找到答案。"
+  },
+  "soldier": {
+    "id": "soldier",
+    "name": "士兵",
+    "name_en": "Soldier",
+    "description": "你曾在军队、雇佣兵团或城防卫队中服役。你经历过战争、行军和营地生活，懂得如何服从命令、使用武器以及在压力下保持冷静。",
+    "skill_proficiencies": ["运动", "威吓"],
+    "feature": "军阶",
+    "feature_description": "你可以凭借旧日军阶向士兵和雇佣兵发号施令，并获得他们的临时服从与帮助。"
+  },
+  "folk_hero": {
+    "id": "folk_hero",
+    "name": "平民英雄",
+    "name_en": "Folk Hero",
+    "description": "你来自普通民众之中，曾因某个英勇举动赢得乡里爱戴。或许你击退了威胁村庄的野兽，或许你揭露了领主的暴行。平民把你视为自己人。",
+    "skill_proficiencies": ["驯兽", "求生"],
+    "feature": "乡下人的盛情",
+    "feature_description": "你可以在任何普通村庄或农家获得食宿与隐蔽帮助，平民会尽力掩护你躲避追捕。"
+  }
+}

@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 import json
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 app = FastAPI(title="DNDBOX Backend", version="0.1.0")
@@ -73,6 +75,52 @@ def list_characters() -> list[dict]:
     return characters
 
 
+@app.post("/api/characters")
+def create_character(data: dict = Body(...)) -> dict:
+    """创建新角色，保存为 JSON 文件"""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    char_id = f"char_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}"
+
+    # 从数据文件中查找种族/职业名称，确保 lobby 兼容
+    races = _load_json("races.json")
+    classes = _load_json("classes.json")
+    backgrounds = _load_json("backgrounds.json")
+    race_data = races.get(data.get("race_id", ""), {})
+    class_data = classes.get(data.get("class_id", ""), {})
+    bg_data = backgrounds.get(data.get("background_id", ""), {})
+
+    char_data = {
+        "id": char_id,
+        "created_at": datetime.now().isoformat(),
+        "name": data.get("name", "未命名"),
+        "campaign_id": data.get("campaign_id", ""),
+        "theme": "light",
+        "portrait": (data.get("name", "?"))[0] if data.get("name") else "?",
+        "race_id": data.get("race_id"),
+        "race": race_data.get("name", ""),
+        "race_en": race_data.get("name_en", ""),
+        "subrace_id": data.get("subrace_id"),
+        "subrace": (race_data.get("subraces", {}).get(data.get("subrace_id", ""), {})).get("name", ""),
+        "class_id": data.get("class_id"),
+        "class": class_data.get("name", ""),
+        "class_en": class_data.get("id", ""),
+        "background_id": data.get("background_id"),
+        "background_name": bg_data.get("name", ""),
+        "level": 1,
+        "abilities": data.get("abilities", {}),
+        "ability_bonus": data.get("abilityBonus", {}),
+        "cantrip_ids": data.get("cantrip_ids", []),
+        "spell_ids": data.get("spell_ids", []),
+        "class_skills": data.get("class_skills", []),
+        "human_skill": data.get("human_skill"),
+        "background_story": data.get("background", {}),
+    }
+    file_path = DATA_DIR / f"{char_id}.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(char_data, f, ensure_ascii=False, indent=2)
+    return char_data
+
+
 @app.get("/api/characters/{char_id}")
 def get_character(char_id: str) -> dict:
     """返回单个人物卡详情"""
@@ -116,6 +164,12 @@ def list_features() -> dict:
 def list_classes() -> dict:
     """返回职业与子职业定义"""
     return _load_json("classes.json")
+
+
+@app.get("/api/backgrounds")
+def list_backgrounds() -> dict:
+    """返回所有背景定义"""
+    return _load_json("backgrounds.json")
 
 
 @app.get("/api/races")

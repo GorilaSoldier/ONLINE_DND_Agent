@@ -1,0 +1,15 @@
+{
+  "armors": {
+    "goblin-leather-scrap": {
+      "id": "goblin-leather-scrap",
+      "name": "地精皮甲碎片",
+      "type": "armor",
+      "category": "轻甲",
+      "rarity": "普通",
+      "ac": "11 + 敏捷调整值",
+      "properties": ["轻甲"],
+      "description": "由破旧皮革和毛皮拼凑而成的轻甲，地精的标准装备。",
+      "value": { "gp": 1, "sp": 0, "cp": 0 }
+    }
+  }
+}

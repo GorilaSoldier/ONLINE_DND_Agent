@@ -1,0 +1,172 @@
+{
+  "locations": {
+    "triboar-trail-ambush": {
+      "id": "triboar-trail-ambush",
+      "name": "三猪小径伏击点",
+      "type": "wild",
+      "description": "三猪小径蜿蜒穿过剑山山麓，连接绝冬城与凡达林。路中央横卧着两匹死马，身上插满黑羽箭。周围散落着物资和一个空的地图匣。路旁灌木丛中传来细微的响动。",
+      "scene_text": "你们沿着三猪小径南下，空气中的血腥味让马匹不安地打着响鼻。前方路中央，两匹死马倒在血泊中，身上插满了黑羽箭。散落的物资旁，一个空的地图匣半开着——甘德伦的地图不见了。",
+      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "items": [
+        { "id": "empty-map-case", "visible": true },
+        { "id": "scattered-supplies", "visible": true }
+      ],
+      "exits": [
+        { "name": "追踪痕迹向北", "target": "cragmaw-hideout-entrance", "description": "地上的拖行痕迹指向北方，似乎有人被拖进了森林。" }
+      ],
+      "hidden": [
+        {
+          "id": "drag-tracks",
+          "description": "一条通往北方的拖行痕迹，混合着血迹和脚印。",
+          "dc": 10,
+          "skill": "survival",
+          "passive": true
+        },
+        {
+          "id": "goblin-ambushers",
+          "description": "路旁灌木丛中埋伏着地精。",
+          "dc": 12,
+          "skill": "perception",
+          "passive": true
+        }
+      ],
+      "scene_nodes": [
+        {
+          "id": "discover-ambush",
+          "trigger": "player_approaches-horses",
+          "description": "当你们靠近死马时，地精从灌木丛中发起伏击！"
+        }
+      ]
+    },
+    "cragmaw-hideout-entrance": {
+      "id": "cragmaw-hideout-entrance",
+      "name": "克拉摩窝点入口",
+      "type": "wild",
+      "description": "一个隐藏在荆棘丛后的洞穴入口，一条小溪从洞口流出。洞口两侧的地精哨兵正警惕地巡视着。",
+      "scene_text": "追踪痕迹把你们带到一片丘陵地带。荆棘丛后隐藏着一个黑漆漆的洞穴入口，一条小溪从洞内流出，水声掩盖了远处的动静。你们能隐约看到洞口两侧有地精哨兵的身影。",
+      "npcs": ["goblin-sentry-1", "goblin-sentry-2"],
+      "items": [],
+      "exits": [
+        { "name": "进入洞穴", "target": "cragmaw-hideout-wolf-cave", "description": "洞穴内部黑暗潮湿，通向养狼洞。" }
+      ],
+      "hidden": [
+        {
+          "id": "hidden-entrance",
+          "description": "荆棘丛后的洞穴入口被刻意隐藏。",
+          "dc": 13,
+          "skill": "survival",
+          "passive": false
+        }
+      ]
+    },
+    "cragmaw-hideout-wolf-cave": {
+      "id": "cragmaw-hideout-wolf-cave",
+      "name": "养狼洞",
+      "type": "cave",
+      "description": "洞穴中央有天然石笋柱，三只狼被链条拴住，但链条长度足以覆盖洞穴大部分区域。一条石阶通向高处平台。",
+      "scene_text": "洞内弥漫着野兽的腥臊味。三只狼被粗大的铁链拴在洞穴中央的石笋柱上，链子长度让它们几乎能覆盖整个洞室。狼群低沉地咆哮着，眼睛在黑暗中发出幽光。北侧的石阶通向更高处。",
+      "npcs": ["wolf-1", "wolf-2", "wolf-3"],
+      "items": [],
+      "exits": [
+        { "name": "石阶向上", "target": "cragmaw-hideout-blind", "description": "石阶通往地精盲区。" }
+      ],
+      "hidden": [],
+      "scene_nodes": [
+        {
+          "id": "calm-wolves",
+          "trigger": "player_offers-food",
+          "description": "如果你们拿出食物并安抚狼群，它们可能会安静下来。"
+        }
+      ]
+    },
+    "cragmaw-hideout-blind": {
+      "id": "cragmaw-hideout-blind",
+      "name": "地精盲区",
+      "type": "cave",
+      "description": "一个看似死路的洞室，一座简陋木桥横跨小溪。桥头附近有隐藏的水坑陷阱，桥的另一端通往主通道。",
+      "scene_text": "这个洞室被地精称为'盲区'。一座摇摇晃晃的木桥横跨小溪，连接着主通道。桥头的地面上有一片不自然的湿痕——可能是个陷阱。小溪东侧似乎有狭窄的裂缝可以绕行。",
+      "npcs": ["goblin-bridge-guard-1", "goblin-bridge-guard-2", "goblin-bridge-guard-3"],
+      "items": [],
+      "exits": [
+        { "name": "过桥", "target": "cragmaw-hideout-waterfall", "description": "木桥通向瀑布洞穴。" },
+        { "name": "裂缝绕行", "target": "cragmaw-hideout-waterfall", "description": "狭窄的裂缝可以绕过盲区，但需要爬行。" }
+      ],
+      "hidden": [
+        {
+          "id": "pit-trap",
+          "description": "桥头隐藏着一个水坑陷阱，触发后会掉入水坑。",
+          "dc": 15,
+          "skill": "investigation",
+          "passive": false
+        }
+      ]
+    },
+    "cragmaw-hideout-waterfall": {
+      "id": "cragmaw-hideout-waterfall",
+      "name": "瀑布洞穴",
+      "type": "cave",
+      "description": "洞穴内有一道小瀑布从高处倾泻而下，落入中央大水潭。北侧高处平台有一条通道通往区域5，南侧有通道通往区域3和天然烟囱。",
+      "scene_text": "瀑布的水声轰鸣，水雾弥漫在空气中。中央是一个深不见底的水潭，瀑布从高处倾泻而下。北侧高台上有个地精哨兵正打着瞌睡，他身后的通道通向洞穴深处。南侧有两条通道，一条往回，另一条是向上的天然烟囱。",
+      "npcs": ["goblin-sentry-high"],
+      "items": [],
+      "exits": [
+        { "name": "高处通道", "target": "cragmaw-hideout-dam", "description": "通往水坝的通道。" },
+        { "name": "天然烟囱", "target": "cragmaw-hideout-boss", "description": "狭窄的烟囱向上延伸，似乎通向某个洞室。" }
+      ],
+      "hidden": []
+    },
+    "cragmaw-hideout-dam": {
+      "id": "cragmaw-hideout-dam",
+      "name": "水坝",
+      "type": "cave",
+      "description": "地精用碎石和木板筑了一道简易水坝，将溪水拦截成一个小型蓄水池。破坏水坝会释放洪水冲过区域4和区域2。",
+      "scene_text": "通道尽头是一道简陋的水坝，溪水被拦截成一个蓄水池。你们能看出水坝结构并不稳固——如果破坏它，蓄积的水会汹涌而下，冲过下方的洞穴。但这也一定会惊动所有地精。",
+      "npcs": [],
+      "items": [],
+      "exits": [
+        { "name": "返回瀑布洞穴", "target": "cragmaw-hideout-waterfall", "description": "返回瀑布洞穴。" }
+      ],
+      "hidden": [],
+      "scene_nodes": [
+        {
+          "id": "destroy-dam",
+          "trigger": "player_breaks-dam",
+          "description": "水坝崩塌，洪水冲向区域4和区域2，惊动所有地精。"
+        }
+      ]
+    },
+    "cragmaw-hideout-boss": {
+      "id": "cragmaw-hideout-boss",
+      "name": "地精巢穴",
+      "type": "cave",
+      "description": "熊地精首领克拉格的巢穴。洞穴宽敞，北侧高台上堆满补给箱，中央绑着被俘的修达·豪温特。",
+      "scene_text": "这是洞穴最宽敞的洞室，空气中弥漫着地精的臭味和熊地精的体臭。北侧高台上堆满了标有绝冬城蓝色狮子图案的补给箱。洞穴中央，一位人类骑士被绑在粗糙的木桩上——正是修达·豪温特。洞室深处，一个魁梧的熊地精正坐在由兽皮和木箱搭成的'宝座'上，冷冷地注视着你们。",
+      "npcs": ["klarg", "goblin-klarg-1", "goblin-klarg-2", "ripper", "sildar-hallwinter"],
+      "items": [
+        { "id": "gundrens-map", "visible": false, "owner": "klarg" },
+        { "id": "supplies-neverwinter", "visible": true },
+        { "id": "potion-of-healing", "visible": false },
+        { "id": "klargs-coinpurse", "visible": false }
+      ],
+      "exits": [
+        { "name": "离开窝点", "target": "cragmaw-hideout-entrance", "description": "原路返回洞口。" }
+      ],
+      "hidden": [
+        {
+          "id": "hidden-loot",
+          "description": "克拉格的箱子里藏着金币、宝石和治疗药水。",
+          "dc": 12,
+          "skill": "investigation",
+          "passive": false
+        }
+      ],
+      "scene_nodes": [
+        {
+          "id": "sildar-rescued",
+          "trigger": "klarg-defeated",
+          "description": "修达·豪温特苏醒过来，虚弱但感激地向你们致谢。"
+        }
+      ]
+    }
+  }
+}

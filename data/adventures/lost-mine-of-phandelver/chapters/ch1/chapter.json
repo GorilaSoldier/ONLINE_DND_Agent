@@ -1,0 +1,28 @@
+{
+  "id": "ch1",
+  "name": "地精之箭",
+  "title": "第一部分：地精之箭",
+  "description": "玩家从绝冬城出发护送物资，发现甘德伦和修达已遭伏击。追踪地精到克拉摩窝点，营救修达，得知甘德伦被带往克拉摩堡。",
+  "recommended_level": 1,
+  "starting_location": "triboar-trail-ambush",
+  "unlocks_chapters": ["ch2", "ch3"],
+  "key_locations": [
+    "triboar-trail-ambush",
+    "cragmaw-hideout-entrance",
+    "cragmaw-hideout-wolf-cave",
+    "cragmaw-hideout-blind",
+    "cragmaw-hideout-waterfall",
+    "cragmaw-hideout-dam",
+    "cragmaw-hideout-boss"
+  ],
+  "key_npcs": [
+    "klarg",
+    "droop",
+    "sildar-hallwinter"
+  ],
+  "key_items": [
+    "gundrens-map",
+    "supplies-neverwinter",
+    "potion-of-healing"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "encounters": {
+    "goblin-ambush": {
+      "id": "goblin-ambush",
+      "name": "地精伏击",
+      "location": "triboar-trail-ambush",
+      "trigger": "player_approaches-horses",
+      "description": "当玩家靠近死马调查时，埋伏在灌木丛中的四只地精发起伏击。",
+      "enemies": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "tactics": "地精会先用远程攻击，若玩家接近则改用弯刀。若战斗不利，地精会试图逃跑向窝点报信。",
+      "clues": [
+        "死马身上有黑羽箭",
+        "空地图匣说明地图被拿走了",
+        "地上的拖行痕迹指向北方"
+      ]
+    },
+    "cragmaw-hideout-entrance-sentries": {
+      "id": "cragmaw-hideout-entrance-sentries",
+      "name": "窝点入口哨兵",
+      "location": "cragmaw-hideout-entrance",
+      "trigger": "player_approaches-entrance",
+      "description": "两只地精哨兵守在荆棘丛后的洞口。如果他们发现玩家并发出警告，洞内其他地精会进入警戒状态。",
+      "enemies": ["goblin-sentry-1", "goblin-sentry-2"],
+      "tactics": "哨兵会试图大声警告洞内同伴，然后利用地形游击。"
+    },
+    "wolves-of-cragmaw": {
+      "id": "wolves-of-cragmaw",
+      "name": "养狼洞的狼",
+      "location": "cragmaw-hideout-wolf-cave",
+      "trigger": "player_enters-wolf-cave",
+      "description": "三只被链条拴住的狼。它们可以被食物安抚，否则会攻击进入洞穴的人。",
+      "enemies": ["wolf-1", "wolf-2", "wolf-3"],
+      "tactics": "狼被链条限制移动范围，但若玩家靠近会扑击。",
+      "options": [
+        "用食物安抚（驯兽 DC 15）",
+        "保持距离绕过去",
+        "击杀狼群"
+      ]
+    },
+    "bridge-guards": {
+      "id": "bridge-guards",
+      "name": "桥头的地精守卫",
+      "location": "cragmaw-hideout-blind",
+      "trigger": "player_approaches-bridge",
+      "description": "三只地精守在木桥附近，其中一名哨兵时刻警惕。桥头有隐藏的水坑陷阱。",
+      "enemies": ["goblin-bridge-guard-1", "goblin-bridge-guard-2", "goblin-bridge-guard-3"],
+      "hazards": ["pit-trap"]
+    },
+    "klarg-showdown": {
+      "id": "klarg-showdown",
+      "name": "克拉格之战",
+      "location": "cragmaw-hideout-boss",
+      "trigger": "player_enters-boss-cave",
+      "description": "熊地精首领克拉格坐在洞室深处的宝座上。他的两只地精随从和宠物狼利珀会保护他。修达·豪温特被绑在洞穴中央。",
+      "enemies": ["klarg", "goblin-klarg-1", "goblin-klarg-2", "ripper"],
+      "allies": ["sildar-hallwinter"],
+      "tactics": "克拉格会优先攻击最强大的敌人，利珀会协同攻击。地精随从会在必要时试图逃跑。",
+      "key_outcome": "击败克拉格后可以获得甘德伦的地图和补给物资，修达会苏醒并提供关键情报。"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "weapons": {
+    "goblin-scimitar": {
+      "id": "goblin-scimitar",
+      "name": "地精弯刀",
+      "type": "weapon",
+      "category": "近战武器",
+      "rarity": "普通",
+      "damage": "1d6 挥砍",
+      "properties": ["灵巧", "轻型"],
+      "description": "一把粗糙但锋利的弯刀，地精最常用的武器。",
+      "value": { "gp": 1, "sp": 0, "cp": 0 }
+    },
+    "goblin-shortbow": {
+      "id": "goblin-shortbow",
+      "name": "地精短弓",
+      "type": "weapon",
+      "category": "远程武器",
+      "rarity": "普通",
+      "damage": "1d6 穿刺",
+      "properties": ["弹药", "双手", "射程 80/320"],
+      "description": "地精常用的短弓，射程不远但足以伏击路人。",
+      "value": { "gp": 2, "sp": 0, "cp": 0 }
+    },
+    "klargs-club": {
+      "id": "klargs-club",
+      "name": "克拉格的大木棒",
+      "type": "weapon",
+      "category": "近战武器",
+      "rarity": "普通",
+      "damage": "1d8 钝击",
+      "properties": ["双手"],
+      "description": "一根被熊地精克拉格磨得光滑沉重的木棍，上面还残留着干血。",
+      "value": { "gp": 0, "sp": 2, "cp": 0 }
+    },
+    "wolf-fangs": {
+      "id": "wolf-fangs",
+      "name": "狼牙",
+      "type": "weapon",
+      "category": "自然武器",
+      "rarity": "普通",
+      "damage": "2d4+2 穿刺",
+      "properties": [],
+      "description": "野狼锋利的牙齿。",
+      "value": { "gp": 0, "sp": 0, "cp": 0 }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "items": {
+    "potion-of-healing": {
+      "id": "potion-of-healing",
+      "name": "治疗药水",
+      "type": "consumable",
+      "category": "药水",
+      "rarity": "普通",
+      "effect": "恢复 2d4+2 点生命值",
+      "description": "一瓶红色液体的治疗药水，饮用后可恢复生命值。",
+      "value": { "gp": 50, "sp": 0, "cp": 0 }
+    },
+    "gundrens-map": {
+      "id": "gundrens-map",
+      "name": "甘德伦的地图",
+      "type": "quest_item",
+      "category": "任务物品",
+      "rarity": "稀有",
+      "description": "一张用矮人文字标注的地图，显示潮音洞穴的大致位置。",
+      "value": { "gp": 0, "sp": 0, "cp": 0 }
+    },
+    "empty-map-case": {
+      "id": "empty-map-case",
+      "name": "空地图匣",
+      "type": "clue",
+      "category": "线索",
+      "rarity": "普通",
+      "description": "一个精致的皮革地图匣，原本装着甘德伦的潮音洞穴地图。",
+      "value": { "gp": 2, "sp": 0, "cp": 0 }
+    },
+    "supplies-neverwinter": {
+      "id": "supplies-neverwinter",
+      "name": "绝冬城补给箱",
+      "type": "quest_item",
+      "category": "任务物品",
+      "rarity": "普通",
+      "description": "标有绝冬城蓝色狮子图案的补给箱，装着甘德伦的采矿物资。",
+      "value": { "gp": 5, "sp": 0, "cp": 0 }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "treasures": {
+    "klargs-coinpurse": {
+      "id": "klargs-coinpurse",
+      "name": "克拉格的钱袋",
+      "type": "treasure",
+      "category": "财宝",
+      "rarity": "普通",
+      "description": "一个鼓鼓囊囊的皮钱袋，里面装着克拉格劫掠来的金币和宝石。",
+      "value": { "gp": 15, "sp": 30, "cp": 60, "gems": 2 }
+    }
+  }
+}

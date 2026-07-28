@@ -1,0 +1,43 @@
+{
+  "quests": {
+    "deliver-supplies": {
+      "id": "deliver-supplies",
+      "name": "运送物资",
+      "description": "将甘德伦的采矿物资安全运送到凡达林镇的巴森工坊。",
+      "giver": "gundren-rockseeker",
+      "status": "active",
+      "objectives": [
+        { "id": "obj-1", "description": "护送物资前往凡达林镇", "completed": false },
+        { "id": "obj-2", "description": "将物资交给巴森·普罗维恩斯", "completed": false }
+      ],
+      "reward": { "gp": 10, "each": true }
+    },
+    "find-gundren": {
+      "id": "find-gundren",
+      "name": "寻找甘德伦",
+      "description": "甘德伦和修达在三猪小径遭遇伏击后失踪。找出他们的下落。",
+      "giver": "event",
+      "status": "active",
+      "objectives": [
+        { "id": "obj-1", "description": "调查伏击现场", "completed": false },
+        { "id": "obj-2", "description": "追踪地精到克拉摩窝点", "completed": false },
+        { "id": "obj-3", "description": "救出修达·豪温特", "completed": false },
+        { "id": "obj-4", "description": "追查甘德伦被送往何处", "completed": false }
+      ],
+      "reward": { "gp": 50, "each": true }
+    },
+    "rescue-sildar": {
+      "id": "rescue-sildar",
+      "name": "营救修达",
+      "description": "修达·豪温特被囚禁在克拉摩窝点的地精巢穴中。",
+      "giver": "event",
+      "status": "hidden",
+      "objectives": [
+        { "id": "obj-1", "description": "找到修达被囚禁的位置", "completed": false },
+        { "id": "obj-2", "description": "击败或赶走克拉格", "completed": false },
+        { "id": "obj-3", "description": "护送修达安全离开窝点", "completed": false }
+      ],
+      "reward": { "gp": 50, "each": true }
+    }
+  }
+}

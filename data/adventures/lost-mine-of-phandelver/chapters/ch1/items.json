@@ -1,0 +1,69 @@
+{
+  "items": {
+    "empty-map-case": {
+      "id": "empty-map-case",
+      "name": "空地图匣",
+      "description": "一个精致的皮革地图匣，原本装着甘德伦的潮音洞穴地图。现在里面空空如也，只留下一些压痕。",
+      "type": "clue",
+      "stealable": false,
+      "visible": true,
+      "owner": null
+    },
+    "scattered-supplies": {
+      "id": "scattered-supplies",
+      "name": "散落的物资",
+      "description": "甘德伦雇佣你们护送的采矿物资，散落在伏击现场。包括绳索、干粮、火把和 mining tools。",
+      "type": "quest_item",
+      "stealable": false,
+      "visible": true,
+      "owner": "gundren-rockseeker"
+    },
+    "gundrens-map": {
+      "id": "gundrens-map",
+      "name": "甘德伦的地图",
+      "description": "一张用矮人文字标注的地图，显示潮音洞穴的大致位置。这是黑蜘蛛最想要得到的东西。",
+      "type": "quest_item",
+      "stealable": true,
+      "visible": false,
+      "owner": "klarg",
+      "difficulty": 15,
+      "notice_after": { "min": 30, "max": 120, "unit": "minutes" },
+      "notice_chance": 0.8,
+      "notice_reason": "非常重要且显眼"
+    },
+    "supplies-neverwinter": {
+      "id": "supplies-neverwinter",
+      "name": "绝冬城补给箱",
+      "description": "标有绝冬城蓝色狮子图案的补给箱，里面装着甘德伦的货物。",
+      "type": "quest_item",
+      "stealable": true,
+      "visible": true,
+      "owner": null,
+      "contains": ["potion-of-healing", "potion-of-healing"]
+    },
+    "potion-of-healing": {
+      "id": "potion-of-healing",
+      "name": "治疗药水",
+      "description": "一瓶红色液体的治疗药水，饮用可恢复生命值。",
+      "type": "consumable",
+      "effect": "heal 2d4+2",
+      "stealable": true,
+      "visible": false,
+      "owner": null
+    },
+    "klargs-coinpurse": {
+      "id": "klargs-coinpurse",
+      "name": "克拉格的钱袋",
+      "description": "一个鼓鼓囊囊的皮钱袋，里面装着克拉格劫掠来的金币和宝石。",
+      "type": "treasure",
+      "value": { "gp": 15, "sp": 30, "cp": 60, "gems": 2 },
+      "stealable": true,
+      "visible": false,
+      "owner": "klarg",
+      "difficulty": 13,
+      "notice_after": { "min": 1, "max": 4, "unit": "hours" },
+      "notice_chance": 0.4,
+      "notice_reason": "藏在身上，不太显眼"
+    }
+  }
+}

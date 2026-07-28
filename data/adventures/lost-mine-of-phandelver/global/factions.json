@@ -1,0 +1,45 @@
+{
+  "factions": {
+    "lords-alliance": {
+      "id": "lords-alliance",
+      "name": "狮鹫骑士团",
+      "alias": "Lords' Alliance",
+      "description": "一个由北方城邦组成的联盟，致力于维护文明世界的秩序与安全。修达·豪温特是其代理人之一。",
+      "attitude_to_party": "friendly",
+      "key_members": ["sildar-hallwinter"],
+      "goals": ["维护剑湾地区稳定", "阻止黑蜘蛛的阴谋", "保护凡达林镇"]
+    },
+    "cragmaw-goblins": {
+      "id": "cragmaw-goblins",
+      "name": "克拉摩地精部落",
+      "description": "一支盘踞在剑湾北部的地精部落，受黑蜘蛛雇佣劫掠商旅、看守俘虏。",
+      "attitude_to_party": "hostile",
+      "key_members": ["klarg"],
+      "goals": ["为黑蜘蛛效力", "劫掠过往商旅"]
+    },
+    "redbrands": {
+      "id": "redbrands",
+      "name": "红标帮",
+      "description": "一伙穿着红色斗篷的人类暴徒，盘踞在凡达林镇，欺压镇民。首领是被称为'玻璃手杖'的伊阿诺。",
+      "attitude_to_party": "hostile",
+      "key_members": ["glasstaff"],
+      "goals": ["控制凡达林镇", "为黑蜘蛛效力"]
+    },
+    "black-spider-forces": {
+      "id": "black-spider-forces",
+      "name": "黑蜘蛛势力",
+      "description": "由卓尔精灵奈兹纳尔领导的邪恶势力，目标是占领潮音洞穴和其中的法术熔炉。",
+      "attitude_to_party": "hostile",
+      "key_members": ["nezznar-black-spider"],
+      "goals": ["占领潮音洞穴", "控制法术熔炉", "制造魔法武器"]
+    },
+    "rockseeker-brothers": {
+      "id": "rockseeker-brothers",
+      "name": "碎石者兄弟",
+      "description": "甘德伦、纳恩德罗和萨尔登三兄弟，重新发现了潮音洞穴的位置。",
+      "attitude_to_party": "friendly",
+      "key_members": ["gundren-rockseeker", "nundro-rockseeker", "tharden-rockseeker"],
+      "goals": ["重新开发潮音洞穴", "重振家族荣耀"]
+    }
+  }
+}

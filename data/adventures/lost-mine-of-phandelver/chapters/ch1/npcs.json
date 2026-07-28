@@ -1,0 +1,197 @@
+{
+  "npcs": {
+    "klarg": {
+      "id": "klarg",
+      "name": "克拉格",
+      "race": "熊地精",
+      "role": "克拉摩窝点首领",
+      "description": "一个魁梧凶狠的熊地精，克拉摩地精部落的前哨首领。他受命于黑蜘蛛看守俘虏，并劫掠三猪小径上的商旅。",
+      "personality": ["残忍", "傲慢", "贪婪"],
+      "goals": ["取悦黑蜘蛛", "积攒财宝", "维持对窝点的控制"],
+      "fears": ["黑蜘蛛的惩罚", "失去首领地位"],
+      "secrets": ["他身上带着甘德伦的地图", "他知道甘德伦被送往克拉摩堡"],
+      "passive_perception": 10,
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-boss",
+      "reactions": {
+        "combat": {
+          "opening": "“又是来送死的？”克拉格咆哮着站起身，举起他那根沉重的木棍。",
+          "low_hp": "他发出愤怒的嚎叫，试图撤退到高台上。"
+        },
+        "intimidated": {
+          "success": "克拉格的眼神闪烁了一下，但他很快镇定下来。",
+          "failure": "他大笑起来，露出参差不齐的尖牙。"
+        }
+      },
+      "items": ["gundrens-map", "klargs-coinpurse"]
+    },
+    "droop": {
+      "id": "droop",
+      "name": "德鲁普",
+      "race": "地精",
+      "role": "克拉格手下的懦夫",
+      "description": "一个瘦弱胆小的地精，常被其他地精和熊地精欺负。他掌握一些关于克拉摩堡的信息，但只有在恐惧或利诱下才会开口。",
+      "personality": ["懦弱", "狡猾", "自私"],
+      "goals": ["活下去", "讨好强者"],
+      "fears": ["克拉格", "玩家", "被部落处死"],
+      "secrets": ["他知道克拉摩堡的大致位置和守卫情况"],
+      "passive_perception": 9,
+      "attitude": "neutral",
+      "current_location": "cragmaw-hideout",
+      "reactions": {
+        "captured": {
+          "plea": "“别杀我！我什么都告诉你们！”德鲁普瑟瑟发抖地跪在地上。",
+          "info": "“克拉摩堡在北方森林里，有很多地精、大地精，还有一个大王……黑蜘蛛的人有时会来。”"
+        }
+      }
+    },
+    "goblin-ambusher-1": {
+      "id": "goblin-ambusher-1",
+      "name": "地精伏击者",
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush"
+    },
+    "goblin-ambusher-2": {
+      "id": "goblin-ambusher-2",
+      "name": "地精伏击者",
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush"
+    },
+    "goblin-ambusher-3": {
+      "id": "goblin-ambusher-3",
+      "name": "地精伏击者",
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush"
+    },
+    "goblin-ambusher-4": {
+      "id": "goblin-ambusher-4",
+      "name": "地精伏击者",
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush"
+    },
+    "goblin-sentry-1": {
+      "id": "goblin-sentry-1",
+      "name": "地精哨兵",
+      "race": "地精",
+      "role": "哨兵",
+      "description": "守在克拉摩窝点入口的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-entrance"
+    },
+    "goblin-sentry-2": {
+      "id": "goblin-sentry-2",
+      "name": "地精哨兵",
+      "race": "地精",
+      "role": "哨兵",
+      "description": "守在克拉摩窝点入口的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-entrance"
+    },
+    "wolf-1": {
+      "id": "wolf-1",
+      "name": "狼",
+      "race": "野兽",
+      "role": "地精驯养的狼",
+      "description": "被链条拴住的饥饿野狼。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-wolf-cave"
+    },
+    "wolf-2": {
+      "id": "wolf-2",
+      "name": "狼",
+      "race": "野兽",
+      "role": "地精驯养的狼",
+      "description": "被链条拴住的饥饿野狼。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-wolf-cave"
+    },
+    "wolf-3": {
+      "id": "wolf-3",
+      "name": "狼",
+      "race": "野兽",
+      "role": "地精驯养的狼",
+      "description": "被链条拴住的饥饿野狼。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-wolf-cave"
+    },
+    "goblin-bridge-guard-1": {
+      "id": "goblin-bridge-guard-1",
+      "name": "地精桥卫",
+      "race": "地精",
+      "role": "守卫",
+      "description": "守在木桥附近的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-blind"
+    },
+    "goblin-bridge-guard-2": {
+      "id": "goblin-bridge-guard-2",
+      "name": "地精桥卫",
+      "race": "地精",
+      "role": "守卫",
+      "description": "守在木桥附近的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-blind"
+    },
+    "goblin-bridge-guard-3": {
+      "id": "goblin-bridge-guard-3",
+      "name": "地精哨兵",
+      "race": "地精",
+      "role": "哨兵",
+      "description": "在盲区守望的地精哨兵。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-blind"
+    },
+    "goblin-sentry-high": {
+      "id": "goblin-sentry-high",
+      "name": "高处哨兵",
+      "race": "地精",
+      "role": "哨兵",
+      "description": "站在瀑布洞穴高台上打瞌睡的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-waterfall"
+    },
+    "goblin-klarg-1": {
+      "id": "goblin-klarg-1",
+      "name": "地精随从",
+      "race": "地精",
+      "role": "克拉格的随从",
+      "description": "克拉格的地精随从。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-boss"
+    },
+    "goblin-klarg-2": {
+      "id": "goblin-klarg-2",
+      "name": "地精随从",
+      "race": "地精",
+      "role": "克拉格的随从",
+      "description": "克拉格的地精随从。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-boss"
+    },
+    "ripper": {
+      "id": "ripper",
+      "name": "利珀",
+      "race": "狼",
+      "role": "克拉格的宠物狼",
+      "description": "克拉格饲养的凶猛狼宠。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-boss"
+    }
+  }
+}

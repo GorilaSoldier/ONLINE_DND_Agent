@@ -1,0 +1,19 @@
+{
+  "id": "lost-mine-of-phandelver",
+  "name": "凡戴尔的失落矿坑",
+  "setting": "被遗忘的国度，剑湾北部",
+  "starting_location": "neverwinter",
+  "start_chapter": "ch1",
+  "starting_scene": "triboar-trail-ambush",
+  "recommended_level": "1-5",
+  "party_size": "4-5",
+  "global_npcs": [
+    "gundren-rockseeker",
+    "sildar-hallwinter",
+    "nezznar-black-spider",
+    "nundro-rockseeker",
+    "tharden-rockseeker"
+  ],
+  "synopsis": "数百年前，矮人和侏儒法师在凡戴尔附近建立了潮音洞穴，内含能制造魔法物品的法术熔炉。矿坑在兽人入侵中被毁，位置失传。如今，甘德伦·碎石者三兄弟重新发现了矿坑位置，但卓尔精灵'黑蜘蛛'奈兹纳尔也盯上了它。玩家受雇护送物资前往凡达林镇，却卷入了一场争夺矿坑秘密的冒险。",
+  "chapters": ["ch1", "ch2", "ch3"]
+}

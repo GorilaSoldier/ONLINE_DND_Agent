@@ -1,0 +1,75 @@
+{
+  "npcs": {
+    "gundren-rockseeker": {
+      "id": "gundren-rockseeker",
+      "name": "甘德伦·碎石者",
+      "race": "矮人",
+      "role": "探矿者",
+      "description": "一位热情而固执的矮人探矿者，石丘氏族成员。他重新发现了传说中的潮音洞穴位置，却因此成为黑蜘蛛追捕的目标。",
+      "personality": ["热情", "固执", "轻信"],
+      "goals": ["重新开发潮音洞穴", "重振家族荣耀"],
+      "fears": ["失去兄弟们", "潮音洞穴落入邪恶之手"],
+      "secrets": ["他知道潮音洞穴的精确位置", "法术熔炉仍然存在且可以运作"],
+      "attitude": "friendly",
+      "current_location": "cragmaw-castle",
+      "status": "captured"
+    },
+    "sildar-hallwinter": {
+      "id": "sildar-hallwinter",
+      "name": "修达·豪温特",
+      "race": "人类",
+      "role": "狮鹫骑士团骑士",
+      "description": "一位身经百战的人类骑士，狮鹫骑士团的核心成员。他陪同甘德伦先行前往凡达林，却在途中遭遇地精伏击被俘。",
+      "personality": ["正直", "忠诚", "忧虑"],
+      "goals": ["救出甘德伦", "阻止黑蜘蛛的阴谋", "保护凡达林镇"],
+      "fears": ["甘德伦已死", "黑蜘蛛得到法术熔炉"],
+      "secrets": ["他认识伊阿诺·阿尔布雷克，知道对方曾是狮鹫骑士团的代理人"],
+      "passive_perception": 12,
+      "passive_insight": 11,
+      "attitude": "friendly",
+      "current_location": "cragmaw-hideout-boss",
+      "status": "captured",
+      "reactions": {
+        "rescued": {
+          "greeting": "感谢你们，冒险者。甘德伦被带去了克拉摩堡，我们必须尽快行动。",
+          "offer": "我会支付你们护送我去凡达林的报酬，并尽我所能帮助你们。"
+        }
+      }
+    },
+    "nezznar-black-spider": {
+      "id": "nezznar-black-spider",
+      "name": "奈兹纳尔",
+      "alias": "黑蜘蛛",
+      "race": "卓尔精灵",
+      "role": "法师",
+      "description": "一个野心勃勃的卓尔精灵法师，绰号'黑蜘蛛'。他想要得到潮音洞穴中的法术熔炉，为此雇佣了克拉摩地精部落和红标帮。",
+      "personality": ["狡猾", "冷酷", "耐心"],
+      "goals": ["占领潮音洞穴", "控制法术熔炉", "制造魔法武器"],
+      "fears": ["有人先于他找到矿坑", "卓尔社会的追猎者"],
+      "secrets": ["他的真名是奈兹纳尔", "他其实是被放逐的卓尔贵族"],
+      "attitude": "hostile",
+      "current_location": "wave-echo-cave",
+      "status": "active"
+    },
+    "nundro-rockseeker": {
+      "id": "nundro-rockseeker",
+      "name": "纳恩德罗·碎石者",
+      "race": "矮人",
+      "role": "探矿者",
+      "description": "甘德伦的兄弟之一，性格较为谨慎。",
+      "attitude": "friendly",
+      "current_location": "unknown",
+      "status": "missing"
+    },
+    "tharden-rockseeker": {
+      "id": "tharden-rockseeker",
+      "name": "萨尔登·碎石者",
+      "race": "矮人",
+      "role": "探矿者",
+      "description": "甘德伦的兄弟之一，性格急躁。",
+      "attitude": "friendly",
+      "current_location": "unknown",
+      "status": "missing"
+    }
+  }
+}

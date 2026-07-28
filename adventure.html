@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNDBOX · 冒险</title>
+<style>
+  :root {
+    --ink:       #3d2b1f;
+    --ink-soft:  #6b4e3d;
+    --paper:     #faf6ee;
+    --paper-light: #fdfbf7;
+    --paper-card:  #fffdf7;
+    --paper-dark:  #e5dbca;
+    --accent:    #8b5a2b;
+    --accent-glow: #b8783e;
+    --border:    rgba(61, 43, 31, 0.12);
+    --shadow:    rgba(61, 43, 31, 0.12);
+    --slot:      rgba(61, 43, 31, 0.06);
+    --line-color: rgba(61, 43, 31, 0.35);
+    --danger:    #b53b3b;
+    --left-panel-w: 240px;
+    --right-panel-w: 240px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", "Songti SC", Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  body.page-in { opacity: 1; }
+
+  /* ── header ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+
+  .top-bar .brand {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-back-lobby {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .btn-back-lobby:hover {
+    color: var(--ink);
+    border-color: var(--ink-soft);
+  }
+
+  /* ── scene banner ── */
+  .scene-banner {
+    padding: 14px 24px;
+    background: rgba(61, 43, 31, 0.04);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    flex-shrink: 0;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scene-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: 720px;
+    transition: opacity 0.35s ease;
+  }
+
+  /* ── adventure body: 三栏 ── */
+  .adventure-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── left panel ── */
+  .left-panel {
+    width: var(--left-panel-w);
+    flex-shrink: 0;
+    padding: 20px 16px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    transition: none;
+  }
+
+  .panel-block {
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .panel-block-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .panel-block-placeholder {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  /* ── center area ── */
+  .center-area {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    padding: 20px 16px 0;
+  }
+
+  .nav-frame {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(61, 43, 31, 0.02);
+    margin-top: 80px;
+    padding: 36px 20px;
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── right panel ── */
+  .right-panel {
+    width: var(--right-panel-w);
+    flex-shrink: 0;
+    padding: 20px 16px;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    transition: none;
+  }
+
+  .char-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .char-card-avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.15);
+    color: var(--accent);
+    font-size: 26px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .char-card-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .char-card-meta {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .char-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .char-stat {
+    background: var(--slot);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .char-stat-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .char-stat-label {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .char-card-placeholder {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    opacity: 0.6;
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  /* ── nav grid 7×7 ── */
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 68px);
+    gap: 10px;
+    width: 100%;
+  }
+
+  .nav-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 64px;
+  }
+
+  /* ── nav buttons ── */
+  .nav-btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    background: var(--paper-card);
+    color: var(--ink);
+    transition: all 0.2s ease;
+    position: relative;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 1;
+  }
+
+  .nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px var(--shadow);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .nav-btn.empty {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .nav-btn.current {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-size: 14px;
+    padding: 12px 14px;
+    cursor: default;
+    box-shadow: 0 2px 12px rgba(139, 90, 43, 0.3);
+  }
+
+  .nav-btn.current:hover {
+    transform: none;
+    box-shadow: 0 2px 12px rgba(139, 90, 43, 0.3);
+  }
+
+  .location-type {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-top: 1px;
+  }
+
+  .nav-btn.current .location-type { opacity: 0.75; }
+
+  /* exit button */
+  .nav-btn.exit-btn {
+    border-style: dashed;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .nav-btn.exit-btn:hover {
+    background: rgba(139, 90, 43, 0.08);
+  }
+
+  /* ── lines between adjacent cells ── */
+  .nav-cell.has-line-down::after {
+    content: ""; position: absolute;
+    bottom: -10px; left: 50%;
+    width: 2px; height: 10px;
+    transform: translateX(-50%);
+    background: var(--line-color);
+    z-index: 0; pointer-events: none;
+  }
+
+  .nav-cell.has-line-right::after {
+    content: ""; position: absolute;
+    right: -10px; top: 50%;
+    width: 10px; height: 2px;
+    transform: translateY(-50%);
+    background: var(--line-color);
+    z-index: 0; pointer-events: none;
+  }
+
+  /* ── resize handles ── */
+  .resize-handle {
+    width: 6px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.15s;
+    position: relative;
+    z-index: 10;
+    user-select: none;
+  }
+
+  .resize-handle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background 0.15s;
+  }
+
+  .resize-handle:hover::after,
+  .resize-handle.active::after {
+    background: var(--accent);
+    opacity: 0.3;
+  }
+
+  /* ── NPC section (inside center area, below nav-frame) ── */
+  .npc-section {
+    width: 100%;
+    padding: 16px 24px 20px;
+    margin-top: 20px;
+  }
+
+  .npc-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .npc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .npc-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 88px;
+    transition: all 0.2s ease;
+  }
+
+  .npc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow);
+    border-color: var(--accent);
+  }
+
+  .npc-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.15);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .npc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .npc-role {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  .npc-empty {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+    text-align: center;
+    padding: 12px;
+  }
+
+  /* ── modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    background: var(--paper-card);
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(30, 18, 10, 0.35);
+    max-width: 480px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 32px 28px 24px;
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    width: 32px; height: 32px;
+    border: none; background: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .modal-close:hover {
+    color: var(--ink);
+    background: var(--slot);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .modal-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.15);
+    color: var(--accent);
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .modal-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .modal-meta {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .modal-desc {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-dialogue {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--slot);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .modal-action-btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--paper-card);
+    color: var(--ink);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .modal-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(139, 90, 43, 0.06);
+  }
+
+  .modal-action-btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .modal-action-btn.primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .rumor-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .rumor-item {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.6;
+    padding: 8px 12px;
+    background: var(--slot);
+    border-radius: 8px;
+    border-left: 2px solid var(--accent);
+  }
+
+  @media (max-width: 900px) {
+    .left-panel { width: 180px !important; padding: 16px 10px; }
+    .right-panel { width: 180px !important; padding: 16px 10px; }
+    .nav-btn { font-size: 11px; padding: 6px 8px; }
+    .nav-btn.current { font-size: 12px; padding: 10px 8px; }
+  }
+
+  @media (max-width: 680px) {
+    .adventure-body { flex-direction: column; overflow-y: auto; }
+    .left-panel { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); }
+    .right-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+    .center-area { order: -1; padding: 8px; }
+    .nav-frame { margin-top: 8px; padding: 16px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="btn-back-lobby" onclick="history.back()" type="button">
+    ← 返回大厅
+  </button>
+  <div class="brand">DNDBOX</div>
+  <div style="width:80px"></div>
+</div>
+
+<div class="scene-banner" id="scene-banner">
+  <p class="scene-text" id="scene-text"></p>
+</div>
+
+<div class="adventure-body">
+  <!-- 左侧面板 -->
+  <aside class="left-panel" id="left-panel">
+    <div class="panel-block">
+      <div class="panel-block-title">队伍成员</div>
+      <div class="panel-block-placeholder">暂无队伍</div>
+    </div>
+    <div class="panel-block">
+      <div class="panel-block-title">当前任务</div>
+      <div class="panel-block-placeholder">暂无任务</div>
+    </div>
+  </aside>
+
+  <div class="resize-handle" id="resize-handle-left"></div>
+
+  <!-- 中央框架区 -->
+  <main class="center-area">
+    <div class="nav-frame">
+      <div class="nav-grid" id="nav-grid">
+        <div class="nav-cell" style="grid-column:1/8;grid-row:1/8;font-style:italic;color:var(--ink-soft);font-size:14px;display:flex;align-items:center;justify-content:center;">加载地图中...</div>
+      </div>
+    </div>
+    <!-- NPC 列表 -->
+    <div class="npc-section" id="npc-section">
+      <div class="npc-section-header">当地人物</div>
+      <div class="npc-list" id="npc-list"></div>
+    </div>
+  </main>
+
+  <div class="resize-handle" id="resize-handle-right"></div>
+
+  <!-- 右侧面板 -->
+  <aside class="right-panel" id="right-panel">
+    <div class="char-card" id="char-card">
+      <div class="char-card-placeholder">加载角色信息中...</div>
+    </div>
+  </aside>
+</div>
+
+<!-- NPC 弹窗 -->
+<div class="modal-overlay" id="npc-modal-overlay">
+  <div class="modal" id="npc-modal">
+    <button class="modal-close" id="npc-modal-close" type="button">×</button>
+    <div id="npc-modal-content"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  /* ── 全局状态 ── */
+  let worldData = null;
+  let npcData = null;
+  let currentId = null;
+  let currentLocation = null;
+  let historyStack = [];
+  let allLocations = {}; // 展平的 ID → location（含 rooms）
+  const chainCache = {};
+  const MAX_DEPTH = 3;
+  const DIRS = ['up','down','left','right'];
+
+  /* ── DOM 引用 ── */
+  const sceneText = document.getElementById('scene-text');
+  const navGrid = document.getElementById('nav-grid');
+  const npcList = document.getElementById('npc-list');
+  const charCard = document.getElementById('char-card');
+  const modalOverlay = document.getElementById('npc-modal-overlay');
+  const modalContent = document.getElementById('npc-modal-content');
+  const modalClose = document.getElementById('npc-modal-close');
+
+  /* ── 加载数据 ── */
+  async function loadData() {
+    try {
+      const [worldRes, npcRes] = await Promise.all([
+        fetch('/data/adventure/world-forgotten-realms.json'),
+        fetch('/data/adventure/npcs-forgotten-realms.json')
+      ]);
+      worldData = await worldRes.json();
+      npcData = (await npcRes.json()).npcs;
+
+      // 展平所有地点（含 rooms）
+      for (const loc of Object.values(worldData.locations)) {
+        allLocations[loc.id] = loc;
+        if (loc.rooms) {
+          for (const [rid, room] of Object.entries(loc.rooms)) {
+            allLocations[rid] = room;
+          }
+        }
+      }
+
+      // 预计算所有方向链
+      for (const id of Object.keys(allLocations)) {
+        for (const dir of DIRS) {
+          chainCache[`${id}:${dir}`] = walkChain(id, dir, MAX_DEPTH);
+        }
+      }
+
+      currentId = worldData.start_location;
+      currentLocation = allLocations[currentId];
+      renderAll();
+    } catch (err) {
+      console.error('加载数据失败:', err);
+      sceneText.textContent = '数据加载失败，请刷新页面重试。';
+      navGrid.innerHTML = '<div class="nav-cell" style="grid-column:1/8;grid-row:1/8;color:#b53b3b;font-size:14px;display:flex;align-items:center;justify-content:center;padding:20px;">错误: ' + err.message + '</div>';
+    }
+  }
+
+  /* ── 查找地点 ── */
+  function findLocation(id) {
+    return allLocations[id] || null;
+  }
+
+  /* ── 沿单个方向链式漫游 ── */
+  function walkChain(id, dir, maxDepth) {
+    const chain = [];
+    let cur = id;
+    for (let i = 0; i < maxDepth; i++) {
+      const loc = findLocation(cur);
+      if (!loc || !loc.neighbors || !loc.neighbors[dir]) break;
+      const nextId = loc.neighbors[dir];
+      chain.push(nextId);
+      cur = nextId;
+    }
+    return chain; // [距离1, 距离2, 距离3]
+  }
+
+  /* ── 渲染全部 ── */
+  function renderAll() {
+    renderScene();
+    renderNav();
+    renderNpcs();
+  }
+
+  /* ── 场景描述 ── */
+  function renderScene() {
+    sceneText.style.opacity = '0';
+    setTimeout(() => {
+      sceneText.textContent = currentLocation.scene_text || '';
+      sceneText.style.opacity = '1';
+    }, 150);
+  }
+
+  /* ── 地点类型标签 ── */
+  function getTypeLabel(type) {
+    const labels = { world:'地区', town:'城镇', street:'街道', building:'建筑', room:'房间', wild:'野外' };
+    return labels[type] || '';
+  }
+
+  /* ── 7×7 导航渲染 ── */
+  function renderNav() {
+    const upChain = chainCache[`${currentId}:up`] || [];
+    const downChain = chainCache[`${currentId}:down`] || [];
+    const leftChain = chainCache[`${currentId}:left`] || [];
+    const rightChain = chainCache[`${currentId}:right`] || [];
+
+    // 房间内：查找离开出口，注入到 upChain 最前面
+    let exitTarget = null;
+    let exitLabel = '';
+    if (currentLocation.type === 'room' && currentLocation.parent) {
+      const parentLoc = findLocation(currentLocation.parent);
+      if (parentLoc && parentLoc.neighbors) {
+        for (const [dir, nid] of Object.entries(parentLoc.neighbors)) {
+          if (!nid) continue;
+          const nloc = findLocation(nid);
+          if (nloc && nloc.type !== 'room') {
+            exitTarget = nid;
+            exitLabel = '↩ 离开';
+            break;
+          }
+        }
+      }
+    }
+
+    // 构建 7×7 网格数据: rows[7][7]，每项为 locationId 或 null
+    const grid = Array.from({length:7}, () => Array(7).fill(null));
+
+    // 填充中心
+    grid[3][3] = currentId;
+
+    // 垂直列（列3）
+    const vertArr = [
+      upChain[2] || null,   // row 0
+      upChain[1] || null,   // row 1
+      upChain[0] || null,   // row 2
+      currentId,            // row 3
+      downChain[0] || null, // row 4
+      downChain[1] || null, // row 5
+      downChain[2] || null, // row 6
+    ];
+    for (let r = 0; r < 7; r++) {
+      grid[r][3] = vertArr[r];
+    }
+
+    // 水平行（行3）
+    const horizArr = [
+      leftChain[2] || null,  // col 0
+      leftChain[1] || null,  // col 1
+      leftChain[0] || null,  // col 2
+      currentId,             // col 3
+      rightChain[0] || null, // col 4
+      rightChain[1] || null, // col 5
+      rightChain[2] || null, // col 6
+    ];
+    for (let c = 0; c < 7; c++) {
+      grid[3][c] = horizArr[c];
+    }
+
+    // 渲染每一格
+    let html = '';
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const locId = grid[r][c];
+        if (!locId) {
+          html += '<div class="nav-cell"></div>';
+          continue;
+        }
+
+        const loc = findLocation(locId);
+        if (!loc) {
+          html += '<div class="nav-cell"></div>';
+          continue;
+        }
+
+        const isCurrent = locId === currentId;
+        const typeLabel = getTypeLabel(loc.type);
+
+        // 连线类: 下方有非空邻居 → has-line-down; 右方有非空邻居 → has-line-right
+        const hasDown = r < 6 && grid[r+1][c] !== null;
+        const hasRight = c < 6 && grid[r][c+1] !== null;
+        const lineClass = (hasDown ? ' has-line-down' : '') + (hasRight ? ' has-line-right' : '');
+
+        if (isCurrent) {
+          html += `<div class="nav-cell${lineClass}">`;
+          html += `<button class="nav-btn current" type="button">${loc.name}${typeLabel ? `<span class="location-type">${typeLabel}</span>` : ''}</button>`;
+          html += '</div>';
+        } else {
+          html += `<div class="nav-cell${lineClass}">`;
+          html += `<button class="nav-btn" data-nav-to="${locId}" type="button">${loc.name}${typeLabel ? `<span class="location-type">${typeLabel}</span>` : ''}</button>`;
+          html += '</div>';
+        }
+      }
+    }
+
+    navGrid.innerHTML = html;
+
+    // 房间内：在 upChain[0] (row 2, col 3) 为空时插入出口按钮
+    try {
+      if (exitTarget && exitLabel && !upChain[0]) {
+        const cells = navGrid.querySelectorAll('.nav-cell');
+        const exitIndex = 2 * 7 + 3; // row 2, col 3, 0-indexed = 17
+        const exitCellNode = cells[exitIndex];
+        if (exitCellNode) {
+          exitCellNode.className = 'nav-cell has-line-down';
+          exitCellNode.innerHTML = `<button class="nav-btn exit-btn" data-nav-to="${exitTarget}" type="button">${exitLabel}</button>`;
+        }
+      }
+    } catch (e) { /* exit button is optional, ignore errors */ }
+
+    // 绑定点击
+    navGrid.querySelectorAll('[data-nav-to]').forEach(btn => {
+      btn.addEventListener('click', () => navigateTo(btn.dataset.navTo));
+    });
+  }
+
+  /* ── 导航跳转 ── */
+  function navigateTo(targetId) {
+    const loc = findLocation(targetId);
+    if (!loc) return;
+
+    // 建筑 → 进入第一个房间
+    if (loc.type === 'building' && loc.rooms) {
+      const firstRoomId = Object.keys(loc.rooms)[0];
+      if (firstRoomId) {
+        historyStack.push(currentId);
+        currentId = firstRoomId;
+        currentLocation = allLocations[firstRoomId];
+        renderAll();
+        return;
+      }
+    }
+
+    historyStack.push(currentId);
+    currentId = targetId;
+    currentLocation = loc;
+    renderAll();
+  }
+
+  /* ── 返回上一级 ── */
+  function goBack() {
+    if (historyStack.length > 0) {
+      currentId = historyStack.pop();
+      currentLocation = findLocation(currentId);
+      renderAll();
+    }
+  }
+
+  /* ── 右侧角色卡 ── */
+  function renderRightPanel() {
+    try {
+      const raw = localStorage.getItem('currentCharacter');
+      if (!raw) {
+        charCard.innerHTML = '<div class="char-card"><div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div></div>';
+        return;
+      }
+      const char = JSON.parse(raw);
+      const name = char.name || char.characterName || '无名冒险者';
+      const avatar = name[0];
+      const race = char.race || '?';
+      const cls = char.class || char.className || '?';
+      const level = char.level || 1;
+      const hp = char.hp || char.maxHp || 0;
+      const maxHp = char.maxHp || hp || 0;
+      const ac = char.ac || 0;
+      const init = char.initiative || Math.floor((char.dex || 10 - 10) / 2);
+
+      charCard.innerHTML = `
+        <div class="char-card">
+          <div class="char-card-avatar">${avatar}</div>
+          <div class="char-card-name">${name}</div>
+          <div class="char-card-meta">${race} · ${cls} · Lv${level}</div>
+          <div class="char-card-stats">
+            <div class="char-stat">
+              <div class="char-stat-val">${hp}/${maxHp}</div>
+              <div class="char-stat-label">生命值</div>
+            </div>
+            <div class="char-stat">
+              <div class="char-stat-val">${ac}</div>
+              <div class="char-stat-label">护甲等级</div>
+            </div>
+            <div class="char-stat">
+              <div class="char-stat-val">${init >= 0 ? '+' + init : init}</div>
+              <div class="char-stat-label">先攻加值</div>
+            </div>
+            <div class="char-stat">
+              <div class="char-stat-val">-</div>
+              <div class="char-stat-label">速度</div>
+            </div>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      charCard.innerHTML = '<div class="char-card"><div class="char-card-placeholder">角色数据读取失败</div></div>';
+    }
+  }
+
+  /* ── NPC 列表 ── */
+  function renderNpcs() {
+    const npcIds = currentLocation.npcs || [];
+    if (npcIds.length === 0) {
+      npcList.innerHTML = '<div class="npc-empty">这里暂时没有可以交谈的人。</div>';
+      return;
+    }
+
+    npcList.innerHTML = npcIds.map(id => {
+      const npc = npcData[id];
+      if (!npc) return '';
+      return `
+        <div class="npc-card" data-npc-id="${id}">
+          <div class="npc-avatar">${npc.avatar || npc.name[0]}</div>
+          <div class="npc-name">${npc.name}</div>
+          <div class="npc-role">${npc.role}</div>
+        </div>
+      `;
+    }).join('');
+
+    npcList.querySelectorAll('.npc-card').forEach(card => {
+      card.addEventListener('click', () => openNpcModal(card.dataset.npcId));
+    });
+  }
+
+  /* ── NPC 弹窗 ── */
+  const actionLabels = { talk:'交谈', rumor:'打听消息', trade:'交易', quest:'接取任务' };
+
+  function openNpcModal(npcId) {
+    const npc = npcData[npcId];
+    if (!npc) return;
+
+    modalContent.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar">${npc.avatar || npc.name[0]}</div>
+        <div>
+          <div class="modal-name">${npc.name}</div>
+          <div class="modal-meta">${npc.race} · ${npc.role}</div>
+        </div>
+      </div>
+      <div class="modal-desc">${npc.description}</div>
+      <div class="modal-dialogue" id="npc-dialogue-text">${npc.dialogue?.greeting || ''}</div>
+      <div class="rumor-list" id="rumor-list" style="display:none"></div>
+      <div class="modal-actions">
+        ${(npc.actions || []).map(a => {
+          if (a === 'rumor') {
+            return `<button class="modal-action-btn primary" data-action="${a}" type="button">📋 ${actionLabels[a]}</button>`;
+          }
+          return `<button class="modal-action-btn" data-action="${a}" type="button">${actionLabels[a]}</button>`;
+        }).join('')}
+      </div>
+    `;
+
+    // 绑定动作按钮
+    modalContent.querySelectorAll('.modal-action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        if (action === 'rumor') {
+          showRumors(npc);
+        } else if (action === 'talk') {
+          const d = document.getElementById('npc-dialogue-text');
+          if (d) {
+            d.textContent = npc.dialogue?.greeting || '（对方默默地看着你，没有说话）';
+            const rl = document.getElementById('rumor-list');
+            if (rl) rl.style.display = 'none';
+          }
+        }
+      });
+    });
+
+    modalOverlay.classList.add('active');
+  }
+
+  function showRumors(npc) {
+    const dialogueEl = document.getElementById('npc-dialogue-text');
+    const rumorList = document.getElementById('rumor-list');
+    if (!rumorList) return;
+
+    const rumors = npc.dialogue?.rumors || [];
+    if (rumors.length === 0) {
+      if (dialogueEl) dialogueEl.textContent = '（对方摇了摇头，似乎没什么特别的消息。）';
+      rumorList.style.display = 'none';
+      return;
+    }
+
+    if (dialogueEl) dialogueEl.textContent = '“让我想想……你可能会对这些感兴趣：”';
+    rumorList.innerHTML = rumors.map(r => `<li class="rumor-item">“${r}”</li>`).join('');
+    rumorList.style.display = 'flex';
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove('active');
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', e => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  /* ── 键盘 ── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (modalOverlay.classList.contains('active')) {
+        closeModal();
+      } else {
+        goBack();
+      }
+    }
+  });
+
+  /* ── 面板拖拽调整宽度 ── */
+  (function initResize() {
+    try {
+      const leftPanel = document.getElementById('left-panel');
+      const rightPanel = document.getElementById('right-panel');
+      const handleLeft = document.getElementById('resize-handle-left');
+      const handleRight = document.getElementById('resize-handle-right');
+      const root = document.documentElement;
+      const MIN_W = 160, MAX_W = 500;
+
+      // 从 localStorage 恢复宽度（钳制到合理范围）
+      const viewW = window.innerWidth;
+      const maxPanelW = Math.floor((viewW - 320) / 2); // 保证中央至少 320px
+      const clampMax = Math.min(MAX_W, maxPanelW);
+
+      const savedLW = parseInt(localStorage.getItem('adventure-left-panel-w'));
+      const savedRW = parseInt(localStorage.getItem('adventure-right-panel-w'));
+      if (savedLW && savedLW >= MIN_W && savedLW <= clampMax) {
+        root.style.setProperty('--left-panel-w', savedLW + 'px');
+      }
+      if (savedRW && savedRW >= MIN_W && savedRW <= clampMax) {
+        root.style.setProperty('--right-panel-w', savedRW + 'px');
+      }
+
+      function makeResizable(handle, panel, cssVar, isRight) {
+        if (!handle || !panel) return;
+        let dragging = false;
+        let startX, startW;
+
+        handle.addEventListener('mousedown', e => {
+          dragging = true;
+          startX = e.clientX;
+          startW = panel.getBoundingClientRect().width;
+          handle.classList.add('active');
+          document.body.style.cursor = 'col-resize';
+          document.body.style.userSelect = 'none';
+          e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+          if (!dragging) return;
+          const delta = isRight ? (startX - e.clientX) : (e.clientX - startX);
+          const newW = Math.min(MAX_W, Math.max(MIN_W, startW + delta));
+          root.style.setProperty(cssVar, newW + 'px');
+        });
+        document.addEventListener('mouseup', () => {
+          if (!dragging) return;
+          dragging = false;
+          handle.classList.remove('active');
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+          const w = panel.getBoundingClientRect().width;
+          localStorage.setItem(isRight ? 'adventure-right-panel-w' : 'adventure-left-panel-w', Math.round(w));
+        });
+      }
+
+      makeResizable(handleLeft, leftPanel, '--left-panel-w', false);
+      makeResizable(handleRight, rightPanel, '--right-panel-w', true);
+    } catch (e) {}
+  })();
+
+  /* ── 启动 ── */
+  document.body.classList.add('page-in');
+  loadData().then(() => renderRightPanel());
+})();
+</script>
+</body>
+</html>

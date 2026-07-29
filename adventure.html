@@ -1172,7 +1172,8 @@
     npcStates: {},
     locationStates: {},
     playerInventory: [],
-    sessionStarted: false
+    sessionStarted: false,
+    sessionId: null
   };
 
   /* ── 辅助 ── */
@@ -1368,6 +1369,7 @@
 
     narrativeLog.innerHTML = state.log.map(entry => {
       let extra = '';
+      const dataId = entry.meta && entry.meta.id ? `data-log-id="${entry.meta.id}"` : '';
       if (entry.type === 'check' && entry.meta) {
         const m = entry.meta;
         const rollText = m.roll ? `d20(${m.roll})+${m.mod||0}` : '';
@@ -1377,7 +1379,7 @@
         extra = `<div style="margin-top:6px;font-size:13px;">掷骰: ${rollText}${dcText} — <span style="${resultClass}font-weight:700;">${result}</span></div>`;
       }
       return `
-        <div class="log-entry ${entry.type}">
+        <div class="log-entry ${entry.type}" ${dataId}>
           <div class="log-label">${labels[entry.type] || entry.type}</div>
           <div>${entry.text}</div>
           ${extra}
@@ -2122,11 +2124,17 @@
     renderContextPanel();
   }
 
-  /* ── 处理玩家输入（接入后端 API） ── */
+  /* ── 处理玩家输入（接入后端 API + AI GM） ── */
   async function handlePlayerInput(text) {
     if (!text || !text.trim()) return;
-    appendLog('player', text.trim());
+    const inputText = text.trim();
+    appendLog('player', inputText);
     playerInput.value = '';
+
+    // 显示加载状态
+    const loadingId = 'gm-loading-' + Date.now();
+    appendLog('system', 'GM 正在思考...', { id: loadingId });
+    sendBtn.disabled = true;
 
     try {
       const resp = await fetch('/api/game/action', {
@@ -2135,25 +2143,63 @@
         body: JSON.stringify({
           adventure_id: ADVENTURE_ID,
           chapter_id: CHAPTER_ID,
+          session_id: state.sessionId,
           scene_id: state.currentSceneId,
-          player_input: text.trim(),
+          player_input: inputText,
           character: state.character ? {
             name: state.character.name,
             level: state.character.level,
+            class: state.character.background?.class || state.character.class || '',
+            race: state.character.background?.race || state.character.race || '',
             wisdom: state.character.abilities?.wis?.value ?? 10,
             intelligence: state.character.abilities?.int?.value ?? 10,
             dexterity: state.character.abilities?.dex?.value ?? 10,
             strength: state.character.abilities?.str?.value ?? 10,
+            constitution: state.character.abilities?.con?.value ?? 10,
+            charisma: state.character.abilities?.cha?.value ?? 10,
           } : null,
         }),
       });
 
+      // 移除加载提示
+      removeLogEntry(loadingId);
+      sendBtn.disabled = false;
+
       if (!resp.ok) {
-        appendLog('system', '与 GM 通讯失败，请稍后重试。');
+        const err = await resp.json().catch(() => ({}));
+        appendLog('system', `与 GM 通讯失败：${err.detail || '请稍后重试'}`);
         return;
       }
 
       const result = await resp.json();
+
+      // 保存 session_id
+      if (result.session_id) {
+        state.sessionId = result.session_id;
+      }
+
+      // 更新客户端状态
+      if (result.updates) {
+        if (result.updates.scene_id) {
+          state.currentSceneId = result.updates.scene_id;
+        }
+        if (result.updates.location_id !== undefined) {
+          // 同步当前场景 location
+          const scene = getCurrentScene();
+          if (scene) {
+            scene.location = result.updates.location_id;
+          }
+        }
+        if (result.updates.player_inventory) {
+          state.playerInventory = result.updates.player_inventory;
+        }
+        if (result.updates.npc_states) {
+          state.npcStates = result.updates.npc_states;
+        }
+        if (result.updates.quest_states) {
+          state.quests = result.updates.quest_states;
+        }
+      }
 
       // GM 回复
       if (result.gm_text) {
@@ -2163,27 +2209,44 @@
       // 检定提示
       if (result.checks && result.checks.length > 0) {
         result.checks.forEach(c => {
-          appendLog('check', `检定项: ${c.skill}${c.dc ? ' (DC ' + c.dc + ')' : ''} - ${c.reason || ''}`);
+          const dcText = c.dc ? ` (DC ${c.dc})` : '';
+          const resultText = c.success !== undefined ? (c.success ? ' 成功' : ' 失败') : '';
+          appendLog('check', `${c.skill}${dcText}: d20(${c.roll})+${c.modifier} = ${c.total}${resultText}${c.reason ? ' - ' + c.reason : ''}`);
         });
       }
 
-      // 状态变更
+      // 状态变更处理
       if (result.state_changes && result.state_changes.length > 0) {
         for (const ch of result.state_changes) {
           if (ch.type === 'advance_scene') {
             navigateToScene(ch.scene_id);
-          } else if (ch.type === 'move') {
+          } else if (ch.type === 'move_player') {
             navigateToLocation(ch.location_id);
+          } else if (ch.type === 'move_item' && ch.to?.type === 'player') {
+            appendLog('system', `你获得了：${getItemName(ch.item_id)}`);
           }
         }
       }
 
       renderLocationHeader();
       renderContextPanel();
+      renderRightPanel();
     } catch (e) {
       console.error('GM API error:', e);
+      removeLogEntry(loadingId);
+      sendBtn.disabled = false;
       appendLog('system', '与 GM 的连接中断，请稍后重试。');
     }
+  }
+
+  function getItemName(itemId) {
+    if (!state.data || !state.data.items) return itemId;
+    return state.data.items[itemId]?.name || itemId;
+  }
+
+  function removeLogEntry(id) {
+    const entry = document.querySelector(`[data-log-id="${id}"]`);
+    if (entry) entry.remove();
   }
 
   sendBtn.addEventListener('click', () => {

@@ -727,8 +727,8 @@
   .ability-star { font-size: 11px; color: var(--accent); height: 12px; }
   .ability-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
   .ability-value {
-    width: 14%;
-    aspect-ratio: 40 / 46;
+    width: calc(var(--right-panel-w) * 0.14);
+    height: calc(var(--right-panel-w) * 0.161);
     display: flex; align-items: center; justify-content: center;
     font-size: clamp(14px, 6vw, 20px); font-weight: 700; color: var(--ink);
     background: rgba(61,43,31,0.06);

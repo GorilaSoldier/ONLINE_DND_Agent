@@ -20,7 +20,7 @@
     --line-color: rgba(61, 43, 31, 0.35);
     --danger:    #b53b3b;
     --left-panel-w: 240px;
-    --right-panel-w: 240px;
+    --right-panel-w: 260px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +39,7 @@
 
   body.page-in { opacity: 1; }
 
-  /* ── header ── */
+  /* ── top bar ── */
   .top-bar {
     display: flex;
     align-items: center;
@@ -80,29 +80,7 @@
     border-color: var(--ink-soft);
   }
 
-  /* ── scene banner ── */
-  .scene-banner {
-    padding: 14px 24px;
-    background: rgba(61, 43, 31, 0.04);
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-    flex-shrink: 0;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .scene-text {
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--ink-soft);
-    font-style: italic;
-    max-width: 720px;
-    transition: opacity 0.35s ease;
-  }
-
-  /* ── adventure body: 三栏 ── */
+  /* ── adventure body ── */
   .adventure-body {
     flex: 1;
     display: flex;
@@ -112,35 +90,132 @@
   /* ── left panel ── */
   .left-panel {
     width: var(--left-panel-w);
+    min-width: 0;
     flex-shrink: 0;
-    padding: 20px 16px;
+    padding: 16px 14px;
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
     overflow-y: auto;
     transition: none;
   }
 
-  .panel-block {
-    border: 1.5px dashed var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
+  .context-section {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--paper-light);
   }
 
-  .panel-block-title {
+  .context-section h3 {
     font-size: 13px;
     font-weight: 600;
     color: var(--ink-soft);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
-  .panel-block-placeholder {
+  .context-section h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+
+  .context-location {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--slot);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .context-location:hover {
+    background: rgba(139, 90, 43, 0.10);
+  }
+
+  .location-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .location-type-tag {
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .context-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .context-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 13px;
+  }
+
+  .context-item:hover {
+    background: rgba(139, 90, 43, 0.08);
+  }
+
+  .context-item-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.12);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .context-item-name {
+    flex: 1;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .context-item-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  .context-placeholder {
     font-size: 12px;
     color: var(--ink-soft);
     font-style: italic;
     opacity: 0.6;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .context-empty {
+    font-size: 12px;
+    color: var(--ink-soft);
+    opacity: 0.5;
+    text-align: center;
+    padding: 4px 0;
   }
 
   /* ── center area ── */
@@ -149,96 +224,406 @@
     min-width: 300px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-    padding: 20px 16px 0;
+    overflow: hidden;
   }
 
-  .nav-frame {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: rgba(61, 43, 31, 0.02);
-    margin-top: 80px;
-    padding: 36px 20px;
-    width: 100%;
-    min-height: 200px;
+  .location-header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper-light);
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .location-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .location-meta {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ── narrative log ── */
+  .narrative-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .narrative-log::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .narrative-log::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .narrative-log::-webkit-scrollbar-thumb {
+    background: rgba(61, 43, 31, 0.15);
+    border-radius: 3px;
+  }
+
+  .log-entry {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.75;
+    max-width: 720px;
+  }
+
+  .log-entry.gm {
+    background: rgba(61, 43, 31, 0.03);
+    border-left: 3px solid var(--accent);
+    align-self: flex-start;
+  }
+
+  .log-entry.player {
+    background: rgba(139, 90, 43, 0.06);
+    border-left: 3px solid var(--ink-soft);
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .log-entry.system {
+    background: rgba(139, 90, 43, 0.04);
+    border-left: 3px solid var(--danger);
+    align-self: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .log-entry.check {
+    background: rgba(139, 90, 43, 0.04);
+    border: 1px dashed var(--border);
+    align-self: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .log-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .gm .log-label { color: var(--accent); }
+  .player .log-label { color: var(--ink-soft); }
+  .system .log-label { color: var(--danger); }
+  .check .log-label { color: var(--ink-soft); }
+
+  /* ── input area ── */
+  .input-area {
+    padding: 12px 24px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--paper-light);
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-area input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .input-area input::placeholder {
+    color: var(--ink-soft);
+    opacity: 0.5;
+  }
+
+  .input-area input:focus {
+    border-color: var(--accent);
+  }
+
+  .input-area button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .input-area button:hover {
+    background: var(--accent-glow);
   }
 
   /* ── right panel ── */
   .right-panel {
     width: var(--right-panel-w);
+    min-width: 0;
     flex-shrink: 0;
-    padding: 20px 16px;
+    padding: 12px 10px;
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     overflow-y: auto;
     transition: none;
   }
 
   .char-card {
+    width: 100%;
+    box-sizing: border-box;
     background: var(--paper-card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 20px 16px;
+    padding: 18px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 
-  .char-card-avatar {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    background: rgba(139, 90, 43, 0.15);
-    color: var(--accent);
-    font-size: 26px;
-    font-weight: 700;
+  .char-top {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    width: 100%;
   }
 
-  .char-card-name {
-    font-size: 17px;
+  .char-name {
+    font-size: 18px;
     font-weight: 700;
     color: var(--ink);
   }
 
-  .char-card-meta {
+  .char-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
     font-size: 12px;
     color: var(--ink-soft);
   }
 
-  .char-card-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .meta-tag {
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(184, 115, 51, 0.1);
+    border: 1px solid rgba(184, 115, 51, 0.2);
+    font-size: 11px;
+  }
+
+  .char-portrait {
+    width: 42%;
+    aspect-ratio: 10 / 13;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(184, 115, 51, 0.3), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(20px, 8vw, 36px);
+    font-weight: 700;
+    color: var(--paper-light);
+    box-shadow: 0 4px 16px rgba(139, 90, 43, 0.22);
+    margin: 8px auto 0;
+  }
+
+  .combat-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .combat-stat {
+    text-align: center;
+  }
+
+  .combat-stat-icon {
+    width: 12%;
+    aspect-ratio: 1;
+    margin: 0 auto 4px;
+    border-radius: 8px;
+    background: rgba(184, 115, 51, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+  }
+
+  .combat-stat-icon svg {
+    width: 50%;
+    height: 50%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .combat-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .combat-stat-label {
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+
+  .char-level {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    width: 100%;
+  }
+
+  .level-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .level-badge .num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(184, 115, 51, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .xp-bar {
+    flex: 1;
+    height: 5px;
+    background: rgba(61, 43, 31, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 120px;
+  }
+
+  .xp-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  .attack-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .attack-weapon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .attack-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .attack-label {
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+
+  .attack-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .weapon-slot-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .char-card-section {
     width: 100%;
     margin-top: 4px;
   }
 
-  .char-stat {
-    background: var(--slot);
-    border-radius: 10px;
-    padding: 10px 8px;
-    text-align: center;
-  }
-
-  .char-stat-val {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  .char-stat-label {
-    font-size: 11px;
+  .char-card-section h4 {
+    font-size: 10px;
+    font-weight: 600;
     color: var(--ink-soft);
-    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .char-skill-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .char-skill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .char-skill-item:hover {
+    background: var(--slot);
+  }
+
+  .char-skill-name {
+    color: var(--ink);
+  }
+
+  .char-skill-bonus {
+    color: var(--accent);
+    font-weight: 600;
   }
 
   .char-card-placeholder {
@@ -250,107 +635,198 @@
     padding: 12px 0;
   }
 
-  /* ── nav grid 7×7 ── */
-  .nav-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(7, 68px);
-    gap: 10px;
-    width: 100%;
+  /* ═══ 标签页内容 — 与 lobby 完全一致 ═══ */
+
+  .char-tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+  .char-tab {
+    font-family: inherit; font-size: 10px; font-weight: 600; padding: 5px 7px;
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    background: var(--paper-card); color: var(--ink-soft); transition: all 0.15s; white-space: nowrap;
+  }
+  .char-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .char-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .char-tab-content { display: none; padding: 8px 0; animation: fadeIn 0.3s ease; }
+  .char-tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── 物品栏 ── */
+  .inventory-panel {
+    width: 100%; box-sizing: border-box;
+    background: var(--paper-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; box-shadow: 0 2px 10px var(--shadow);
+  }
+  .inventory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .inventory-title {
+    display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink);
+  }
+  .inventory-title svg { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .inventory-gold { font-size: 13px; font-weight: 700; color: var(--accent); display: flex; align-items: center; }
+
+  .items-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .item-card {
+    background: rgba(255,255,255,0.4); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px; min-height: 80px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: background 0.2s; position: relative;
+  }
+  .item-card:hover { background: rgba(255,255,255,0.6); }
+  .item-top { display: flex; align-items: flex-start; gap: 6px; }
+  .item-icon { width: 18px; height: 18px; flex-shrink: 0; color: var(--accent); opacity: 0.85; }
+  .item-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .item-name { font-size: 11px; font-weight: 600; color: var(--ink); line-height: 1.4; padding-right: 30px; }
+  .item-equipped {
+    position: absolute; top: 8px; right: 8px; font-size: 9px; color: var(--accent);
+    display: flex; align-items: center; gap: 2px;
+  }
+  .item-equipped::before { content: "◆"; font-size: 7px; }
+  .item-quantity { font-size: 10px; color: var(--ink-soft); padding-top: 4px; }
+
+  .inv-gold { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+  .inv-empty { font-size: 12px; color: var(--ink-soft); font-style: italic; text-align: center; padding: 10px; }
+
+  /* ── 工具提示 ── */
+  .item-tooltip {
+    position: fixed; z-index: 1000; background: var(--paper-light);
+    border: 2px solid var(--accent); border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 8px 28px rgba(61,43,31,0.22); min-width: 220px; max-width: 280px;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s; display: none;
+  }
+  .item-tooltip.show { display: block; opacity: 1; }
+  .item-tooltip-name { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .item-tooltip-save { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; }
+  .item-tooltip-desc { font-size: 11px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .item-tooltip-breakdown { font-size: 11px; color: var(--ink-soft); margin-bottom: 3px; padding-left: 6px; }
+
+  .inv-list { display: flex; flex-direction: column; gap: 6px; }
+  .inv-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; background: rgba(255,255,255,0.4); border: 1px solid var(--border);
+    border-radius: 10px; font-size: 12px;
+  }
+  .inv-item-name { color: var(--ink); font-weight: 500; }
+  .inv-item-equipped { font-size: 10px; color: var(--accent); margin-left: 4px; }
+  .inv-item-quantity { color: var(--ink-soft); }
+
+  /* ── divider（双渐变线） ── */
+  .divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 16px 0 10px; color: var(--ink); font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(107,78,61,0.35), transparent);
   }
 
-  .nav-cell {
+  /* ── 能力值六边形 ── */
+  .ability-scores {
+    display: flex; justify-content: center; gap: 8px; margin: 12px 0; flex-wrap: wrap;
+  }
+  .ability { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ability-star { font-size: 11px; color: var(--accent); height: 12px; }
+  .ability-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+  .ability-value {
+    width: 14%;
+    aspect-ratio: 40 / 46;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(14px, 6vw, 20px); font-weight: 700; color: var(--ink);
+    background: rgba(61,43,31,0.06);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  .ability-value.highlighted { background: var(--accent); color: var(--paper-light); }
+
+  /* ── 特性列表（可展开） ── */
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .feature-list li {
+    font-size: 12px; color: var(--ink); padding: 7px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.35); cursor: pointer; user-select: none;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.2s;
+  }
+  .feature-list li:hover { background: rgba(255,255,255,0.55); }
+  .feature-list li .feature-arrow { flex-shrink: 0; margin-left: 6px; transition: transform 0.2s; }
+  .feature-list li .feature-arrow svg { width: 10px; height: 7px; fill: none; stroke: var(--ink-soft); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .feature-list li.expanded .feature-arrow { transform: rotate(180deg); }
+  .feature-detail {
+    display: none; font-size: 11px; color: var(--ink-soft); padding: 6px 10px 4px;
+    line-height: 1.6; background: rgba(255,255,255,0.25); border-radius: 0 0 8px 8px; margin-top: -2px;
+  }
+  .feature-list li.expanded + .feature-detail { display: block; }
+  .class-info { font-size: 12px; color: var(--ink-soft); margin-bottom: 2px; line-height: 1.5; }
+
+  /* ── 熟练加值 ── */
+  .prof-bonus {
+    font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .prof-bonus .star { color: var(--accent); font-size: 14px; }
+  .skill-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 8px; font-size: 12px; transition: background 0.2s;
+  }
+  .skill-row:hover { background: rgba(255,255,255,0.4); }
+  .skill-name { color: var(--ink); }
+  .skill-value { font-weight: 700; color: var(--ink); min-width: 28px; text-align: right; }
+  .skill-value.positive { color: var(--accent); }
+  .skill-value.negative { color: #b54a3f; }
+  .skill-value.neutral { color: var(--ink-soft); }
+
+  /* ── 技能&法术 ── */
+  .skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .skill-block {
+    background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; font-size: 11px; font-weight: 600;
+    color: var(--ink); text-align: center; transition: background 0.2s, box-shadow 0.2s;
+  }
+  .skill-block:hover { background: rgba(255,255,255,0.7); box-shadow: 0 2px 6px var(--shadow); }
+
+  /* ── 人物背景 ── */
+  .bg-info-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 8px; font-size: 12px; transition: background 0.2s;
+  }
+  .bg-info-row:hover { background: rgba(255,255,255,0.4); }
+  .bg-info-label { color: var(--ink-soft); }
+  .bg-info-value { color: var(--ink); font-weight: 600; text-align: right; }
+
+  .bg-trait {
+    background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+  }
+  .bg-trait-title {
+    text-align: center; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 6px;
+  }
+  .bg-trait-text { font-size: 11px; color: var(--ink-soft); line-height: 1.6; text-align: center; }
+
+  .saving-throw-scores {
+    display: flex; justify-content: center; gap: 8px; margin: 6px 0 10px; flex-wrap: wrap;
+  }
+
+  /* ── quick checks ── */
+  .quick-checks {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    min-height: 64px;
+    gap: 8px;
   }
 
-  /* ── nav buttons ── */
-  .nav-btn {
+  .check-btn {
+    flex: 1;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    border: 1.5px solid var(--border);
+    padding: 10px 12px;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 8px 10px;
     cursor: pointer;
     background: var(--paper-card);
     color: var(--ink);
-    transition: all 0.2s ease;
-    position: relative;
-    text-align: center;
-    white-space: nowrap;
-    z-index: 1;
+    transition: all 0.15s;
   }
 
-  .nav-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px var(--shadow);
+  .check-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
-  }
-
-  .nav-btn.empty {
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  .nav-btn.current {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-    font-size: 14px;
-    padding: 12px 14px;
-    cursor: default;
-    box-shadow: 0 2px 12px rgba(139, 90, 43, 0.3);
-  }
-
-  .nav-btn.current:hover {
-    transform: none;
-    box-shadow: 0 2px 12px rgba(139, 90, 43, 0.3);
-  }
-
-  .location-type {
-    display: block;
-    font-size: 10px;
-    font-weight: 400;
-    opacity: 0.6;
-    margin-top: 1px;
-  }
-
-  .nav-btn.current .location-type { opacity: 0.75; }
-
-  /* exit button */
-  .nav-btn.exit-btn {
-    border-style: dashed;
-    border-color: var(--accent);
-    color: var(--accent);
-    font-size: 12px;
-  }
-
-  .nav-btn.exit-btn:hover {
-    background: rgba(139, 90, 43, 0.08);
-  }
-
-  /* ── lines between adjacent cells ── */
-  .nav-cell.has-line-down::after {
-    content: ""; position: absolute;
-    bottom: -10px; left: 50%;
-    width: 2px; height: 10px;
-    transform: translateX(-50%);
-    background: var(--line-color);
-    z-index: 0; pointer-events: none;
-  }
-
-  .nav-cell.has-line-right::after {
-    content: ""; position: absolute;
-    right: -10px; top: 50%;
-    width: 10px; height: 2px;
-    transform: translateY(-50%);
-    background: var(--line-color);
-    z-index: 0; pointer-events: none;
+    background: rgba(139, 90, 43, 0.06);
   }
 
   /* ── resize handles ── */
@@ -377,81 +853,6 @@
   .resize-handle.active::after {
     background: var(--accent);
     opacity: 0.3;
-  }
-
-  /* ── NPC section (inside center area, below nav-frame) ── */
-  .npc-section {
-    width: 100%;
-    padding: 16px 24px 20px;
-    margin-top: 20px;
-  }
-
-  .npc-section-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink-soft);
-  }
-
-  .npc-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .npc-card {
-    background: var(--paper-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    min-width: 88px;
-    transition: all 0.2s ease;
-  }
-
-  .npc-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px var(--shadow);
-    border-color: var(--accent);
-  }
-
-  .npc-avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: rgba(139, 90, 43, 0.15);
-    color: var(--accent);
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .npc-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-  }
-
-  .npc-role {
-    font-size: 11px;
-    color: var(--ink-soft);
-  }
-
-  .npc-empty {
-    font-size: 14px;
-    color: var(--ink-soft);
-    font-style: italic;
-    text-align: center;
-    padding: 12px;
   }
 
   /* ── modal ── */
@@ -551,87 +952,51 @@
     border-bottom: 1px solid var(--border);
   }
 
-  .modal-dialogue {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--ink-soft);
-    font-style: italic;
-    margin-bottom: 20px;
-    padding: 12px 16px;
-    background: var(--slot);
-    border-radius: 10px;
-    border-left: 3px solid var(--accent);
-  }
-
-  .modal-actions {
+  .modal-info-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 6px 0;
   }
 
-  .modal-action-btn {
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 20px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    background: var(--paper-card);
+  .modal-info-label {
+    color: var(--ink-soft);
+  }
+
+  .modal-info-value {
     color: var(--ink);
-    transition: all 0.15s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    font-weight: 500;
   }
 
-  .modal-action-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(139, 90, 43, 0.06);
-  }
-
-  .modal-action-btn.primary {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-
-  .modal-action-btn.primary:hover {
-    filter: brightness(1.1);
-  }
-
-  .rumor-list {
+  .modal-info-list {
     list-style: none;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
   }
 
-  .rumor-item {
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.6;
-    padding: 8px 12px;
+  .modal-info-tag {
+    font-size: 11px;
+    padding: 3px 8px;
     background: var(--slot);
-    border-radius: 8px;
-    border-left: 2px solid var(--accent);
+    border-radius: 6px;
+    color: var(--ink-soft);
   }
 
   @media (max-width: 900px) {
-    .left-panel { width: 180px !important; padding: 16px 10px; }
-    .right-panel { width: 180px !important; padding: 16px 10px; }
-    .nav-btn { font-size: 11px; padding: 6px 8px; }
-    .nav-btn.current { font-size: 12px; padding: 10px 8px; }
+    .left-panel { width: 180px !important; padding: 12px 8px; }
+    .right-panel { width: 180px !important; padding: 12px 8px; }
+    .narrative-log { padding: 12px 16px; }
+    .input-area { padding: 10px 16px 12px; }
+    .log-entry { max-width: 100%; }
   }
 
   @media (max-width: 680px) {
     .adventure-body { flex-direction: column; overflow-y: auto; }
-    .left-panel { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); }
+    .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
     .right-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
-    .center-area { order: -1; padding: 8px; }
-    .nav-frame { margin-top: 8px; padding: 16px 8px; }
+    .center-area { order: -1; }
   }
 </style>
 </head>
@@ -645,460 +1010,1119 @@
   <div style="width:80px"></div>
 </div>
 
-<div class="scene-banner" id="scene-banner">
-  <p class="scene-text" id="scene-text"></p>
-</div>
-
 <div class="adventure-body">
-  <!-- 左侧面板 -->
+  <!-- 左侧面板：当前场景上下文 -->
   <aside class="left-panel" id="left-panel">
-    <div class="panel-block">
-      <div class="panel-block-title">队伍成员</div>
-      <div class="panel-block-placeholder">暂无队伍</div>
-    </div>
-    <div class="panel-block">
-      <div class="panel-block-title">当前任务</div>
-      <div class="panel-block-placeholder">暂无任务</div>
-    </div>
+    <section class="context-section" id="context-location-section">
+      <h3>当前场景</h3>
+      <div class="context-location" id="context-location">
+        <span class="location-name">加载中...</span>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>人物</h4>
+      <div class="context-list" id="context-npcs">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>物品</h4>
+      <div class="context-list" id="context-items">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section" id="context-exits-section">
+      <h4>可去地点</h4>
+      <div class="context-list" id="context-exits">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>队伍成员</h4>
+      <div class="context-placeholder">暂无队伍</div>
+    </section>
+
+    <section class="context-section">
+      <h4>当前任务</h4>
+      <div class="context-list" id="context-quests">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
   </aside>
 
   <div class="resize-handle" id="resize-handle-left"></div>
 
-  <!-- 中央框架区 -->
+  <!-- 中央区域 -->
   <main class="center-area">
-    <div class="nav-frame">
-      <div class="nav-grid" id="nav-grid">
-        <div class="nav-cell" style="grid-column:1/8;grid-row:1/8;font-style:italic;color:var(--ink-soft);font-size:14px;display:flex;align-items:center;justify-content:center;">加载地图中...</div>
+    <div class="location-header" id="location-header">
+      <div class="location-title" id="location-title">加载中...</div>
+      <div class="location-meta" id="location-meta"></div>
+    </div>
+
+    <div class="narrative-log" id="narrative-log">
+      <div class="log-entry system" style="align-self:center;text-align:center;">
+        <div class="log-label">系统</div>
+        <div>正在加载冒险数据...</div>
       </div>
     </div>
-    <!-- NPC 列表 -->
-    <div class="npc-section" id="npc-section">
-      <div class="npc-section-header">当地人物</div>
-      <div class="npc-list" id="npc-list"></div>
+
+    <div class="input-area">
+      <input type="text" id="player-input" placeholder="我想说/想做..." autocomplete="off">
+      <button id="send-btn" type="button">发送</button>
     </div>
   </main>
 
   <div class="resize-handle" id="resize-handle-right"></div>
 
-  <!-- 右侧面板 -->
+  <!-- 右侧面板：角色卡 -->
   <aside class="right-panel" id="right-panel">
     <div class="char-card" id="char-card">
       <div class="char-card-placeholder">加载角色信息中...</div>
     </div>
+    <div class="char-tabs" id="char-tabs">
+      <button class="char-tab active" data-tab="inventory">物品栏</button>
+      <button class="char-tab" data-tab="class-attr">职业特性</button>
+      <button class="char-tab" data-tab="skills">熟练加值</button>
+      <button class="char-tab" data-tab="spells">技能法术</button>
+      <button class="char-tab" data-tab="background">人物背景</button>
+    </div>
+    <div class="char-tab-content active" id="tab-inventory"></div>
+    <div class="char-tab-content" id="tab-class-attr"></div>
+    <div class="char-tab-content" id="tab-skills"></div>
+    <div class="char-tab-content" id="tab-spells"></div>
+    <div class="char-tab-content" id="tab-background"></div>
+    <div class="quick-checks">
+      <button class="check-btn" data-check="perception" type="button">侦察</button>
+      <button class="check-btn" data-check="investigation" type="button">调查</button>
+    </div>
   </aside>
 </div>
 
-<!-- NPC 弹窗 -->
-<div class="modal-overlay" id="npc-modal-overlay">
-  <div class="modal" id="npc-modal">
-    <button class="modal-close" id="npc-modal-close" type="button">×</button>
-    <div id="npc-modal-content"></div>
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detail-modal-overlay">
+  <div class="modal" id="detail-modal">
+    <button class="modal-close" id="detail-modal-close" type="button">×</button>
+    <div id="detail-modal-content"></div>
   </div>
 </div>
 
 <script>
 (function() {
+  /* ── 常量 ── */
+  const ADVENTURE_ID = 'lost-mine-of-phandelver';
+  const CHAPTER_ID = 'ch1';
+
   /* ── 全局状态 ── */
-  let worldData = null;
-  let npcData = null;
-  let currentId = null;
-  let currentLocation = null;
-  let historyStack = [];
-  let allLocations = {}; // 展平的 ID → location（含 rooms）
-  const chainCache = {};
-  const MAX_DEPTH = 3;
-  const DIRS = ['up','down','left','right'];
+  let state = {
+    adventureId: ADVENTURE_ID,
+    chapterId: CHAPTER_ID,
+    currentSceneId: null,
+    data: null,
+    character: null,
+    log: [],
+    quests: {},
+    npcStates: {},
+    locationStates: {},
+    playerInventory: [],
+    sessionStarted: false
+  };
+
+  /* ── 辅助 ── */
+  function getCurrentScene() {
+    if (!state.data || !state.currentSceneId) return null;
+    return state.data.scenes[state.currentSceneId] || null;
+  }
+
+  function getCurrentLocation() {
+    const scene = getCurrentScene();
+    if (!scene) return null;
+    return state.data.locations[scene.location] || null;
+  }
 
   /* ── DOM 引用 ── */
-  const sceneText = document.getElementById('scene-text');
-  const navGrid = document.getElementById('nav-grid');
-  const npcList = document.getElementById('npc-list');
-  const charCard = document.getElementById('char-card');
-  const modalOverlay = document.getElementById('npc-modal-overlay');
-  const modalContent = document.getElementById('npc-modal-content');
-  const modalClose = document.getElementById('npc-modal-close');
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
 
-  /* ── 加载数据 ── */
-  async function loadData() {
-    try {
-      const [worldRes, npcRes] = await Promise.all([
-        fetch('/data/adventure/world-forgotten-realms.json'),
-        fetch('/data/adventure/npcs-forgotten-realms.json')
-      ]);
-      worldData = await worldRes.json();
-      npcData = (await npcRes.json()).npcs;
+  const narrativeLog = $('#narrative-log');
+  const playerInput = $('#player-input');
+  const sendBtn = $('#send-btn');
+  const charCard = $('#char-card');
+  const modalOverlay = $('#detail-modal-overlay');
+  const modalContent = $('#detail-modal-content');
+  const modalClose = $('#detail-modal-close');
 
-      // 展平所有地点（含 rooms）
-      for (const loc of Object.values(worldData.locations)) {
-        allLocations[loc.id] = loc;
-        if (loc.rooms) {
-          for (const [rid, room] of Object.entries(loc.rooms)) {
-            allLocations[rid] = room;
-          }
-        }
-      }
+  /* ── 数据加载 ── */
+  const DEFAULT_CHAR_ID = 'char_20260727185910_c22d22';
 
-      // 预计算所有方向链
-      for (const id of Object.keys(allLocations)) {
-        for (const dir of DIRS) {
-          chainCache[`${id}:${dir}`] = walkChain(id, dir, MAX_DEPTH);
-        }
-      }
-
-      currentId = worldData.start_location;
-      currentLocation = allLocations[currentId];
-      renderAll();
-    } catch (err) {
-      console.error('加载数据失败:', err);
-      sceneText.textContent = '数据加载失败，请刷新页面重试。';
-      navGrid.innerHTML = '<div class="nav-cell" style="grid-column:1/8;grid-row:1/8;color:#b53b3b;font-size:14px;display:flex;align-items:center;justify-content:center;padding:20px;">错误: ' + err.message + '</div>';
+  function getAbility(char, key) {
+    /* 兼容两种角色卡格式：后端嵌套 abilities.str.value / 前端扁平 str/dex */
+    if (char.abilities && char.abilities[key] && char.abilities[key].value != null) {
+      return char.abilities[key].value;
     }
+    const flatMap = { str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' };
+    const flatKey = flatMap[key] || key;
+    if (char[flatKey] != null) return char[flatKey];
+    if (char[key] != null) return char[key];
+    return 10;
   }
 
-  /* ── 查找地点 ── */
-  function findLocation(id) {
-    return allLocations[id] || null;
-  }
-
-  /* ── 沿单个方向链式漫游 ── */
-  function walkChain(id, dir, maxDepth) {
-    const chain = [];
-    let cur = id;
-    for (let i = 0; i < maxDepth; i++) {
-      const loc = findLocation(cur);
-      if (!loc || !loc.neighbors || !loc.neighbors[dir]) break;
-      const nextId = loc.neighbors[dir];
-      chain.push(nextId);
-      cur = nextId;
-    }
-    return chain; // [距离1, 距离2, 距离3]
-  }
-
-  /* ── 渲染全部 ── */
-  function renderAll() {
-    renderScene();
-    renderNav();
-    renderNpcs();
-  }
-
-  /* ── 场景描述 ── */
-  function renderScene() {
-    sceneText.style.opacity = '0';
-    setTimeout(() => {
-      sceneText.textContent = currentLocation.scene_text || '';
-      sceneText.style.opacity = '1';
-    }, 150);
-  }
-
-  /* ── 地点类型标签 ── */
-  function getTypeLabel(type) {
-    const labels = { world:'地区', town:'城镇', street:'街道', building:'建筑', room:'房间', wild:'野外' };
-    return labels[type] || '';
-  }
-
-  /* ── 7×7 导航渲染 ── */
-  function renderNav() {
-    const upChain = chainCache[`${currentId}:up`] || [];
-    const downChain = chainCache[`${currentId}:down`] || [];
-    const leftChain = chainCache[`${currentId}:left`] || [];
-    const rightChain = chainCache[`${currentId}:right`] || [];
-
-    // 房间内：查找离开出口，注入到 upChain 最前面
-    let exitTarget = null;
-    let exitLabel = '';
-    if (currentLocation.type === 'room' && currentLocation.parent) {
-      const parentLoc = findLocation(currentLocation.parent);
-      if (parentLoc && parentLoc.neighbors) {
-        for (const [dir, nid] of Object.entries(parentLoc.neighbors)) {
-          if (!nid) continue;
-          const nloc = findLocation(nid);
-          if (nloc && nloc.type !== 'room') {
-            exitTarget = nid;
-            exitLabel = '↩ 离开';
-            break;
-          }
-        }
-      }
-    }
-
-    // 构建 7×7 网格数据: rows[7][7]，每项为 locationId 或 null
-    const grid = Array.from({length:7}, () => Array(7).fill(null));
-
-    // 填充中心
-    grid[3][3] = currentId;
-
-    // 垂直列（列3）
-    const vertArr = [
-      upChain[2] || null,   // row 0
-      upChain[1] || null,   // row 1
-      upChain[0] || null,   // row 2
-      currentId,            // row 3
-      downChain[0] || null, // row 4
-      downChain[1] || null, // row 5
-      downChain[2] || null, // row 6
+  function getAbilitiesArray(char) {
+    return [
+      { name: '力量', key: 'str', abbr: 'STR', val: getAbility(char, 'str') },
+      { name: '敏捷', key: 'dex', abbr: 'DEX', val: getAbility(char, 'dex') },
+      { name: '体质', key: 'con', abbr: 'CON', val: getAbility(char, 'con') },
+      { name: '智力', key: 'int', abbr: 'INT', val: getAbility(char, 'int') },
+      { name: '感知', key: 'wis', abbr: 'WIS', val: getAbility(char, 'wis') },
+      { name: '魅力', key: 'cha', abbr: 'CHA', val: getAbility(char, 'cha') }
     ];
-    for (let r = 0; r < 7; r++) {
-      grid[r][3] = vertArr[r];
-    }
-
-    // 水平行（行3）
-    const horizArr = [
-      leftChain[2] || null,  // col 0
-      leftChain[1] || null,  // col 1
-      leftChain[0] || null,  // col 2
-      currentId,             // col 3
-      rightChain[0] || null, // col 4
-      rightChain[1] || null, // col 5
-      rightChain[2] || null, // col 6
-    ];
-    for (let c = 0; c < 7; c++) {
-      grid[3][c] = horizArr[c];
-    }
-
-    // 渲染每一格
-    let html = '';
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const locId = grid[r][c];
-        if (!locId) {
-          html += '<div class="nav-cell"></div>';
-          continue;
-        }
-
-        const loc = findLocation(locId);
-        if (!loc) {
-          html += '<div class="nav-cell"></div>';
-          continue;
-        }
-
-        const isCurrent = locId === currentId;
-        const typeLabel = getTypeLabel(loc.type);
-
-        // 连线类: 下方有非空邻居 → has-line-down; 右方有非空邻居 → has-line-right
-        const hasDown = r < 6 && grid[r+1][c] !== null;
-        const hasRight = c < 6 && grid[r][c+1] !== null;
-        const lineClass = (hasDown ? ' has-line-down' : '') + (hasRight ? ' has-line-right' : '');
-
-        if (isCurrent) {
-          html += `<div class="nav-cell${lineClass}">`;
-          html += `<button class="nav-btn current" type="button">${loc.name}${typeLabel ? `<span class="location-type">${typeLabel}</span>` : ''}</button>`;
-          html += '</div>';
-        } else {
-          html += `<div class="nav-cell${lineClass}">`;
-          html += `<button class="nav-btn" data-nav-to="${locId}" type="button">${loc.name}${typeLabel ? `<span class="location-type">${typeLabel}</span>` : ''}</button>`;
-          html += '</div>';
-        }
-      }
-    }
-
-    navGrid.innerHTML = html;
-
-    // 房间内：在 upChain[0] (row 2, col 3) 为空时插入出口按钮
-    try {
-      if (exitTarget && exitLabel && !upChain[0]) {
-        const cells = navGrid.querySelectorAll('.nav-cell');
-        const exitIndex = 2 * 7 + 3; // row 2, col 3, 0-indexed = 17
-        const exitCellNode = cells[exitIndex];
-        if (exitCellNode) {
-          exitCellNode.className = 'nav-cell has-line-down';
-          exitCellNode.innerHTML = `<button class="nav-btn exit-btn" data-nav-to="${exitTarget}" type="button">${exitLabel}</button>`;
-        }
-      }
-    } catch (e) { /* exit button is optional, ignore errors */ }
-
-    // 绑定点击
-    navGrid.querySelectorAll('[data-nav-to]').forEach(btn => {
-      btn.addEventListener('click', () => navigateTo(btn.dataset.navTo));
-    });
   }
 
-  /* ── 导航跳转 ── */
-  function navigateTo(targetId) {
-    const loc = findLocation(targetId);
-    if (!loc) return;
-
-    // 建筑 → 进入第一个房间
-    if (loc.type === 'building' && loc.rooms) {
-      const firstRoomId = Object.keys(loc.rooms)[0];
-      if (firstRoomId) {
-        historyStack.push(currentId);
-        currentId = firstRoomId;
-        currentLocation = allLocations[firstRoomId];
-        renderAll();
-        return;
-      }
-    }
-
-    historyStack.push(currentId);
-    currentId = targetId;
-    currentLocation = loc;
-    renderAll();
-  }
-
-  /* ── 返回上一级 ── */
-  function goBack() {
-    if (historyStack.length > 0) {
-      currentId = historyStack.pop();
-      currentLocation = findLocation(currentId);
-      renderAll();
-    }
-  }
-
-  /* ── 右侧角色卡 ── */
-  function renderRightPanel() {
+  async function loadCharacter() {
+    /* localStorage 优先，否则从 API 加载默认角色 */
     try {
       const raw = localStorage.getItem('currentCharacter');
-      if (!raw) {
-        charCard.innerHTML = '<div class="char-card"><div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div></div>';
+      if (raw) {
+        state.character = normalizeChar(JSON.parse(raw));
         return;
       }
-      const char = JSON.parse(raw);
-      const name = char.name || char.characterName || '无名冒险者';
-      const avatar = name[0];
-      const race = char.race || '?';
-      const cls = char.class || char.className || '?';
-      const level = char.level || 1;
-      const hp = char.hp || char.maxHp || 0;
-      const maxHp = char.maxHp || hp || 0;
-      const ac = char.ac || 0;
-      const init = char.initiative || Math.floor((char.dex || 10 - 10) / 2);
-
-      charCard.innerHTML = `
-        <div class="char-card">
-          <div class="char-card-avatar">${avatar}</div>
-          <div class="char-card-name">${name}</div>
-          <div class="char-card-meta">${race} · ${cls} · Lv${level}</div>
-          <div class="char-card-stats">
-            <div class="char-stat">
-              <div class="char-stat-val">${hp}/${maxHp}</div>
-              <div class="char-stat-label">生命值</div>
-            </div>
-            <div class="char-stat">
-              <div class="char-stat-val">${ac}</div>
-              <div class="char-stat-label">护甲等级</div>
-            </div>
-            <div class="char-stat">
-              <div class="char-stat-val">${init >= 0 ? '+' + init : init}</div>
-              <div class="char-stat-label">先攻加值</div>
-            </div>
-            <div class="char-stat">
-              <div class="char-stat-val">-</div>
-              <div class="char-stat-label">速度</div>
-            </div>
-          </div>
-        </div>
-      `;
+      const resp = await fetch(`/api/characters/${DEFAULT_CHAR_ID}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        state.character = normalizeChar(data);
+        return;
+      }
     } catch (e) {
-      charCard.innerHTML = '<div class="char-card"><div class="char-card-placeholder">角色数据读取失败</div></div>';
+      console.warn('角色加载失败:', e);
     }
+    state.character = null;
   }
 
-  /* ── NPC 列表 ── */
-  function renderNpcs() {
-    const npcIds = currentLocation.npcs || [];
-    if (npcIds.length === 0) {
-      npcList.innerHTML = '<div class="npc-empty">这里暂时没有可以交谈的人。</div>';
+  function normalizeAbilities(abilities) {
+    if (!abilities) return {};
+    const result = {};
+    const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const labels = { str: '力', dex: '敏', con: '体', int: '智', wis: '感', cha: '魅' };
+    for (const key of keys) {
+      const raw = abilities[key];
+      if (typeof raw === 'object' && raw !== null) {
+        result[key] = {
+          label: raw.label || labels[key] || key,
+          value: raw.value != null ? raw.value : 10,
+          save_bonus: raw.save_bonus || '+0',
+          highlighted: !!raw.highlighted,
+        };
+      } else {
+        const score = typeof raw === 'number' ? raw : 10;
+        const mod = Math.floor((score - 10) / 2);
+        result[key] = {
+          label: labels[key] || key,
+          value: score,
+          save_bonus: mod >= 0 ? '+' + mod : String(mod),
+          highlighted: false,
+        };
+      }
+    }
+    return result;
+  }
+
+  function normalizeChar(char) {
+    if (!char) return char;
+    return {
+      ...char,
+      combat: char.combat || { ac: 10, hp: '0 / 0' },
+      xp: char.xp || { current: 0, max: 300, display: '0 / 300' },
+      attack: char.attack || {
+        melee: { label: '近战', bonus: '+0', damage: '1d4' },
+        ranged: { label: '远程', bonus: '+0', damage: '1d4' },
+      },
+      inventory: char.inventory || { gold: 0, items: [] },
+      features: char.features || { status_ids: [], resistance_ids: [], class_feature_ids: [], trait_ids: [] },
+      skills: char.skills || { proficiency_bonus: '+2', sections: [] },
+      spells: char.spells || { caster_level: 1, action_ids: { normal: ["jump", "throw", "dash"], class: [] }, passive_ids: [], spell_ids: {} },
+      background: char.background || {
+        class: '', race: '', attributes: {},
+        traits: { personality: '', ideal: '', bond: '', flaw: '' },
+        story: [],
+      },
+      abilities: normalizeAbilities(char.abilities),
+    };
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  const DATA_URLS = {
+    meta: `/data/adventures/${ADVENTURE_ID}/meta.json`,
+    globalNpcs: `/data/adventures/${ADVENTURE_ID}/global/npcs.json`,
+    chapter: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/chapter.json`,
+    locations: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/locations.json`,
+    chapterNpcs: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/npcs.json`,
+    items: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/items.json`,
+    quests: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/quests.json`,
+    encounters: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/encounters.json`
+  };
+
+  async function loadAllData() {
+    const results = {};
+    const keys = Object.keys(DATA_URLS);
+
+    const responses = await Promise.all(
+      keys.map(k => fetch(DATA_URLS[k]).then(r => r.json()))
+    );
+
+    keys.forEach((k, i) => { results[k] = responses[i]; });
+
+    // 合并数据
+    const allNpcs = {
+      ...results.globalNpcs.npcs,
+      ...results.chapterNpcs.npcs
+    };
+
+    const allItems = results.items.items;
+    const chapter = results.chapter;
+
+    // 构建场景索引
+    const scenes = {};
+    (chapter.scenes || []).forEach(s => { scenes[s.id] = s; });
+
+    state.data = {
+      meta: results.meta,
+      chapter,
+      scenes,
+      locations: results.locations.locations,
+      npcs: allNpcs,
+      items: allItems,
+      quests: results.quests.quests,
+      encounters: results.encounters.encounters
+    };
+
+    state.currentSceneId = chapter.starting_scene || (chapter.scenes && chapter.scenes[0] ? chapter.scenes[0].id : null);
+    state.quests = { ...results.quests.quests };
+    state.sessionStarted = true;
+  }
+
+  /* ── 日志操作 ── */
+  function appendLog(type, text, meta) {
+    state.log.push({ type, text, timestamp: Date.now(), meta: meta || {} });
+    renderNarrativeLog();
+  }
+
+  /* ── 渲染叙事日志 ── */
+  function renderNarrativeLog() {
+    if (state.log.length === 0) {
+      narrativeLog.innerHTML = '';
       return;
     }
 
-    npcList.innerHTML = npcIds.map(id => {
-      const npc = npcData[id];
-      if (!npc) return '';
+    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定' };
+
+    narrativeLog.innerHTML = state.log.map(entry => {
+      let extra = '';
+      if (entry.type === 'check' && entry.meta) {
+        const m = entry.meta;
+        const rollText = m.roll ? `d20(${m.roll})+${m.mod||0}` : '';
+        const dcText = m.dc ? ` DC ${m.dc}` : '';
+        const result = m.success ? '成功' : '失败';
+        const resultClass = m.success ? 'color:var(--accent);' : 'color:var(--danger);';
+        extra = `<div style="margin-top:6px;font-size:13px;">掷骰: ${rollText}${dcText} — <span style="${resultClass}font-weight:700;">${result}</span></div>`;
+      }
       return `
-        <div class="npc-card" data-npc-id="${id}">
-          <div class="npc-avatar">${npc.avatar || npc.name[0]}</div>
-          <div class="npc-name">${npc.name}</div>
-          <div class="npc-role">${npc.role}</div>
+        <div class="log-entry ${entry.type}">
+          <div class="log-label">${labels[entry.type] || entry.type}</div>
+          <div>${entry.text}</div>
+          ${extra}
         </div>
       `;
     }).join('');
 
-    npcList.querySelectorAll('.npc-card').forEach(card => {
-      card.addEventListener('click', () => openNpcModal(card.dataset.npcId));
+    narrativeLog.scrollTop = narrativeLog.scrollHeight;
+  }
+
+  /* ── 渲染地点标题 ── */
+  function renderLocationHeader() {
+    const scene = getCurrentScene();
+    const loc = getCurrentLocation();
+    if (!scene) return;
+
+    const titleEl = $('#location-title');
+    const metaEl = $('#location-meta');
+
+    // 如果有父地点则显示 "父地点 · 子地点"
+    if (loc && loc.parent_location) {
+      titleEl.textContent = `${loc.parent_location} · ${loc.name}`;
+    } else {
+      titleEl.textContent = loc ? loc.name : scene.name;
+    }
+    const chapter = state.data.chapter;
+    metaEl.textContent = chapter ? `${chapter.title} · ${scene.name}` : scene.name;
+  }
+
+  /* ── 渲染左侧上下文面板 ── */
+  function renderContextPanel() {
+    const scene = getCurrentScene();
+    const loc = getCurrentLocation();
+    if (!scene || !loc) return;
+
+    // 当前地点
+    const locEl = $('#context-location');
+    if (locEl) {
+      locEl.querySelector('.location-name').textContent = loc.name;
+      locEl.onclick = () => openDetailModal('location', loc.id);
+    }
+
+    // 人物：优先使用场景定义的 npcs
+    const npcsEl = $('#context-npcs');
+    const npcIds = scene.npcs && scene.npcs.length > 0 ? scene.npcs : (loc.npcs || []);
+    if (npcIds.length === 0) {
+      npcsEl.innerHTML = '<div class="context-empty">此处没有其他人</div>';
+    } else {
+      npcsEl.innerHTML = npcIds.map(id => {
+        const npc = state.data.npcs[id];
+        if (!npc) return '';
+        return `
+          <div class="context-item" data-type="npc" data-id="${id}">
+            <div class="context-item-icon">${npc.name[0]}</div>
+            <div class="context-item-name">${npc.name}</div>
+            <div class="context-item-meta">${npc.role || ''}</div>
+          </div>
+        `;
+      }).join('');
+      npcsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => openDetailModal('npc', el.dataset.id));
+      });
+    }
+
+    // 物品：优先使用场景定义的 items
+    const itemsEl = $('#context-items');
+    const sceneItemIds = (scene.items && scene.items.length > 0) ? scene.items : null;
+    let locItems = loc.items || [];
+    let visibleItems;
+    if (sceneItemIds) {
+      // 场景定义了物品列表，从 items 数据中查找详细信息（包括 location items 中匹配的）
+      visibleItems = sceneItemIds.map(id => ({ id, visible: true }));
+    } else {
+      visibleItems = locItems.filter(i => i.visible !== false);
+    }
+    if (visibleItems.length === 0) {
+      itemsEl.innerHTML = '<div class="context-empty">此处没有可见物品</div>';
+    } else {
+      itemsEl.innerHTML = visibleItems.map(entry => {
+        const item = state.data.items[entry.id];
+        if (!item) return '';
+        return `
+          <div class="context-item" data-type="item" data-id="${entry.id}">
+            <div class="context-item-icon">I</div>
+            <div class="context-item-name">${item.name}</div>
+          </div>
+        `;
+      }).join('');
+      itemsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => openDetailModal('item', el.dataset.id));
+      });
+    }
+
+    // 可去地点：仅显示当前地点的物理出口
+    const exitsSection = $('#context-exits-section');
+    const exitsEl = $('#context-exits');
+    const exits = buildSceneExits(scene);
+    if (exits.length === 0) {
+      exitsSection.style.display = 'none';
+    } else {
+      exitsSection.style.display = '';
+      exitsEl.innerHTML = exits.map((exit, i) => `
+        <div class="context-item" data-type="exit" data-index="${i}">
+          <div class="context-item-icon" style="font-size:11px;">→</div>
+          <div class="context-item-name">${exit.name}</div>
+        </div>
+      `).join('');
+      exitsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index);
+          const exit = exits[idx];
+          if (!exit || !exit.targetLocationId) return;
+
+          // 检查目标地点是否属于另一个场景
+          const targetScene = Object.values(state.data.scenes).find(
+            s => s.location === exit.targetLocationId
+          );
+          if (targetScene && targetScene.id !== state.currentSceneId) {
+            // 跨场景跳转（如洞穴房间之间）
+            navigateToScene(targetScene.id);
+          } else {
+            // 同场景内探索（如绝冬城内各地点）
+            navigateToLocation(exit.targetLocationId);
+          }
+        });
+      });
+    }
+
+    // 任务
+    const questsEl = $('#context-quests');
+    const quests = state.data.quests;
+    const questIds = Object.keys(quests).filter(id => quests[id].status !== 'hidden');
+    if (questIds.length === 0) {
+      questsEl.innerHTML = '<div class="context-empty">暂无任务</div>';
+    } else {
+      questsEl.innerHTML = questIds.map(id => {
+        const q = quests[id];
+        const statusLabel = q.status === 'completed' ? '(已完成)' : '';
+        return `
+          <div class="context-item">
+            <div class="context-item-icon" style="font-size:10px;">Q</div>
+            <div class="context-item-name">${q.name}</div>
+            <div class="context-item-meta">${statusLabel}</div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  /* ── 渲染右侧角色卡 ── */
+  function renderRightPanel() {
+    try {
+      const char = state.character;
+      if (!char || !char.name) {
+        charCard.innerHTML = '<div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div>';
+        return;
+      }
+      const xpPercent = char.xp && char.xp.max ? Math.round((char.xp.current / char.xp.max) * 100) : 0;
+      const raceName = [char.subrace, char.race].filter(Boolean).join(' ') || '?';
+      const className = char.class || '?';
+
+      charCard.innerHTML = `
+        <div class="char-top">
+          <div class="char-name">${escapeHtml(char.name)}</div>
+          <div class="char-meta">
+            <span class="meta-tag">${escapeHtml(raceName)}</span>
+            <span class="meta-tag">${escapeHtml(className)}</span>
+          </div>
+          <div class="char-portrait">${escapeHtml(char.portrait || char.name[0])}</div>
+          <div class="combat-stats">
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(String(char.combat.ac))}</div>
+              <div class="combat-stat-label">护甲等级</div>
+            </div>
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(String(char.combat.hp))}</div>
+              <div class="combat-stat-label">生命值</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="char-level">
+          <div class="level-badge">
+            <span>LV</span>
+            <span class="num">${char.level || 1}</span>
+          </div>
+          <div class="xp-bar"><div class="xp-fill" style="width:${xpPercent}%;"></div></div>
+          <span>${escapeHtml(char.xp ? char.xp.display : '0 / 0')}</span>
+        </div>
+
+        <div class="attack-stats">
+          <div class="attack-weapon-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
+            <div class="attack-value">${escapeHtml(String(char.attack.melee.bonus))}</div>
+            <div class="attack-label">攻击加值</div>
+          </div>
+          <div class="attack-labels">
+            <div class="attack-value">${escapeHtml(String(char.attack.melee.damage))}</div>
+            <div class="attack-label">伤害</div>
+          </div>
+          <div class="attack-weapon-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
+            <div class="attack-value">${escapeHtml(String(char.attack.ranged.bonus))}</div>
+            <div class="attack-label">攻击加值</div>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      charCard.innerHTML = '<div class="char-card-placeholder">角色数据读取失败</div>';
+    }
+  }
+
+  /* ── 目录数据加载 ── */
+  let catalogs = {};
+
+  async function loadCatalogs() {
+    try {
+      const [eq, features, spells, classes] = await Promise.all([
+        fetch('/api/equipment').then(r => r.json()),
+        fetch('/api/features').then(r => r.json()),
+        fetch('/api/spells').then(r => r.json()),
+        fetch('/api/classes').then(r => r.json()),
+      ]);
+      catalogs = { equipment: eq, features, spells, classes };
+    } catch (e) {
+      console.warn('目录加载失败:', e);
+    }
+  }
+
+  /* ── 标签页切换 ── */
+  function initTabs() {
+    document.querySelectorAll('.char-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.char-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.char-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById('tab-' + tab.dataset.tab);
+        if (target) target.classList.add('active');
+      });
     });
   }
 
-  /* ── NPC 弹窗 ── */
-  const actionLabels = { talk:'交谈', rumor:'打听消息', trade:'交易', quest:'接取任务' };
+  /* ── 渲染所有标签页 ── */
+  function renderAllTabs() {
+    const char = state.character;
+    if (!char) return;
+    document.getElementById('tab-inventory').innerHTML = renderInventoryTab(char);
+    document.getElementById('tab-class-attr').innerHTML = renderClassAttrTab(char);
+    document.getElementById('tab-skills').innerHTML = renderSkillsTab(char);
+    document.getElementById('tab-spells').innerHTML = renderSpellsTab(char);
+    document.getElementById('tab-background').innerHTML = renderBackgroundTab(char);
+    bindFeatureToggle();
+  }
 
-  function openNpcModal(npcId) {
-    const npc = npcData[npcId];
-    if (!npc) return;
+  /* ── 悬浮提示（物品 + 技能法术，0.5s 延迟） ── */
+  (function initTooltip() {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'item-tooltip';
+    document.body.appendChild(tooltip);
+
+    let hoverTimer = null;
+
+    function showTooltip(e, card) {
+      const name = card.dataset.name || card.querySelector('.item-name')?.textContent || '';
+      const description = card.dataset.description || '';
+      const equipped = card.querySelector('.item-equipped');
+      const eqText = equipped ? '（已装备）' : '';
+      tooltip.innerHTML = `
+        <div class="item-tooltip-name">${name} ${eqText}</div>
+        <div class="item-tooltip-desc">${description || '详细属性待补充'}</div>
+      `;
+      positionTooltip(e, tooltip);
+      tooltip.classList.add('show');
+    }
+
+    function positionTooltip(e, el) {
+      const rect = el.getBoundingClientRect();
+      let x = e.clientX + 14;
+      let y = e.clientY - 10;
+      if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+      if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('show');
+    }
+
+    /* 物品悬浮提示 */
+    document.addEventListener('mouseenter', function(e) {
+      const card = e.target.closest('.item-card');
+      if (!card) return;
+      hoverTimer = setTimeout(() => showTooltip(e, card), 500);
+    }, true);
+
+    document.addEventListener('mousemove', function(e) {
+      const card = e.target.closest('.item-card');
+      if (!card) return;
+      if (tooltip.classList.contains('show')) showTooltip(e, card);
+    });
+
+    document.addEventListener('mouseleave', function(e) {
+      const card = e.target.closest('.item-card');
+      if (!card) return;
+      clearTimeout(hoverTimer);
+      hideTooltip();
+    }, true);
+
+    /* 技能/法术悬浮提示 */
+    document.addEventListener('mouseenter', function(e) {
+      const block = e.target.closest('.skill-block');
+      if (!block) return;
+      hoverTimer = setTimeout(() => {
+        const spellId = block.dataset.spellId;
+        const lookup = window.spellLookup || {};
+        const spell = spellId ? lookup[spellId] : null;
+        const name = block.textContent.trim();
+        if (spell) {
+          let html = `<div class="item-tooltip-name">${spell.name}</div>`;
+          if (spell.school || spell.casting_time)
+            html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
+          if (spell.description)
+            html += `<div class="item-tooltip-desc">${spell.description}</div>`;
+          if (spell.range)
+            html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
+          tooltip.innerHTML = html;
+        } else {
+          tooltip.innerHTML = `<div class="item-tooltip-name">${name}</div><div class="item-tooltip-desc">详细描述待补充</div>`;
+        }
+        const r = block.getBoundingClientRect();
+        tooltip.style.left = Math.max(8, r.left) + 'px';
+        tooltip.style.top = (r.bottom + 8) + 'px';
+        const tr = tooltip.getBoundingClientRect();
+        if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
+        if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
+        tooltip.classList.add('show');
+      }, 500);
+    }, true);
+
+    document.addEventListener('mouseleave', function(e) {
+      const block = e.target.closest('.skill-block');
+      if (!block) return;
+      clearTimeout(hoverTimer);
+      hideTooltip();
+    }, true);
+
+    document.addEventListener('scroll', hideTooltip);
+  })();
+
+  /* ── 特性展开/折叠 ── */
+  function bindFeatureToggle() {
+    document.querySelectorAll('.feature-list li').forEach(li => {
+      li.onclick = function() {
+        this.classList.toggle('expanded');
+      };
+    });
+  }
+
+  /* ═══ 物品栏（抄自 lobby renderInventory） ═══ */
+  function renderInventoryTab(char) {
+    const catalog = catalogs.equipment || {};
+    const items = char.inventory?.items || [];
+    const gold = char.inventory?.gold || 0;
+    let itemsHtml;
+    if (items.length === 0) {
+      itemsHtml = '<div class="inv-empty">背包空空如也</div>';
+    } else {
+      itemsHtml = items.map(item => {
+        const catalogItem = item.equipment_id ? catalog[item.equipment_id] : null;
+        const displayName = catalogItem ? catalogItem.name : (item.name || '未知物品');
+        const description = catalogItem ? catalogItem.description : '';
+        return `
+          <div class="item-card" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(displayName)}" data-description="${escapeHtml(description)}">
+            <div class="item-top">
+              <div class="item-info">
+                <div class="item-name">${escapeHtml(displayName)}</div>
+              </div>
+            </div>
+            ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
+            <div class="item-quantity">x${item.quantity || 1}</div>
+          </div>`;
+      }).join('');
+    }
+    return `
+      <div class="inventory-panel">
+        <div class="inventory-header">
+          <div class="inventory-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            背包物资
+          </div>
+          <div class="inventory-gold">${gold} G</div>
+        </div>
+        <div class="items-grid">${itemsHtml}</div>
+      </div>
+    `;
+  }
+
+  /* ═══ 职业特性（抄自 lobby renderClassAttr） ═══ */
+  function renderClassAttrTab(char) {
+    const features = catalogs.features || {};
+    const classes = catalogs.classes || {};
+    const classData = char.class_id ? classes[char.class_id] : null;
+    const subclassData = classData && char.subclass_id ? (classData.subclasses || {})[char.subclass_id] : null;
+
+    const statusItems = (char.features?.status_ids || []).map(id => features.status ? features.status[id] : null).filter(Boolean);
+    const resistanceItems = (char.features?.resistance_ids || []).map(id => features.resistances ? features.resistances[id] : null).filter(Boolean);
+    const classFeatureItems = (char.features?.class_feature_ids || []).map(id => features.class_features ? features.class_features[id] : null).filter(Boolean);
+    const traitItems = (char.features?.trait_ids || []).map(id =>
+      (features.traits && features.traits[id]) || (features.racial && features.racial[id]) || null
+    ).filter(Boolean);
+
+    const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const abilityHtml = abilityOrder.map(key => {
+      const a = char.abilities[key];
+      return `<div class="ability">
+        <div class="ability-star">${a.highlighted ? '&#9733;' : ''}</div>
+        <div class="ability-label">${escapeHtml(a.label)}</div>
+        <div class="ability-value ${a.highlighted ? 'highlighted' : ''}">${a.value}</div>
+      </div>`;
+    }).join('');
+
+    const featSection = (title, items) => items.length
+      ? `<div class="divider"><span>${title}</span></div><ul class="feature-list">${items.map(f => `<li>${escapeHtml(f.name)} <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li><div class="feature-detail">${escapeHtml(f.description || '')}</div>`).join('')}</ul>`
+      : '';
+
+    const raceName = char.background?.race || '';
+    const className = classData ? classData.icon + ' ' + classData.name : (char.class || '');
+    return `
+      <div class="class-info">${escapeHtml(raceName)}</div>
+      <div class="class-info">${escapeHtml(subclassData ? subclassData.name : '')}</div>
+      <div class="class-info">等级${char.level || 1} ${escapeHtml(className)}</div>
+      <div class="ability-scores">${abilityHtml}</div>
+      ${featSection('状态', statusItems)}
+      ${featSection('抗性', resistanceItems)}
+      ${featSection('职业特性', classFeatureItems)}
+      ${featSection('重要特性', traitItems)}
+    `;
+  }
+
+  /* ═══ 熟练加值（抄自 lobby renderSkills） ═══ */
+  function renderSkillsTab(char) {
+    const sections = char.skills?.sections || [];
+    const pb = char.skills?.proficiency_bonus || '+2';
+    return `
+      <div class="prof-bonus"><span class="star">★</span>熟练项加值 (${escapeHtml(pb)})</div>
+      ${sections.map(section => `
+        <div class="divider"><span>${escapeHtml(section.ability)} (${escapeHtml(section.modifier)})</span></div>
+        ${section.skills.map(skill => `
+          <div class="skill-row">
+            <span class="skill-name">${escapeHtml(skill.name)}</span>
+            <span class="skill-value ${skill.type}">${escapeHtml(skill.value)}</span>
+          </div>
+        `).join('')}
+      `).join('')}
+    `;
+  }
+
+  /* ═══ 技能&法术（抄自 lobby renderSpells） ═══ */
+  function renderSpellsTab(char) {
+    const spells = catalogs.spells || {};
+
+    // 构建快速查找表
+    window.spellLookup = {};
+    const addLookup = (catalog) => { if (catalog) Object.entries(catalog).forEach(([id, s]) => { window.spellLookup[id] = s; }); };
+    addLookup(spells.actions?.normal);
+    addLookup(spells.actions?.class);
+    addLookup(spells.passive);
+    addLookup(spells.spells?.level_1);
+    addLookup(spells.cantrips);
+
+    const lookupNames = (ids, catalog) =>
+      (ids || []).map(id => (catalog && catalog[id]) ? catalog[id].name : id);
+
+    const normalItems = lookupNames((char.spells?.action_ids || {}).normal || [], spells.actions?.normal);
+    const classItems  = lookupNames((char.spells?.action_ids || {}).class || [], spells.actions?.class);
+    const passiveItems = lookupNames(char.spells?.passive_ids || [], spells.passive);
+    const spellL1Items = lookupNames((char.spells?.spell_ids || {}).level_1 || [], spells.spells?.level_1);
+    const cantripItems = lookupNames(char.cantrip_ids || [], spells.cantrips);
+
+    const renderBlock = (name, spellId) =>
+      `<div class="skill-block" data-spell-id="${escapeHtml(spellId || '')}">${escapeHtml(name)}</div>`;
+
+    const renderGroup = (list, catalog) => {
+      return list.map(item => {
+        const entries = catalog ? Object.entries(catalog) : [];
+        const found = entries.find(([, v]) => v.name === item);
+        return renderBlock(item, found ? found[0] : '');
+      }).join('');
+    };
+
+    const section = (title, items, catalog) => items.length
+      ? `<div class="divider"><span>${title}</span></div><div class="skill-grid">${renderGroup(items, catalog)}</div>`
+      : '';
+
+    return `
+      ${section('常规动作', normalItems, spells.actions?.normal)}
+      ${section('职业动作', classItems, spells.actions?.class)}
+      ${section('被动技能', passiveItems, spells.passive)}
+      ${section('戏法', cantripItems, spells.cantrips)}
+      ${section('1环法术', spellL1Items, spells.spells?.level_1)}
+    `;
+  }
+
+  /* ═══ 人物背景（抄自 lobby renderBackground） ═══ */
+  function renderBackgroundTab(char) {
+    const bg = char.background;
+    const labelMap = { move_speed:'移动速度', darkvision:'黑暗视觉范围', ranged_range:'远程攻击范围', melee_range:'近战攻击范围', throw_range:'投掷范围', size:'体型', weight:'重量', carry_weight:'负重' };
+    const attrsHtml = Object.entries(bg.attributes || {}).map(([k, v]) =>
+      `<div class="bg-info-row"><span class="bg-info-label">${labelMap[k] || k}</span><span class="bg-info-value">${escapeHtml(String(v))}</span></div>`
+    ).join('');
+
+    const saveAbilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const saveHtml = saveAbilities.map(key => {
+      const a = char.abilities[key];
+      return `<div class="ability"><div class="ability-label">${escapeHtml(a.label)}</div><div class="ability-value highlighted">${escapeHtml(a.save_bonus)}</div></div>`;
+    }).join('');
+
+    const traitMap = { personality:'个人特点', ideal:'理想', bond:'牵绊', flaw:'缺点' };
+    const traitsHtml = Object.entries(bg.traits || {}).map(([k, text]) =>
+      `<div class="bg-trait"><div class="bg-trait-title">${traitMap[k] || k}</div><div class="bg-trait-text">${escapeHtml(text || '—')}</div></div>`
+    ).join('');
+
+    return `
+      <div class="divider"><span>属性</span></div>
+      ${attrsHtml}
+      <div class="divider"><span>豁免</span></div>
+      <div class="ability-scores">${saveHtml}</div>
+      <div class="divider"><span>背景</span></div>
+      ${traitsHtml}
+    `;
+  }
+
+  /* ── 详情弹窗 ── */
+  function openDetailModal(type, id, extra) {
+    let title = '';
+    let meta = '';
+    let desc = '';
+    let avatar = '?';
+
+    switch (type) {
+      case 'npc': {
+        const npc = state.data.npcs[id];
+        if (!npc) return;
+        title = npc.name;
+        meta = `${npc.race || ''} · ${npc.role || ''}`;
+        desc = npc.description || '';
+        avatar = npc.name[0];
+        break;
+      }
+      case 'item': {
+        const item = state.data.items[id];
+        if (!item) return;
+        title = item.name;
+        meta = item.type || '';
+        desc = item.description || '';
+        avatar = 'I';
+        if (item.stealable) {
+          desc += '\n\n可偷取: 是 · 难度 DC ' + (item.difficulty || '?');
+        }
+        if (item.owner) {
+          const owner = state.data.npcs[item.owner];
+          desc += '\n拥有者: ' + (owner ? owner.name : item.owner);
+        }
+        break;
+      }
+      case 'exit': {
+        const targetLoc = state.data.locations[id];
+        title = extra.name || '出口';
+        meta = extra.description || '';
+        desc = targetLoc ? `通往: ${targetLoc.name}` : '';
+        avatar = '→';
+        break;
+      }
+      case 'location': {
+        const loc = state.data.locations[id];
+        if (!loc) return;
+        title = loc.name;
+        meta = loc.type || '';
+        desc = loc.description || '';
+        avatar = loc.name[0];
+        break;
+      }
+    }
 
     modalContent.innerHTML = `
       <div class="modal-header">
-        <div class="modal-avatar">${npc.avatar || npc.name[0]}</div>
+        <div class="modal-avatar">${avatar}</div>
         <div>
-          <div class="modal-name">${npc.name}</div>
-          <div class="modal-meta">${npc.race} · ${npc.role}</div>
+          <div class="modal-name">${title}</div>
+          <div class="modal-meta">${meta}</div>
         </div>
       </div>
-      <div class="modal-desc">${npc.description}</div>
-      <div class="modal-dialogue" id="npc-dialogue-text">${npc.dialogue?.greeting || ''}</div>
-      <div class="rumor-list" id="rumor-list" style="display:none"></div>
-      <div class="modal-actions">
-        ${(npc.actions || []).map(a => {
-          if (a === 'rumor') {
-            return `<button class="modal-action-btn primary" data-action="${a}" type="button">📋 ${actionLabels[a]}</button>`;
-          }
-          return `<button class="modal-action-btn" data-action="${a}" type="button">${actionLabels[a]}</button>`;
-        }).join('')}
-      </div>
+      <div class="modal-desc">${desc.replace(/\n/g, '<br>')}</div>
     `;
-
-    // 绑定动作按钮
-    modalContent.querySelectorAll('.modal-action-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        if (action === 'rumor') {
-          showRumors(npc);
-        } else if (action === 'talk') {
-          const d = document.getElementById('npc-dialogue-text');
-          if (d) {
-            d.textContent = npc.dialogue?.greeting || '（对方默默地看着你，没有说话）';
-            const rl = document.getElementById('rumor-list');
-            if (rl) rl.style.display = 'none';
-          }
-        }
-      });
-    });
 
     modalOverlay.classList.add('active');
   }
 
-  function showRumors(npc) {
-    const dialogueEl = document.getElementById('npc-dialogue-text');
-    const rumorList = document.getElementById('rumor-list');
-    if (!rumorList) return;
-
-    const rumors = npc.dialogue?.rumors || [];
-    if (rumors.length === 0) {
-      if (dialogueEl) dialogueEl.textContent = '（对方摇了摇头，似乎没什么特别的消息。）';
-      rumorList.style.display = 'none';
-      return;
-    }
-
-    if (dialogueEl) dialogueEl.textContent = '“让我想想……你可能会对这些感兴趣：”';
-    rumorList.innerHTML = rumors.map(r => `<li class="rumor-item">“${r}”</li>`).join('');
-    rumorList.style.display = 'flex';
-  }
-
-  function closeModal() {
+  function closeDetailModal() {
     modalOverlay.classList.remove('active');
   }
 
-  modalClose.addEventListener('click', closeModal);
+  modalClose.addEventListener('click', closeDetailModal);
   modalOverlay.addEventListener('click', e => {
-    if (e.target === modalOverlay) closeModal();
+    if (e.target === modalOverlay) closeDetailModal();
   });
 
-  /* ── 键盘 ── */
+  /* ── 掷骰 ── */
+  function rollDice(sides, mod) {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    return { roll, mod: mod || 0, total: roll + (mod || 0) };
+  }
+
+  /* ── 快捷检定按钮 ── */
+  async function handleQuickCheck(type) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法进行检定。');
+      return;
+    }
+    await handlePlayerInput(type === 'perception' ? '侦察周围环境' : '调查这个区域');
+  }
+
+  $$('.check-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleQuickCheck(btn.dataset.check));
+  });
+
+  /* ── 构建场景出口列表 ── */
+  function buildSceneExits(scene) {
+    if (!scene) return [];
+    const exits = [];
+    const loc = getCurrentLocation();
+
+    // 只展示物理地点出口（不展示场景跳转）
+    if (loc && loc.exits) {
+      loc.exits.forEach(exit => {
+        const targetLoc = state.data.locations[exit.target];
+        exits.push({
+          name: exit.name,
+          targetLocationId: exit.target,
+          targetSceneId: null,
+          description: exit.description || (targetLoc ? targetLoc.description : '')
+        });
+      });
+    }
+
+    return exits;
+  }
+
+  /* ── 地点跳转（同场景内自由探索） ── */
+  function navigateToLocation(locationId) {
+    const targetLoc = state.data.locations[locationId];
+    if (!targetLoc) return;
+
+    // 检查目标地点是否在当前场景的 free_locations 内（如果定义了的话）
+    const scene = getCurrentScene();
+    if (scene && scene.free_locations && scene.free_locations.length > 0 && !scene.free_locations.includes(locationId)) {
+      appendLog('system', '无法到达那个地方。');
+      return;
+    }
+
+    // 更新场景的 location 引用（不切换场景）
+    scene.location = locationId;
+    appendLog('system', `你来到了: ${targetLoc.name}`);
+    appendLog('gm', targetLoc.scene_text || targetLoc.description || '');
+
+    renderLocationHeader();
+    renderContextPanel();
+  }
+
+  /* ── 场景跳转 ── */
+  function navigateToScene(sceneId) {
+    const targetScene = state.data.scenes[sceneId];
+    if (!targetScene) return;
+
+    const targetLoc = state.data.locations[targetScene.location];
+    if (!targetLoc) {
+      appendLog('system', `无法到达: ${targetScene.name}`);
+      return;
+    }
+
+    state.currentSceneId = sceneId;
+    appendLog('gm', targetLoc.scene_text || targetLoc.description || targetScene.description || '');
+
+    renderLocationHeader();
+    renderContextPanel();
+  }
+
+  /* ── 处理玩家输入（接入后端 API） ── */
+  async function handlePlayerInput(text) {
+    if (!text || !text.trim()) return;
+    appendLog('player', text.trim());
+    playerInput.value = '';
+
+    try {
+      const resp = await fetch('/api/game/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          scene_id: state.currentSceneId,
+          player_input: text.trim(),
+          character: state.character ? {
+            name: state.character.name,
+            level: state.character.level,
+            wisdom: state.character.abilities?.wis?.value ?? 10,
+            intelligence: state.character.abilities?.int?.value ?? 10,
+            dexterity: state.character.abilities?.dex?.value ?? 10,
+            strength: state.character.abilities?.str?.value ?? 10,
+          } : null,
+        }),
+      });
+
+      if (!resp.ok) {
+        appendLog('system', '与 GM 通讯失败，请稍后重试。');
+        return;
+      }
+
+      const result = await resp.json();
+
+      // GM 回复
+      if (result.gm_text) {
+        appendLog('gm', result.gm_text);
+      }
+
+      // 检定提示
+      if (result.checks && result.checks.length > 0) {
+        result.checks.forEach(c => {
+          appendLog('check', `检定项: ${c.skill}${c.dc ? ' (DC ' + c.dc + ')' : ''} - ${c.reason || ''}`);
+        });
+      }
+
+      // 状态变更
+      if (result.state_changes && result.state_changes.length > 0) {
+        for (const ch of result.state_changes) {
+          if (ch.type === 'advance_scene') {
+            navigateToScene(ch.scene_id);
+          } else if (ch.type === 'move') {
+            navigateToLocation(ch.location_id);
+          }
+        }
+      }
+
+      renderLocationHeader();
+      renderContextPanel();
+    } catch (e) {
+      console.error('GM API error:', e);
+      appendLog('system', '与 GM 的连接中断，请稍后重试。');
+    }
+  }
+
+  sendBtn.addEventListener('click', () => {
+    const text = playerInput.value;
+    if (text.trim()) {
+      handlePlayerInput(text);
+      playerInput.value = '';
+    }
+  });
+
+  playerInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const text = playerInput.value;
+      if (text.trim()) {
+        handlePlayerInput(text);
+        playerInput.value = '';
+      }
+    }
+  });
+
+  /* ── 键盘快捷操作 ── */
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (modalOverlay.classList.contains('active')) {
-        closeModal();
-      } else {
-        goBack();
+        closeDetailModal();
       }
     }
   });
@@ -1106,24 +2130,19 @@
   /* ── 面板拖拽调整宽度 ── */
   (function initResize() {
     try {
-      const leftPanel = document.getElementById('left-panel');
-      const rightPanel = document.getElementById('right-panel');
-      const handleLeft = document.getElementById('resize-handle-left');
-      const handleRight = document.getElementById('resize-handle-right');
+      const leftPanel = $('#left-panel');
+      const rightPanel = $('#right-panel');
+      const handleLeft = $('#resize-handle-left');
+      const handleRight = $('#resize-handle-right');
       const root = document.documentElement;
-      const MIN_W = 160, MAX_W = 500;
-
-      // 从 localStorage 恢复宽度（钳制到合理范围）
-      const viewW = window.innerWidth;
-      const maxPanelW = Math.floor((viewW - 320) / 2); // 保证中央至少 320px
-      const clampMax = Math.min(MAX_W, maxPanelW);
+      const MIN_W = 120;
 
       const savedLW = parseInt(localStorage.getItem('adventure-left-panel-w'));
       const savedRW = parseInt(localStorage.getItem('adventure-right-panel-w'));
-      if (savedLW && savedLW >= MIN_W && savedLW <= clampMax) {
+      if (savedLW && savedLW >= MIN_W) {
         root.style.setProperty('--left-panel-w', savedLW + 'px');
       }
-      if (savedRW && savedRW >= MIN_W && savedRW <= clampMax) {
+      if (savedRW && savedRW >= MIN_W) {
         root.style.setProperty('--right-panel-w', savedRW + 'px');
       }
 
@@ -1144,7 +2163,7 @@
         document.addEventListener('mousemove', e => {
           if (!dragging) return;
           const delta = isRight ? (startX - e.clientX) : (e.clientX - startX);
-          const newW = Math.min(MAX_W, Math.max(MIN_W, startW + delta));
+          const newW = Math.max(MIN_W, startW + delta);
           root.style.setProperty(cssVar, newW + 'px');
         });
         document.addEventListener('mouseup', () => {
@@ -1163,9 +2182,41 @@
     } catch (e) {}
   })();
 
+  /* ── 初始化游戏 ── */
+  async function initGame() {
+    try {
+      await loadCharacter();
+      await loadAllData();
+      await loadCatalogs();
+      initTabs();
+
+      const scene = getCurrentScene();
+      const loc = getCurrentLocation();
+      if (!scene || !loc) {
+        narrativeLog.innerHTML = '<div class="log-entry system" style="text-align:center;"><div class="log-label">错误</div><div>未找到初始场景</div></div>';
+        return;
+      }
+
+      // 清空日志
+      state.log = [];
+
+      // 初始 GM 描述
+      appendLog('gm', loc.scene_text || loc.description || scene.description || '');
+
+      // 渲染 UI
+      renderLocationHeader();
+      renderContextPanel();
+      renderRightPanel();
+      renderAllTabs();
+    } catch (err) {
+      console.error('初始化失败:', err);
+      narrativeLog.innerHTML = `<div class="log-entry system" style="text-align:center;"><div class="log-label">错误</div><div>数据加载失败: ${err.message}</div></div>`;
+    }
+  }
+
   /* ── 启动 ── */
   document.body.classList.add('page-in');
-  loadData().then(() => renderRightPanel());
+  initGame();
 })();
 </script>
 </body>

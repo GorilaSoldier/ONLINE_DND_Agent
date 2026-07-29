@@ -1,8 +1,27 @@
 {
   "encounters": {
+    "accept-deliver-quest": {
+      "id": "accept-deliver-quest",
+      "name": "接受护送委托",
+      "type": "narrative",
+      "scene": "ch1-scene1",
+      "location": "neverwinter-guild",
+      "trigger": "player_meets-gundren",
+      "description": "甘德伦·碎石者委托你们护送一车采矿物资前往凡达林镇的巴森工坊。他和修达会骑马先行探路。报酬每人十个金币。",
+      "key_npc": "gundren-rockseeker",
+      "clues": [
+        "甘德伦最近重新发现了潮音洞穴的位置",
+        "剑山山麓最近有地精出没的报告"
+      ],
+      "rewards": {
+        "promised": { "gp": 10, "each": true }
+      }
+    },
     "goblin-ambush": {
       "id": "goblin-ambush",
       "name": "地精伏击",
+      "type": "combat",
+      "scene": "ch1-scene2",
       "location": "triboar-trail-ambush",
       "trigger": "player_approaches-horses",
       "description": "当玩家靠近死马调查时，埋伏在灌木丛中的四只地精发起伏击。",
@@ -17,6 +36,8 @@
     "cragmaw-hideout-entrance-sentries": {
       "id": "cragmaw-hideout-entrance-sentries",
       "name": "窝点入口哨兵",
+      "type": "combat",
+      "scene": "ch1-scene3",
       "location": "cragmaw-hideout-entrance",
       "trigger": "player_approaches-entrance",
       "description": "两只地精哨兵守在荆棘丛后的洞口。如果他们发现玩家并发出警告，洞内其他地精会进入警戒状态。",
@@ -26,6 +47,8 @@
     "wolves-of-cragmaw": {
       "id": "wolves-of-cragmaw",
       "name": "养狼洞的狼",
+      "type": "combat",
+      "scene": "ch1-scene4",
       "location": "cragmaw-hideout-wolf-cave",
       "trigger": "player_enters-wolf-cave",
       "description": "三只被链条拴住的狼。它们可以被食物安抚，否则会攻击进入洞穴的人。",
@@ -40,15 +63,33 @@
     "bridge-guards": {
       "id": "bridge-guards",
       "name": "桥头的地精守卫",
+      "type": "combat",
+      "scene": "ch1-scene5",
       "location": "cragmaw-hideout-blind",
       "trigger": "player_approaches-bridge",
       "description": "三只地精守在木桥附近，其中一名哨兵时刻警惕。桥头有隐藏的水坑陷阱。",
       "enemies": ["goblin-bridge-guard-1", "goblin-bridge-guard-2", "goblin-bridge-guard-3"],
       "hazards": ["pit-trap"]
     },
+    "destroy-dam": {
+      "id": "destroy-dam",
+      "name": "破坏水坝",
+      "type": "narrative",
+      "scene": "ch1-scene7",
+      "location": "cragmaw-hideout-dam",
+      "trigger": "player_breaks-dam",
+      "description": "水坝崩塌，蓄积的洪水汹涌而下冲向区域4（瀑布洞穴）和区域2（养狼洞）。这会惊动所有地精，但也可能冲走一些障碍和敌人。",
+      "effects": [
+        "冲走瀑布洞穴的哨兵",
+        "养狼洞水位上升",
+        "所有地精进入警戒状态"
+      ]
+    },
     "klarg-showdown": {
       "id": "klarg-showdown",
       "name": "克拉格之战",
+      "type": "combat",
+      "scene": "ch1-scene8",
       "location": "cragmaw-hideout-boss",
       "trigger": "player_enters-boss-cave",
       "description": "熊地精首领克拉格坐在洞室深处的宝座上。他的两只地精随从和宠物狼利珀会保护他。修达·豪温特被绑在洞穴中央。",
@@ -56,6 +97,24 @@
       "allies": ["sildar-hallwinter"],
       "tactics": "克拉格会优先攻击最强大的敌人，利珀会协同攻击。地精随从会在必要时试图逃跑。",
       "key_outcome": "击败克拉格后可以获得甘德伦的地图和补给物资，修达会苏醒并提供关键情报。"
+    },
+    "sildar-rescued": {
+      "id": "sildar-rescued",
+      "name": "修达获救",
+      "type": "narrative",
+      "scene": "ch1-scene8",
+      "location": "cragmaw-hideout-boss",
+      "trigger": "klarg-defeated",
+      "description": "修达·豪温特苏醒过来，虚弱但感激地向你们致谢。他告诉你们甘德伦被送往克拉摩堡，幕后黑手是一个绰号'黑蜘蛛'的神秘人物。",
+      "key_npc": "sildar-hallwinter",
+      "dialogue": "感谢你们，冒险者……甘德伦还活着，但被带去了克拉摩堡。那地方在北方森林里，是地精部落的大本营。'黑蜘蛛'想要潮音洞穴里的东西……我们必须赶快。",
+      "rewards": {
+        "promised": { "gp": 50, "each": true }
+      },
+      "unlocks": {
+        "quests": ["rescue-sildar"],
+        "chapters": ["ch2", "ch3"]
+      }
     }
   }
 }

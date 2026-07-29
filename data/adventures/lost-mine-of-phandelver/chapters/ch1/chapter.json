@@ -4,9 +4,12 @@
   "title": "第一部分：地精之箭",
   "description": "玩家从绝冬城出发护送物资，发现甘德伦和修达已遭伏击。追踪地精到克拉摩窝点，营救修达，得知甘德伦被带往克拉摩堡。",
   "recommended_level": 1,
-  "starting_location": "triboar-trail-ambush",
+  "starting_scene": "ch1-scene1",
   "unlocks_chapters": ["ch2", "ch3"],
   "key_locations": [
+    "neverwinter-guild",
+    "neverwinter-market",
+    "neverwinter-gate",
     "triboar-trail-ambush",
     "cragmaw-hideout-entrance",
     "cragmaw-hideout-wolf-cave",
@@ -18,11 +21,98 @@
   "key_npcs": [
     "klarg",
     "droop",
-    "sildar-hallwinter"
+    "sildar-hallwinter",
+    "gundren-rockseeker"
   ],
   "key_items": [
     "gundrens-map",
     "supplies-neverwinter",
     "potion-of-healing"
+  ],
+  "scenes": [
+    {
+      "id": "ch1-scene1",
+      "name": "绝冬城受命",
+      "location": "neverwinter-guild",
+      "free_locations": ["neverwinter-guild", "neverwinter-market", "neverwinter-gate"],
+      "description": "甘德伦在绝冬城雇佣你们护送采矿物资前往凡达林。你们在矿业公会门口集结，准备出发。",
+      "npcs": ["gundren-rockseeker", "sildar-hallwinter"],
+      "items": ["supplies-neverwinter"],
+      "events": ["accept-deliver-quest"],
+      "next_scene": "ch1-scene2"
+    },
+    {
+      "id": "ch1-scene2",
+      "name": "途中遇袭",
+      "location": "triboar-trail-ambush",
+      "description": "你们沿三猪小径南下，发现路中央横卧着两匹死马——甘德伦和修达遭遇了伏击。",
+      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "items": ["empty-map-case", "scattered-supplies"],
+      "events": ["goblin-ambush"],
+      "next_scene": "ch1-scene3"
+    },
+    {
+      "id": "ch1-scene3",
+      "name": "追踪痕迹",
+      "location": "cragmaw-hideout-entrance",
+      "description": "拖行痕迹将你们引到荆棘丛后隐藏的洞穴入口。两名地精哨兵守在洞口。",
+      "npcs": ["goblin-sentry-1", "goblin-sentry-2"],
+      "items": [],
+      "events": ["cragmaw-hideout-entrance-sentries"],
+      "next_scene": "ch1-scene4"
+    },
+    {
+      "id": "ch1-scene4",
+      "name": "狼穴遭遇",
+      "location": "cragmaw-hideout-wolf-cave",
+      "description": "洞穴内弥漫着野兽的腥臊味。三只狼被铁链拴住，咆哮着盯着来犯者。",
+      "npcs": ["wolf-1", "wolf-2", "wolf-3"],
+      "items": [],
+      "events": ["wolves-of-cragmaw"],
+      "next_scene": "ch1-scene5"
+    },
+    {
+      "id": "ch1-scene5",
+      "name": "桥头遇敌",
+      "location": "cragmaw-hideout-blind",
+      "description": "木桥横跨小溪，三名地精在此把守。桥头地面有不自然的湿痕。",
+      "npcs": ["goblin-bridge-guard-1", "goblin-bridge-guard-2", "goblin-bridge-guard-3"],
+      "items": [],
+      "events": ["bridge-guards"],
+      "next_scene": "ch1-scene6"
+    },
+    {
+      "id": "ch1-scene6",
+      "name": "瀑布之下",
+      "location": "cragmaw-hideout-waterfall",
+      "description": "瀑布轰鸣，水雾弥漫。高处平台上有个打瞌睡的地精哨兵。",
+      "npcs": ["goblin-sentry-high"],
+      "items": [],
+      "events": [],
+      "next_scene": "ch1-scene8",
+      "alternate_routes": [
+        { "scene": "ch1-scene7", "description": "通过水坝区域" }
+      ]
+    },
+    {
+      "id": "ch1-scene7",
+      "name": "水坝抉择",
+      "location": "cragmaw-hideout-dam",
+      "description": "地精用碎石和木板筑了一道简易水坝。破坏它会引发洪水冲向下方洞穴。",
+      "npcs": [],
+      "items": [],
+      "events": ["destroy-dam"],
+      "next_scene": "ch1-scene6"
+    },
+    {
+      "id": "ch1-scene8",
+      "name": "巢穴决战",
+      "location": "cragmaw-hideout-boss",
+      "description": "洞室宽敞，北侧堆满补给箱，修达·豪温特被绑在中央。深处，熊地精克拉格坐在宝座上冷冷注视。",
+      "npcs": ["klarg", "goblin-klarg-1", "goblin-klarg-2", "ripper", "sildar-hallwinter"],
+      "items": ["gundrens-map", "supplies-neverwinter", "potion-of-healing", "klargs-coinpurse"],
+      "events": ["klarg-showdown", "sildar-rescued"],
+      "next_scene": null
+    }
   ]
 }

@@ -1,8 +1,55 @@
 {
   "locations": {
+    "neverwinter-guild": {
+      "id": "neverwinter-guild",
+      "name": "矿业公会",
+      "type": "room",
+      "parent_location": "绝冬城",
+      "description": "绝冬城矿业公会的接待大厅，墙上挂着剑湾的矿物分布图。甘德伦·碎石者是这里的常客，他租下了一间小办公室用作临时据点。",
+      "scene_text": "绝冬城矿业公会的大厅里人来人往。甘德伦·碎石者在角落里朝你们挥手，身旁站着一位身着银甲的人类骑士——狮鹫骑士团的修达·豪温特。桌上摊着一张剑湾地图。\n\n甘德伦拍了拍地图，咧嘴一笑：\"都准备好了！我们骑马先行，你们跟着马车走三猪小径。到了凡达林，每人十个金币。路上小心，剑山那边最近不太平。\"",
+      "npcs": ["gundren-rockseeker", "sildar-hallwinter"],
+      "items": [
+        { "id": "supplies-neverwinter", "visible": true }
+      ],
+      "exits": [
+        { "name": "前往市场广场", "target": "neverwinter-market", "description": "绝冬城繁华的市场区，商贩云集。" },
+        { "name": "前往北城门", "target": "neverwinter-gate", "description": "通往北方的城门，三猪小径的起点。" }
+      ],
+      "hidden": []
+    },
+    "neverwinter-market": {
+      "id": "neverwinter-market",
+      "name": "市场广场",
+      "type": "room",
+      "parent_location": "绝冬城",
+      "description": "绝冬城的中心市场，各类商贩在此叫卖。武器铺、药剂店、杂货铺一应俱全。商旅在此补给物资后踏上旅途。",
+      "scene_text": "市场广场人声鼎沸。铁匠铺的锤声叮当作响，药剂店门口飘出草药的味道，面包房飘来刚出炉的麦香。商贩们卖力吆喝着各自的货物。",
+      "npcs": [],
+      "items": [],
+      "exits": [
+        { "name": "返回矿业公会", "target": "neverwinter-guild", "description": "回到矿业公会大厅。" },
+        { "name": "前往北城门", "target": "neverwinter-gate", "description": "通往北方的城门。" }
+      ],
+      "hidden": []
+    },
+    "neverwinter-gate": {
+      "id": "neverwinter-gate",
+      "name": "北城门",
+      "type": "room",
+      "parent_location": "绝冬城",
+      "description": "绝冬城的北城门，守卫森严。城门外的道路向北延伸，通往剑山山麓。满载货物的马车排着队等待出城检查。这里就是三猪小径的起点——离开这里就意味着正式踏上旅程。",
+      "scene_text": "北城门的守卫核对着出城商旅的通行证。城门外，三猪小径蜿蜒向北延伸，消失在剑山山麓的雾气中。一辆载满采矿物资的马车已经在城门外等候——这就是你们要护送的货物。\n\n城门守卫看了你们一眼：\"去凡达林的？最近小径上有地精出没，多加小心。\"",
+      "npcs": [],
+      "items": [],
+      "exits": [
+        { "name": "返回矿业公会", "target": "neverwinter-guild", "description": "回到矿业公会大厅。" },
+        { "name": "前往市场广场", "target": "neverwinter-market", "description": "前往市场区补给物资。" }
+      ],
+      "hidden": []
+    },
     "triboar-trail-ambush": {
       "id": "triboar-trail-ambush",
-      "name": "三猪小径伏击点",
+      "name": "三猪小径",
       "type": "wild",
       "description": "三猪小径蜿蜒穿过剑山山麓，连接绝冬城与凡达林。路中央横卧着两匹死马，身上插满黑羽箭。周围散落着物资和一个空的地图匣。路旁灌木丛中传来细微的响动。",
       "scene_text": "你们沿着三猪小径南下，空气中的血腥味让马匹不安地打着响鼻。前方路中央，两匹死马倒在血泊中，身上插满了黑羽箭。散落的物资旁，一个空的地图匣半开着——甘德伦的地图不见了。",
@@ -11,13 +58,11 @@
         { "id": "empty-map-case", "visible": true },
         { "id": "scattered-supplies", "visible": true }
       ],
-      "exits": [
-        { "name": "追踪痕迹向北", "target": "cragmaw-hideout-entrance", "description": "地上的拖行痕迹指向北方，似乎有人被拖进了森林。" }
-      ],
+      "exits": [],
       "hidden": [
         {
           "id": "drag-tracks",
-          "description": "一条通往北方的拖行痕迹，混合着血迹和脚印。",
+          "description": "一条通往北方的拖行痕迹，混合着血迹和脚印。沿着痕迹追踪应该能找到袭击者的藏身之处。",
           "dc": 10,
           "skill": "survival",
           "passive": true
@@ -40,7 +85,7 @@
     },
     "cragmaw-hideout-entrance": {
       "id": "cragmaw-hideout-entrance",
-      "name": "克拉摩窝点入口",
+      "name": "隐蔽洞口",
       "type": "wild",
       "description": "一个隐藏在荆棘丛后的洞穴入口，一条小溪从洞口流出。洞口两侧的地精哨兵正警惕地巡视着。",
       "scene_text": "追踪痕迹把你们带到一片丘陵地带。荆棘丛后隐藏着一个黑漆漆的洞穴入口，一条小溪从洞内流出，水声掩盖了远处的动静。你们能隐约看到洞口两侧有地精哨兵的身影。",
@@ -61,7 +106,7 @@
     },
     "cragmaw-hideout-wolf-cave": {
       "id": "cragmaw-hideout-wolf-cave",
-      "name": "养狼洞",
+      "name": "狼穴",
       "type": "cave",
       "description": "洞穴中央有天然石笋柱，三只狼被链条拴住，但链条长度足以覆盖洞穴大部分区域。一条石阶通向高处平台。",
       "scene_text": "洞内弥漫着野兽的腥臊味。三只狼被粗大的铁链拴在洞穴中央的石笋柱上，链子长度让它们几乎能覆盖整个洞室。狼群低沉地咆哮着，眼睛在黑暗中发出幽光。北侧的石阶通向更高处。",
@@ -81,7 +126,7 @@
     },
     "cragmaw-hideout-blind": {
       "id": "cragmaw-hideout-blind",
-      "name": "地精盲区",
+      "name": "暗桥洞",
       "type": "cave",
       "description": "一个看似死路的洞室，一座简陋木桥横跨小溪。桥头附近有隐藏的水坑陷阱，桥的另一端通往主通道。",
       "scene_text": "这个洞室被地精称为'盲区'。一座摇摇晃晃的木桥横跨小溪，连接着主通道。桥头的地面上有一片不自然的湿痕——可能是个陷阱。小溪东侧似乎有狭窄的裂缝可以绕行。",
@@ -137,7 +182,7 @@
     },
     "cragmaw-hideout-boss": {
       "id": "cragmaw-hideout-boss",
-      "name": "地精巢穴",
+      "name": "洞穴深处",
       "type": "cave",
       "description": "熊地精首领克拉格的巢穴。洞穴宽敞，北侧高台上堆满补给箱，中央绑着被俘的修达·豪温特。",
       "scene_text": "这是洞穴最宽敞的洞室，空气中弥漫着地精的臭味和熊地精的体臭。北侧高台上堆满了标有绝冬城蓝色狮子图案的补给箱。洞穴中央，一位人类骑士被绑在粗糙的木桩上——正是修达·豪温特。洞室深处，一个魁梧的熊地精正坐在由兽皮和木箱搭成的'宝座'上，冷冷地注视着你们。",

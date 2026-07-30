@@ -67,13 +67,38 @@ class GameState:
         self.data = data
         self.scene = scene
         self.location_id = scene.get("location") if scene else None
+        self.last_full_context_location = None  # 上次发完整上下文的 location_id
+        self.last_full_context_scene = None      # 上次发完整上下文的 scene_id
         self.npc_states = {}
         self.location_states = {}
         self.player_inventory = []
+        self.player_intel = []      # 玩家已收集的情报条目
         self.quest_states = {}
         self.game_time = 0
         self.history = []
         self.pending_events = []
+
+    def needs_full_context(self) -> bool:
+        """是否需要发送完整场景上下文（首次进入、或切换了地点/场景）"""
+        if self.last_full_context_location is None:
+            return True
+        current_scene_id = self.scene.get("id") if self.scene else None
+        if self.last_full_context_location != self.location_id:
+            return True
+        if self.last_full_context_scene != current_scene_id:
+            return True
+        return False
+
+    def mark_context_sent(self):
+        """标记已发送完整上下文"""
+        self.last_full_context_location = self.location_id
+        self.last_full_context_scene = self.scene.get("id") if self.scene else None
+
+    def add_intel(self, entry: dict):
+        """添加一条情报（去重：同 id 不重复添加）"""
+        existing_ids = {i.get("id") for i in self.player_intel}
+        if entry.get("id") and entry["id"] not in existing_ids:
+            self.player_intel.append(entry)
 
     def to_client_updates(self) -> dict:
         """返回给前端的状态更新"""
@@ -82,6 +107,7 @@ class GameState:
             "location_id": self.location_id,
             "npc_states": self.npc_states,
             "player_inventory": self.player_inventory,
+            "player_intel": self.player_intel,
             "quest_states": self.quest_states,
             "game_time": self.game_time,
         }

@@ -115,7 +115,7 @@ class StateManager:
 
     def _handle_reveal_secret(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        揭示隐藏信息
+        揭示隐藏信息，同时生成情报条目
         {
             "type": "reveal_secret",
             "location_id": "cragmaw-hideout-boss",
@@ -133,12 +133,14 @@ class StateManager:
 
         if secret_id not in revealed:
             revealed.append(secret_id)
+            # 生成情报条目
+            self._add_intel_from_secret(location_id, secret_id)
             return change
         return None
 
     def _handle_reveal_item(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        揭示隐藏物品，将其 visible 状态改为 true
+        揭示隐藏物品，将其 visible 状态改为 true，同时生成情报条目
         {
             "type": "reveal_item",
             "location_id": "cragmaw-hideout-boss",
@@ -159,9 +161,56 @@ class StateManager:
             if isinstance(entry, dict) and entry.get("id") == item_id:
                 if not entry.get("visible", True):
                     entry["visible"] = True
+                    # 生成情报条目
+                    self._add_intel_from_item(location_id, item_id)
                     return change
                 return None
         return None
+
+    # ------------------------------------------------------------------
+    # 情报生成
+    # ------------------------------------------------------------------
+    def _add_intel_from_secret(self, location_id: str, secret_id: str):
+        """从揭示的秘密生成情报条目"""
+        secrets = self.state.data.get("secrets", {})
+        secret = secrets.get(secret_id)
+        if not secret:
+            return
+
+        loc = self.state.data.get("locations", {}).get(location_id, {})
+        region = loc.get("name", location_id)
+
+        intel_entry = {
+            "id": f"intel_secret_{secret_id}",
+            "title": secret.get("intel_title") or secret.get("title") or f"发现：{secret_id}",
+            "type": secret.get("intel_type", "clue"),
+            "region": region,
+            "description": secret.get("intel_description") or secret.get("description", ""),
+            "source": f"在{region}{'侦察' if secret.get('skill') == 'perception' else '调查'}时发现",
+            "discovered_at": self.state.game_time,
+        }
+        self.state.add_intel(intel_entry)
+
+    def _add_intel_from_item(self, location_id: str, item_id: str):
+        """从发现的隐藏物品生成情报条目"""
+        items = self.state.data.get("items", {})
+        item = items.get(item_id)
+        if not item:
+            return
+
+        loc = self.state.data.get("locations", {}).get(location_id, {})
+        region = loc.get("name", location_id)
+
+        intel_entry = {
+            "id": f"intel_item_{item_id}",
+            "title": f"发现物品：{item.get('name', item_id)}",
+            "type": "item",
+            "region": region,
+            "description": item.get("description", ""),
+            "source": f"在{region}调查时发现",
+            "discovered_at": self.state.game_time,
+        }
+        self.state.add_intel(intel_entry)
 
     def _handle_move_player(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """

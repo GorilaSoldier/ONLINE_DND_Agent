@@ -77,6 +77,8 @@ class RuleEngine:
             "investigation": self._handle_check,
             "steal": self._handle_steal,
             "look": self._handle_look,
+            "take": self._handle_take,
+            "trade": self._handle_trade,
             "other": self._handle_other,
         }
         handler = handlers.get(intent_result.intent, self._handle_other)
@@ -380,9 +382,86 @@ class RuleEngine:
         return {"gm_text": text, "checks": [result]}, changes
 
     def _handle_look(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        target_type = intent_result.target_type
+        target_id = intent_result.target_id
+
+        # 查看特定 NPC
+        if target_type == "npc" and target_id:
+            npc = self.data["npcs"].get(target_id)
+            if not npc:
+                return {"gm_text": "你没有看到那个人。", "checks": []}, []
+            if not self._is_present_npc(target_id):
+                return {"gm_text": f"{npc.get('name', target_id)} 不在这里。", "checks": []}, []
+            desc = npc.get("description", "")
+            race = npc.get("race", "")
+            role = npc.get("role", "")
+            name = npc.get("name", target_id)
+            appearance = f"你打量着{name}。"
+            if race or role:
+                appearance += f" 这是一位{race}{role}。"
+            if desc:
+                appearance += f" {desc}"
+            return {"gm_text": appearance, "checks": []}, []
+
+        # 查看特定物品
+        if target_type == "item" and target_id:
+            item = self.data["items"].get(target_id)
+            if not item:
+                return {"gm_text": "你没有看到那个东西。", "checks": []}, []
+            if not self._is_present_item(target_id):
+                return {"gm_text": f"这里没有 {item.get('name', target_id)}。", "checks": []}, []
+            name = item.get("name", target_id)
+            desc = item.get("description", "")
+            appearance = f"你仔细看了看{name}。"
+            if desc:
+                appearance += f" {desc}"
+            return {"gm_text": appearance, "checks": []}, []
+
+        # 无目标：查看当前地点
         if not self.location:
             return {"gm_text": "你环顾四周，什么也没看到。", "checks": []}, []
         return {"gm_text": self.location.get("description", "你环顾四周。"), "checks": []}, []
+
+    def _handle_take(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """拿取物品（非偷窃，物品未被他人持有）"""
+        item, status = self._resolve_target(intent_result)
+
+        if status != "found" or not item:
+            return {"gm_text": "当前地点没有你可以拿取的目标物品。", "checks": []}, []
+
+        item_id = item["id"]
+        if not self._is_present_item(item_id):
+            return {"gm_text": f"这里没有 {item.get('name', item_id)}。", "checks": []}, []
+
+        # 如果物品有主人且 stealable=true，应该用 steal 意图
+        if item.get("owner"):
+            return {"gm_text": f"{item['name']} 看起来属于别人。如果你想拿走它，需要偷窃。", "checks": []}, []
+
+        # 无主物品直接拿取
+        changes = [{
+            "type": "move_item",
+            "item_id": item_id,
+            "from": {"type": "location", "id": self.location["id"] if self.location else ""},
+            "to": {"type": "player", "id": "player_1"},
+            "hidden": False,
+        }]
+        return {"gm_text": f"你拿起了 {item['name']}。", "checks": []}, changes
+
+    def _handle_trade(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """交易意图（当前为占位实现，后续扩展）"""
+        target_type = intent_result.target_type
+        target_id = intent_result.target_id
+
+        if target_type == "npc" and target_id:
+            npc = self.data["npcs"].get(target_id)
+            if npc and self._is_present_npc(target_id):
+                return {"gm_text": f"{npc['name']} 看着你，似乎在等你开口。你想买什么，或者卖什么？", "checks": []}, []
+        elif target_type == "item" and target_id:
+            item = self.data["items"].get(target_id)
+            if item:
+                return {"gm_text": f"你在考虑交易 {item.get('name', target_id)}，但这里似乎没有合适的交易对象。", "checks": []}, []
+
+        return {"gm_text": "你想和谁交易？买什么还是卖什么？", "checks": []}, []
 
     def _handle_other(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         desc = intent_result.narrative_description or ""

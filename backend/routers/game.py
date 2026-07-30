@@ -1,5 +1,8 @@
 """游戏动作路由"""
+import json
+
 from fastapi import APIRouter, HTTPException, Body
+from fastapi.responses import StreamingResponse
 
 from services.game_state import (
     get_or_create_session,
@@ -22,29 +25,22 @@ def _build_context(state) -> dict:
     location = get_location(state.data, state.location_id)
     character = state.__dict__.get("character", {})
 
-    # 当前可自由移动到的地点（场景内自由地点 + 当前地点出口）
-    free_locations = list(state.scene.get("free_locations", [])) if state.scene else []
-    if location:
-        for e in location.get("exits", []):
-            target = e.get("target")
-            if target and target not in free_locations:
-                free_locations.append(target)
-
     return {
         "scene": state.scene or {},
         "location": location or {},
         "npcs": state.get_context_npcs(),
         "items": state.get_context_items(),
-        "free_locations": free_locations,
         "history": state.history,
         "character": character,
         "chapter_summary": load_chapter_summary(state.adventure_id, state.chapter_id),
     }
 
 
-@router.post("/action")
-def game_action(payload: dict = Body(...)) -> dict:
-    """接收玩家动作，返回 GM 响应"""
+
+
+@router.post("/action/stream")
+def game_action_stream(payload: dict = Body(...)):
+    """Tool Calling 流式端点：AI 自主判断是否需要后端处理"""
     adventure_id = payload.get("adventure_id", "lost-mine-of-phandelver")
     chapter_id = payload.get("chapter_id", "ch1")
     session_id = payload.get("session_id")
@@ -55,10 +51,8 @@ def game_action(payload: dict = Body(...)) -> dict:
     if not player_input:
         raise HTTPException(status_code=400, detail="player_input is required")
 
-    # 1. 获取会话状态
     session_id, state = get_or_create_session(session_id, adventure_id, chapter_id)
 
-    # 如果前端指定了 scene_id 且与当前不同，切换场景
     if scene_id and state.scene and state.scene.get("id") != scene_id:
         new_scene = find_scene(state.data, scene_id)
         if new_scene:
@@ -68,48 +62,116 @@ def game_action(payload: dict = Body(...)) -> dict:
     if not state.scene:
         raise HTTPException(status_code=404, detail="Scene not found")
 
-    # 记录角色卡（首次传入时保存）
     if character:
         state.character = character
 
     context = _build_context(state)
+    full_context = state.needs_full_context()
 
-    # 2. AI 解析意图
-    intent_result = ai_gm.interpret(player_input, context)
+    # 1. 第 1 次 API（流式）：AI 判断是否需要 tool
+    gen = ai_gm.chat_with_tools(player_input, context, full_context=full_context)
 
-    # 3. 规则引擎执行
-    engine = RuleEngine(state.data, state.scene, state=state)
-    rule_result, state_changes = engine.execute(intent_result, character)
+    # 将 gen 消费放入 StreamingResponse 内部，实现真正的流式输出
+    def stream_response():
+        nonlocal state, session_id, character, context, full_context
+        direct_text = ""
+        tool_call_name = None
+        tool_call_args = {}
+        reasoning_content = None
+        meta_sent = False
 
-    # 4. 应用状态变更
-    state_manager = StateManager(state)
-    applied_changes = state_manager.apply(state_changes)
+        for event_type, data in gen:
+            if event_type == "error":
+                state.add_history("player", player_input)
+                state.game_time += 1
+                meta = json.dumps({"type": "meta", "session_id": session_id,
+                    "checks": [], "state_changes": [], "updates": state.to_client_updates()}, ensure_ascii=False)
+                yield f"data: {meta}\n\n"
+                yield f"data: {json.dumps({'type': 'narrative_chunk', 'text': 'GM 暂时无法回应。'})}\n\n"
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                return
 
-    # 5. AI 生成叙事
-    gm_text = ai_gm.narrate(
-        player_input=player_input,
-        intent_result=intent_result,
-        rule_result=rule_result,
-        state_changes=applied_changes,
-        context=context,
-    )
+            elif event_type == "text":
+                direct_text += data
+                if not meta_sent:
+                    meta_sent = True
+                    updates = state.to_client_updates()
+                    meta = json.dumps({"type": "meta", "session_id": session_id,
+                        "intent": {"intent": "other", "target_id": "", "target_type": "none"},
+                        "checks": [], "state_changes": [], "updates": updates,
+                        "_debug": {"mode": "direct_reply", "prompt_chars": dict(ai_gm.last_prompt_chars), "has_tool": False},
+                    }, ensure_ascii=False)
+                    yield f"data: {meta}\n\n"
+                yield f"data: {json.dumps({'type': 'narrative_chunk', 'text': data})}\n\n"
 
-    # 如果 AI 没有生成叙事，使用规则引擎模板
-    if not gm_text.strip():
-        gm_text = rule_result.get("gm_text", "GM 没有回应。")
+            elif event_type == "done":
+                tool_call_name = data.get("tool_name")
+                tool_call_args = data.get("tool_args", {})
+                reasoning_content = data.get("reasoning_content")
 
-    # 6. 更新历史
-    state.add_history("player", player_input)
-    state.add_history("gm", gm_text)
+        if tool_call_name:
+            # ── AI 决定需要后端处理 ──
+            intent_result = IntentResult(
+                intent=tool_call_args.get("intent", "other"),
+                target_id=tool_call_args.get("target_id", ""),
+                target_type=tool_call_args.get("target_type", "none"),
+                needs_check=bool(tool_call_args.get("needs_check", False)),
+                skill=tool_call_args.get("skill") or None,
+                suggested_dc=tool_call_args.get("suggested_dc") or None,
+                narrative_description="",
+            )
 
-    # 7. 时间推进（简单处理，后续可细化）
-    state.game_time += 1
+            engine = RuleEngine(state.data, state.scene, state=state)
+            rule_result, state_changes = engine.execute(intent_result, character)
+            state_manager = StateManager(state)
+            applied_changes = state_manager.apply(state_changes)
 
-    return {
-        "session_id": session_id,
-        "gm_text": gm_text,
-        "intent": intent_result.to_dict(),
-        "checks": rule_result.get("checks", []),
-        "state_changes": applied_changes,
-        "updates": state.to_client_updates(),
-    }
+            state.add_history("player", player_input)
+            state.game_time += 1
+            state.mark_context_sent()
+            updates = state.to_client_updates()
+
+            meta = json.dumps({
+                "type": "meta", "session_id": session_id,
+                "intent": intent_result.to_dict(),
+                "checks": rule_result.get("checks", []),
+                "state_changes": applied_changes,
+                "updates": updates,
+                "_debug": {
+                    "mode": "tool_call",
+                    "prompt_chars": dict(ai_gm.last_prompt_chars),
+                    "has_tool": True,
+                },
+            }, ensure_ascii=False)
+            yield f"data: {meta}\n\n"
+
+            full_text = ""
+            for token in ai_gm.narrate_with_result(
+                player_input=player_input,
+                tool_result={"arguments": tool_call_args, "result": {
+                    "gm_hint": rule_result.get("gm_text", ""),
+                    "intent": intent_result.intent,
+                    "checks": rule_result.get("checks", []),
+                    "state_changes": applied_changes,
+                }},
+                context=context,
+                stream=True,
+                full_context=full_context,
+                reasoning_content=reasoning_content,
+            ):
+                full_text += token
+                yield f"data: {json.dumps({'type': 'narrative_chunk', 'text': token})}\n\n"
+
+            state.add_history("gm", full_text)
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+        else:
+            # ── AI 直接回复 ──
+            state.add_history("player", player_input)
+            state.add_history("gm", direct_text)
+            state.game_time += 1
+            state.mark_context_sent()
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})

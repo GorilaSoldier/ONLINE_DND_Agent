@@ -34,7 +34,7 @@
     "supplies-neverwinter": {
       "id": "supplies-neverwinter",
       "name": "绝冬城补给箱",
-      "description": "标有绝冬城蓝色狮子图案的补给箱，里面装着甘德伦的货物。",
+      "description": "标有绝冬城蓝色狮子图案的半人高木箱，印着\"巴森工坊——小心轻放\"字样。打开可见：两把矿镐、一卷粗麻绳、三盏矿灯、数袋干粮、几捆火把。",
       "type": "quest_item",
       "stealable": true,
       "visible": true,

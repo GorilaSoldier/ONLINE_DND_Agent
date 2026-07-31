@@ -17,7 +17,7 @@
       "name": "寻找甘德伦",
       "description": "甘德伦和修达在三猪小径遭遇伏击后失踪。找出他们的下落。",
       "giver": "event",
-      "status": "active",
+      "status": "hidden",
       "objectives": [
         { "id": "obj-1", "description": "调查伏击现场", "completed": false },
         { "id": "obj-2", "description": "追踪地精到克拉摩窝点", "completed": false },

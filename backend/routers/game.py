@@ -19,18 +19,59 @@ router = APIRouter(prefix="/api/game", tags=["game"])
 # 全局 AI GM 实例
 ai_gm = AIGM()
 
+# ── 开场白端点 ──
+@router.get("/opening")
+def get_opening(adventure_id: str = "lost-mine-of-phandelver",
+                chapter_id: str = "ch1", scene_id: str = "ch1-scene1"):
+    """获取预生成的开场白（含 session 初始化）"""
+    from main import get_cached_opening, get_opening_exchange
+
+    opening = get_cached_opening(adventure_id, chapter_id, scene_id)
+    exchange = get_opening_exchange(adventure_id, chapter_id, scene_id)
+
+    # 创建 session 并注入开场白背景
+    session_id, state = get_or_create_session(None, adventure_id, chapter_id, scene_id)
+
+    # 注入开场白背景 exchange 到 session（不显示给前端）
+    if exchange:
+        state._opening_exchange = exchange
+        # 标记上下文已发送——开场白背景已经给了AI所有信息，后续对话用 lite context
+        state.mark_context_sent()
+
+    if opening:
+        return {
+            "opening": opening,
+            "session_id": session_id,
+            "cached": True,
+        }
+    else:
+        # Fallback: 使用硬编码场景描述
+        loc = get_location(state.data, state.location_id)
+        fallback = loc.get("scene_text", loc.get("description", "")) if loc else ""
+        return {
+            "opening": fallback,
+            "session_id": session_id,
+            "cached": False,
+        }
+
 
 def _build_context(state) -> dict:
     """为 AI GM 构建当前上下文"""
     location = get_location(state.data, state.location_id)
     character = state.__dict__.get("character", {})
 
+    # 新地点触发被动察觉和被动调查
+    passive_discoveries = []
+    if state.needs_full_context() and location and character:
+        engine = RuleEngine(state.data, state.scene, state=state)
+        passive_discoveries = engine.run_passive_checks(character, location)
+
     return {
         "scene": state.scene or {},
         "location": location or {},
         "npcs": state.get_context_npcs(),
         "items": state.get_context_items(),
-        "history": state.history,
+        "passive_discoveries": passive_discoveries,
         "character": character,
         "chapter_summary": load_chapter_summary(state.adventure_id, state.chapter_id),
     }
@@ -67,9 +108,12 @@ def game_action_stream(payload: dict = Body(...)):
 
     context = _build_context(state)
     full_context = state.needs_full_context()
+    extra_msgs = getattr(state, '_opening_exchange', None)
+    history_msgs = ai_gm._build_history_messages(state.history)
 
     # 1. 第 1 次 API（流式）：AI 判断是否需要 tool
-    gen = ai_gm.chat_with_tools(player_input, context, full_context=full_context)
+    gen = ai_gm.chat_with_tools(player_input, context, full_context=full_context,
+                                extra_messages=extra_msgs, history_messages=history_msgs)
 
     # 将 gen 消费放入 StreamingResponse 内部，实现真正的流式输出
     def stream_response():
@@ -158,6 +202,8 @@ def game_action_stream(payload: dict = Body(...)):
                 stream=True,
                 full_context=full_context,
                 reasoning_content=reasoning_content,
+                extra_messages=extra_msgs,
+                history_messages=history_msgs,
             ):
                 full_text += token
                 yield f"data: {json.dumps({'type': 'narrative_chunk', 'text': token})}\n\n"

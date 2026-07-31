@@ -77,6 +77,8 @@ class GameState:
         self.game_time = 0
         self.history = []
         self.pending_events = []
+        self.check_attempts: set = set()       # 每人每目标每技能: {"insight:gundren-rockseeker", ...}
+        self.revealed_secrets: set = set()     # 已揭示的隐藏信息: {"location_id:secret_id", ...}
 
     def needs_full_context(self) -> bool:
         """是否需要发送完整场景上下文（首次进入、或切换了地点/场景）"""
@@ -160,16 +162,20 @@ def get_or_create_session(
     session_id: str | None,
     adventure_id: str,
     chapter_id: str,
+    scene_id: str = None,
 ) -> tuple[str, GameState]:
     """获取或创建会话"""
     if session_id and session_id in _sessions:
         return session_id, _sessions[session_id]
 
     data = load_adventure_chapter(adventure_id, chapter_id)
-    starting_scene_id = data["chapter"].get("starting_scene")
-    scene = find_scene(data, starting_scene_id) if starting_scene_id else None
+    if scene_id:
+        starting_scene = find_scene(data, scene_id)
+    else:
+        starting_scene_id = data["chapter"].get("starting_scene")
+        starting_scene = find_scene(data, starting_scene_id) if starting_scene_id else None
 
     new_id = session_id or str(uuid.uuid4())
-    state = GameState(adventure_id, chapter_id, data, scene)
+    state = GameState(adventure_id, chapter_id, data, starting_scene)
     _sessions[new_id] = state
     return new_id, state

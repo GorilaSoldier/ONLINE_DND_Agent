@@ -274,6 +274,17 @@ class RuleEngine:
         skill_cn = self.SKILL_NAME_CN.get(skill, skill)
         ability = self.SKILL_ABILITY_MAP.get(skill, "wisdom")
 
+        # 确定目标 key（用于每人每目标每技能一次限制）
+        target_id = intent_result.target_id or (self.location["id"] if self.location else "")
+        target_type = intent_result.target_type or "location"
+        if target_type == "none":
+            target_type = "location"  # 无明确目标的检定统一归到地点
+        attempt_key = f"{skill}:{target_type}:{target_id}"
+
+        # 每人每目标每技能只能试一次
+        if self.state and attempt_key in self.state.check_attempts:
+            return {"gm_text": f"你已经对{target_type=='npc' and '这个人' or '这里'}进行过{skill_cn}了，没有更多发现。", "checks": [], "blocked": True}, []
+
         # DC 来源：AI 建议、地点/物品默认、隐藏信息默认
         dc = intent_result.suggested_dc
         if dc is None and self.location:
@@ -331,9 +342,52 @@ class RuleEngine:
         if discovered:
             descs = "\n".join([f"- {d['description']}" for d in discovered])
             text += f"\n\n你发现了：\n{descs}"
+        elif result["success"]:
+            text += " 你在当前区域没有发现任何隐藏信息。只回复这一句：你没有发现异常。不要添加任何环境描写、NPC动作或新地点细节。"
+
+        # 标记已尝试（成功/失败都只有一次机会）
+        if self.state:
+            self.state.check_attempts.add(attempt_key)
 
         return {"gm_text": text, "checks": [result]}, changes
 
+    def run_passive_checks(self, character: dict | None, location: dict) -> list:
+        """
+        进入新地点时运行被动察觉和被动调查。
+        返回成功发现的隐藏信息描述列表。
+        """
+        if not character or not location:
+            return []
+
+        passive_perception = 10 + ability_modifier(character.get("wisdom", 10))
+        passive_investigation = 10 + ability_modifier(character.get("intelligence", 10))
+        discoveries = []
+        loc_id = location["id"]
+
+        for h in location.get("hidden", []):
+            if not h.get("passive"):
+                continue
+            skill = h.get("skill", "perception")
+            dc = h.get("dc", 20)
+            passive_score = passive_perception if skill == "perception" else (
+                passive_investigation if skill == "investigation" else 0
+            )
+            if passive_score < dc:
+                continue
+
+            secret_key = f"{loc_id}:{h['id']}"
+            if secret_key in (self.state.revealed_secrets if self.state else set()):
+                continue
+
+            discoveries.append({"id": h["id"], "description": h.get("description", ""), "skill": skill, "dc": dc})
+            if self.state:
+                self.state.revealed_secrets.add(secret_key)
+
+        return discoveries
+
+    # ------------------------------------------------------------------
+    # 处理器
+    # ------------------------------------------------------------------
     def _handle_steal(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         item, status = self._resolve_target(intent_result)
 

@@ -201,6 +201,307 @@
     color: var(--ink-soft);
   }
 
+  /* ── 任务子项（侧边栏展开用） ── */
+  .quest-subtasks { width: 100%; padding-top: 4px; border-top: 1px solid rgba(139,90,43,0.1); margin-top: 4px; }
+  .quest-subtask {
+    display: flex; align-items: flex-start; gap: 6px;
+    padding: 4px 0 4px 4px; font-size: 12px; color: var(--ink-soft);
+    cursor: pointer; border-radius: 4px; transition: background 0.15s;
+  }
+  .quest-subtask:hover { background: rgba(139,90,43,0.06); }
+  .quest-subtask.done { opacity: 0.65; }
+  .quest-subtask.done .quest-subtask-text { text-decoration: line-through; }
+  .quest-subtask-check {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px; font-size: 10px; color: transparent;
+  }
+  .quest-subtask.done .quest-subtask-check { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .quest-subtask-text { flex: 1; line-height: 1.5; }
+  .quest-item { cursor: pointer; flex-wrap: wrap; }
+
+  /* ── 任务详情模态框（完全照抄 lobby.html） ── */
+  .task-columns {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .task-sidebar {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+  .task-category {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .task-category-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(61, 43, 31, 0.04);
+    margin-bottom: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+  .task-category-title:hover {
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-category-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-soft);
+    transition: transform 0.25s ease;
+  }
+  .task-category-arrow svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-category.collapsed .task-category-arrow {
+    transform: rotate(-90deg);
+  }
+  .task-category.collapsed .task-category-list {
+    display: none;
+  }
+  .task-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .task-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .task-nav-item:hover {
+    background: rgba(184, 115, 51, 0.08);
+  }
+  .task-nav-item.active {
+    background: rgba(184, 115, 51, 0.16);
+    color: var(--ink);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .task-nav-item.task-completed {
+    color: var(--ink-soft);
+  }
+  .task-nav-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .task-nav-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--ink-soft);
+    transition: transform 0.25s ease;
+  }
+  .task-nav-arrow svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-nav-item.expanded .task-nav-arrow {
+    transform: rotate(180deg);
+  }
+  .task-nav-item.no-expand {
+    padding-right: 12px;
+  }
+  .task-nav-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .task-nav-status.ongoing {
+    color: var(--paper-light);
+    background: var(--accent);
+  }
+  .task-nav-status.completed {
+    color: var(--ink-soft);
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-sub-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px 7px 28px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .task-sub-nav-item:hover {
+    background: rgba(184, 115, 51, 0.06);
+  }
+  .task-sub-nav-item.active {
+    background: rgba(184, 115, 51, 0.12);
+    color: var(--ink);
+  }
+  .task-sub-nav-item.completed {
+    color: var(--ink-soft);
+  }
+  .task-sub-nav-item.completed .sub-nav-dot {
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  .task-sub-nav-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sub-nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .task-detail {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+    min-height: 420px;
+  }
+  .task-detail-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-detail-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+  .task-detail-tag.ongoing {
+    color: var(--paper-light);
+    background: var(--accent);
+  }
+  .task-detail-tag.completed {
+    color: var(--ink-soft);
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-detail-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .task-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .task-section-title::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .task-subtasks {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .subtask {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .subtask:last-child { border-bottom: none; }
+  .subtask-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .subtask-check svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .subtask.completed .subtask-check svg { color: var(--accent); }
+  .subtask-text {
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .subtask.completed .subtask-text {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+  .task-description {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
   .context-placeholder {
     font-size: 12px;
     color: var(--ink-soft);
@@ -938,6 +1239,23 @@
     animation: modalIn 0.3s ease;
   }
 
+  .modal.task-panel {
+    max-width: 1100px;
+    width: 95vw;
+    max-height: 92vh;
+    padding: 28px 24px 20px;
+  }
+
+  .modal.task-panel .modal-close {
+    top: 16px; right: 20px;
+    width: 36px; height: 36px;
+    font-size: 24px;
+    z-index: 10;
+    background: var(--paper-card);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(30, 18, 10, 0.12);
+  }
+
   @keyframes modalIn {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
@@ -1308,15 +1626,16 @@
     div.textContent = str;
     return div.innerHTML;
   }
+  const _CACHE_BUST = Date.now();
   const DATA_URLS = {
-    meta: `/data/adventures/${ADVENTURE_ID}/meta.json`,
-    globalNpcs: `/data/adventures/${ADVENTURE_ID}/global/npcs.json`,
-    chapter: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/chapter.json`,
-    locations: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/locations.json`,
-    chapterNpcs: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/npcs.json`,
-    items: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/items.json`,
-    quests: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/quests.json`,
-    encounters: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/encounters.json`
+    meta: `/data/adventures/${ADVENTURE_ID}/meta.json?t=${_CACHE_BUST}`,
+    globalNpcs: `/data/adventures/${ADVENTURE_ID}/global/npcs.json?t=${_CACHE_BUST}`,
+    chapter: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/chapter.json?t=${_CACHE_BUST}`,
+    locations: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/locations.json?t=${_CACHE_BUST}`,
+    chapterNpcs: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/npcs.json?t=${_CACHE_BUST}`,
+    items: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/items.json?t=${_CACHE_BUST}`,
+    quests: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/quests.json?t=${_CACHE_BUST}`,
+    encounters: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/encounters.json?t=${_CACHE_BUST}`
   };
 
   async function loadAllData() {
@@ -1543,22 +1862,60 @@
 
     // 任务
     const questsEl = $('#context-quests');
-    const quests = state.data.quests;
-    const questIds = Object.keys(quests).filter(id => quests[id].status !== 'hidden');
-    if (questIds.length === 0) {
+    const quests = state.quests || state.data.quests;
+    const activeQuestIds = Object.keys(quests).filter(id => quests[id].status === 'active');
+    if (activeQuestIds.length === 0) {
       questsEl.innerHTML = '<div class="context-empty">暂无任务</div>';
     } else {
-      questsEl.innerHTML = questIds.map(id => {
+      questsEl.innerHTML = activeQuestIds.map(id => {
         const q = quests[id];
-        const statusLabel = q.status === 'completed' ? '(已完成)' : '';
+        // 只显示：已完成子任务 + 第一个未完成子任务（防剧透）
+        const objectives = q.objectives || [];
+        let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
+        if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
+        const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
+
+        const subtaskHtml = visibleObjectives.length > 0 ? `
+          <div class="quest-subtasks" style="display:none;">
+            ${visibleObjectives.map((o, idx) => `
+              <div class="quest-subtask ${o.completed ? 'done' : ''}" data-quest-id="${id}" data-subtask-idx="${idx}">
+                <div class="quest-subtask-check">${o.completed ? '✓' : ''}</div>
+                <div class="quest-subtask-text">${o.description}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '';
+
         return `
-          <div class="context-item">
+          <div class="context-item quest-item" data-quest-id="${id}">
             <div class="context-item-icon" style="font-size:10px;">Q</div>
             <div class="context-item-name">${q.name}</div>
-            <div class="context-item-meta">${statusLabel}</div>
+            ${subtaskHtml}
           </div>
         `;
       }).join('');
+
+      // 点击任务：展开/收起子任务
+      questsEl.querySelectorAll('.quest-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.quest-subtask')) return;
+          const subtasksEl = el.querySelector('.quest-subtasks');
+          if (subtasksEl) {
+            const isOpen = subtasksEl.style.display !== 'none';
+            subtasksEl.style.display = isOpen ? 'none' : 'block';
+          }
+        });
+      });
+
+      // 点击子任务：弹出任务详情模态框
+      questsEl.querySelectorAll('.quest-subtask').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const questId = el.dataset.questId;
+          const subtaskIdx = parseInt(el.dataset.subtaskIdx);
+          openQuestDetailModal(questId, subtaskIdx);
+        });
+      });
     }
   }
 
@@ -2026,13 +2383,6 @@
         meta = item.type || '';
         desc = item.description || '';
         avatar = 'I';
-        if (item.stealable) {
-          desc += '\n\n可偷取: 是 · 难度 DC ' + (item.difficulty || '?');
-        }
-        if (item.owner) {
-          const owner = state.data.npcs[item.owner];
-          desc += '\n拥有者: ' + (owner ? owner.name : item.owner);
-        }
         break;
       }
       case 'exit': {
@@ -2068,8 +2418,251 @@
     modalOverlay.classList.add('active');
   }
 
+  let expandedQuestIds = new Set();
+  let selectedSubtask = null;
+
+  function openQuestDetailModal(questId, subtaskIdx) {
+    const questsRaw = state.quests || state.data.quests;
+
+    // 构建任务列表（排除 hidden）
+    const allQuests = Object.values(questsRaw)
+      .filter(q => q.status !== 'hidden')
+      .map(q => ({
+        id: q.id,
+        title: q.name,
+        description: q.description,
+        completed: q.status === 'completed' || (q.objectives && q.objectives.length > 0 && q.objectives.every(o => o.completed)),
+        objectives: (q.objectives || []).map(o => ({ text: o.description, description: o.description, completed: o.completed })),
+        reward: q.reward,
+      }));
+
+    const activeQuests = allQuests.filter(q => !q.completed);
+    const completedQuests = allQuests.filter(q => q.completed);
+
+    let selectedQuestId = questId;
+    expandedQuestIds = new Set([questId]);
+    selectedSubtask = subtaskIdx != null ? { questId: questId, subtaskIdx } : null;
+
+    function renderSidebar() {
+      let html = '';
+
+      if (activeQuests.length > 0) {
+        html += `
+          <div class="task-category" data-category="active">
+            <div class="task-category-title" data-category-toggle="active">
+              <span>进行中</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${activeQuests.map(q => renderNavItem(q)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (completedQuests.length > 0) {
+        html += `
+          <div class="task-category" data-category="completed">
+            <div class="task-category-title" data-category-toggle="completed">
+              <span>已完成任务</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${completedQuests.map(q => renderNavItem(q)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    function renderNavItem(quest) {
+      const isActive = quest.id === selectedQuestId;
+      const completedClass = quest.completed ? ' task-completed' : '';
+      const statusText = quest.completed ? '已完成' : '进行中';
+      const statusClass = quest.completed ? 'completed' : 'ongoing';
+      const hasSubtasks = quest.objectives && quest.objectives.length > 0;
+      const isExpanded = expandedQuestIds.has(quest.id);
+      const expandClass = isExpanded ? ' expanded' : '';
+      const noExpandClass = !hasSubtasks ? ' no-expand' : '';
+
+      let subtaskRows = '';
+      if (hasSubtasks && isExpanded) {
+        // 防剧透：只显示已完成子任务 + 第一个未完成子任务
+        let fiIdx = quest.objectives.findIndex(o => !o.completed);
+        if (fiIdx === -1) fiIdx = quest.objectives.length;
+        const visibleObjs = quest.objectives.slice(0, fiIdx + 1);
+        subtaskRows = visibleObjs.map((st, idx) => {
+          const subCompleted = st.completed ? ' completed' : '';
+          const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? ' active' : '';
+          const subName = st.text + (st.completed ? '（已完成）' : '');
+          return `
+            <div class="task-sub-nav-item${subCompleted}${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
+              <span class="sub-nav-dot"></span>
+              <span class="task-sub-nav-name">${escapeHtml(subName)}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      return `
+        <div class="task-nav-item${isActive ? ' active' : ''}${completedClass}${expandClass}${noExpandClass}" data-quest-id="${quest.id}">
+          <span class="task-nav-name">${escapeHtml(quest.title)}</span>
+          <span class="task-nav-status ${statusClass}">${statusText}</span>
+          ${hasSubtasks ? `
+            <span class="task-nav-arrow">
+              <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+            </span>
+          ` : ''}
+        </div>
+        ${subtaskRows}
+      `;
+    }
+
+    function renderQuestDetail(quest) {
+      const tagClass = quest.completed ? 'completed' : 'ongoing';
+      const tagText = quest.completed ? '已完成' : '进行中';
+      const objectives = quest.objectives || [];
+
+      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
+      let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
+      if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
+      const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
+
+      let subtasksHtml = '';
+      if (visibleObjectives.length > 0) {
+        subtasksHtml = `
+          <div class="task-section-title">阶段目标</div>
+          <div class="task-subtasks">
+            ${visibleObjectives.map(st => `
+              <div class="subtask${st.completed ? ' completed' : ''}">
+                <div class="subtask-check">
+                  ${st.completed
+                    ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                    : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>'}
+                </div>
+                <div class="subtask-text">${escapeHtml(st.text)}${st.completed ? '（已完成）' : ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${escapeHtml(quest.title)}</h2>
+        </div>
+        <div class="task-detail-body">
+          ${subtasksHtml}
+          <div class="task-description">${escapeHtml(quest.description || '')}</div>
+        </div>
+      `;
+    }
+
+    function renderSubtaskDetail(qid, idx) {
+      const quest = allQuests.find(q => q.id === qid);
+      if (!quest) return '';
+      const st = quest.objectives && quest.objectives[idx];
+      if (!st) return '';
+
+      const tagClass = st.completed ? 'completed' : 'ongoing';
+      const tagText = st.completed ? '已完成' : '进行中';
+
+      return `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${escapeHtml(st.text)}</h2>
+        </div>
+        <div class="task-detail-body">
+          <div class="task-description">${escapeHtml(st.description || '详细描述待补充。')}</div>
+        </div>
+      `;
+    }
+
+    function refreshModal() {
+      let detailHtml;
+      if (selectedSubtask) {
+        detailHtml = renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
+      } else {
+        const curQ = allQuests.find(q => q.id === selectedQuestId);
+        detailHtml = curQ ? renderQuestDetail(curQ) : '';
+      }
+
+      modalContent.innerHTML = `
+        <div class="task-columns">
+          <div class="task-sidebar">${renderSidebar()}</div>
+          <div class="task-detail" id="task-modal-detail">${detailHtml}</div>
+        </div>
+      `;
+
+      // 分类折叠/展开
+      modalContent.querySelectorAll('.task-category-title').forEach(title => {
+        title.addEventListener('click', () => {
+          const category = title.closest('.task-category');
+          if (category) category.classList.toggle('collapsed');
+        });
+      });
+
+      // 任务项点击
+      modalContent.querySelectorAll('.task-nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const qid = item.dataset.questId;
+          const arrowEl = item.querySelector('.task-nav-arrow');
+
+          if (arrowEl && arrowEl.contains(e.target)) {
+            // 切换展开/折叠
+            if (expandedQuestIds.has(qid)) {
+              expandedQuestIds.delete(qid);
+            } else {
+              expandedQuestIds.add(qid);
+            }
+            if (selectedSubtask && selectedSubtask.questId === qid) {
+              selectedSubtask = null;
+            }
+            selectedQuestId = qid;
+            refreshModal();
+            return;
+          }
+
+          // 普通点击——选中任务
+          selectedQuestId = qid;
+          selectedSubtask = null;
+          expandedQuestIds.add(qid);
+          refreshModal();
+        });
+      });
+
+      // 子任务项点击
+      modalContent.querySelectorAll('.task-sub-nav-item').forEach(sub => {
+        sub.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const qid = sub.dataset.questId;
+          const idx = parseInt(sub.dataset.subtaskIdx);
+          selectedQuestId = qid;
+          selectedSubtask = { questId: qid, subtaskIdx: idx };
+          refreshModal();
+        });
+      });
+    }
+
+    refreshModal();
+    $('#detail-modal').classList.add('task-panel');
+    modalOverlay.classList.add('active');
+  }
+
   function closeDetailModal() {
     modalOverlay.classList.remove('active');
+    // 延迟移除 task-panel，等 overlay 淡出动画 (0.25s) 完成再恢复尺寸
+    setTimeout(() => {
+      const modal = $('#detail-modal');
+      if (modal) modal.classList.remove('task-panel');
+    }, 300);
   }
 
   modalClose.addEventListener('click', closeDetailModal);
@@ -2237,7 +2830,12 @@
                 }
                 if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
                 if (data.updates.npc_states) state.npcStates = data.updates.npc_states;
-                if (data.updates.quest_states) state.quests = data.updates.quest_states;
+                if (data.updates.quest_states) {
+                  Object.entries(data.updates.quest_states).forEach(([qid, update]) => {
+                    if (state.quests[qid]) Object.assign(state.quests[qid], update);
+                    if (state.data && state.data.quests[qid]) Object.assign(state.data.quests[qid], update);
+                  });
+                }
               }
 
               // 检定提示（在 GM 回复前显示）
@@ -2415,11 +3013,20 @@
         return;
       }
 
-      // 清空日志
+      // 清空日志 + 显示加载中
       state.log = [];
+      narrativeLog.innerHTML = '<div class="log-entry system" style="text-align:center;"><div class="log-label">系统</div><div>游戏加载中，GM 正在准备开场...</div></div>';
 
-      // 初始 GM 描述
-      appendLog('gm', loc.scene_text || loc.description || scene.description || '');
+      // 请求开场白（后端启动时已预生成，毫秒级响应）
+      const resp = await fetch(`/api/game/opening?adventure_id=${encodeURIComponent(ADVENTURE_ID)}&chapter_id=${encodeURIComponent(CHAPTER_ID)}&scene_id=${encodeURIComponent(scene.id)}`);
+      const data = await resp.json();
+
+      // 存储 session_id 供后续对话使用
+      state.sessionId = data.session_id;
+
+      // 清空加载提示，显示开场白
+      state.log = [];
+      appendLog('gm', data.opening || loc.scene_text || loc.description || scene.description || '');
 
       // 渲染 UI
       renderLocationHeader();

@@ -4114,29 +4114,21 @@
     }
   }
 
-  /* 点击"监狱大门"越狱（牢门已开）：后端推进狱卒巡逻轮数——
-     狱卒刚好回来 → 强制关回；否则越狱成功（传送市场 + 通缉 + 清状态） */
+  /* 点击"监狱大门"越狱（牢门已开）：后端推进狱卒巡逻轮数——狱卒刚好回来 → 强制关回；
+     否则越狱成功（传送市场 + 通缉 + 清状态）。SSE 流式：meta 先应用状态，GM 流式叙事（成功/被关回都会说话） */
   async function callJailEscape() {
     try {
-      const res = await fetch('/api/game/jail/escape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          adventure_id: ADVENTURE_ID,
-          chapter_id: CHAPTER_ID,
-          location_id: currentLocationId(),
-          character: state.character,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || '操作失败');
-      if (data.updates) applyGameUpdates(data.updates);
-      appendLog('gm', data.message);
+      await callDeterministicStream('/api/game/jail/escape', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, '越狱中，GM 叙事中...');
       renderLocationHeader();
       renderContextPanel();
     } catch (err) {
-      appendLog('system', `操作失败: ${err.message}`);
+      // callDeterministicStream 已提示错误
     }
   }
 

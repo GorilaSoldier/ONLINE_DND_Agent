@@ -83,6 +83,7 @@ def _build_context(state) -> dict:
             nid: s for nid, s in state.suspicion.items() if s.get("active")
         },
         "arrest": state.arrest,
+        "wanted_location": state.wanted_location,
     }
 
 
@@ -811,7 +812,8 @@ def resolve_suspicion(payload: dict = Body(...)):
 @router.post("/jail/escape")
 def jail_escape(payload: dict = Body(...)):
     """点击监狱大门越狱（牢门已开，前端导航触发）：
-    越狱行动同样推进狱卒巡逻轮数——狱卒刚好回来 → 强制关回；否则越狱成功（传送市场 + 通缉 + 清状态）。"""
+    越狱行动同样推进狱卒巡逻轮数——狱卒刚好回来 → 强制关回（GM 流式润色叙事）；
+    越狱成功 → 直接播报固定文本（不润色）。"""
     adventure_id = payload.get("adventure_id", "lost-mine-of-phandelver")
     chapter_id = payload.get("chapter_id", "ch1")
     session_id = payload.get("session_id")
@@ -823,10 +825,33 @@ def jail_escape(payload: dict = Body(...)):
 
     from services.core.steal_engine import jail_escape as _jail_escape
     result = _jail_escape(state)
-    state.add_history("player", "我推开监狱大门逃了出去")
+    pname = (character or {}).get("name") or "冒险者"
+    if result.get("ok"):
+        state.add_history("player", f"{pname}推开监狱大门逃了出去")
+    else:
+        state.add_history("player", f"{pname}试图越狱，却被狱卒堵了回来")
     state.add_history("gm", result["message"])
-    result["session_id"] = session_id
-    return result
+
+    updates = result.get("updates") or state.to_client_updates()
+    facts = result["message"]
+
+    def stream_response():
+        if result.get("ok"):
+            # 越狱成功：固定播报直出（meta 先应用状态，随后直接播报）
+            meta = {"type": "meta", "session_id": session_id, "updates": updates}
+            yield f"data: {json.dumps(meta, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'narrative_chunk', 'text': facts}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'full_text': facts}, ensure_ascii=False)}\n\n"
+            return
+        # 强制关回等：GM 流式润色叙事（狱卒回来这种戏剧性场景需要 GM 说话）
+        loc = get_location(state.data, state.location_id) or {}
+        context = {"player_name": pname, "location_name": loc.get("name", ""), "action": "越狱被阻"}
+        extra = {"facts": facts, "context": context}
+        for ev in _polish_meta_stream(state, session_id, updates, None, extra, event_type="jail_escape"):
+            yield ev
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 # ── 休息系统（确定性结算，按钮/关键词触发，不走 AI）──

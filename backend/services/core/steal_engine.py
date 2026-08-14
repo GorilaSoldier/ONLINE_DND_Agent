@@ -43,6 +43,11 @@ def _npc_name(state, npc_id: str) -> str:
     return state.data["npcs"].get(npc_id, {}).get("name", npc_id)
 
 
+def _pname(state) -> str:
+    """玩家角色名（播报一律用角色名，禁止第一/第二人称）"""
+    return (state.character or {}).get("name") or "冒险者"
+
+
 def _ability_check(character, ability: str, dc: int) -> dict:
     """纯属性检定：d20 + 属性调整（挣脱后的敏捷逃脱是敏捷检定，非技能检定）"""
     mod = ability_modifier(char_ability_score(character, ability))
@@ -133,7 +138,7 @@ def random_teleport(state) -> str:
 
 
 def _do_escape(state, npc_id: str) -> str:
-    """逃脱成功：随机传送相邻出口 + 当前（案发）区域通缉 + 清空对峙/被抓住/卫兵状态。返回叙事消息"""
+    """逃脱成功：随机传送相邻出口 + 当前（案发）区域通缉 + 清空对峙/被抓住/卫兵状态。返回叙事消息（角色名，无你/我）"""
     crime_loc = state.location_id
     random_teleport(state)
     state.clear_suspicion(npc_id)
@@ -143,7 +148,9 @@ def _do_escape(state, npc_id: str) -> str:
     state.set_wanted(crime_loc)
     loc = get_location(state.data, state.location_id)
     loc_name = loc.get("name", "一处地方") if loc else "一处地方"
-    return f"你甩开追兵，转身钻进人群，三拐两拐冲出了这片区域，一路逃到{loc_name}。\n你在这片区域被通缉了！"
+    pname = _pname(state)
+    # 不直接播报"被通缉"：通缉状态已标记（wanted_location），由 GM 在后续对话中自然揭示
+    return f"{pname}甩开追兵，转身钻进人群，三拐两拐冲出了这片区域，一路逃到{loc_name}。"
 
 
 # ── 呼叫卫兵 ──
@@ -601,8 +608,9 @@ def arrest_action(state, action: str, character) -> dict:
         return_loc = state.location_id
         state.location_id = JAIL_LOCATION
         _jail_init_guard(state, return_loc)
-        msg = (f"你被{guard_name}按死，赃物被当场搜出没收，罚赔 {cost} 金币（余额 {gold_after}），"
-               f"随后被关进绝冬城监狱。狱卒守在走廊里。你可以：交保释金（{JAIL_BAIL} 金币）提前出狱、"
+        pname = _pname(state)
+        msg = (f"{pname}被{guard_name}按死，赃物被当场搜出没收，罚赔 {cost} 金币（余额 {gold_after}），"
+               f"随后被关进绝冬城监狱。狱卒守在走廊里。可以选择：交保释金（{JAIL_BAIL} 金币）提前出狱、"
                f"蹲到天亮服刑，或等狱卒巡逻时撬锁越狱。")
     elif phase == "jailed":
         # 监狱互动：pay 保释 / pick_lock 撬锁 / wait 等巡逻 / serve 蹲夜 / 其他=对话（仅推进狱卒状态）
@@ -611,14 +619,15 @@ def arrest_action(state, action: str, character) -> dict:
             if get_player_gold(state) >= JAIL_BAIL:
                 gold_after = get_player_gold(state) - JAIL_BAIL
                 set_player_gold(state, gold_after)
-                msg = f"你掏出 {JAIL_BAIL} 金币交给狱卒作保释金。狱卒掂了掂钱袋，打开牢门：“出去吧，别再犯事。”"
+                msg = (f"{_pname(state)}掏出 {JAIL_BAIL} 金币交给狱卒作保释金。狱卒掂了掂钱袋，打开牢门："
+                       f"“出去吧，别再犯事。”")
                 _release_from_jail(state)
             else:
-                msg = (f"你翻遍口袋也只有 {get_player_gold(state)} 金币，不够 {JAIL_BAIL} 的保释金。"
+                msg = (f"翻遍口袋也只有 {get_player_gold(state)} 金币，不够 {JAIL_BAIL} 的保释金。"
                        f"要么想办法凑钱，要么蹲到天亮，要么等狱卒巡逻时撬锁越狱。")
         elif action == "pick_lock":
             if a.get("jail_guard") == "present":
-                msg = "狱卒就坐在走廊里盯着这边，你没法下手撬锁。可以输入“等待”消磨时间，等狱卒去巡逻。"
+                msg = "狱卒就坐在走廊里盯着这边，没法下手撬锁。可以输入“等待”消磨时间，等狱卒去巡逻。"
             else:
                 check = roll_skill_check("sleight_of_hand", character, PICK_LOCK_DC)
                 if check["success"]:
@@ -627,21 +636,21 @@ def arrest_action(state, action: str, character) -> dict:
                 elif check["total"] <= PICK_LOCK_DC - 5:
                     a["jail_guard"] = "present"
                     a["guard_until"] = time.time() + random.randint(JAIL_GUARD_PRESENT_MIN, JAIL_GUARD_PRESENT_MAX)
-                    msg = "你手一抖，锁链哗啦作响，惊动了狱卒！他快步赶回来，恶狠狠地警告：“再敢撬锁，就加你刑期！”"
+                    msg = "撬锁的手一抖，锁链哗啦作响，惊动了狱卒！他快步赶回来，恶狠狠地警告：“再敢撬锁，就加刑期！”"
                 else:
-                    msg = "锁芯纹丝不动，好在没发出太大声响，狱卒并未察觉。你可以再试一次。"
+                    msg = "锁芯纹丝不动，好在没发出太大声响，狱卒并未察觉。可以再试一次。"
         elif action == "wait":
-            msg = "你在牢里来回踱步，消磨着时间。"
+            msg = "在牢里来回踱步，消磨着时间。"
             if a.get("jail_guard") == "away":
                 msg += f"狱卒正在巡逻，估计还有 {a.get('guard_away_left', 0)} 轮才回来，现在可以试着撬锁。"
             else:
                 msg += "狱卒还在走廊里守着，再等等吧。"
         elif action == "serve":
             state.game_time += 8
-            msg = "你决定服刑到天亮。一夜无事，第二天清晨，狱卒打开牢门：“滚吧，别再犯事。”"
+            msg = "决定服刑到天亮。一夜无事，第二天清晨，狱卒打开牢门：“滚吧，别再犯事。”"
             _release_from_jail(state)
         else:
-            msg = "狱卒在走廊里踱步，没有理你。"
+            msg = "狱卒在走廊里踱步，没有理人。"
         if tick_msg:
             msg = tick_msg + " " + msg
     else:
@@ -705,7 +714,7 @@ def _jail_tick(state) -> str:
         a["guard_until"] = now + random.randint(JAIL_GUARD_PRESENT_MIN, JAIL_GUARD_PRESENT_MAX)
         if a.get("cell_open"):
             a["cell_open"] = False
-            return "狱卒巡逻回来了！他看到牢门大开的你，一把将你推回牢里，重新锁上门。"
+            return f"狱卒巡逻回来了！他看到牢门大开的{_pname(state)}，一把将对方推回牢里，重新锁上门。"
         return "狱卒巡逻回来了，重新坐回桌边。"
     return ""
 
@@ -724,12 +733,13 @@ def jail_escape(state) -> dict:
     越狱行动同样推进狱卒巡逻轮数——若狱卒刚好回来 → 强制关回；否则越狱成功（复用 _do_escape：传送+通缉+清状态）。"""
     a = state.arrest
     if not a or not a.get("active") or a.get("phase") != "jailed":
-        return {"ok": False, "message": "你现在不在监狱里。", "updates": state.to_client_updates()}
+        return {"ok": False, "message": "玩家现在不在监狱里。", "updates": state.to_client_updates()}
     if not a.get("cell_open"):
-        return {"ok": False, "message": "牢门还锁着，你出不去。", "updates": state.to_client_updates()}
+        return {"ok": False, "message": "牢门还锁着，出不去。", "updates": state.to_client_updates()}
     tick_msg = _jail_tick(state)
     if not a.get("active") or a.get("jail_guard") == "present":
         # 狱卒刚好回来 → 强制关回（cell_open 已被 _jail_tick 复位）
-        return {"ok": False, "message": tick_msg or "狱卒回来了，把你按回牢里。", "updates": state.to_client_updates()}
-    msg = "你趁狱卒巡逻的空档，猫着腰溜出牢房，穿过走廊推开监狱大门！" + _do_escape(state, "town-guard")
+        return {"ok": False, "message": tick_msg or "狱卒回来了，把玩家按回牢里。", "updates": state.to_client_updates()}
+    pname = _pname(state)
+    msg = (f"{pname}趁狱卒巡逻的空档，猫着腰溜出牢房，穿过走廊推开监狱大门！" + _do_escape(state, "town-guard"))
     return {"ok": True, "message": msg, "updates": state.to_client_updates()}

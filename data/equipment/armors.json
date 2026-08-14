@@ -7,12 +7,22 @@
       "type": "armor",
       "subtype": "light_armor",
       "rarity": "common",
-      "description": "填充棉絮的护甲，轻便但易燃。",
+      "description": "由多层填充棉絮缝制而成的护甲，外层是耐磨布料。轻便舒适，但防护有限，且浸水后格外笨重。",
       "icon": "chestplate",
+      "price": 5,
       "properties": {
         "ac": "11 + 敏捷调整值",
         "weight": "8磅",
         "stealth": "劣势"
+      },
+      "stats": {
+        "category": "light",
+        "ac_base": 11,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": null,
+        "stealth_disadvantage": true,
+        "strength_requirement": null
       }
     },
     "leather": {
@@ -21,12 +31,22 @@
       "type": "armor",
       "subtype": "light_armor",
       "rarity": "common",
-      "description": "硬化皮革制成的护甲，适合潜行者。",
+      "description": "由硬化皮革裁制而成的护甲，贴合身形、行动自如。游荡者与游侠最爱的轻便防护，几乎不影响隐匿行动。",
       "icon": "chestplate",
+      "price": 10,
       "properties": {
         "ac": "11 + 敏捷调整值",
         "weight": "10磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "light",
+        "ac_base": 11,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "studded_leather": {
@@ -35,12 +55,22 @@
       "type": "armor",
       "subtype": "light_armor",
       "rarity": "common",
-      "description": "在关键部位镶有金属铆钉的皮甲。",
+      "description": "在关键部位镶满金属铆钉的强化皮甲。相比普通皮甲提供了更好的防护，同时保持了轻甲的行动灵活性。",
       "icon": "chestplate",
+      "price": 45,
       "properties": {
         "ac": "12 + 敏捷调整值",
         "weight": "13磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "light",
+        "ac_base": 12,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "hide": {
@@ -49,12 +79,22 @@
       "type": "armor",
       "subtype": "medium_armor",
       "rarity": "common",
-      "description": "由厚兽皮缝制而成的中型护甲。",
+      "description": "用厚实的野兽皮革与毛皮缝制而成的粗犷护甲。蛮族猎手常在兽皮内衬上骨片或金属片，以增强防护。",
       "icon": "chestplate",
+      "price": 10,
       "properties": {
         "ac": "12 + 敏捷调整值（最高+2）",
         "weight": "12磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "medium",
+        "ac_base": 12,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": 2,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "chain_shirt": {
@@ -63,12 +103,22 @@
       "type": "armor",
       "subtype": "medium_armor",
       "rarity": "common",
-      "description": "贴身的锁子甲，提供良好防护同时保持灵活。",
+      "description": "由无数细小金属环互相环扣编织成的贴身锁甲，覆盖躯干与上臂。防护出色，且不像全甲那样笨重。",
       "icon": "chestplate",
+      "price": 50,
       "properties": {
         "ac": "13 + 敏捷调整值（最高+2）",
         "weight": "20磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "medium",
+        "ac_base": 13,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": 2,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "breastplate": {
@@ -77,12 +127,22 @@
       "type": "armor",
       "subtype": "medium_armor",
       "rarity": "common",
-      "description": "覆盖躯干正面的金属胸甲，兼顾防护与机动。",
+      "description": "由一整块锻打金属塑形而成的胸甲，覆盖躯干正面，其余部位以皮甲连接。兼顾防护与机动，是巡逻队与雇佣兵的常见选择。",
       "icon": "chestplate",
+      "price": 400,
       "properties": {
         "ac": "14 + 敏捷调整值（最高+2）",
         "weight": "20磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "medium",
+        "ac_base": 14,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": 2,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "half_plate": {
@@ -91,12 +151,22 @@
       "type": "armor",
       "subtype": "medium_armor",
       "rarity": "rare",
-      "description": "覆盖大部分身体的金属护甲，沉重但坚固。",
+      "description": "覆盖躯干、肩膀与大腿关键部位的成套金属甲片，内衬锁子甲。防护接近全甲，但关节处保留了灵活性。",
       "icon": "chestplate",
+      "price": 750,
       "properties": {
         "ac": "15 + 敏捷调整值（最高+2）",
         "weight": "40磅",
         "stealth": "劣势"
+      },
+      "stats": {
+        "category": "medium",
+        "ac_base": 15,
+        "bonus_ac": 0,
+        "ac_ability": "dex",
+        "ac_max_dex": 2,
+        "stealth_disadvantage": true,
+        "strength_requirement": null
       }
     },
     "ring_mail": {
@@ -105,12 +175,22 @@
       "type": "armor",
       "subtype": "heavy_armor",
       "rarity": "common",
-      "description": "由金属环缝制在皮革上的重型护甲。",
+      "description": "将密排的金属环片缝制在皮革底衬上制成的重甲。防护可靠但相当沉重，穿戴时发出叮当作响的金属声。",
       "icon": "chestplate",
+      "price": 30,
       "properties": {
         "ac": "14",
         "weight": "40磅",
         "stealth": "劣势"
+      },
+      "stats": {
+        "category": "heavy",
+        "ac_base": 14,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": true,
+        "strength_requirement": null
       }
     },
     "chain_mail": {
@@ -119,13 +199,23 @@
       "type": "armor",
       "subtype": "heavy_armor",
       "rarity": "common",
-      "description": "由金属环编织而成的全身护甲。",
+      "description": "由数万枚金属环层层环扣编织成的全身锁甲，垂到膝盖，外罩皮革。能有效抵御劈砍与穿刺，是骑士的标准装备。",
       "icon": "chestplate",
+      "price": 75,
       "properties": {
         "ac": "16",
         "weight": "55磅",
         "stealth": "劣势",
         "requirement": "力量 13"
+      },
+      "stats": {
+        "category": "heavy",
+        "ac_base": 16,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": true,
+        "strength_requirement": 13
       }
     },
     "plate": {
@@ -134,13 +224,23 @@
       "type": "armor",
       "subtype": "heavy_armor",
       "rarity": "rare",
-      "description": "全套金属板甲，提供最高级别的防护。",
+      "description": "由锻造大师倾力打造的全身板甲，每一片甲片都贴合身形，提供最强防护。穿上它，你就是行走的堡垒。",
       "icon": "chestplate",
+      "price": 1500,
       "properties": {
         "ac": "18",
         "weight": "65磅",
         "stealth": "劣势",
         "requirement": "力量 15"
+      },
+      "stats": {
+        "category": "heavy",
+        "ac_base": 18,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": true,
+        "strength_requirement": 15
       }
     },
     "shield": {
@@ -149,12 +249,22 @@
       "type": "armor",
       "subtype": "shield",
       "rarity": "common",
-      "description": "手持盾牌，可提升护甲等级。",
+      "description": "一面圆形的硬木盾牌，正面包铁加固，背面有皮质臂带。举起它可挡住迎面而来的刀剑与箭矢。",
       "icon": "shield",
+      "price": 10,
       "properties": {
         "ac": "+2",
         "weight": "6磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "shield",
+        "ac_base": 0,
+        "bonus_ac": 2,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "travel_clothes": {
@@ -163,12 +273,22 @@
       "type": "armor",
       "subtype": "clothes",
       "rarity": "common",
-      "description": "适合长途旅行的结实衣物和斗篷。",
+      "description": "适合长途旅行的结实衣裤和防风雨斗篷，口袋众多。旅人、冒险者的标准行头。",
       "icon": "clothes",
+      "price": 1,
       "properties": {
         "ac": "—",
         "weight": "4磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "clothes",
+        "ac_base": 0,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "common_clothes": {
@@ -177,12 +297,22 @@
       "type": "armor",
       "subtype": "clothes",
       "rarity": "common",
-      "description": "日常穿着的朴素衣物。",
+      "description": "日常穿着的朴素衣物，麻布或羊毛裁制，舒适耐穿。",
       "icon": "clothes",
+      "price": 1,
       "properties": {
         "ac": "—",
         "weight": "3磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "clothes",
+        "ac_base": 0,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     },
     "fine_clothes": {
@@ -191,12 +321,22 @@
       "type": "armor",
       "subtype": "clothes",
       "rarity": "common",
-      "description": "做工精细的礼服，适合出席正式场合。",
+      "description": "做工精细、用料考究的礼服，镶嵌着银线刺绣。适合出席贵族的宴会与舞会。",
       "icon": "clothes",
+      "price": 15,
       "properties": {
         "ac": "—",
         "weight": "6磅",
         "stealth": "—"
+      },
+      "stats": {
+        "category": "clothes",
+        "ac_base": 0,
+        "bonus_ac": 0,
+        "ac_ability": null,
+        "ac_max_dex": null,
+        "stealth_disadvantage": false,
+        "strength_requirement": null
       }
     }
   }

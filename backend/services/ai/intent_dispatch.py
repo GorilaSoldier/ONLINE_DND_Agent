@@ -1,49 +1,28 @@
+"""AI 意图分发层（ai）：把 AI 工具调用产出的结构化意图，分发给 core 的确定性结算。
+
+后端不做任何猜测：目标不明时按"系统锁定的唯一对象"推断（对峙质问者/卫兵，非猜测），
+其余一律返回提示由 AI/玩家明确；确定性检定/结算全部来自 services.core。
 """
-规则引擎：接收 AI 解析后的意图，执行确定性规则，生成检定与状态变更建议。
-不直接修改 GameState，只返回 state_changes 建议。
-"""
-import random
-import logging
+import time
 from typing import Dict, Any, List, Tuple, Optional
 
-from services.ai_gm import IntentResult
-from services.game_state import get_location
-
-logger = logging.getLogger(__name__)
-
-
-def roll_d20(modifier: int = 0) -> dict:
-    roll = random.randint(1, 20)
-    return {"roll": roll, "modifier": modifier, "total": roll + modifier}
-
-
-def ability_modifier(score: int) -> int:
-    return (score - 10) // 2
+from services.core.intents import IntentResult
+from services.core.game_state import get_location
+from services.core.rules import (
+    SKILL_ABILITY_MAP,
+    char_ability_score,
+    ability_modifier,
+    roll_d20,
+    location_npc_ids,
+    witness_stealth_dc,
+    merchant_sells,
+)
 
 
 class RuleEngine:
-    """规则引擎：执行 AI 提供的意图"""
+    """意图分发：执行 AI 提供的意图 → core 确定性结算。不直接猜测目标。"""
 
-    SKILL_ABILITY_MAP = {
-        "perception": "wisdom",
-        "investigation": "intelligence",
-        "sleight_of_hand": "dexterity",
-        "stealth": "dexterity",
-        "intimidation": "charisma",
-        "persuasion": "charisma",
-        "deception": "charisma",
-        "insight": "wisdom",
-        "athletics": "strength",
-        "acrobatics": "dexterity",
-        "arcana": "intelligence",
-        "history": "intelligence",
-        "nature": "intelligence",
-        "religion": "intelligence",
-        "medicine": "wisdom",
-        "survival": "wisdom",
-        "animal_handling": "wisdom",
-        "performance": "charisma",
-    }
+    SKILL_ABILITY_MAP = SKILL_ABILITY_MAP  # 技能→属性（确定性映射，定义在 core.rules）
 
     SKILL_NAME_CN = {
         "perception": "侦察（感知）",
@@ -66,9 +45,7 @@ class RuleEngine:
     # 主入口
     # ------------------------------------------------------------------
     def execute(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
-        """
-        执行意图，返回 (rule_result, state_changes)
-        """
+        """执行意图，返回 (rule_result, state_changes)"""
         handlers = {
             "talk": self._handle_talk,
             "move": self._handle_move,
@@ -79,6 +56,10 @@ class RuleEngine:
             "look": self._handle_look,
             "take": self._handle_take,
             "trade": self._handle_trade,
+            "cast_spell": self._handle_cast,
+            "use_action": self._handle_action,
+            "resolve_suspicion": self._handle_resolve_suspicion,
+            "arrest": self._handle_arrest,
             "other": self._handle_other,
         }
         handler = handlers.get(intent_result.intent, self._handle_other)
@@ -88,22 +69,17 @@ class RuleEngine:
     # 目标查找
     # ------------------------------------------------------------------
     def _resolve_target(self, intent_result: IntentResult) -> Tuple[Optional[Any], str]:
-        """
-        根据 target_id / target_type 查找实际对象
-        返回 (对象, 查找状态：found / not_found / ambiguous)
-        """
+        """根据 target_id / target_type 查找实际对象，返回 (对象, 查找状态)"""
         target_id = intent_result.target_id
         target_type = intent_result.target_type
 
         if target_type == "none" or not target_id:
             return None, "none"
 
-        # 先按 ID 查找
         if target_type == "npc":
             npc = self.data["npcs"].get(target_id)
             if npc:
                 return npc, "found"
-            # 再按名字查找
             for nid, npc in self.data["npcs"].items():
                 if npc.get("name") == target_id:
                     return npc, "found"
@@ -139,10 +115,27 @@ class RuleEngine:
         return free
 
     def _is_present_npc(self, npc_id: str) -> bool:
-        present = self.scene.get("npcs", []) if self.scene else []
-        return npc_id in present
+        return npc_id in self._present_npc_ids()
+
+    def _present_npc_ids(self) -> list:
+        """当前地点/场景在场的 NPC id 列表（地点优先，场景兜底）"""
+        if self.state and self.state.location_id:
+            loc = get_location(self.data, self.state.location_id)
+            if loc is not None and "npcs" in loc:
+                return location_npc_ids(loc)
+        return self.scene.get("npcs", []) if self.scene else []
 
     def _is_present_item(self, item_id: str) -> bool:
+        """物品是否在当前地点/场景"""
+        if self.state and self.state.location_id:
+            loc = get_location(self.data, self.state.location_id)
+            if loc is not None and "items" in loc:
+                for entry in loc.get("items", []):
+                    if isinstance(entry, str) and entry == item_id:
+                        return True
+                    if isinstance(entry, dict) and entry.get("id") == item_id:
+                        return True
+                return False
         item_entries = self.scene.get("items", []) if self.scene else []
         for entry in item_entries:
             if isinstance(entry, str) and entry == item_id:
@@ -151,17 +144,15 @@ class RuleEngine:
                 return True
         return False
 
-    def _is_reachable_location(self, loc_id: str) -> bool:
-        return loc_id in self._get_free_locations()
-
     # ------------------------------------------------------------------
     # 检定
     # ------------------------------------------------------------------
+    def _char_ability(self, character: dict | None, ability: str) -> int:
+        return char_ability_score(character, ability)
+
     def _roll_skill_check(self, skill: str, character: dict | None, dc: Optional[int] = None) -> dict:
         ability = self.SKILL_ABILITY_MAP.get(skill, "wisdom")
-        score = 10
-        if character:
-            score = character.get(ability, character.get(ability[:3], 10))
+        score = self._char_ability(character, ability)
         mod = ability_modifier(score)
         result = roll_d20(mod)
         result["skill"] = skill
@@ -199,6 +190,27 @@ class RuleEngine:
         return {"gm_text": greeting, "checks": []}, []
 
     def _handle_move(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        # 逮捕流程中：移动被拦截（逃跑须明说"逃跑"走敏捷逃脱检定 / 被抓住可"挣脱"）
+        if self.state and self.state.has_active_arrest():
+            phase = self.state.arrest.get("phase")
+            if phase == "summoned":
+                return {"gm_text": "卫兵正在赶来。你若想脱身，就明说“逃跑”（敏捷检定甩开追兵）或“挣脱”。", "checks": []}, []
+            if phase == "jailed":
+                if self.state.arrest.get("cell_open"):
+                    return {"gm_text": "牢门已经撬开了！点击“监狱大门”就可以逃出去。", "checks": []}, []
+                return {"gm_text": "你被关在牢里，铁栏杆挡着出不去。可以等狱卒巡逻时撬锁，或交保释金、蹲到天亮服刑。", "checks": []}, []
+            return {"gm_text": "卫兵拦住了你的去路：“先把事情说清楚！”你现在没法离开。", "checks": []}, []
+        # 被怀疑偷窃（强制对话）时锁定移动（情况二立即锁定；情况四超过 5 秒反应期后锁定，期间允许逃跑）
+        if self.state and self.state.suspicion_locked():
+            for sid, s in self.state.suspicion.items():
+                if s.get("active") and time.time() - s.get("detected_at", 0) >= 5:
+                    npc = self.data["npcs"].get(sid, {})
+                    return {
+                        "gm_text": f"{npc.get('name', sid)}正盯着你，你现在没法离开这里。",
+                        "checks": [],
+                    }, []
+            return {"gm_text": "你现在没法离开这里。", "checks": []}, []
+
         loc, status = self._resolve_target(intent_result)
 
         if status != "found" or not loc:
@@ -229,9 +241,9 @@ class RuleEngine:
         text = loc.get("scene_text") or loc.get("description", "")
         changes = [{"type": "move_player", "location_id": target_id}]
 
-        # 检查被动察觉（简单实现，后续可扩展）
+        # 检查被动察觉
         if character:
-            passive = 10 + ability_modifier(character.get("wisdom", 10))
+            passive = 10 + ability_modifier(self._char_ability(character, "wisdom"))
             found = []
             for secret in loc.get("hidden", []):
                 if secret.get("passive") and passive >= secret.get("dc", 20):
@@ -271,24 +283,22 @@ class RuleEngine:
 
     def _handle_check(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         skill = intent_result.skill or ("perception" if intent_result.intent == "perception" else "investigation")
+        if skill == "stealth" and self.state:
+            return self._handle_stealth(intent_result, character)
         skill_cn = self.SKILL_NAME_CN.get(skill, skill)
         ability = self.SKILL_ABILITY_MAP.get(skill, "wisdom")
 
-        # 确定目标 key（用于每人每目标每技能一次限制）
         target_id = intent_result.target_id or (self.location["id"] if self.location else "")
         target_type = intent_result.target_type or "location"
         if target_type == "none":
             target_type = "location"  # 无明确目标的检定统一归到地点
         attempt_key = f"{skill}:{target_type}:{target_id}"
 
-        # 每人每目标每技能只能试一次
         if self.state and attempt_key in self.state.check_attempts:
             return {"gm_text": f"你已经对{target_type=='npc' and '这个人' or '这里'}进行过{skill_cn}了，没有更多发现。", "checks": [], "blocked": True}, []
 
-        # DC 来源：AI 建议、地点/物品默认、隐藏信息默认
         dc = intent_result.suggested_dc
         if dc is None and self.location:
-            # 取一个合适的 DC
             for h in self.location.get("hidden", []):
                 if h.get("skill") == skill:
                     dc = h.get("dc", 10)
@@ -311,7 +321,6 @@ class RuleEngine:
                         "secret_id": h["id"],
                     })
 
-            # 揭示隐藏物品（visible=false 且定义了 discovery 条件）
             for entry in self.location.get("items", []):
                 if isinstance(entry, dict) and not entry.get("visible", True):
                     item_id = entry.get("id")
@@ -345,22 +354,18 @@ class RuleEngine:
         elif result["success"]:
             text += " 你在当前区域没有发现任何隐藏信息。只回复这一句：你没有发现异常。不要添加任何环境描写、NPC动作或新地点细节。"
 
-        # 标记已尝试（成功/失败都只有一次机会）
         if self.state:
             self.state.check_attempts.add(attempt_key)
 
         return {"gm_text": text, "checks": [result]}, changes
 
     def run_passive_checks(self, character: dict | None, location: dict) -> list:
-        """
-        进入新地点时运行被动察觉和被动调查。
-        返回成功发现的隐藏信息描述列表。
-        """
+        """进入新地点时运行被动察觉和被动调查"""
         if not character or not location:
             return []
 
-        passive_perception = 10 + ability_modifier(character.get("wisdom", 10))
-        passive_investigation = 10 + ability_modifier(character.get("intelligence", 10))
+        passive_perception = 10 + ability_modifier(self._char_ability(character, "wisdom"))
+        passive_investigation = 10 + ability_modifier(self._char_ability(character, "intelligence"))
         discoveries = []
         loc_id = location["id"]
 
@@ -385,61 +390,98 @@ class RuleEngine:
 
         return discoveries
 
-    # ------------------------------------------------------------------
-    # 处理器
-    # ------------------------------------------------------------------
+    def _handle_stealth(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """潜行：隐匿检定 vs 在场目击者最高被动感知+警觉。成功后进入隐匿状态。
+        潜行不需要指定目标——未指定时为通用隐匿（偷窃任意在场 NPC 均视为已潜行）；
+        指定目标时也可（如只想瞒过某人的眼睛）。"""
+        present = self._present_npc_ids()
+        target_id = intent_result.target_id
+        npc_id = target_id if target_id and target_id in present else ""
+        dc = witness_stealth_dc(self.state, npc_id or None) if self.state else 10
+        result = self._roll_skill_check("stealth", character, dc)
+        if result["success"]:
+            self.state.set_stealth(npc_id, dc)
+            text = "你悄然隐入人群与阴影，藏起了身形。"
+        else:
+            if npc_id:
+                self.state.add_npc_alert(npc_id, 1)
+                noise = "脚步声惊动" if result["roll"] <= 10 else "对方有所察觉"
+                text = f"你试图潜行，但{noise}了在场的人，只好先按兵不动。"
+            else:
+                noise = "脚下踩到碎物" if result["roll"] <= 10 else "有人向你投来目光"
+                text = f"你试图潜行，但{noise}，惊动了周围的人，只好先按兵不动。"
+        return {"gm_text": text, "checks": [result]}, []
+
     def _handle_steal(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        from services.core.steal_engine import merchant_steal, scene_item_steal
+
         item, status = self._resolve_target(intent_result)
 
-        if status != "found" or not item:
-            # AI 没有识别出有效偷窃目标
-            desc = intent_result.narrative_description or ""
-            if desc and ("没有" in desc or "不存在" in desc):
-                return {"gm_text": desc, "checks": []}, []
-            return {"gm_text": "当前地点没有你可以偷的目标物品。", "checks": []}, []
+        if status == "found" and item and item.get("id"):
+            item_id = item["id"]
+            if self._is_present_item(item_id):
+                if item.get("stealable") is False:
+                    return {"gm_text": f"{item['name']} 无法被偷走。", "checks": []}, []
+                if not item.get("owner"):
+                    return {"gm_text": f"{item['name']} 是无主之物，直接拿走就行，不需要偷。", "checks": []}, []
+                owner_id = item["owner"]
+                dc = intent_result.suggested_dc
+                rule, changes = scene_item_steal(self.state, owner_id, character, item, item_id, suggested_dc=dc)
+                return rule, changes
 
-        item_id = item["id"]
-        if not self._is_present_item(item_id):
-            return {"gm_text": f"这里没有 {item['name']}，无法偷窃。", "checks": []}, []
+        if self.state:
+            target_type = intent_result.target_type
+            target_id = intent_result.target_id
+            if target_type == "item" and target_id:
+                for nid in self._present_npc_ids():
+                    if self.state.get_merchant(nid) and merchant_sells(self.state, nid, target_id):
+                        r = merchant_steal(self.state, nid, character, item_id=target_id, target="item")
+                        rule = {"gm_text": r["message"], "checks": [r["check"]] if r.get("check") else []}
+                        if r.get("delayed_suspicion"):
+                            rule["delayed_suspicion"] = r["delayed_suspicion"]
+                        return rule, []
+            elif target_type == "npc" and target_id:
+                if self._is_present_npc(target_id) and self.state.get_merchant(target_id):
+                    r = merchant_steal(self.state, target_id, character, target="gold")
+                    rule = {"gm_text": r["message"], "checks": [r["check"]] if r.get("check") else []}
+                    if r.get("delayed_suspicion"):
+                        rule["delayed_suspicion"] = r["delayed_suspicion"]
+                    return rule, []
 
-        if not item.get("stealable"):
-            return {"gm_text": f"{item['name']} 无法被偷走。", "checks": []}, []
+        desc = intent_result.narrative_description or ""
+        if desc and ("没有" in desc or "不存在" in desc):
+            return {"gm_text": desc, "checks": []}, []
+        return {"gm_text": "当前地点没有你可以偷的目标物品。", "checks": []}, []
 
-        dc = intent_result.suggested_dc or item.get("difficulty", 10)
-        result = self._roll_skill_check("sleight_of_hand", character, dc)
+    def _handle_resolve_suspicion(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """被怀疑（强制对话）时玩家的选择：search / pay / refuse / deception / intimidation / persuasion / flee。
+        目标默认为系统锁定的唯一质问者（非猜测）：AI 未传 target_id 时取唯一 active 的 suspicion 对象。"""
+        if not self.state:
+            return {"gm_text": "", "checks": []}, []
+        npc_id = intent_result.target_id
+        if not npc_id:
+            # 默认目标：状态机锁定的唯一质问者（玩家不可能对别人表态）
+            active = [nid for nid, s in self.state.suspicion.items() if s.get("active")]
+            npc_id = active[0] if len(active) == 1 else ""
+        action = intent_result.action
+        if not npc_id or action not in ("search", "pay", "refuse", "deception", "intimidation", "persuasion", "flee"):
+            return {"gm_text": "对方在等你表态。", "checks": []}, []
+        from services.core.steal_engine import resolve_suspicion_action
+        result = resolve_suspicion_action(self.state, npc_id, action, character)
+        return {"gm_text": result["message"], "checks": [result["check"]] if result.get("check") else []}, []
 
-        changes = []
-        if result["success"]:
-            owner_id = item.get("owner")
-            changes.append({
-                "type": "move_item",
-                "item_id": item_id,
-                "from": {"type": "location", "id": self.location["id"] if self.location else ""},
-                "to": {"type": "player", "id": "player_1"},
-                "hidden": True,
-            })
-            if owner_id:
-                changes.append({
-                    "type": "add_memory",
-                    "npc_id": owner_id,
-                    "memory": {
-                        "event": "item_stolen",
-                        "item_id": item_id,
-                        "suspect": "player_1",
-                        "timestamp": self.state.game_time if self.state else 0,
-                    },
-                })
-            text = f"你成功偷走了 {item['name']}。"
-        else:
-            text = f"你试图偷走 {item['name']}，但手一滑没拿稳。"
-
-        return {"gm_text": text, "checks": [result]}, changes
+    def _handle_arrest(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """卫兵流程：summoned → arrived → arrested → jailed。对象固定（卫兵/原告），不依赖 target。"""
+        if not self.state or not self.state.has_active_arrest():
+            return {"gm_text": "这里没有卫兵找你的麻烦。", "checks": []}, []
+        from services.core.steal_engine import arrest_action
+        result = arrest_action(self.state, intent_result.action or "", character)
+        return {"gm_text": result["message"], "checks": [result["check"]] if result.get("check") else []}, []
 
     def _handle_look(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         target_type = intent_result.target_type
         target_id = intent_result.target_id
 
-        # 查看特定 NPC
         if target_type == "npc" and target_id:
             npc = self.data["npcs"].get(target_id)
             if not npc:
@@ -457,7 +499,6 @@ class RuleEngine:
                 appearance += f" {desc}"
             return {"gm_text": appearance, "checks": []}, []
 
-        # 查看特定物品
         if target_type == "item" and target_id:
             item = self.data["items"].get(target_id)
             if not item:
@@ -471,7 +512,6 @@ class RuleEngine:
                 appearance += f" {desc}"
             return {"gm_text": appearance, "checks": []}, []
 
-        # 无目标：查看当前地点
         if not self.location:
             return {"gm_text": "你环顾四周，什么也没看到。", "checks": []}, []
         return {"gm_text": self.location.get("description", "你环顾四周。"), "checks": []}, []
@@ -487,11 +527,9 @@ class RuleEngine:
         if not self._is_present_item(item_id):
             return {"gm_text": f"这里没有 {item.get('name', item_id)}。", "checks": []}, []
 
-        # 如果物品有主人且 stealable=true，应该用 steal 意图
         if item.get("owner"):
             return {"gm_text": f"{item['name']} 看起来属于别人。如果你想拿走它，需要偷窃。", "checks": []}, []
 
-        # 无主物品直接拿取
         changes = [{
             "type": "move_item",
             "item_id": item_id,
@@ -502,7 +540,7 @@ class RuleEngine:
         return {"gm_text": f"你拿起了 {item['name']}。", "checks": []}, changes
 
     def _handle_trade(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
-        """交易意图（当前为占位实现，后续扩展）"""
+        """交易意图（当前为占位实现）"""
         target_type = intent_result.target_type
         target_id = intent_result.target_id
 
@@ -517,9 +555,32 @@ class RuleEngine:
 
         return {"gm_text": "你想和谁交易？买什么还是卖什么？", "checks": []}, []
 
+    def _handle_cast(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """施法：调用 core.spell_engine 校验法术位并确定性结算，AI 基于真实结果叙事"""
+        if not self.state:
+            return {"gm_text": "", "checks": []}, []
+        from services.core.spell_engine import cast_spell
+        spell_id = intent_result.spell_id or intent_result.target_id
+        target_npc = intent_result.target_npc_id or None
+        result = cast_spell(self.state, character, spell_id, target_npc)
+        if not result.get("success"):
+            return {"gm_text": result["message"], "checks": []}, []
+        pname = (character or {}).get("name") or "你"
+        text = result["message"].replace("你", pname, 1)
+        if result.get("narrative"):
+            text += f"\n【法术描述】{result['narrative']}"
+        return {"gm_text": text, "checks": result.get("checks", [])}, []
+
+    def _handle_action(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
+        """职业动作（回气/回复等）：core.action_engine 确定性结算"""
+        if not self.state:
+            return {"gm_text": "", "checks": []}, []
+        from services.core.action_engine import use_action
+        result = use_action(self.state, character, intent_result.target_id)
+        return {"gm_text": result["message"], "checks": []}, []
+
     def _handle_other(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         desc = intent_result.narrative_description or ""
-        # 如果 AI 已经在描述中说明目标不存在，直接作为规则引擎提示
         if desc and ("没有" in desc or "不存在" in desc):
             return {"gm_text": desc, "checks": []}, []
         return {"gm_text": "", "checks": []}, []

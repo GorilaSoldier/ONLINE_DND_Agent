@@ -87,41 +87,41 @@
     overflow: hidden;
   }
 
-  /* ── left panel ── */
+  /* ── left panel（尺寸随面板宽度等比缩放） ── */
   .left-panel {
     width: var(--left-panel-w);
     min-width: 0;
     flex-shrink: 0;
-    padding: 16px 14px;
+    padding: calc(var(--left-panel-w) * 0.048) calc(var(--left-panel-w) * 0.041);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: calc(var(--left-panel-w) * 0.041);
     overflow-y: auto;
     transition: none;
   }
 
   .context-section {
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
+    border-radius: calc(var(--left-panel-w) * 0.03);
+    padding: calc(var(--left-panel-w) * 0.036) calc(var(--left-panel-w) * 0.041);
     background: var(--paper-light);
   }
 
   .context-section h3 {
-    font-size: 13px;
+    font-size: calc(var(--left-panel-w) * 0.039);
     font-weight: 600;
     color: var(--ink-soft);
-    margin-bottom: 8px;
+    margin-bottom: calc(var(--left-panel-w) * 0.024);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   .context-section h4 {
-    font-size: 12px;
+    font-size: calc(var(--left-panel-w) * 0.036);
     font-weight: 600;
     color: var(--ink-soft);
-    margin-bottom: 6px;
+    margin-bottom: calc(var(--left-panel-w) * 0.018);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     opacity: 0.8;
@@ -131,9 +131,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: calc(var(--left-panel-w) * 0.024) calc(var(--left-panel-w) * 0.036);
     background: var(--slot);
-    border-radius: 8px;
+    border-radius: calc(var(--left-panel-w) * 0.024);
     cursor: pointer;
     transition: background 0.15s;
   }
@@ -143,34 +143,34 @@
   }
 
   .location-name {
-    font-size: 14px;
+    font-size: calc(var(--left-panel-w) * 0.041);
     font-weight: 600;
     color: var(--ink);
   }
 
   .location-type-tag {
-    font-size: 11px;
+    font-size: calc(var(--left-panel-w) * 0.033);
     color: var(--ink-soft);
-    padding: 2px 8px;
+    padding: calc(var(--left-panel-w) * 0.006) calc(var(--left-panel-w) * 0.024);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: calc(var(--left-panel-w) * 0.018);
   }
 
   .context-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: calc(var(--left-panel-w) * 0.012);
   }
 
   .context-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 6px;
+    gap: calc(var(--left-panel-w) * 0.024);
+    padding: calc(var(--left-panel-w) * 0.018) calc(var(--left-panel-w) * 0.03);
+    border-radius: calc(var(--left-panel-w) * 0.018);
     cursor: pointer;
     transition: background 0.15s;
-    font-size: 13px;
+    font-size: calc(var(--left-panel-w) * 0.039);
   }
 
   .context-item:hover {
@@ -178,11 +178,12 @@
   }
 
   .context-item-icon {
-    width: 28px; height: 28px;
+    width: calc(var(--left-panel-w) * 0.084);
+    height: calc(var(--left-panel-w) * 0.084);
     border-radius: 50%;
     background: rgba(139, 90, 43, 0.12);
     color: var(--accent);
-    font-size: 13px;
+    font-size: calc(var(--left-panel-w) * 0.039);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -197,29 +198,56 @@
   }
 
   .context-item-meta {
-    font-size: 11px;
+    font-size: calc(var(--left-panel-w) * 0.033);
     color: var(--ink-soft);
   }
 
   /* ── 任务子项（侧边栏展开用） ── */
-  .quest-subtasks { width: 100%; padding-top: 4px; border-top: 1px solid rgba(139,90,43,0.1); margin-top: 4px; }
+  .quest-subtasks { width: 100%; padding-top: calc(var(--left-panel-w) * 0.012); border-top: 1px solid rgba(139,90,43,0.1); margin-top: calc(var(--left-panel-w) * 0.012); }
   .quest-subtask {
-    display: flex; align-items: flex-start; gap: 6px;
-    padding: 4px 0 4px 4px; font-size: 12px; color: var(--ink-soft);
-    cursor: pointer; border-radius: 4px; transition: background 0.15s;
+    display: flex; align-items: flex-start; gap: calc(var(--left-panel-w) * 0.018);
+    padding: calc(var(--left-panel-w) * 0.012) 0 calc(var(--left-panel-w) * 0.012) calc(var(--left-panel-w) * 0.012); font-size: calc(var(--left-panel-w) * 0.036); color: var(--ink-soft);
+    cursor: pointer; border-radius: calc(var(--left-panel-w) * 0.012); transition: background 0.15s;
   }
   .quest-subtask:hover { background: rgba(139,90,43,0.06); }
   .quest-subtask.done { opacity: 0.65; }
   .quest-subtask.done .quest-subtask-text { text-decoration: line-through; }
   .quest-subtask-check {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 1.5px solid var(--ink-soft);
+    width: calc(var(--left-panel-w) * 0.048);
+    height: calc(var(--left-panel-w) * 0.048);
+    border-radius: 50%;
+    border: calc(var(--left-panel-w) * 0.004) solid var(--ink-soft);
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 1px; font-size: 10px; color: transparent;
+    flex-shrink: 0; margin-top: calc(var(--left-panel-w) * 0.003); font-size: calc(var(--left-panel-w) * 0.03); color: transparent;
   }
   .quest-subtask.done .quest-subtask-check { border-color: var(--accent); background: var(--accent); color: #fff; }
   .quest-subtask-text { flex: 1; line-height: 1.5; }
   .quest-item { cursor: pointer; flex-wrap: wrap; }
+  .quest-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--left-panel-w) * 0.067);
+    height: calc(var(--left-panel-w) * 0.067);
+    flex-shrink: 0;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease, color 0.2s ease;
+  }
+  .quest-expand-btn svg {
+    width: calc(var(--left-panel-w) * 0.05);
+    height: calc(var(--left-panel-w) * 0.05);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .quest-expand-btn:hover { color: var(--accent); }
+  .quest-expand-btn.open { transform: rotate(180deg); color: var(--accent); }
 
   /* ── 任务详情模态框（完全照抄 lobby.html） ── */
   .task-columns {
@@ -503,20 +531,20 @@
   }
 
   .context-placeholder {
-    font-size: 12px;
+    font-size: calc(var(--left-panel-w) * 0.036);
     color: var(--ink-soft);
     font-style: italic;
     opacity: 0.6;
     text-align: center;
-    padding: 8px 0;
+    padding: calc(var(--left-panel-w) * 0.024) 0;
   }
 
   .context-empty {
-    font-size: 12px;
+    font-size: calc(var(--left-panel-w) * 0.036);
     color: var(--ink-soft);
     opacity: 0.5;
     text-align: center;
-    padding: 4px 0;
+    padding: calc(var(--left-panel-w) * 0.012) 0;
   }
 
   /* ── center area ── */
@@ -725,58 +753,107 @@
     font-size: calc(var(--right-panel-w) * 0.027);
     font-weight: 700;
     color: var(--ink);
-    margin-bottom: calc(var(--right-panel-w) * 0.023);
+  }
+
+  /* 名字紧贴头像框上侧，不再独立占一整行 */
+  .portrait-mid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.045);
+    transform: translateY(calc(var(--right-panel-w) * -0.03)); 
   }
 
   .char-portrait-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: calc(var(--right-panel-w) * 0.023);
+    gap: calc(var(--right-panel-w) * 0.02);
   }
 
   .equipment-column {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: calc(var(--right-panel-w) * 0.011);
+    gap: calc(var(--right-panel-w) * 0.018);
     justify-content: flex-start;
-    width: calc(var(--right-panel-w) * 0.114);
+    width: calc(var(--right-panel-w) * 0.129);
   }
 
   .left-slots { align-items: flex-start; }
   .right-slots { align-items: flex-end; }
 
   .slot {
-    width: calc(var(--right-panel-w) * 0.053);
-    height: calc(var(--right-panel-w) * 0.053);
-    border-radius: calc(var(--right-panel-w) * 0.010);
+    width: calc(var(--right-panel-w) * 0.10);
+    height: calc(var(--right-panel-w) * 0.111);
+    border-radius: calc(var(--right-panel-w) * 0.018);
     background: var(--slot);
     border: 1px dashed var(--border);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.007);
+    padding: calc(var(--right-panel-w) * 0.009) calc(var(--right-panel-w) * 0.006);
     color: rgba(61, 43, 31, 0.25);
+    transition: background 0.2s ease, border-color 0.2s ease;
   }
 
-  .slot svg {
-    width: 40%; height: 40%;
-    fill: none; stroke: currentColor;
-    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  .slot.filled {
+    background: rgba(184, 115, 51, 0.12);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .slot.disabled {
+    background: rgba(61, 43, 31, 0.06);
+    border: 1px dashed var(--border);
+    color: rgba(61, 43, 31, 0.2);
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .slot-icon {
+    width: calc(var(--right-panel-w) * 0.04);
+    height: calc(var(--right-panel-w) * 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .slot-name {
+    font-size: calc(var(--right-panel-w) * 0.018);
+    line-height: 1.2;
+    color: var(--ink);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 calc(var(--right-panel-w) * 0.004);
   }
 
   .char-portrait {
-    width: calc(var(--right-panel-w) * 0.2);
-    height: calc(var(--right-panel-w) * 0.257);
-    border-radius: calc(var(--right-panel-w) * 0.013);
+    width: calc(var(--right-panel-w) * 0.25);
+    height: calc(var(--right-panel-w) * 0.321);
+    border-radius: calc(var(--right-panel-w) * 0.016);
     background: linear-gradient(135deg, rgba(184, 115, 51, 0.3), var(--accent));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(var(--right-panel-w) * 0.077);
+    font-size: calc(var(--right-panel-w) * 0.096);
     font-weight: 700;
     color: var(--paper-light);
-    box-shadow: 0 4px 16px rgba(139, 90, 43, 0.22);
+    box-shadow: 0 5px 20px rgba(139, 90, 43, 0.22);
     flex-shrink: 0;
   }
 
@@ -784,15 +861,15 @@
     display: flex;
     justify-content: center;
     gap: calc(var(--right-panel-w) * 0.038);
-    margin-top: calc(var(--right-panel-w) * 0.008);
+    margin-top: calc(var(--right-panel-w) * 0.001);
     width: 100%;
   }
 
   .combat-stat { text-align: center; }
 
   .combat-stat-icon {
-    width: calc(var(--right-panel-w) * 0.040);
-    height: calc(var(--right-panel-w) * 0.040);
+    width: calc(var(--right-panel-w) * 0.060);
+    height: calc(var(--right-panel-w) * 0.060);
     margin: 0 auto calc(var(--right-panel-w) * 0.008);
     border-radius: calc(var(--right-panel-w) * 0.010);
     background: rgba(184, 115, 51, 0.1);
@@ -823,37 +900,20 @@
 
   .char-bottom {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    gap: calc(var(--right-panel-w) * 0.023);
+    gap: calc(var(--right-panel-w) * 0.09);
     margin-top: calc(var(--right-panel-w) * 0.015);
     width: 100%;
   }
 
-  .char-bottom .char-level {
-    width: calc(var(--right-panel-w) * 0.257);
-    box-sizing: border-box;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: calc(var(--right-panel-w) * 0.013);
-    font-size: calc(var(--right-panel-w) * 0.016);
-    color: var(--ink-soft);
-  }
-
-  .char-bottom .char-level .xp-bar {
-    flex: 1;
-    height: calc(var(--right-panel-w) * 0.006);
-    background: rgba(61, 43, 31, 0.08);
-    border-radius: calc(var(--right-panel-w) * 0.003);
-    overflow: hidden;
-  }
-
-  .xp-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: calc(var(--right-panel-w) * 0.003);
+  .char-level-badge {
+    align-self: center;
+    transform: translateY(calc(var(--right-panel-w) * 0.02));
+    font-size: calc(var(--right-panel-w) * 0.035);
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
   }
 
   .level-badge {
@@ -884,7 +944,7 @@
   }
 
   .weapon-slot-label {
-    font-size: calc(var(--right-panel-w) * 0.020);
+    font-size: calc(var(--right-panel-w) * 0.018);
     font-weight: 600;
     color: var(--ink-soft);
     letter-spacing: 1px;
@@ -892,17 +952,7 @@
 
   .weapon-slots {
     display: flex;
-    gap: calc(var(--right-panel-w) * 0.008);
-  }
-
-  .weapon-slots .slot {
-    width: calc(var(--right-panel-w) * 0.053);
-    height: calc(var(--right-panel-w) * 0.053);
-    border-radius: calc(var(--right-panel-w) * 0.010);
-  }
-
-  .weapon-slots .slot svg {
-    width: 40%; height: 40%;
+    gap: calc(var(--right-panel-w) * 0.007);
   }
 
   .attack-stats {
@@ -951,7 +1001,7 @@
 
   /* ═══ 标签页 — 与 lobby 完全一致 ═══ */
 
-  .tabs { display: flex; justify-content: center; gap: calc(var(--right-panel-w) * 0.008); margin-bottom: calc(var(--right-panel-w) * 0.023); flex-wrap: wrap; }
+  .tabs { display: flex; justify-content: center; gap: calc(var(--right-panel-w) * 0.008); margin-top: calc(var(--right-panel-w) * 0.015); margin-bottom: calc(var(--right-panel-w) * 0.013); flex-wrap: wrap; }
 
   .tab {
     padding: calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.019); border-radius: calc(var(--right-panel-w) * 0.008); font-size: calc(var(--right-panel-w) * 0.018); font-weight: 600;
@@ -981,34 +1031,54 @@
   .inventory-title svg { width: calc(var(--right-panel-w) * 0.015); height: calc(var(--right-panel-w) * 0.015); fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .inventory-gold { font-size: calc(var(--right-panel-w) * 0.016); font-weight: 700; color: var(--accent); display: flex; align-items: center; }
 
-  .items-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: calc(var(--right-panel-w) * 0.008); }
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--right-panel-w) * 0.248), 1fr));
+    gap: calc(var(--right-panel-w) * 0.025);
+  }
   .item-card {
-    background: rgba(255,255,255,0.4); border: 1px solid var(--border);
-    border-radius: calc(var(--right-panel-w) * 0.010); padding: calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.011);
-    min-height: calc(var(--right-panel-w) * 0.076);
-    display: flex; flex-direction: column; justify-content: space-between;
-    transition: background 0.2s; position: relative;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.018);
+    padding: calc(var(--right-panel-w) * 0.025);
+    min-height: calc(var(--right-panel-w) * 0.184);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.2s ease;
+    position: relative;
   }
-  .item-card:hover { background: rgba(255,255,255,0.6); }
-  .item-top { display: flex; align-items: flex-start; gap: calc(var(--right-panel-w) * 0.006); }
-  .item-icon { width: calc(var(--right-panel-w) * 0.017); height: calc(var(--right-panel-w) * 0.017); flex-shrink: 0; color: var(--accent); opacity: 0.85; }
+  .item-card:hover { background: rgba(255, 255, 255, 0.6); }
+  .item-top { display: flex; align-items: flex-start; gap: calc(var(--right-panel-w) * 0.018); }
+  .item-icon { width: calc(var(--right-panel-w) * 0.037); height: calc(var(--right-panel-w) * 0.037); flex-shrink: 0; color: var(--accent); opacity: 0.85; }
   .item-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .item-info { flex: 1; display: flex; flex-direction: column; gap: calc(var(--right-panel-w) * 0.002); min-width: 0; }
-  .item-name { font-size: calc(var(--right-panel-w) * 0.014); font-weight: 600; color: var(--ink); line-height: 1.4; padding-right: calc(var(--right-panel-w) * 0.029); }
+  .item-info { flex: 1; display: flex; flex-direction: column; gap: calc(var(--right-panel-w) * 0.006); min-width: 0; }
+  .item-name { font-size: calc(var(--right-panel-w) * 0.022); font-weight: 600; color: var(--ink); line-height: 1.5; padding-right: calc(var(--right-panel-w) * 0.064); }
   .item-equipped {
-    position: absolute; top: calc(var(--right-panel-w) * 0.008); right: calc(var(--right-panel-w) * 0.008);
-    font-size: calc(var(--right-panel-w) * 0.012); color: var(--accent);
-    display: flex; align-items: center; gap: 2px;
+    position: absolute;
+    top: calc(var(--right-panel-w) * 0.018);
+    right: calc(var(--right-panel-w) * 0.018);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.008);
+    font-size: calc(var(--right-panel-w) * 0.017);
+    color: var(--accent);
   }
-  .item-equipped::before { content: "◆"; font-size: 7px; }
-  .item-quantity { font-size: calc(var(--right-panel-w) * 0.012); color: var(--ink-soft); padding-top: calc(var(--right-panel-w) * 0.004); }
+  .item-equipped::before {
+    content: "";
+    width: calc(var(--right-panel-w) * 0.011);
+    height: calc(var(--right-panel-w) * 0.011);
+    border-radius: 50%;
+    background: #4caf50;
+  }
+  .item-quantity { font-size: calc(var(--right-panel-w) * 0.02); color: var(--ink-soft); margin-top: auto; padding-top: calc(var(--right-panel-w) * 0.018); }
 
   .inv-gold { font-size: calc(var(--right-panel-w) * 0.016); font-weight: 700; color: var(--accent); margin-bottom: calc(var(--right-panel-w) * 0.010); }
   .inv-empty { display: block; width: 100%; font-size: calc(var(--right-panel-w) * 0.020); color: var(--ink-soft); font-style: italic; text-align: center; padding: calc(var(--right-panel-w) * 0.010); }
 
   /* ── 工具提示 ── */
   .item-tooltip {
-    position: fixed; z-index: 1000; background: var(--paper-light);
+    position: fixed; z-index: 1200; background: var(--paper-light);
     border: 2px solid var(--accent); border-radius: 12px; padding: 14px 16px;
     box-shadow: 0 8px 28px rgba(61,43,31,0.22); min-width: 220px; max-width: 280px;
     pointer-events: none; opacity: 0; transition: opacity 0.15s; display: none;
@@ -1018,6 +1088,38 @@
   .item-tooltip-save { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; }
   .item-tooltip-desc { font-size: 11px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
   .item-tooltip-breakdown { font-size: 11px; color: var(--ink-soft); margin-bottom: 3px; padding-left: 6px; }
+
+  /* ── 物品右键菜单（抄自 lobby.html） ── */
+  .item-context-menu {
+    position: fixed;
+    z-index: 1201;
+    background: var(--paper-light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 0;
+    box-shadow: 0 8px 24px rgba(61, 43, 31, 0.2);
+    min-width: 140px;
+    display: none;
+  }
+  .item-context-menu.visible { display: block; }
+  .item-context-menu .menu-action {
+    display: block;
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 14px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+  }
+  .item-context-menu .menu-action:hover { background: rgba(184, 115, 51, 0.08); }
+  .item-context-menu .menu-action:first-child { border-radius: 10px 10px 0 0; }
+  .item-context-menu .menu-action:last-child { border-radius: 0 0 10px 10px; }
+  .item-context-menu .menu-action.danger { color: var(--danger); }
+  .item-context-menu .menu-action.danger:hover { background: rgba(181, 59, 59, 0.08); }
 
   .inv-list { display: flex; flex-direction: column; gap: 6px; }
   .inv-item {
@@ -1128,6 +1230,9 @@
     color: var(--ink); text-align: center; transition: background 0.2s, box-shadow 0.2s;
   }
   .skill-block:hover { background: rgba(255,255,255,0.7); box-shadow: 0 2px 6px var(--shadow); }
+  .skill-block.spell-block {
+    cursor: pointer;
+  }
 
   /* ── 人物背景 ── */
   .bg-info-row {
@@ -1160,10 +1265,11 @@
     gap: calc(var(--right-panel-w) * 0.008);
   }
 
-  .check-btn {
+  .check-btn,
+  .rest-btn {
     flex: 1;
     font-family: inherit;
-    font-size: calc(var(--right-panel-w) * 0.016);
+    font-size: calc(var(--right-panel-w) * 0.020);
     font-weight: 600;
     padding: calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.011);
     border: 1px solid var(--border);
@@ -1174,7 +1280,8 @@
     transition: all 0.15s;
   }
 
-  .check-btn:hover {
+  .check-btn:hover,
+  .rest-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
     background: rgba(139, 90, 43, 0.06);
@@ -1256,6 +1363,98 @@
     box-shadow: 0 2px 8px rgba(30, 18, 10, 0.12);
   }
 
+  /* ── 交易弹窗 ── */
+  #trade-modal-overlay { z-index: 1010; }
+  .modal.trade-modal {
+    max-width: 860px;
+    width: 94vw;
+    max-height: 88vh;
+    padding: 28px 24px 20px;
+  }
+  .trade-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .trade-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .trade-title .modal-avatar { width: 40px; height: 40px; font-size: 17px; }
+  .trade-role { font-size: 13px; font-weight: 400; color: var(--ink-soft); }
+  .trade-gold {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .trade-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .trade-col {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--paper-light);
+    max-height: 58vh;
+    overflow-y: auto;
+  }
+  .trade-col-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .trade-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .trade-item .item-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
+  .trade-item .item-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .trade-item-name { flex: 1; font-size: 14px; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .trade-item-qty { font-size: 12px; color: var(--ink-soft); margin-right: 6px; }
+  .trade-item-price { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-right: 8px; white-space: nowrap; }
+  .trade-btn {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .trade-btn:hover { background: var(--accent-glow); }
+  .trade-btn:disabled { opacity: 0.5; cursor: default; }
+  .trade-btn.sell { background: none; color: var(--accent); }
+  .trade-btn.sell:hover { background: rgba(139, 90, 43, 0.1); }
+  .trade-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .trade-empty { font-size: 13px; color: var(--ink-soft); padding: 12px 0; text-align: center; }
+
   @keyframes modalIn {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
@@ -1318,6 +1517,81 @@
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border);
+  }
+
+  .modal-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .inv-box-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inv-box-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .inv-box-item .item-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    color: var(--accent);
+    opacity: 0.85;
+  }
+
+  .inv-box-item .item-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .inv-box-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .inv-box-qty {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-left: 6px;
+  }
+
+  .take-btn {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .take-btn:hover { opacity: 0.9; }
+  .take-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .inv-supplies-title {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
   }
 
   .modal-info-row {
@@ -1466,6 +1740,8 @@
     <div class="quick-checks">
       <button class="check-btn" data-check="perception" type="button">侦察</button>
       <button class="check-btn" data-check="investigation" type="button">调查</button>
+      <button class="rest-btn" data-rest="short" type="button">短休</button>
+      <button class="rest-btn" data-rest="long" type="button">长休</button>
     </div>
   </aside>
 </div>
@@ -1475,6 +1751,14 @@
   <div class="modal" id="detail-modal">
     <button class="modal-close" id="detail-modal-close" type="button">×</button>
     <div id="detail-modal-content"></div>
+  </div>
+</div>
+
+<!-- 交易弹窗 -->
+<div class="modal-overlay" id="trade-modal-overlay">
+  <div class="modal trade-modal" id="trade-modal">
+    <button class="modal-close" id="trade-modal-close" type="button">×</button>
+    <div id="trade-modal-content"></div>
   </div>
 </div>
 
@@ -1495,7 +1779,24 @@
     quests: {},
     npcStates: {},
     locationStates: {},
+    containerTaken: {},
+    takenLocationItems: [],
+    tempEquipItems: [],
+    droppedItems: {},
+    merchantStates: {},
     playerInventory: [],
+    tradeLog: [],
+    hostileNpcs: [],
+    suspicion: {},
+    arrest: null,
+    caught: {},
+    wantedLocation: null,
+    npcAlerts: {},
+    merchantTheft: {},
+    playerStealth: {},
+    playerHp: {},
+    spellSlotsUsed: {},
+    shortRestsLeft: 2,
     sessionStarted: false,
     sessionId: null
   };
@@ -1525,7 +1826,7 @@
   const modalClose = $('#detail-modal-close');
 
   /* ── 数据加载 ── */
-  const DEFAULT_CHAR_ID = 'char_20260727185910_c22d22';
+  const DEFAULT_CHAR_ID = 'char_20260727180516_c8081c';
 
   function getAbility(char, key) {
     /* 兼容两种角色卡格式：后端嵌套 abilities.str.value / 前端扁平 str/dex */
@@ -1551,17 +1852,18 @@
   }
 
   async function loadCharacter() {
-    /* localStorage 优先，否则从 API 加载默认角色 */
+    /* 角色数据以后端 JSON 为权威（金币等由后端维护，前端只读）；localStorage 仅作兜底 */
     try {
       const raw = localStorage.getItem('currentCharacter');
-      if (raw) {
-        state.character = normalizeChar(JSON.parse(raw));
+      const localChar = raw ? JSON.parse(raw) : null;
+      const charId = (localChar && localChar.id) || DEFAULT_CHAR_ID;
+      const resp = await fetch(`/api/characters/${charId}`);
+      if (resp.ok) {
+        state.character = normalizeChar(await resp.json());
         return;
       }
-      const resp = await fetch(`/api/characters/${DEFAULT_CHAR_ID}`);
-      if (resp.ok) {
-        const data = await resp.json();
-        state.character = normalizeChar(data);
+      if (localChar) {
+        state.character = normalizeChar(localChar);
         return;
       }
     } catch (e) {
@@ -1678,6 +1980,13 @@
   }
 
   /* ── 日志操作 ── */
+  /* 过滤 GM 输出里偶发泄漏的工具调用 XML（某些模型会把 process_action 原样输出） */
+  function cleanGmText(t) {
+    return String(t || '')
+      .replace(/<process_action>[\s\S]*?<\/process_action>/g, '')
+      .replace(/<\/?process_action\/?>/g, '');
+  }
+
   function appendLog(type, text, meta) {
     state.log.push({ type, text, timestamp: Date.now(), meta: meta || {} });
     renderNarrativeLog();
@@ -1686,7 +1995,7 @@
   /* ── 直接向 DOM 追加日志条目（用于流式输出初始化） ── */
   function appendLogEntry(entry) {
     state.log.push({ type: entry.type, text: entry.text || '', timestamp: Date.now(), meta: { id: entry.id } });
-    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定' };
+    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定', npc: 'NPC' };
     const el = document.createElement('div');
     el.className = 'log-entry ' + entry.type;
     el.setAttribute('data-log-id', entry.id);
@@ -1717,7 +2026,7 @@
       return;
     }
 
-    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定' };
+    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定', npc: 'NPC' };
 
     narrativeLog.innerHTML = state.log.map(entry => {
       let extra = '';
@@ -1774,19 +2083,25 @@
       locEl.onclick = () => openDetailModal('location', loc.id);
     }
 
-    // 人物：优先使用场景定义的 npcs
+    // 人物：当前地点优先（地点显式定义了 npcs，含空数组），场景兜底
     const npcsEl = $('#context-npcs');
-    const npcIds = scene.npcs && scene.npcs.length > 0 ? scene.npcs : (loc.npcs || []);
-    if (npcIds.length === 0) {
+    const rawNpcIds = (loc.npcs !== undefined) ? (loc.npcs || []) : (scene.npcs || []);
+    // 兼容字符串 / {id, sub} 两种形式（sub=子区域，仅后端目击者判定用）
+    const npcIds = rawNpcIds.map(e => (typeof e === 'string') ? e : (e && e.id)).filter(Boolean);
+    // 已离开的 NPC 从列表移除；死亡/眩晕保留并加标记
+    const NPC_STATUS_SUFFIX = { dead: '（已死亡）', stunned: '（眩晕）' };
+    const visibleNpcIds = npcIds.filter(id => (state.npcStates[id]?.status || '') !== 'left');
+    if (visibleNpcIds.length === 0) {
       npcsEl.innerHTML = '<div class="context-empty">此处没有其他人</div>';
     } else {
-      npcsEl.innerHTML = npcIds.map(id => {
+      npcsEl.innerHTML = visibleNpcIds.map(id => {
         const npc = state.data.npcs[id];
         if (!npc) return '';
+        const suffix = NPC_STATUS_SUFFIX[state.npcStates[id]?.status] || '';
         return `
           <div class="context-item" data-type="npc" data-id="${id}">
             <div class="context-item-icon">${npc.name[0]}</div>
-            <div class="context-item-name">${npc.name}</div>
+            <div class="context-item-name">${npc.name}${suffix}</div>
             <div class="context-item-meta">${npc.role || ''}</div>
           </div>
         `;
@@ -1796,22 +2111,31 @@
       });
     }
 
-    // 物品：优先使用场景定义的 items
+    // 物品：当前地点优先（地点显式定义了 items，含空数组），场景兜底
     const itemsEl = $('#context-items');
-    const sceneItemIds = (scene.items && scene.items.length > 0) ? scene.items : null;
-    let locItems = loc.items || [];
+    const locHasItems = loc.items !== undefined;
     let visibleItems;
-    if (sceneItemIds) {
-      // 场景定义了物品列表，从 items 数据中查找详细信息（包括 location items 中匹配的）
-      visibleItems = sceneItemIds.map(id => ({ id, visible: true }));
+    if (locHasItems) {
+      visibleItems = loc.items.filter(i => i.visible !== false);
+    } else if (scene.items && scene.items.length > 0) {
+      // 场景定义了物品列表，从 items 数据中查找详细信息
+      visibleItems = scene.items.map(id => ({ id, visible: true }));
     } else {
-      visibleItems = locItems.filter(i => i.visible !== false);
+      visibleItems = [];
+    }
+    // 过滤本会话已直接拿走的物品（切场景回来不重复显示）
+    visibleItems = visibleItems.filter(entry => !state.takenLocationItems.includes(entry.id));
+    // 合并本会话丢弃在当前地点的物品（其他角色可拾取）
+    const dropped = (state.droppedItems || {})[loc.id] || [];
+    if (dropped.length > 0) {
+      const have = new Set(visibleItems.map(e => e.id));
+      dropped.forEach(id => { if (!have.has(id)) visibleItems.push({ id, visible: true }); });
     }
     if (visibleItems.length === 0) {
       itemsEl.innerHTML = '<div class="context-empty">此处没有可见物品</div>';
     } else {
       itemsEl.innerHTML = visibleItems.map(entry => {
-        const item = state.data.items[entry.id];
+        const item = findItemDef(entry.id);
         if (!item) return '';
         return `
           <div class="context-item" data-type="item" data-id="${entry.id}">
@@ -1890,6 +2214,10 @@
           <div class="context-item quest-item" data-quest-id="${id}">
             <div class="context-item-icon" style="font-size:10px;">Q</div>
             <div class="context-item-name">${q.name}</div>
+            ${visibleObjectives.length > 0 ? `
+              <button class="quest-expand-btn" type="button" aria-label="展开任务">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </button>` : ''}
             ${subtaskHtml}
           </div>
         `;
@@ -1903,6 +2231,8 @@
           if (subtasksEl) {
             const isOpen = subtasksEl.style.display !== 'none';
             subtasksEl.style.display = isOpen ? 'none' : 'block';
+            const btn = el.querySelector('.quest-expand-btn');
+            if (btn) btn.classList.toggle('open', !isOpen);
           }
         });
       });
@@ -1920,45 +2250,119 @@
   }
 
   /* ── 渲染右侧角色卡 ── */
-  const equipmentSvgs = {
-    helmet: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-4 3.5-7 7-7s7 3 7 7v6h-4v-4h-6v4H5V9z"></path></svg>',
-    chestplate: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6c0-1 2-2 3-1l2 3h4l2-3c1-1 3 0 3 1v11c0 2-2 3-7 3S5 19 5 17V6z"></path></svg>',
-    greaves: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16h-4V8h-4v12H6V4z"></path></svg>',
-    boots: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6H6v9H3c-1 0-2 1-2 2v1c0 1 1 2 2 2h6c1 0 1-1 1-2V6z"></path><path d="M14 6h4v9h3c1 0 2 1 2 2v1c0 1-1 2-2 2h-6c-1 0-1-1-1-2V6z"></path></svg>',
-    necklace: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c0 6 4 10 8 10s8-4 8-10"></path><circle cx="12" cy="15" r="3"></circle></svg>',
-    ring: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="6"></circle><path d="M9 8l3-4 3 4H9z"></path></svg>',
-    lute: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21c0-8 4-16 10-16"></path><path d="M6 21h12"></path><path d="M8 21v-8"></path><path d="M11 21v-10"></path><path d="M14 21v-10"></path><path d="M17 21v-8"></path></svg>',
-    sword: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path><path d="M13 19l6-6"></path><path d="M16 16l4 4"></path><path d="M19 21l2-2"></path></svg>',
-    bow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 4c-8 4-8 12 0 16"></path><path d="M18 4v16"></path><path d="M6 12h12"></path></svg>',
-  };
 
-  function renderRightPanel() {
+  /* 根据已装备物品计算各装备槽位内容 */
+  function computeEquippedSlots(char) {
+    const catalog = catalogs.equipment || {};
+    const slots = { helmet: null, body: null, shield: null, legs: null, boots: null, neck: null, ring1: null, ring2: null, tool: null, melee: [null, null], ranged: [null, null] };
+    // 槽位信息对象：名称 + 描述 + 属性行 + 图标名（图标从 JSON 的 icon 字段动态加载）
+    const mk = ci => ({
+      name: ci.name,
+      desc: ci.description || '',
+      props: (ci.properties && (ci.properties.damage || ci.properties.ac || ci.properties.effect)) || '',
+      icon: ci.icon || 'pouch',
+      twoHanded: !!ci.stats?.two_handed,
+    });
+    let ringCount = 0;
+    for (const item of (char.inventory?.items || [])) {
+      if (!item.equipped) continue;
+      const ci = item.equipment_id ? catalog[item.equipment_id] : null;
+      if (!ci) continue;
+      if (ci.type === 'weapon') {
+        const cat = ci.stats?.category;
+        if (cat === 'melee') {
+          if (!slots.melee[0]) slots.melee[0] = mk(ci);
+          else if (!slots.melee[1] && !slots.melee[0].twoHanded) slots.melee[1] = mk(ci);
+          // 双手武器占满两格：第二格置灰不可操作
+          if (slots.melee[0] && slots.melee[0].twoHanded) slots.melee[1] = { disabled: true };
+        }
+        if (cat === 'ranged') {
+          if (!slots.ranged[0]) slots.ranged[0] = mk(ci);
+          else if (!slots.ranged[1] && !slots.ranged[0].twoHanded) slots.ranged[1] = mk(ci);
+          if (slots.ranged[0] && slots.ranged[0].twoHanded) slots.ranged[1] = { disabled: true };
+        }
+      } else if (ci.type === 'armor') {
+        const cat = ci.stats?.category;
+        if (cat === 'shield') {
+          if (!slots.shield) slots.shield = mk(ci);
+        } else if (cat !== 'clothes') {
+          if (!slots.body) slots.body = mk(ci);
+        }
+      } else if (ci.type === 'accessory') {
+        if (ci.subtype === 'ring') {
+          if (ringCount === 0) slots.ring1 = mk(ci);
+          else if (ringCount === 1) slots.ring2 = mk(ci);
+          ringCount++;
+        } else if (ci.subtype === 'tool') {
+          if (!slots.tool) slots.tool = mk(ci);
+        }
+      }
+    }
+    return slots;
+  }
+
+  function renderSlot(iconSvg, slot) {
+    const disabled = !!slot && slot.disabled;
+    const filled = !!slot && !disabled;
+    const dataAttrs = filled
+      ? ` data-name="${escapeHtml(slot.name)}" data-description="${escapeHtml(slot.desc)}" data-props="${escapeHtml(slot.props)}"`
+      : '';
+    return `<div class="slot${filled ? ' filled' : ''}${disabled ? ' disabled' : ''}"${dataAttrs}>
+      <div class="slot-icon">${iconSvg}</div>
+      ${filled ? `<div class="slot-name">${escapeHtml(slot.name)}</div>` : ''}
+    </div>`;
+  }
+
+  async function renderRightPanel() {
     try {
       const char = state.character;
       if (!char || !char.name) {
         charCard.innerHTML = '<div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div>';
         return;
       }
-      const xpPercent = char.xp && char.xp.max ? Math.round((char.xp.current / char.xp.max) * 100) : 0;
+      const slots = computeEquippedSlots(char);
+
+      // 槽位定义：空槽用默认槽图标，已装备槽用物品自身的 icon（动态加载）
+      const slotDefs = [
+        { defaultIcon: 'helmet', slot: slots.helmet },
+        { defaultIcon: 'chestplate', slot: slots.body || slots.shield },
+        { defaultIcon: 'greaves', slot: slots.legs },
+        { defaultIcon: 'boots', slot: slots.boots },
+        { defaultIcon: 'necklace', slot: slots.neck },
+        { defaultIcon: 'ring', slot: slots.ring1 },
+        { defaultIcon: 'ring', slot: slots.ring2 },
+        { defaultIcon: 'lute', slot: slots.tool },
+        { defaultIcon: 'sword', slot: slots.melee[0] },
+        { defaultIcon: 'sword', slot: slots.melee[1] },
+        { defaultIcon: 'bow', slot: slots.ranged[0] },
+        { defaultIcon: 'bow', slot: slots.ranged[1] },
+      ];
+      const rendered = await Promise.all(slotDefs.map(async d => {
+        const svg = await loadSvgIcon(d.slot && !d.slot.disabled ? d.slot.icon : d.defaultIcon);
+        return renderSlot(svg, d.slot);
+      }));
+      const [helmetSlot, bodySlot, legsSlot, bootsSlot, neckSlot, ring1Slot, ring2Slot, toolSlot, melee0Slot, melee1Slot, ranged0Slot, ranged1Slot] = rendered;
 
       charCard.innerHTML = `
         <div class="char-top">
-          <div class="char-name">${escapeHtml(char.name)}</div>
           <div class="char-portrait-row">
             <div class="equipment-column left-slots">
-              <div class="slot">${equipmentSvgs.helmet}</div>
-              <div class="slot">${equipmentSvgs.chestplate}</div>
-              <div class="slot">${equipmentSvgs.greaves}</div>
-              <div class="slot">${equipmentSvgs.boots}</div>
+              ${helmetSlot}
+              ${bodySlot}
+              ${legsSlot}
+              ${bootsSlot}
             </div>
 
-            <div class="char-portrait">${escapeHtml(char.portrait || char.name[0])}</div>
+            <div class="portrait-mid">
+              <div class="char-name">${escapeHtml(char.name)}</div>
+              <div class="char-portrait">${escapeHtml(char.portrait || char.name[0])}</div>
+            </div>
 
             <div class="equipment-column right-slots">
-              <div class="slot">${equipmentSvgs.necklace}</div>
-              <div class="slot">${equipmentSvgs.ring}</div>
-              <div class="slot">${equipmentSvgs.ring}</div>
-              <div class="slot">${equipmentSvgs.lute}</div>
+              ${neckSlot}
+              ${ring1Slot}
+              ${ring2Slot}
+              ${toolSlot}
             </div>
           </div>
 
@@ -1988,21 +2392,18 @@
           <div class="weapon-slot-group">
             <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
             <div class="weapon-slots">
-              <div class="slot">${equipmentSvgs.sword}</div>
-              <div class="slot">${equipmentSvgs.sword}</div>
+              ${melee0Slot}
+              ${melee1Slot}
             </div>
           </div>
 
-          <div class="char-level">
-            <div class="xp-bar"><div class="xp-fill" style="width: ${xpPercent}%;"></div></div>
-            <span>XP ${escapeHtml(char.xp ? char.xp.display : '0 / 0')}</span>
-          </div>
+          <div class="char-level-badge">Lv.${escapeHtml(char.level ?? 1)}</div>
 
           <div class="weapon-slot-group">
             <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
             <div class="weapon-slots">
-              <div class="slot">${equipmentSvgs.bow}</div>
-              <div class="slot">${equipmentSvgs.bow}</div>
+              ${ranged0Slot}
+              ${ranged1Slot}
             </div>
           </div>
         </div>
@@ -2058,10 +2459,10 @@
   }
 
   /* ── 渲染所有标签页 ── */
-  function renderAllTabs() {
+  async function renderAllTabs() {
     const char = state.character;
     if (!char) return;
-    document.getElementById('tab-inventory').innerHTML = renderInventoryTab(char);
+    document.getElementById('tab-inventory').innerHTML = await renderInventoryTab(char);
     document.getElementById('tab-class-attr').innerHTML = renderClassAttrTab(char);
     document.getElementById('tab-skills').innerHTML = renderSkillsTab(char);
     document.getElementById('tab-spells').innerHTML = renderSpellsTab(char);
@@ -2076,18 +2477,21 @@
     document.body.appendChild(tooltip);
 
     let hoverTimer = null;
+    let hoverTarget = null;  // 当前悬停目标（物品卡/装备槽/技能块），用于内部移动去重
 
     function showTooltip(e, card) {
       const name = card.dataset.name || card.querySelector('.item-name')?.textContent || '';
       const description = card.dataset.description || '';
+      const props = card.dataset.props || '';
       const equipped = card.querySelector('.item-equipped');
       const eqText = equipped ? '（已装备）' : '';
       tooltip.innerHTML = `
         <div class="item-tooltip-name">${name} ${eqText}</div>
+        ${props ? `<div class="item-tooltip-save">${props}</div>` : ''}
         <div class="item-tooltip-desc">${description || '详细属性待补充'}</div>
       `;
+      tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
       positionTooltip(e, tooltip);
-      tooltip.classList.add('show');
     }
 
     function positionTooltip(e, el) {
@@ -2104,65 +2508,68 @@
       tooltip.classList.remove('show');
     }
 
-    /* 物品悬浮提示 */
-    document.addEventListener('mouseenter', function(e) {
-      const card = e.target.closest('.item-card');
-      if (!card) return;
-      hoverTimer = setTimeout(() => showTooltip(e, card), 500);
-    }, true);
+    function showSkillTooltip(block) {
+      const spellId = block.dataset.spellId;
+      const lookup = window.spellLookup || {};
+      const spell = spellId ? lookup[spellId] : null;
+      const name = block.textContent.trim();
+      if (spell) {
+        let html = `<div class="item-tooltip-name">${spell.name}</div>`;
+        if (spell.school || spell.casting_time)
+          html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
+        if (spell.description)
+          html += `<div class="item-tooltip-desc">${spell.description}</div>`;
+        if (spell.range)
+          html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
+        tooltip.innerHTML = html;
+      } else {
+        tooltip.innerHTML = `<div class="item-tooltip-name">${name}</div><div class="item-tooltip-desc">详细描述待补充</div>`;
+      }
+      tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
+      const r = block.getBoundingClientRect();
+      tooltip.style.left = Math.max(8, r.left) + 'px';
+      tooltip.style.top = (r.bottom + 8) + 'px';
+      const tr = tooltip.getBoundingClientRect();
+      if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
+      if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
+    }
 
-    document.addEventListener('mousemove', function(e) {
-      const card = e.target.closest('.item-card');
-      if (!card) return;
-      if (tooltip.classList.contains('show')) showTooltip(e, card);
+    /* 物品/装备槽/技能法术统一悬浮提示（mouseover/mouseout 委托，避免 timer 泄漏） */
+    document.addEventListener('mouseover', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card, .slot.filled, .inv-box-item, .trade-item');
+      const block = e.target.closest('.skill-block');
+      const el = card || block;
+      if (!el) return;
+      if (hoverTarget === el) return;  // 在元素内部移动，不重复计时
+      hoverTarget = el;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        if (el.classList.contains('skill-block')) showSkillTooltip(el);
+        else showTooltip(e, el);
+      }, 500);
     });
 
-    document.addEventListener('mouseleave', function(e) {
-      const card = e.target.closest('.item-card');
-      if (!card) return;
-      clearTimeout(hoverTimer);
-      hideTooltip();
-    }, true);
-
-    /* 技能/法术悬浮提示 */
-    document.addEventListener('mouseenter', function(e) {
+    document.addEventListener('mouseout', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card, .slot.filled, .inv-box-item, .trade-item');
       const block = e.target.closest('.skill-block');
-      if (!block) return;
-      hoverTimer = setTimeout(() => {
-        const spellId = block.dataset.spellId;
-        const lookup = window.spellLookup || {};
-        const spell = spellId ? lookup[spellId] : null;
-        const name = block.textContent.trim();
-        if (spell) {
-          let html = `<div class="item-tooltip-name">${spell.name}</div>`;
-          if (spell.school || spell.casting_time)
-            html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
-          if (spell.description)
-            html += `<div class="item-tooltip-desc">${spell.description}</div>`;
-          if (spell.range)
-            html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
-          tooltip.innerHTML = html;
-        } else {
-          tooltip.innerHTML = `<div class="item-tooltip-name">${name}</div><div class="item-tooltip-desc">详细描述待补充</div>`;
-        }
-        const r = block.getBoundingClientRect();
-        tooltip.style.left = Math.max(8, r.left) + 'px';
-        tooltip.style.top = (r.bottom + 8) + 'px';
-        const tr = tooltip.getBoundingClientRect();
-        if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
-        if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
-        tooltip.classList.add('show');
-      }, 500);
-    }, true);
-
-    document.addEventListener('mouseleave', function(e) {
-      const block = e.target.closest('.skill-block');
-      if (!block) return;
+      const el = card || block;
+      if (!el) return;
+      // 仍停留在同一元素内（进入其子元素）则忽略
+      const to = e.relatedTarget;
+      if (to && typeof to.closest === 'function' && to.closest('.item-card, .slot.filled, .inv-box-item, .trade-item, .skill-block') === el) return;
       clearTimeout(hoverTimer);
+      hoverTimer = null;
+      hoverTarget = null;
       hideTooltip();
-    }, true);
+    });
 
-    document.addEventListener('scroll', hideTooltip);
+    document.addEventListener('scroll', function() {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+      hideTooltip();
+    });
   })();
 
   /* ── 特性展开/折叠 ── */
@@ -2175,32 +2582,447 @@
   }
 
   /* ═══ 物品栏（抄自 lobby renderInventory） ═══ */
-  function renderInventoryTab(char) {
+  const svgIconCache = {};
+
+  /* 图标文件缺失时的兜底（极简背包图标） */
+  const FALLBACK_ICON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>';
+
+  async function loadSvgIcon(iconName) {
+    if (svgIconCache[iconName] !== undefined) return svgIconCache[iconName];
+    try {
+      const res = await fetch(`/assets/icons/equipment/${iconName}.svg?v=${Date.now()}`);
+      if (!res.ok) throw new Error(`Failed to load icon ${iconName}: ${res.status}`);
+      const svgText = await res.text();
+      svgIconCache[iconName] = svgText;
+      return svgText;
+    } catch (err) {
+      console.warn('loadSvgIcon failed:', err);
+      svgIconCache[iconName] = FALLBACK_ICON_SVG;
+      return svgIconCache[iconName];
+    }
+  }
+
+  function recalcCharacterStats(char) {
+    const catalog = catalogs.equipment || {};
+    const items = char.inventory?.items || [];
+    const dexMod = Math.floor(((char.abilities?.dex?.value ?? 10) - 10) / 2);
+    const strMod = Math.floor(((char.abilities?.str?.value ?? 10) - 10) / 2);
+    // 攻击加值 = 熟练加值 + 属性调整值 + 武器加值（D&D 5e 规则）
+    const prof = parseInt(String(char.skills?.proficiency_bonus || '+2').replace(/[^0-9-]/g, ''), 10) || 2;
+
+    // AC：无甲基础 + 已装备护甲（取最高）+ 盾牌 + 饰品加值
+    let ac = 10 + dexMod;
+    let meleeDamage = null;
+    let rangedDamage = null;
+    let meleeBonus = 0;
+    let rangedBonus = 0;
+    for (const item of items) {
+      if (!item.equipped) continue;
+      const ci = catalog[item.equipment_id];
+      if (!ci || !ci.stats) continue;
+      if (ci.type === 'weapon') {
+        if (ci.stats.category === 'melee' && !meleeDamage) {
+          meleeDamage = ci.stats.damage_dice;
+          meleeBonus = ci.stats.bonus || 0;
+        }
+        if (ci.stats.category === 'ranged' && !rangedDamage) {
+          rangedDamage = ci.stats.damage_dice;
+          rangedBonus = ci.stats.bonus || 0;
+        }
+      } else if (ci.type === 'armor') {
+        const s = ci.stats;
+        if (s.category === 'shield') {
+          ac += (s.bonus_ac || 0);
+        } else if (s.category !== 'clothes' && s.ac_base) {
+          let a = s.ac_base;
+          if (s.ac_ability === 'dex') {
+            a += (s.ac_max_dex != null ? Math.min(dexMod, s.ac_max_dex) : dexMod);
+          }
+          if (a > ac) ac = a;
+        }
+      } else if (ci.type === 'accessory' && ci.stats && ci.stats.bonus_ac) {
+        ac += ci.stats.bonus_ac;
+      }
+    }
+    char.combat = char.combat || { ac: 10, hp: '0 / 0' };
+    char.combat.ac = ac;
+    char.attack = char.attack || { melee: {}, ranged: {} };
+    const fmtBonus = v => (v >= 0 ? '+' : '') + v;
+    char.attack.melee.bonus = fmtBonus(strMod + prof + meleeBonus);
+    char.attack.melee.damage = meleeDamage ? meleeDamage + (meleeBonus ? `+${meleeBonus}` : '') : '1d4';
+    char.attack.ranged.bonus = fmtBonus(dexMod + prof + rangedBonus);
+    char.attack.ranged.damage = rangedDamage ? rangedDamage + (rangedBonus ? `+${rangedBonus}` : '') : '1d4';
+  }
+
+  async function saveCharacter() {
+    // 测试阶段：前端不把角色数据保存回后端 JSON，刷新页面即回退（持久化后期再做）
+    // const char = state.character;
+    // if (!char || !char.id) return;
+    // try {
+    //   await fetch(`/api/characters/${char.id}`, {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       inventory: char.inventory,
+    //       combat: char.combat,
+    //       attack: char.attack
+    //     })
+    //   });
+    // } catch (e) {
+    //   console.warn('保存角色失败:', e);
+    // }
+  }
+
+  /* 物品右键菜单（抄自 lobby.html，equip/discard 落地到角色数据） */
+  (function initItemContextMenu() {
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'item-context-menu';
+    document.body.appendChild(contextMenu);
+
+    function hideContextMenu() { contextMenu.classList.remove('visible'); }
+
+    function showContextMenu(e, card) {
+      e.preventDefault();
+      const equipped = !!card.querySelector('.item-equipped');
+      const equipmentId = card.dataset.equipmentId;
+      const catalogItem = catalogs.equipment ? catalogs.equipment[equipmentId] : null;
+      const isEquippable = catalogItem && (catalogItem.type === 'weapon' || catalogItem.type === 'armor');
+      const name = card.dataset.name || '';
+      const isSupplyItem = card.dataset.kind === 'item';
+      const itemId = card.dataset.itemId;
+      const supplyItem = isSupplyItem && itemId ? state.data.items[itemId] : null;
+
+      let html = '';
+      if (isSupplyItem) {
+        // 道具：有效果（如治疗药水）提供"使用"；有装备定义（如火把/矿灯）提供"装备"；均提供丢弃/赠送
+        const equipDef = supplyItem && supplyItem.equipment_id
+          ? (catalogs.equipment ? catalogs.equipment[supplyItem.equipment_id] : null) : null;
+        if (supplyItem && supplyItem.effect) {
+          html += `<button class="menu-action" data-action="use">使用</button>`;
+        }
+        if (equipDef) {
+          html += `<button class="menu-action" data-action="equip">装备</button>`;
+        }
+        html += `<button class="menu-action" data-action="sell">出售</button>`;
+        html += `<button class="menu-action" data-action="discard">丢弃</button>`;
+        html += `<button class="menu-action" data-action="gift">赠送</button>`;
+      } else {
+        if (isEquippable) {
+          html += `<button class="menu-action" data-action="equip">${equipped ? '卸下' : '装备'}</button>`;
+        }
+        html += `<button class="menu-action" data-action="discard">丢弃</button>`;
+        html += `<button class="menu-action" data-action="gift">赠送</button>`;
+      }
+      contextMenu.innerHTML = html;
+
+      let x = e.clientX;
+      let y = e.clientY;
+      const rect = contextMenu.getBoundingClientRect();
+      if (x + 150 > window.innerWidth) x = window.innerWidth - 150;
+      if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+      contextMenu.style.left = x + 'px';
+      contextMenu.style.top = y + 'px';
+      contextMenu.classList.add('visible');
+
+      contextMenu.querySelectorAll('.menu-action').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const action = btn.dataset.action;
+          contextMenu.classList.remove('visible');
+          if (isSupplyItem) {
+            await handleSupplyItemAction(action, itemId, name);
+          } else {
+            const src = card.dataset.src || 'char';
+            const idx = parseInt(card.dataset.idx ?? '-1', 10);
+            await handleItemAction(action, src, idx, name);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('contextmenu', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card');
+      if (!card) return;
+      showContextMenu(e, card);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function' || !e.target.closest('.item-context-menu')) {
+        hideContextMenu();
+      }
+    });
+
+    document.addEventListener('scroll', function() {
+      hideContextMenu();
+    });
+  })();
+
+  async function handleItemAction(action, src, idx, itemName) {
+    const char = state.character;
+    if (!char) return;
+    const isTemp = src === 'temp';
+    const list = isTemp ? state.tempEquipItems : (char.inventory?.items || []);
+    const item = list[idx];
+    if (!item) return;
+    const equipmentId = item.equipment_id;
+    const catalogItem = catalogs.equipment ? catalogs.equipment[equipmentId] : null;
+
+    if (action === 'equip' && catalogItem && (catalogItem.type === 'weapon' || catalogItem.type === 'armor')) {
+      if (item.equipped) {
+        item.equipped = false;
+      } else {
+        // 护甲同类互斥：同 category 的护甲互斥，盾牌只与其他盾牌互斥
+        // 双手武器占满两格：装备时自动卸下同类型的其他已装备武器
+        const cat = catalogItem.stats ? catalogItem.stats.category : null;
+        const twoHanded = catalogItem.type === 'weapon' && !!catalogItem.stats?.two_handed;
+        const allEquip = [...(char.inventory?.items || []), ...(state.tempEquipItems || [])];
+        allEquip.forEach(i => {
+          if (i === item || !i.equipped) return;
+          const ci = catalogs.equipment ? catalogs.equipment[i.equipment_id] : null;
+          if (!ci || !ci.stats) return;
+          if (catalogItem.type === 'armor') {
+            if (ci.type === 'armor' && ci.stats.category === cat && ci.stats.category !== 'shield') i.equipped = false;
+            if (ci.type === 'armor' && ci.stats.category === 'shield' && cat === 'shield') i.equipped = false;
+          } else if (ci.type === 'weapon' && ci.stats.category === cat) {
+            // 装备双手武器：卸下同类型所有武器（占满两格）；
+            // 装备单手武器：卸下同类型中的双手武器（单手之间仍可双持）
+            if (twoHanded || ci.stats.two_handed) i.equipped = false;
+          }
+        });
+        item.equipped = true;
+      }
+    } else if (action === 'discard') {
+      const removed = list.splice(idx, 1);
+      if (removed.length > 0) await dropItemToLocation(equipmentId, itemName);
+    } else if (action === 'gift') {
+      appendLog('system', '赠送功能开发中。');
+      return;
+    }
+
+    recalcCharacterStats(char);
+    renderAllTabs();
+    await renderRightPanel();
+    // 阶段测试：内存装备（temp）不持久化，刷新即消失；角色原有装备正常保存
+    if (!isTemp) await saveCharacter();
+  }
+
+  /* 物品定义查找：先查冒险物品，再查全局装备目录（丢弃物可能是装备） */
+  function findItemDef(id) {
+    if (state.data.items && state.data.items[id]) return state.data.items[id];
+    return (catalogs.equipment && catalogs.equipment[id]) || null;
+  }
+
+  /* 物品效果文案：道具显示 effect（heal → 回复 X 生命值）；装备显示"造成 XdY 伤害"或护甲等级。
+     章节物品（如火把/矿灯）仅引用 equipment_id，属性从全局装备库补充。 */
+  function itemEffectText(item) {
+    if (!item) return '';
+    if (item.effect) {
+      return item.effect.startsWith('heal') ? `回复 ${item.effect.slice(5)} 生命值` : item.effect;
+    }
+    const eq = item.equipment_id && catalogs.equipment ? catalogs.equipment[item.equipment_id] : null;
+    const src = (eq && (eq.stats || eq.properties)) ? eq : item;
+    if (src.stats && src.stats.damage_dice) {
+      const type = src.stats.damage_type_cn ? ` ${src.stats.damage_type_cn}` : '';
+      return `造成 ${src.stats.damage_dice}${type}伤害`;
+    }
+    // 护甲/盾牌：补全"护甲等级"描述（如"11 + 敏捷调整值"、"＋2"）
+    if (src.properties && src.properties.ac) return `护甲等级 ${src.properties.ac}`;
+    if (src.properties) return src.properties.damage || '';
+    return '';
+  }
+
+  /* 丢弃物品到当前地点：落后端世界状态 + 前端本地记录（左侧物品列表显示） */
+  async function dropItemToLocation(itemId, itemName) {
+    try {
+      const res = await fetch('/api/game/drop_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          item_id: itemId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '丢弃失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+    } catch (err) {
+      appendLog('system', `丢弃失败: ${err.message}`);
+      return false;
+    }
+    // 本地记录：出现在当前地点左侧物品列表（其他角色/同页面可拾取）
+    const loc = getCurrentLocation();
+    if (loc) {
+      state.droppedItems = state.droppedItems || {};
+      const list = state.droppedItems[loc.id] || (state.droppedItems[loc.id] = []);
+      if (!list.includes(itemId)) list.push(itemId);
+    }
+    renderContextPanel();
+    appendLog('system', `已丢弃 ${itemName}`);
+    return true;
+  }
+
+  /* 道具操作（治疗药水等）：使用回血（后端解析效果，播报实际恢复量），丢弃 */
+  async function handleSupplyItemAction(action, itemId, itemName) {
+    const char = state.character;
+    if (!char) return;
+    const item = state.data.items[itemId];
+
+    if (action === 'sell') {
+      // 出售：需要当前有打开的交易弹窗（确定卖给哪个商人）
+      if (!currentTradeNpcId) {
+        appendLog('system', '附近没有商人，无法出售。请先打开与商人的交易窗口。');
+        return;
+      }
+      await callSellItem(currentTradeNpcId, itemId);
+      if (tradeModalOverlay.classList.contains('active')) await renderTradeModal();
+    } else if (action === 'use') {
+      if (!item || !item.effect) {
+        appendLog('system', '该道具无法使用。');
+        return;
+      }
+      const combat = char.combat || { ac: 10, hp: '0 / 0' };
+      const parts = String(combat.hp).split('/');
+      const curHp = parseInt(parts[0]) || 0;
+      const maxHp = parseInt(parts[1]) || curHp;
+      // 通知后端解析效果并消耗道具（heal 由后端掷骰并按 HP 截断，返回实际恢复值与文案）
+      try {
+        const res = await fetch('/api/game/use_item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            adventure_id: ADVENTURE_ID,
+            chapter_id: CHAPTER_ID,
+            item_id: itemId,
+            character: state.character,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '使用失败');
+        if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+        // HP 后端权威结算，从 updates 同步到角色卡
+        applyGameUpdates(data.updates);
+        // 播报后端生成的效果文案
+        const actorName = (state.character && state.character.name) || '你';
+        appendLog('gm', `${actorName} 使用了 ${item.name}${data.message ? `，${data.message}` : ''}。`);
+        await renderAllTabs();
+        await renderRightPanel();
+        await saveCharacter();
+      } catch (err) {
+        appendLog('system', `使用失败: ${err.message}`);
+        return;
+      }
+    } else if (action === 'equip') {
+      if (!item || !item.equipment_id) return;
+      // 通知后端同步移除背包道具（防止被 SSE 覆盖回去）
+      try {
+        const res = await fetch('/api/game/equip_item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            adventure_id: ADVENTURE_ID,
+            chapter_id: CHAPTER_ID,
+            item_id: itemId,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '装备失败');
+        if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      } catch (err) {
+        appendLog('system', `装备失败: ${err.message}`);
+        return;
+      }
+      // 转移进角色装备栏（占近战槽，由 computeEquippedSlots 自动分配）
+      char.inventory = char.inventory || { gold: 0, items: [] };
+      char.inventory.items.push({ equipment_id: item.equipment_id, quantity: 1, equipped: true });
+      const actorName = (state.character && state.character.name) || '你';
+      appendLog('gm', `${actorName} 装备了 ${item.name}。`);
+      recalcCharacterStats(char);
+      await renderAllTabs();
+      await renderRightPanel();
+      await saveCharacter();
+    } else if (action === 'discard') {
+      const idx = state.playerInventory.indexOf(itemId);
+      if (idx < 0) return;
+      state.playerInventory.splice(idx, 1);
+      await dropItemToLocation(itemId, itemName);
+      await renderAllTabs();
+    } else if (action === 'gift') {
+      appendLog('system', '赠送功能开发中。');
+    }
+  }
+
+  async function renderInventoryTab(char) {
     const catalog = catalogs.equipment || {};
     const items = char.inventory?.items || [];
     const gold = char.inventory?.gold || 0;
+    const invItems = state.playerInventory || [];
+    // 装备栏 = 角色已保存装备 + 阶段测试拿取的内存装备（刷新即消失）
+    const tempItems = state.tempEquipItems || [];
+    const equipItems = [
+      ...items.map((it, i) => ({ ...it, src: 'char', idx: i })),
+      ...tempItems.map((it, i) => ({ ...it, src: 'temp', idx: i })),
+    ];
     let itemsHtml;
     let emptyDiv = '';
-    if (items.length === 0) {
-      emptyDiv = '<div class="inv-empty">背包空空如也</div>';
+    if (equipItems.length === 0) {
       itemsHtml = '';
+      if (invItems.length === 0) emptyDiv = '<div class="inv-empty">背包空空如也</div>';
     } else {
-      itemsHtml = items.map(item => {
+      const itemsWithSvg = await Promise.all(equipItems.map(async item => {
         const catalogItem = item.equipment_id ? catalog[item.equipment_id] : null;
         const displayName = catalogItem ? catalogItem.name : (item.name || '未知物品');
+        const iconName = catalogItem ? catalogItem.icon : 'pouch';
+        const iconSvg = await loadSvgIcon(iconName);
         const description = catalogItem ? catalogItem.description : '';
+        const props = catalogItem ? itemEffectText(catalogItem) : '';
+        return { ...item, displayName, iconSvg, description, props };
+      }));
+      itemsHtml = itemsWithSvg.map(item => `
+        <div class="item-card" data-src="${item.src}" data-idx="${item.idx}" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(item.displayName)}" data-description="${escapeHtml(item.description)}" data-props="${escapeHtml(item.props)}">
+          <div class="item-top">
+            <div class="item-icon">${item.iconSvg}</div>
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(item.displayName)}</div>
+            </div>
+          </div>
+          ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
+          <div class="item-quantity">x${item.quantity || 1}</div>
+        </div>
+      `).join('');
+    }
+    // 道具区（后端运行时背包 playerInventory，数量按 id 聚合）
+    let supplyHtml = '';
+    if (invItems.length > 0) {
+      const counts = {};
+      invItems.forEach(iid => counts[iid] = (counts[iid] || 0) + 1);
+      const supplyRows = await Promise.all(Object.entries(counts).map(async ([iid, n]) => {
+        const sub = state.data.items[iid];
+        const name = sub ? sub.name : iid;
+        const desc = sub ? sub.description : '';
+        const iconSvg = await loadSvgIcon((sub && sub.icon) || 'pouch');
         return `
-          <div class="item-card" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(displayName)}" data-description="${escapeHtml(description)}">
+          <div class="item-card" data-kind="item" data-item-id="${escapeHtml(iid)}" data-name="${escapeHtml(name)}" data-description="${escapeHtml(desc)}" data-props="">
             <div class="item-top">
+              <div class="item-icon">${iconSvg}</div>
               <div class="item-info">
-                <div class="item-name">${escapeHtml(displayName)}</div>
+                <div class="item-name">${escapeHtml(name)}</div>
               </div>
             </div>
-            ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
-            <div class="item-quantity">x${item.quantity || 1}</div>
+            <div class="item-quantity">x${n}</div>
           </div>`;
-      }).join('');
+      }));
+      supplyHtml = `
+        <div class="inv-supplies-title">道具</div>
+        <div class="items-grid">${supplyRows.join('')}</div>`;
     }
+    // 装备区：装备类物品单独成栏
+    const equipHtml = items.length > 0 ? `
+        <div class="inv-supplies-title">装备</div>
+        <div class="items-grid">${itemsHtml}</div>` : '';
     return `
       <div class="inventory-panel">
         <div class="inventory-header">
@@ -2215,7 +3037,8 @@
           <div class="inventory-gold">${gold} G</div>
         </div>
         ${emptyDiv}
-        <div class="items-grid">${itemsHtml}</div>
+        ${equipHtml}
+        ${supplyHtml}
       </div>
     `;
   }
@@ -2303,8 +3126,6 @@
     const normalItems = lookupNames((char.spells?.action_ids || {}).normal || [], spells.actions?.normal);
     const classItems  = lookupNames((char.spells?.action_ids || {}).class || [], spells.actions?.class);
     const passiveItems = lookupNames(char.spells?.passive_ids || [], spells.passive);
-    const spellL1Items = lookupNames((char.spells?.spell_ids || {}).level_1 || [], spells.spells?.level_1);
-    const cantripItems = lookupNames(char.cantrip_ids || [], spells.cantrips);
 
     const renderBlock = (name, spellId) =>
       `<div class="skill-block" data-spell-id="${escapeHtml(spellId || '')}">${escapeHtml(name)}</div>`;
@@ -2321,12 +3142,28 @@
       ? `<div class="divider"><span>${title}</span></div><div class="skill-grid">${renderGroup(items, catalog)}</div>`
       : '';
 
+    // ── 法术环：戏法（0 环，无限施放，不消耗法术位）+ 1 环（消耗法术位，长休恢复）──
+    const casterLevel = (char.spells?.caster_level) || 1;
+    const slotMax1 = casterLevel >= 2 ? 3 : 2;  // 与后端 spell_slot_max 一致（简化：1 级 2 个、2 级 3 个）
+    const slotUsed1 = (state.spellSlotsUsed || {})[1] || 0;
+
+    const renderSpellBlock = (spellId) => {
+      const s = window.spellLookup[spellId];
+      const name = s ? s.name : spellId;
+      return `<div class="skill-block spell-block" data-spell-id="${escapeHtml(spellId)}">${escapeHtml(name)}</div>`;
+    };
+    const renderSpellGroup = (ids) => (ids || []).map(renderSpellBlock).join('');
+
+    const spellL1 = (char.spells?.spell_ids || {}).level_1 || [];
+    const cantrips = char.cantrip_ids || [];
+    const slotText1 = `${Math.max(0, slotMax1 - slotUsed1)} / ${slotMax1}`;
+
     return `
       ${section('常规动作', normalItems, spells.actions?.normal)}
       ${section('职业动作', classItems, spells.actions?.class)}
       ${section('被动技能', passiveItems, spells.passive)}
-      ${section('戏法', cantripItems, spells.cantrips)}
-      ${section('1环法术', spellL1Items, spells.spells?.level_1)}
+      ${cantrips.length ? `<div class="divider"><span>戏法 · 无限施放</span></div><div class="skill-grid">${renderSpellGroup(cantrips)}</div>` : ''}
+      ${spellL1.length ? `<div class="divider"><span>1 环法术 · 法术位 ${slotText1}</span></div><div class="skill-grid">${renderSpellGroup(spellL1)}</div>` : ''}
     `;
   }
 
@@ -2360,11 +3197,17 @@
   }
 
   /* ── 详情弹窗 ── */
-  function openDetailModal(type, id, extra) {
+  let currentModalType = null;
+  let currentModalId = null;
+
+  async function openDetailModal(type, id, extra) {
+    currentModalType = type;
+    currentModalId = id;
     let title = '';
     let meta = '';
     let desc = '';
     let avatar = '?';
+    let extraContent = '';
 
     switch (type) {
       case 'npc': {
@@ -2374,15 +3217,21 @@
         meta = `${npc.race || ''} · ${npc.role || ''}`;
         desc = npc.description || '';
         avatar = npc.name[0];
+        // 带 merchant 字段的 NPC 可交易
+        if (npc.merchant) {
+          extraContent = `
+            <button type="button" class="trade-btn trade-open" data-npc="${id}" style="width:100%; padding:9px 0; font-size:14px;">交易</button>`;
+        }
         break;
       }
       case 'item': {
-        const item = state.data.items[id];
+        const item = findItemDef(id);
         if (!item) return;
         title = item.name;
         meta = item.type || '';
         desc = item.description || '';
         avatar = 'I';
+        extraContent = await buildItemModalExtra(id, item);
         break;
       }
       case 'exit': {
@@ -2413,9 +3262,120 @@
         </div>
       </div>
       <div class="modal-desc">${desc.replace(/\n/g, '<br>')}</div>
+      ${extraContent}
     `;
 
+    modalContent.querySelectorAll('.take-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const containerId = btn.dataset.container || null;
+        const itemId = btn.dataset.item;
+        await callTakeItem(containerId, itemId);
+      });
+    });
+
+    // 交易按钮：关闭详情弹窗后打开交易弹窗
+    modalContent.querySelectorAll('.trade-open').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeDetailModal();
+        openTradeModal(btn.dataset.npc);
+      });
+    });
+
     modalOverlay.classList.add('active');
+  }
+
+  /* 物品详情附加内容：容器显示内含物品，普通无主物品显示拿取按钮 */
+  async function buildItemModalExtra(itemId, item) {
+    const contains = item.contains || [];
+    const parts = [];
+    const loc = getCurrentLocation();
+
+    if (contains.length > 0) {
+      // 容器：按 contains 聚合剩余数量（减去已取走的）
+      const taken = (loc && state.containerTaken[loc.id]?.[itemId]) || [];
+      const counts = {};
+      for (const cid of contains) {
+        const remaining = contains.filter(x => x === cid).length - taken.filter(x => x === cid).length;
+        if (remaining > 0) counts[cid] = remaining;
+      }
+      let rows = '';
+      if (Object.keys(counts).length > 0) {
+        const items = await Promise.all(Object.entries(counts).map(async ([cid, n]) => {
+          const sub = state.data.items[cid];
+          if (!sub) return '';
+          const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+          const props = itemEffectText(sub);
+          return `
+            <div class="inv-box-item" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+              <div class="item-icon">${iconSvg}</div>
+              <div class="inv-box-name">${escapeHtml(sub.name)} <span class="inv-box-qty">×${n}</span></div>
+              <button type="button" class="take-btn" data-container="${itemId}" data-item="${cid}">拿取</button>
+            </div>`;
+        }));
+        rows = items.join('');
+      }
+      parts.push(`<div class="modal-section-title">内含物品</div><div class="inv-box-list">${rows || '<div class="context-empty">箱子已空</div>'}</div>`);
+    } else {
+      // 普通物品：当前地点可见（含本会话丢弃物）且无主 → 可拿取
+      const locItemIds = (loc ? (loc.items || []) : []).map(e => (typeof e === 'object' ? e.id : e));
+      const isDroppedHere = !!(loc && (state.droppedItems || {})[loc.id] && (state.droppedItems)[loc.id].includes(itemId));
+      if ((locItemIds.includes(itemId) || isDroppedHere) && !item.owner) {
+        parts.push(`<div class="inv-box-list"><div class="inv-box-item"><button type="button" class="take-btn" data-item="${itemId}">拿取</button></div></div>`);
+      }
+    }
+
+    return parts.join('');
+  }
+
+  /* 拿取物品（专用端点，不经 AI 解析） */
+  async function callTakeItem(containerId, itemId) {
+    try {
+      const res = await fetch('/api/game/take_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          container_id: containerId || undefined,
+          item_id: itemId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '拿取失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.container_taken) state.containerTaken = data.updates.container_taken;
+      const item = state.data.items[itemId];
+      const actorName = (state.character && state.character.name) || '你';
+      appendLog('gm', `${actorName} 拿取了 ${item ? item.name : itemId}${containerId ? '。' : '，收进背包。'}`);
+      if (data.is_equipment && item && item.equipment_id) {
+        // 阶段测试：拿取的装备进前端内存（刷新页面即消失，不持久化到角色卡）
+        state.tempEquipItems.push({ equipment_id: item.equipment_id, quantity: 1, equipped: false });
+      }
+      if (!containerId) {
+        // 普通物品：从当前地点本地移除并记录（切场景回来不重复显示）
+        state.takenLocationItems.push(itemId);
+        const loc = getCurrentLocation();
+        if (loc) {
+          if (Array.isArray(loc.items)) {
+            loc.items = loc.items.filter(e => (typeof e === 'object' ? e.id : e) !== itemId);
+          }
+          // 若是本会话丢弃的物品，拾取后从左侧丢弃列表移除
+          const dropped = (state.droppedItems || {})[loc.id];
+          if (dropped) {
+            const di = dropped.indexOf(itemId);
+            if (di >= 0) dropped.splice(di, 1);
+          }
+        }
+      }
+      // 拿取成功：关闭详情弹窗并刷新左侧与背包（不再重开弹窗，避免再次弹出）
+      closeDetailModal();
+      renderContextPanel();
+      await renderAllTabs();
+    } catch (err) {
+      appendLog('system', `拿取失败: ${err.message}`);
+    }
   }
 
   let expandedQuestIds = new Set();
@@ -2481,6 +3441,25 @@
       return html;
     }
 
+    function buildSubtaskRows(quest) {
+      if (!quest.objectives || quest.objectives.length === 0) return '';
+      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
+      let fiIdx = quest.objectives.findIndex(o => !o.completed);
+      if (fiIdx === -1) fiIdx = quest.objectives.length;
+      const visibleObjs = quest.objectives.slice(0, fiIdx + 1);
+      return visibleObjs.map((st, idx) => {
+        const subCompleted = st.completed ? ' completed' : '';
+        const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? ' active' : '';
+        const subName = st.text + (st.completed ? '（已完成）' : '');
+        return `
+          <div class="task-sub-nav-item${subCompleted}${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
+            <span class="sub-nav-dot"></span>
+            <span class="task-sub-nav-name">${escapeHtml(subName)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderNavItem(quest) {
       const isActive = quest.id === selectedQuestId;
       const completedClass = quest.completed ? ' task-completed' : '';
@@ -2491,24 +3470,7 @@
       const expandClass = isExpanded ? ' expanded' : '';
       const noExpandClass = !hasSubtasks ? ' no-expand' : '';
 
-      let subtaskRows = '';
-      if (hasSubtasks && isExpanded) {
-        // 防剧透：只显示已完成子任务 + 第一个未完成子任务
-        let fiIdx = quest.objectives.findIndex(o => !o.completed);
-        if (fiIdx === -1) fiIdx = quest.objectives.length;
-        const visibleObjs = quest.objectives.slice(0, fiIdx + 1);
-        subtaskRows = visibleObjs.map((st, idx) => {
-          const subCompleted = st.completed ? ' completed' : '';
-          const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? ' active' : '';
-          const subName = st.text + (st.completed ? '（已完成）' : '');
-          return `
-            <div class="task-sub-nav-item${subCompleted}${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
-              <span class="sub-nav-dot"></span>
-              <span class="task-sub-nav-name">${escapeHtml(subName)}</span>
-            </div>
-          `;
-        }).join('');
-      }
+      const subtaskRows = hasSubtasks && isExpanded ? buildSubtaskRows(quest) : '';
 
       return `
         <div class="task-nav-item${isActive ? ' active' : ''}${completedClass}${expandClass}${noExpandClass}" data-quest-id="${quest.id}">
@@ -2585,19 +3547,30 @@
       `;
     }
 
-    function refreshModal() {
-      let detailHtml;
+    function renderDetail() {
       if (selectedSubtask) {
-        detailHtml = renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
-      } else {
-        const curQ = allQuests.find(q => q.id === selectedQuestId);
-        detailHtml = curQ ? renderQuestDetail(curQ) : '';
+        return renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
       }
+      const curQ = allQuests.find(q => q.id === selectedQuestId);
+      return curQ ? renderQuestDetail(curQ) : '';
+    }
 
+    function bindSubtaskEl(sub) {
+      sub.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const qid = sub.dataset.questId;
+        const idx = parseInt(sub.dataset.subtaskIdx);
+        selectedQuestId = qid;
+        selectedSubtask = { questId: qid, subtaskIdx: idx };
+        refreshModal();
+      });
+    }
+
+    function refreshModal() {
       modalContent.innerHTML = `
         <div class="task-columns">
           <div class="task-sidebar">${renderSidebar()}</div>
-          <div class="task-detail" id="task-modal-detail">${detailHtml}</div>
+          <div class="task-detail" id="task-modal-detail">${renderDetail()}</div>
         </div>
       `;
 
@@ -2616,17 +3589,36 @@
           const arrowEl = item.querySelector('.task-nav-arrow');
 
           if (arrowEl && arrowEl.contains(e.target)) {
-            // 切换展开/折叠
-            if (expandedQuestIds.has(qid)) {
-              expandedQuestIds.delete(qid);
+            // 切换展开/折叠（局部操作，保证箭头旋转动画生效）
+            const willExpand = !expandedQuestIds.has(qid);
+            if (willExpand) expandedQuestIds.add(qid);
+            else expandedQuestIds.delete(qid);
+            item.classList.toggle('expanded', willExpand);
+
+            // 局部插入/移除子任务行，避免整块重渲染导致动画失效
+            if (willExpand) {
+              const quest = allQuests.find(q => q.id === qid);
+              item.insertAdjacentHTML('afterend', buildSubtaskRows(quest));
+              let nxt = item.nextElementSibling;
+              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
+                bindSubtaskEl(nxt);
+                nxt = nxt.nextElementSibling;
+              }
             } else {
-              expandedQuestIds.add(qid);
+              let nxt = item.nextElementSibling;
+              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
+                const cur = nxt;
+                nxt = nxt.nextElementSibling;
+                cur.remove();
+              }
             }
+
             if (selectedSubtask && selectedSubtask.questId === qid) {
               selectedSubtask = null;
             }
             selectedQuestId = qid;
-            refreshModal();
+            const detailEl = modalContent.querySelector('#task-modal-detail');
+            if (detailEl) detailEl.innerHTML = renderDetail();
             return;
           }
 
@@ -2639,16 +3631,7 @@
       });
 
       // 子任务项点击
-      modalContent.querySelectorAll('.task-sub-nav-item').forEach(sub => {
-        sub.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const qid = sub.dataset.questId;
-          const idx = parseInt(sub.dataset.subtaskIdx);
-          selectedQuestId = qid;
-          selectedSubtask = { questId: qid, subtaskIdx: idx };
-          refreshModal();
-        });
-      });
+      modalContent.querySelectorAll('.task-sub-nav-item').forEach(bindSubtaskEl);
     }
 
     refreshModal();
@@ -2657,6 +3640,8 @@
   }
 
   function closeDetailModal() {
+    currentModalType = null;
+    currentModalId = null;
     modalOverlay.classList.remove('active');
     // 延迟移除 task-panel，等 overlay 淡出动画 (0.25s) 完成再恢复尺寸
     setTimeout(() => {
@@ -2669,6 +3654,525 @@
   modalOverlay.addEventListener('click', e => {
     if (e.target === modalOverlay) closeDetailModal();
   });
+
+  /* ── 交易系统 ── */
+  let currentTradeNpcId = null;
+
+  /* 商人是否已敌对（偷窃败露/失败后涨价） */
+  function isHostileTo(npcId) {
+    return (state.hostileNpcs || []).includes(npcId);
+  }
+
+  /* 商人收购价：库存内物品按售价半价，否则按物品自身 price 半价（与后端一致）；敌对后买价 ×1.5、卖价更低 */
+  function merchantOffer(npc, itemId) {
+    const entry = (npc.merchant.inventory || []).find(e => e.item_id === itemId);
+    const item = findItemDef(itemId);
+    let price = entry ? entry.price : (item && item.price);
+    if (price == null) return null;
+    if (isHostileTo(currentTradeNpcId)) price = Math.ceil(price * 1.5);
+    return Math.max(1, Math.round(price / 2));
+  }
+
+  async function renderTradeModal() {
+    const npc = state.data.npcs[currentTradeNpcId];
+    if (!npc || !npc.merchant) return;
+    const tradeContent = $('#trade-modal-content');
+    const merchantGold = (state.merchantStates[currentTradeNpcId] && state.merchantStates[currentTradeNpcId].gold != null)
+      ? state.merchantStates[currentTradeNpcId].gold : (npc.merchant.gold || 0);
+    const char = state.character || {};
+    const playerGold = (char.inventory && char.inventory.gold) || 0;
+
+    // 商人货架
+    const soldMap = (state.merchantStates[currentTradeNpcId] && state.merchantStates[currentTradeNpcId].sold) || {};
+    const stolenMap = (state.merchantTheft[currentTradeNpcId]) || {};
+    const hostile = isHostileTo(currentTradeNpcId);
+    const shopRows = await Promise.all((npc.merchant.inventory || []).map(async entry => {
+      const sub = findItemDef(entry.item_id);
+      if (!sub) return '';
+      const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+      const props = itemEffectText(sub);
+      const stockLeft = entry.stock == null ? null : Math.max(0, entry.stock - (soldMap[entry.item_id] || 0) - (stolenMap[entry.item_id] || 0));
+      if (stockLeft === 0) return ''; // 售罄的商品直接从货架移除
+      const stockText = stockLeft != null ? `<span class="trade-item-qty">剩余${stockLeft}</span>` : '';
+      const displayPrice = hostile ? Math.ceil(entry.price * 1.5) : entry.price;
+      return `
+        <div class="trade-item" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+          <div class="item-icon">${iconSvg}</div>
+          <div class="trade-item-name">${escapeHtml(sub.name)} ${stockText}</div>
+          <div class="trade-item-price">${displayPrice} G${hostile ? '<span class="trade-item-qty" title="敌对商人涨价">▲</span>' : ''}</div>
+          <button type="button" class="trade-btn" data-buy="${escapeHtml(entry.item_id)}">购买</button>
+        </div>`;
+    }));
+    const shopHtml = shopRows.join('') || '<div class="trade-empty">货架空空如也</div>';
+
+    // 你的背包：可出售道具（按 id 聚合数量），装备类物品暂不可出售
+    const invItems = state.playerInventory || [];
+    const counts = {};
+    invItems.forEach(iid => counts[iid] = (counts[iid] || 0) + 1);
+    const bagRows = await Promise.all(Object.entries(counts).map(async ([iid, n]) => {
+      const sub = findItemDef(iid);
+      if (!sub) return '';
+      const offer = merchantOffer(npc, iid);
+      if (offer == null) return '';
+      const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+      const props = itemEffectText(sub);
+      return `
+        <div class="trade-item" data-sell="${escapeHtml(iid)}" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+          <div class="item-icon">${iconSvg}</div>
+          <div class="trade-item-name">${escapeHtml(sub.name)} <span class="trade-item-qty">×${n}</span></div>
+          <div class="trade-item-price">${offer} G</div>
+          <button type="button" class="trade-btn sell" data-sell="${escapeHtml(iid)}">出售</button>
+        </div>`;
+    }));
+    const bagHtml = bagRows.join('') || '<div class="trade-empty">背包里没有可出售的道具</div>';
+
+    tradeContent.innerHTML = `
+      <div class="trade-header">
+        <div class="trade-title"><span class="modal-avatar">${escapeHtml(npc.name[0] || '?')}</span>
+          交易 · ${escapeHtml(npc.name)}<span class="trade-role">（${escapeHtml(npc.role || '')}）</span>
+        </div>
+        <div class="trade-gold">商人金币 ${merchantGold} G</div>
+      </div>
+      <div class="trade-cols">
+        <div class="trade-col">
+          <div class="trade-col-title">商人货架</div>
+          ${shopHtml}
+        </div>
+        <div class="trade-col">
+          <div class="trade-col-title">你的背包 <span class="trade-item-qty">${playerGold} G</span></div>
+          ${bagHtml}
+        </div>
+      </div>`;
+
+    tradeContent.querySelectorAll('[data-buy]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await callBuyItem(currentTradeNpcId, btn.dataset.buy);
+        await renderTradeModal();
+      });
+    });
+    tradeContent.querySelectorAll('[data-sell]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await callSellItem(currentTradeNpcId, btn.dataset.sell);
+        await renderTradeModal();
+      });
+    });
+    // 背包行右键：弹出出售菜单（复用 item-context-menu 样式）
+    tradeContent.querySelectorAll('.trade-item[data-sell]').forEach(row => {
+      row.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const itemId = row.dataset.sell;
+        document.querySelectorAll('.trade-context-menu').forEach(m => m.remove());
+        const menu = document.createElement('div');
+        menu.className = 'item-context-menu trade-context-menu visible';
+        menu.innerHTML = `<button class="menu-action" data-action="sell">出售</button>`;
+        document.body.appendChild(menu);
+        let x = e.clientX, y = e.clientY;
+        const rect = menu.getBoundingClientRect();
+        if (x + 150 > window.innerWidth) x = window.innerWidth - 150;
+        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        menu.querySelector('button').addEventListener('click', async () => {
+          menu.remove();
+          await callSellItem(currentTradeNpcId, itemId);
+          await renderTradeModal();
+        });
+        const hide = (ev) => {
+          if (!menu.contains(ev.target)) {
+            menu.remove();
+            document.removeEventListener('click', hide);
+            document.removeEventListener('scroll', hide);
+          }
+        };
+        setTimeout(() => {
+          document.addEventListener('click', hide);
+          document.addEventListener('scroll', hide);
+        }, 0);
+      });
+    });
+  }
+
+  function openTradeModal(npcId) {
+    currentTradeNpcId = npcId;
+    renderTradeModal();
+    tradeModalOverlay.classList.add('active');
+  }
+
+  /* 汇总本次交易（购买/出售的物品与金额），关闭交易弹窗时一次性播报 */
+  function summarizeTradeLog() {
+    const log = state.tradeLog || [];
+    if (log.length === 0) return null;
+    const buys = {}, sells = {};
+    let buyGold = 0, sellGold = 0;
+    log.forEach(t => {
+      if (t.type === 'buy') { buys[t.name] = (buys[t.name] || 0) + t.qty; buyGold += t.gold; }
+      else { sells[t.name] = (sells[t.name] || 0) + t.qty; sellGold += t.gold; }
+    });
+    const fmt = o => Object.entries(o).map(([n, q]) => q > 1 ? `${n}×${q}` : n).join('、');
+    const parts = [];
+    if (Object.keys(buys).length) parts.push(`购买了 ${fmt(buys)}，花费 ${buyGold} 金币`);
+    if (Object.keys(sells).length) parts.push(`出售了 ${fmt(sells)}，获得 ${sellGold} 金币`);
+    const npc = state.data.npcs[currentTradeNpcId];
+    const npcName = npc ? npc.name : '商人';
+    const actor = (state.character && state.character.name) || '你';
+    return `${actor}与${npcName}完成交易：${parts.join('；')}。`;
+  }
+
+  function closeTradeModal() {
+    const msg = summarizeTradeLog();
+    if (msg) appendLog('gm', msg);
+    state.tradeLog = [];
+    currentTradeNpcId = null;
+    tradeModalOverlay.classList.remove('active');
+  }
+
+  async function callBuyItem(npcId, itemId) {
+    try {
+      const res = await fetch('/api/game/buy_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          npc_id: npcId,
+          item_id: itemId,
+          quantity: 1,
+          location_id: currentLocationId(),
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '购买失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+      if (state.character && data.gold != null) {
+        state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+        state.character.inventory.gold = data.gold;
+      }
+      if (data.is_equipment) {
+        const item = findItemDef(itemId);
+        if (item) {
+          // 全局装备库物品没有 equipment_id 字段，直接用 item_id 作为装备索引
+          const eqId = item.equipment_id || itemId;
+          state.tempEquipItems.push({ equipment_id: eqId, quantity: 1, equipped: false });
+        }
+      }
+      // 静默记录交易，关闭交易弹窗时统一播报
+      const bought = findItemDef(itemId);
+      state.tradeLog.push({ type: 'buy', name: bought ? bought.name : itemId, qty: data.quantity || 1, gold: data.cost || 0 });
+      await renderAllTabs();
+      await renderRightPanel();
+      // 金币由后端写回角色 JSON，前端只读展示
+    } catch (err) {
+      appendLog('system', `购买失败: ${err.message}`);
+    }
+  }
+
+  async function callSellItem(npcId, itemId) {
+    try {
+      const res = await fetch('/api/game/sell_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          npc_id: npcId,
+          item_id: itemId,
+          quantity: 1,
+          location_id: currentLocationId(),
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '出售失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+      if (state.character && data.gold != null) {
+        state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+        state.character.inventory.gold = data.gold;
+      }
+      // 静默记录交易，关闭交易弹窗时统一播报
+      const sold = findItemDef(itemId);
+      state.tradeLog.push({ type: 'sell', name: sold ? sold.name : itemId, qty: data.quantity || 1, gold: data.gain || 0 });
+      await renderAllTabs();
+      await renderRightPanel();
+      // 金币由后端写回角色 JSON，前端只读展示
+    } catch (err) {
+      appendLog('system', `出售失败: ${err.message}`);
+    }
+  }
+
+  const tradeModalOverlay = $('#trade-modal-overlay');
+  const tradeModalClose = $('#trade-modal-close');
+  tradeModalClose.addEventListener('click', closeTradeModal);
+  tradeModalOverlay.addEventListener('click', e => {
+    if (e.target === tradeModalOverlay) closeTradeModal();
+  });
+
+  /* ── 偷窃系统 ── */
+  function applyGameUpdates(updates) {
+    if (!updates) return;
+    if (updates.player_inventory) state.playerInventory = updates.player_inventory;
+    if (updates.merchant_states) state.merchantStates = updates.merchant_states;
+    if (updates.hostile_npcs) state.hostileNpcs = updates.hostile_npcs;
+    if (updates.suspicion) state.suspicion = updates.suspicion;
+    if (updates.npc_alerts) state.npcAlerts = updates.npc_alerts;
+    if (updates.merchant_theft) state.merchantTheft = updates.merchant_theft;
+    if (updates.player_stealth) state.playerStealth = updates.player_stealth;
+    // 被抓住状态 / 通缉 / 逮捕（卫兵流程、监狱）
+    if (updates.caught) state.caught = updates.caught;
+    if (updates.wanted_location !== undefined) state.wantedLocation = updates.wanted_location;
+    if (updates.arrest !== undefined) state.arrest = updates.arrest;
+    // 逃脱传送：后端已切换地点，同步前端场景 location 并刷新
+    if (updates.location_id !== undefined && updates.location_id !== currentLocationId()) {
+      const scene = getCurrentScene();
+      if (scene) {
+        scene.location = updates.location_id;
+        const loc = state.data.locations[updates.location_id];
+        if (loc) {
+          appendLog('system', `你来到了: ${loc.name}`);
+          renderLocationHeader();
+          renderContextPanel();
+        }
+      }
+    }
+    // HP / 法术位 / 短休（后端权威，同步到角色卡显示）
+    if (updates.player_hp) {
+      state.playerHp = updates.player_hp;
+      if (state.character) {
+        state.character.combat = state.character.combat || {};
+        state.character.combat.hp = `${updates.player_hp.cur} / ${updates.player_hp.max}`;
+      }
+    }
+    if (updates.spell_slots_used !== undefined) state.spellSlotsUsed = updates.spell_slots_used;
+    if (updates.short_rests_left !== undefined) state.shortRestsLeft = updates.short_rests_left;
+    watchSuspicion(updates);
+    watchArrest(updates.arrest);
+  }
+
+  /* 监狱狱卒巡逻：在场时真实时间倒计时（guard_until 为秒级时间戳），到点播报"去巡逻"并本地置 away，
+     玩家此时可以撬锁（后端在下一次动作时懒计算确认，权威状态以后端为准） */
+  let jailGuardTimer = null;
+  function watchArrest(arrest) {
+    if (jailGuardTimer) { clearTimeout(jailGuardTimer); jailGuardTimer = null; }
+    if (!arrest || !arrest.active || arrest.phase !== 'jailed') return;
+    if (arrest.jail_guard !== 'present') return;
+    const msLeft = (arrest.guard_until || 0) * 1000 - Date.now();
+    if (msLeft <= 0) return;
+    jailGuardTimer = setTimeout(() => {
+      jailGuardTimer = null;
+      if (state.arrest && state.arrest.active && state.arrest.phase === 'jailed' &&
+          state.arrest.jail_guard === 'present') {
+        state.arrest.jail_guard = 'away';
+        appendLog('system', '狱卒起身去巡逻了，走廊里暂时没人——现在可以试着撬锁！');
+      }
+    }, msLeft);
+  }
+
+  /* 当前是否正被怀疑（强制对话中）：flagrante（情况二，人赃并获）立即锁定；discovered（情况四，延迟败露）超过 5 秒反应期才锁定 */
+  function activeSuspicion() {
+    const s = state.suspicion || {};
+    const now = Date.now();
+    for (const [nid, v] of Object.entries(s)) {
+      if (!(v && v.active)) continue;
+      if (v.mode === 'flagrante') return [nid, v]; // 人赃并获：无反应期，立即锁定质问
+      // detected_at 为后端秒级时间戳，换算为毫秒再比较
+      if (now - (v.detected_at || 0) * 1000 >= 5000) return [nid, v];
+    }
+    return null;
+  }
+
+  /* 被怀疑：锁定移动 + NPC 质问（玩家在聊天框回应，AI 扮演 NPC 推进）。mode=flagrante 为人赃并获，discovered 为延迟败露 */
+  function triggerSuspicion(npcId, mode) {
+    const npc = state.data.npcs[npcId];
+    const npcName = npc ? npc.name : '对方';
+    if (mode === 'flagrante') {
+      appendLog('npc', `${npcName}一把抓住你的手腕，怒目而视："人赃并获！你还有什么话说？！"`);
+      appendLog('system', '你被当场抓住。请在聊天框回应：给钱了事 / 欺骗 / 威吓 / 逃跑（挣脱）等');
+    } else {
+      appendLog('npc', `${npcName}一把拦住你："站住！我刚清点过货，怎么转眼就少了东西……是不是你偷的？让我搜一搜！"`);
+      appendLog('system', '你被怀疑偷窃，暂时无法离开此地。请在聊天框回应：同意搜身 / 给钱承认 / 拒绝 / 欺骗 / 威吓 / 游说 / 逃跑等');
+    }
+  }
+
+  /* 偷窃败露处理：flagrante 立即质问；discovered 走 5 秒反应期（期间不锁定，玩家可离开逃脱；超时仍在原地则触发质问） */
+  const suspicionTimers = {};
+  function watchSuspicion(updates) {
+    if (!updates || !updates.suspicion) return;
+    const now = Date.now();
+    for (const [nid, v] of Object.entries(updates.suspicion)) {
+      if (!(v && v.active)) { if (suspicionTimers[nid]) { clearTimeout(suspicionTimers[nid]); delete suspicionTimers[nid]; } continue; }
+      if (v.mode === 'flagrante') {
+        // 人赃并获：立即质问，不进 5 秒反应期
+        if (!suspicionTimers[nid]) {
+          suspicionTimers[nid] = setTimeout(() => {}, 0); // 占位标记，避免重复触发
+          triggerSuspicion(nid, 'flagrante');
+        }
+        continue;
+      }
+      if (suspicionTimers[nid]) continue; // 已有计时器
+      const elapsed = now - (v.detected_at || 0) * 1000; // detected_at 为秒级，换算毫秒
+      if (elapsed < 5000) {
+        suspicionTimers[nid] = setTimeout(() => {
+          delete suspicionTimers[nid];
+          if (activeSuspicion()) triggerSuspicion(nid, 'discovered');
+        }, 5000 - elapsed);
+      }
+    }
+  }
+
+  /* 当前地点 id（前端自由切换后同步给后端接口） */
+  function currentLocationId() {
+    const loc = getCurrentLocation();
+    return loc ? loc.id : null;
+  }
+
+  /* 确定性端点流式调用（SSE：meta → narrative_chunk → done）。
+     meta 到达即应用状态/骰子；narrative_chunk 流式渲染 GM 润色播报；AI 失败后端已回退固定播报。 */
+  async function callDeterministicStream(url, payload, thinkingText) {
+    const thinkingId = 'thinking-' + Date.now();
+    let gmEntryId = null, gmEntryCreated = false, gmFullText = '';
+    if (thinkingText) appendLog('system', thinkingText, { id: thinkingId });
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        if (thinkingId) removeLogEntry(thinkingId);
+        throw new Error(err.detail || '操作失败');
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === 'meta') {
+              if (data.session_id) state.sessionId = data.session_id;
+              if (data.updates) applyGameUpdates(data.updates);
+              if (data.checks && data.checks.length > 0) data.checks.forEach(c => showCheckLog(c));
+              if (data.gold != null && state.character) {
+                state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+                state.character.inventory.gold = data.gold;
+              }
+            } else if (data.type === 'narrative_chunk') {
+              if (!gmEntryCreated) {
+                if (thinkingId) removeLogEntry(thinkingId);
+                gmEntryId = 'gm-' + Date.now();
+                appendLogEntry({ type: 'gm', text: '', id: gmEntryId });
+                gmEntryCreated = true;
+              }
+              gmFullText += data.text;
+              updateLogEntryText(gmEntryId, gmFullText);
+            } else if (data.type === 'done') {
+              if (data.full_text && data.full_text !== gmFullText) {
+                gmFullText = data.full_text;
+                if (gmEntryId) updateLogEntryText(gmEntryId, gmFullText);
+              }
+            }
+          } catch (e) { /* 跳过解析失败的行 */ }
+        }
+      }
+    } catch (err) {
+      if (thinkingId) removeLogEntry(thinkingId);
+      appendLog('system', `操作失败: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* 被怀疑质问的回应：search（同意搜查）/ pay（给钱承认）/ refuse（拒绝）/ deception/intimidation/persuasion（社交检定），确定性接口 */
+  async function callResolveSuspicion(npcId, action) {
+    try {
+      await callDeterministicStream('/api/game/suspicion', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        npc_id: npcId,
+        action: action,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, 'GM 思考中...');
+      await renderAllTabs();
+      await renderRightPanel();
+      await renderTradeModal();
+    } catch (err) {
+      // callDeterministicStream 已提示错误
+    }
+  }
+
+  /* 点击"监狱大门"越狱（牢门已开）：后端推进狱卒巡逻轮数——
+     狱卒刚好回来 → 强制关回；否则越狱成功（传送市场 + 通缉 + 清状态） */
+  async function callJailEscape() {
+    try {
+      const res = await fetch('/api/game/jail/escape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          location_id: currentLocationId(),
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '操作失败');
+      if (data.updates) applyGameUpdates(data.updates);
+      appendLog('gm', data.message);
+      renderLocationHeader();
+      renderContextPanel();
+    } catch (err) {
+      appendLog('system', `操作失败: ${err.message}`);
+    }
+  }
+
+  /* 潜行（确定性接口，前端关键词触发，绕过 AI 意图识别——保证有骰子播报、无需指定目标、响应快） */
+  async function callStealth() {
+    try {
+      await callDeterministicStream('/api/game/stealth', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, '正在潜行检定，GM 润色播报中...');
+      await renderAllTabs();
+      await renderRightPanel();
+      await renderTradeModal();
+    } catch (err) {
+      // callDeterministicStream 已提示错误
+    }
+  }
+
+  /* 展示检定结果（复用 meta.checks 的显示逻辑） */
+  function showCheckLog(c) {
+    if (!c) return;
+    const cnSkills = { perception: '侦察（感知）', investigation: '调查（智力）',
+      sleight_of_hand: '巧手（敏捷）', stealth: '隐匿（敏捷）',
+      insight: '洞悉（感知）', persuasion: '游说（魅力）',
+      deception: '欺瞒（魅力）', intimidation: '威吓（魅力）' };
+    const cnName = cnSkills[c.skill] || c.skill;
+    const dcText = c.dc ? `DC ${c.dc}` : '';
+    const rollText = `d20(${c.roll}) + ${c.modifier} = ${c.total}`;
+    const resultText = c.success ? '  ✓ 成功' : '  ✗ 失败';
+    appendLog('check', `${cnName} ${dcText}: ${rollText}${resultText}`, {
+      success: c.success, roll: c.roll, mod: c.modifier, dc: c.dc
+    });
+  }
 
   /* ── 掷骰 ── */
   function rollDice(sides, mod) {
@@ -2687,6 +4191,77 @@
 
   $$('.check-btn').forEach(btn => {
     btn.addEventListener('click', () => handleQuickCheck(btn.dataset.check));
+  });
+
+  /* ── 施放法术（前端按钮，确定性结算；对指定目标请在聊天框输入"施放X 打向 Y"）── */
+  async function castSpellFromButton(spellId) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法施法。');
+      return;
+    }
+    try {
+      const res = await fetch('/api/game/cast_spell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          spell_id: spellId,
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '施法失败');
+      applyGameUpdates(data.updates);
+      appendLog('gm', data.message);
+      if (data.damage) {
+        appendLog('system', '若要对指定目标施放，请在聊天框输入：施放法术名 打向 目标名');
+      }
+      await renderAllTabs();
+      await renderRightPanel();
+    } catch (err) {
+      appendLog('system', `施法失败: ${err.message}`);
+    }
+  }
+
+  // 施放按钮事件委托：点击法术块即施放（法术 tab 每次渲染，用委托避免重复绑定）
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('.spell-block');
+    if (el) castSpellFromButton(el.dataset.spellId);
+  });
+
+  /* ── 休息（短休回一半血+恢复短休动作 / 长休回满+法术位+消耗干粮）── */
+  async function doRest(type) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法休息。');
+      return;
+    }
+    try {
+      const res = await fetch('/api/game/rest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          type: type,
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '休息失败');
+      applyGameUpdates(data.updates);
+      appendLog('gm', data.message);
+      await renderAllTabs();
+      await renderRightPanel();
+    } catch (err) {
+      appendLog('system', `休息失败: ${err.message}`);
+    }
+  }
+
+  $$('[data-rest]').forEach(btn => {
+    btn.addEventListener('click', () => doRest(btn.dataset.rest));
   });
 
   /* ── 构建场景出口列表 ── */
@@ -2716,6 +4291,35 @@
     const targetLoc = state.data.locations[locationId];
     if (!targetLoc) return;
 
+    // 监狱：牢门未开 → 锁定；牢门已开 → 只允许点"监狱大门"越狱（走后端）
+    if (state.arrest && state.arrest.active && state.arrest.phase === 'jailed') {
+      if (!state.arrest.cell_open) {
+        appendLog('system', '你被关在牢里，铁栏杆挡着出不去。等狱卒巡逻时撬锁，或交保释金、蹲夜服刑。');
+        return;
+      }
+      const isJailExit = (state.data.locations['neverwinter-jail']?.exits || []).some(e => e.target === locationId);
+      if (!isJailExit) {
+        appendLog('system', '牢门开着，但你现在只能从“监狱大门”逃出去。');
+        return;
+      }
+      callJailEscape();
+      return;
+    }
+
+    // 卫兵流程中锁定移动（逃跑须明说"逃跑"/"挣脱"）
+    if (state.arrest && state.arrest.active) {
+      appendLog('system', state.arrest.phase === 'summoned' ? '卫兵正在赶来，你没法现在离开。想脱身就说“逃跑”或“挣脱”。' : '卫兵拦住了你的去路，你现在没法离开。');
+      return;
+    }
+
+    // 被怀疑偷窃（强制对话）时锁定移动
+    const sus = activeSuspicion();
+    if (sus) {
+      const npc = state.data.npcs[sus[0]];
+      appendLog('system', `${npc ? npc.name : '对方'}正盯着你，你现在没法离开这里。`);
+      return;
+    }
+
     // 检查目标地点是否在当前场景的 free_locations 内（如果定义了的话）
     const scene = getCurrentScene();
     if (scene && scene.free_locations && scene.free_locations.length > 0 && !scene.free_locations.includes(locationId)) {
@@ -2723,8 +4327,13 @@
       return;
     }
 
-    // 更新场景的 location 引用（不切换场景）
+    // 更新场景的 location 引用（不切换场景）；离开时解除潜行与被怀疑（5 秒反应期内逃脱）
     scene.location = locationId;
+    state.playerStealth = {};
+    if (Object.keys(state.suspicion || {}).length) {
+      state.suspicion = {};
+      Object.keys(suspicionTimers).forEach(k => { clearTimeout(suspicionTimers[k]); delete suspicionTimers[k]; });
+    }
     appendLog('system', `你来到了: ${targetLoc.name}`);
     appendLog('gm', targetLoc.scene_text || targetLoc.description || '');
 
@@ -2737,6 +4346,20 @@
     const targetScene = state.data.scenes[sceneId];
     if (!targetScene) return;
 
+    // 卫兵流程中锁定移动
+    if (state.arrest && state.arrest.active) {
+      appendLog('system', '卫兵拦住了你的去路，你现在没法离开。');
+      return;
+    }
+
+    // 被怀疑偷窃（强制对话）时锁定移动
+    const sus = activeSuspicion();
+    if (sus) {
+      const npc = state.data.npcs[sus[0]];
+      appendLog('system', `${npc ? npc.name : '对方'}正盯着你，你现在没法离开这里。`);
+      return;
+    }
+
     const targetLoc = state.data.locations[targetScene.location];
     if (!targetLoc) {
       appendLog('system', `无法到达: ${targetScene.name}`);
@@ -2744,6 +4367,11 @@
     }
 
     state.currentSceneId = sceneId;
+    state.playerStealth = {};
+    if (Object.keys(state.suspicion || {}).length) {
+      state.suspicion = {};
+      Object.keys(suspicionTimers).forEach(k => { clearTimeout(suspicionTimers[k]); delete suspicionTimers[k]; });
+    }
     appendLog('gm', targetLoc.scene_text || targetLoc.description || targetScene.description || '');
 
     renderLocationHeader();
@@ -2757,6 +4385,32 @@
     appendLog('player', inputText);
     playerInput.value = '';
     sendBtn.disabled = true;
+
+    // 被怀疑（强制对话）：玩家在聊天框的回应直接触发确定性处理，不依赖 AI 意图识别
+    const sus = activeSuspicion();
+    if (sus) {
+      let action = null;
+      if (/(逃跑|跑路|溜走|挣脱|挣扎|开溜|溜之大吉)/.test(inputText)) action = 'flee';
+      else if (/(拒绝|休想|凭什么|不给|不赔|要钱没有)/.test(inputText)) action = 'refuse';
+      else if (/(威胁|你敢|不然|否则|别逼我|小心点)/.test(inputText)) action = 'intimidation';
+      else if (/(让.{0,4}搜|同意.{0,4}搜|随便.{0,4}搜|搜吧|搜身|检查|翻吧|你来搜)/.test(inputText)) action = 'search';
+      else if (/(给钱|赔钱|赔偿|承认|认了|愿意赔)/.test(inputText)) action = 'pay';
+      else if (/(说服|讲道理|解释|误会|求情|好好说)/.test(inputText)) action = 'persuasion';
+      else if (/(骗|撒谎|不是我|没偷|冤枉|瞒|诬陷)/.test(inputText)) action = 'deception';
+      if (action) {
+        await callResolveSuspicion(sus[0], action);
+        sendBtn.disabled = false;
+        return;
+      }
+    }
+
+    // 潜行（确定性触发，绕过 AI 意图识别——AI 因工具签名必填 target_id 常卡住不调工具）。
+    // 潜行无需目标；含"偷/窃"时交给偷窃流程（偷窃自带潜行判定）。
+    if (/(潜行|隐匿|躲起来|藏起来|偷偷摸摸|蹑手蹑脚|躲到|躲进|藏进)/.test(inputText) && !/(偷|窃)/.test(inputText)) {
+      await callStealth();
+      sendBtn.disabled = false;
+      return;
+    }
 
     // 推测是否需要检定（含检定关键词时显示更强提示）
     const checkKeywords = ['侦察', '调查', '洞悉', '察觉', '察言观色', '偷', '窃', '拿取',
@@ -2777,19 +4431,9 @@
           chapter_id: CHAPTER_ID,
           session_id: state.sessionId,
           scene_id: state.currentSceneId,
+          location_id: getCurrentLocation()?.id || null,
           player_input: inputText,
-          character: state.character ? {
-            name: state.character.name,
-            level: state.character.level,
-            class: state.character.background?.class || state.character.class || '',
-            race: state.character.background?.race || state.character.race || '',
-            wisdom: state.character.abilities?.wis?.value ?? 10,
-            intelligence: state.character.abilities?.int?.value ?? 10,
-            dexterity: state.character.abilities?.dex?.value ?? 10,
-            strength: state.character.abilities?.str?.value ?? 10,
-            constitution: state.character.abilities?.con?.value ?? 10,
-            charisma: state.character.abilities?.cha?.value ?? 10,
-          } : null,
+          character: state.character,
         }),
       });
 
@@ -2829,13 +4473,24 @@
                   if (scene) scene.location = data.updates.location_id;
                 }
                 if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+                if (data.updates.container_taken) state.containerTaken = data.updates.container_taken;
                 if (data.updates.npc_states) state.npcStates = data.updates.npc_states;
+                if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+                if (data.updates.hostile_npcs) state.hostileNpcs = data.updates.hostile_npcs;
+                if (data.updates.suspicion) state.suspicion = data.updates.suspicion;
+                if (data.updates.arrest !== undefined) { state.arrest = data.updates.arrest; watchArrest(state.arrest); }
+                if (data.updates.caught !== undefined) state.caught = data.updates.caught;
+                if (data.updates.wanted_location !== undefined) state.wantedLocation = data.updates.wanted_location;
+                if (data.updates.npc_alerts) state.npcAlerts = data.updates.npc_alerts;
+                if (data.updates.merchant_theft) state.merchantTheft = data.updates.merchant_theft;
+                if (data.updates.player_stealth) state.playerStealth = data.updates.player_stealth;
                 if (data.updates.quest_states) {
                   Object.entries(data.updates.quest_states).forEach(([qid, update]) => {
                     if (state.quests[qid]) Object.assign(state.quests[qid], update);
                     if (state.data && state.data.quests[qid]) Object.assign(state.data.quests[qid], update);
                   });
                 }
+                watchSuspicion(data.updates);
               }
 
               // 检定提示（在 GM 回复前显示）
@@ -2875,12 +4530,12 @@
                 appendLogEntry({ type: 'gm', text: '', id: gmEntryId });
                 gmEntryCreated = true;
               }
-              gmFullText += data.text;
+              gmFullText += cleanGmText(data.text);
               updateLogEntryText(gmEntryId, gmFullText);
             } else if (data.type === 'done') {
               // 流结束，用最终完整文本替换
               if (data.full_text && data.full_text !== gmFullText) {
-                gmFullText = data.full_text;
+                gmFullText = cleanGmText(data.full_text);
                 updateLogEntryText(gmEntryId, gmFullText);
               }
             }
@@ -2893,7 +4548,7 @@
       // 刷新 UI
       renderLocationHeader();
       renderContextPanel();
-      renderRightPanel();
+      await renderRightPanel();
     } catch (e) {
       console.error('GM stream error:', e);
       removeLogEntry(thinkingId);
@@ -3006,6 +4661,9 @@
       await loadCatalogs();
       initTabs();
 
+      // 属性跟随已装备物品（护甲 AC / 武器伤害与攻击加值）
+      if (state.character) recalcCharacterStats(state.character);
+
       const scene = getCurrentScene();
       const loc = getCurrentLocation();
       if (!scene || !loc) {
@@ -3031,8 +4689,8 @@
       // 渲染 UI
       renderLocationHeader();
       renderContextPanel();
-      renderRightPanel();
-      renderAllTabs();
+      await renderRightPanel();
+      await renderAllTabs();
     } catch (err) {
       console.error('初始化失败:', err);
       narrativeLog.innerHTML = `<div class="log-entry system" style="text-align:center;"><div class="log-label">错误</div><div>数据加载失败: ${err.message}</div></div>`;

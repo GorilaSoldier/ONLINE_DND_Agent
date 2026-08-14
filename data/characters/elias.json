@@ -32,30 +32,94 @@
     }
   },
   "abilities": {
-    "str": { "label": "力", "value": 17, "save_bonus": "+9", "highlighted": true },
-    "dex": { "label": "敏", "value": 13, "save_bonus": "+4", "highlighted": false },
-    "con": { "label": "体", "value": 15, "save_bonus": "+8", "highlighted": true },
-    "int": { "label": "智", "value": 10, "save_bonus": "+3", "highlighted": false },
-    "wis": { "label": "感", "value": 12, "save_bonus": "+4", "highlighted": false },
-    "cha": { "label": "魅", "value": 8, "save_bonus": "+2", "highlighted": false }
+    "str": {
+      "label": "力",
+      "value": 17,
+      "save_bonus": "+9",
+      "highlighted": true
+    },
+    "dex": {
+      "label": "敏",
+      "value": 13,
+      "save_bonus": "+4",
+      "highlighted": false
+    },
+    "con": {
+      "label": "体",
+      "value": 15,
+      "save_bonus": "+8",
+      "highlighted": true
+    },
+    "int": {
+      "label": "智",
+      "value": 10,
+      "save_bonus": "+3",
+      "highlighted": false
+    },
+    "wis": {
+      "label": "感",
+      "value": 12,
+      "save_bonus": "+4",
+      "highlighted": false
+    },
+    "cha": {
+      "label": "魅",
+      "value": 8,
+      "save_bonus": "+2",
+      "highlighted": false
+    }
   },
   "inventory": {
     "gold": 500,
     "items": [
-      { "equipment_id": "travel_clothes", "name": "旅行服装", "quantity": 1, "equipped": false },
-      { "equipment_id": "breastplate", "name": "胸甲 Breastplate", "quantity": 1, "equipped": true },
-      { "equipment_id": "shield", "name": "盾牌", "quantity": 1, "equipped": true },
-      { "equipment_id": "emblem", "name": "徽章 Emblem", "quantity": 1, "equipped": true },
-      { "equipment_id": "common_clothes", "name": "普通服装 Common Clothes", "quantity": 1, "equipped": false }
+      {
+        "equipment_id": "travel_clothes",
+        "name": "旅行服装",
+        "quantity": 1,
+        "equipped": false
+      },
+      {
+        "equipment_id": "breastplate",
+        "name": "胸甲 Breastplate",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "equipment_id": "shield",
+        "name": "盾牌",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "equipment_id": "common_clothes",
+        "name": "普通服装 Common Clothes",
+        "quantity": 1,
+        "equipped": false
+      }
     ]
   },
   "class_id": "fighter",
   "subclass_id": "battle_master",
   "features": {
-    "status_ids": ["see_invisibility", "bliss_spores"],
-    "resistance_ids": ["poison_resist"],
-    "class_feature_ids": ["gwm_power_attack", "gwm_bonus_attack", "heavy_armor_mastery"],
-    "trait_ids": ["human_versatility", "opportunity_attack", "psychic_recoil", "bully", "first_strike"]
+    "status_ids": [
+      "see_invisibility",
+      "bliss_spores"
+    ],
+    "resistance_ids": [
+      "poison_resist"
+    ],
+    "class_feature_ids": [
+      "gwm_power_attack",
+      "gwm_bonus_attack",
+      "heavy_armor_mastery"
+    ],
+    "trait_ids": [
+      "human_versatility",
+      "opportunity_attack",
+      "psychic_recoil",
+      "bully",
+      "first_strike"
+    ]
   },
   "skills": {
     "proficiency_bonus": "+3",
@@ -64,45 +128,105 @@
         "ability": "力量",
         "modifier": "+3",
         "skills": [
-          { "name": "运动", "value": "+7", "type": "positive" }
+          {
+            "name": "运动",
+            "value": "+7",
+            "type": "positive"
+          }
         ]
       },
       {
         "ability": "敏捷",
         "modifier": "+1",
         "skills": [
-          { "name": "巧手", "value": "+2", "type": "positive" },
-          { "name": "隐匿", "value": "+1", "type": "positive" }
+          {
+            "name": "巧手",
+            "value": "+2",
+            "type": "positive"
+          },
+          {
+            "name": "隐匿",
+            "value": "+1",
+            "type": "positive"
+          }
         ]
       },
       {
         "ability": "智力",
         "modifier": "0",
         "skills": [
-          { "name": "奥秘", "value": "0", "type": "neutral" },
-          { "name": "历史", "value": "0", "type": "neutral" },
-          { "name": "调查", "value": "0", "type": "neutral" },
-          { "name": "自然", "value": "0", "type": "neutral" },
-          { "name": "宗教", "value": "0", "type": "neutral" }
+          {
+            "name": "奥秘",
+            "value": "0",
+            "type": "neutral"
+          },
+          {
+            "name": "历史",
+            "value": "0",
+            "type": "neutral"
+          },
+          {
+            "name": "调查",
+            "value": "0",
+            "type": "neutral"
+          },
+          {
+            "name": "自然",
+            "value": "0",
+            "type": "neutral"
+          },
+          {
+            "name": "宗教",
+            "value": "0",
+            "type": "neutral"
+          }
         ]
       },
       {
         "ability": "感知",
         "modifier": "+1",
         "skills": [
-          { "name": "驯兽", "value": "+1", "type": "positive" },
-          { "name": "洞悉", "value": "+1", "type": "positive" },
-          { "name": "医药", "value": "+1", "type": "positive" },
-          { "name": "察觉", "value": "+1", "type": "positive" },
-          { "name": "求生", "value": "+4", "type": "positive" }
+          {
+            "name": "驯兽",
+            "value": "+1",
+            "type": "positive"
+          },
+          {
+            "name": "洞悉",
+            "value": "+1",
+            "type": "positive"
+          },
+          {
+            "name": "医药",
+            "value": "+1",
+            "type": "positive"
+          },
+          {
+            "name": "察觉",
+            "value": "+1",
+            "type": "positive"
+          },
+          {
+            "name": "求生",
+            "value": "+4",
+            "type": "positive"
+          }
         ]
       },
       {
         "ability": "魅力",
         "modifier": "-1",
         "skills": [
-          { "name": "欺瞒", "value": "-1", "type": "negative" },
-          { "name": "威吓", "value": "+2", "type": "positive" }
+          {
+            "name": "欺瞒",
+            "value": "-1",
+            "type": "negative"
+          },
+          {
+            "name": "威吓",
+            "value": "+2",
+            "type": "positive"
+          }
         ]
       }
     ]
@@ -110,12 +234,25 @@
   "spells": {
     "caster_level": 4,
     "action_ids": {
-      "normal": ["jump", "throw", "dash"],
-      "class": ["fighting_spirit", "recovery", "extra_attack"]
+      "normal": [
+        "jump",
+        "throw",
+        "dash"
+      ],
+      "class": [
+        "fighting_spirit",
+        "recovery",
+        "extra_attack"
+      ]
     },
-    "passive_ids": ["great_weapon_fighting"],
+    "passive_ids": [
+      "great_weapon_fighting"
+    ],
     "spell_ids": {
-      "level_1": ["fireball", "cure_wounds"]
+      "level_1": [
+        "fireball",
+        "cure_wounds"
+      ]
     }
   },
   "background": {

@@ -9,10 +9,11 @@
       "personality": ["热情", "固执", "轻信"],
       "goals": ["重新开发潮音洞穴", "重振家族荣耀"],
       "fears": ["失去兄弟们", "潮音洞穴落入邪恶之手"],
-      "secrets": ["他知道潮音洞穴的精确位置", "法术熔炉仍然存在且可以运作"],
+      "secrets": ["法术熔炉仍然存在且可以运作"],
       "attitude": "friendly",
       "current_location": "cragmaw-castle",
-      "status": "captured"
+      "status": "captured",
+      "plot_critical": true
     },
     "sildar-hallwinter": {
       "id": "sildar-hallwinter",
@@ -70,6 +71,44 @@
       "attitude": "friendly",
       "current_location": "unknown",
       "status": "missing"
+    },
+    "town-guard": {
+      "id": "town-guard",
+      "name": "城镇卫兵",
+      "race": "人类",
+      "role": "卫兵",
+      "description": "身穿皮甲、腰挎短剑的城镇卫兵，负责维护城镇治安。听到叫喊声后会快步赶来。",
+      "personality": ["尽职", "公正", "警惕"],
+      "goals": ["维护治安", "将嫌疑人绳之以法"],
+      "attitude": "neutral",
+      "passive_perception": 12,
+      "abilities": {
+        "str": { "value": 14 },
+        "dex": { "value": 14 },
+        "wis": { "value": 12 },
+        "cha": { "value": 11 }
+      },
+      "guard": true,
+      "current_location": "dynamic"
+    },
+    "jailer": {
+      "id": "jailer",
+      "name": "狱卒",
+      "race": "人类",
+      "role": "狱卒",
+      "description": "负责看守绝冬城监狱的狱卒，身材魁梧，腰间挂着一串钥匙。偶尔会起身去巡逻。",
+      "personality": ["尽责", "警惕", "寡言"],
+      "goals": ["看好囚犯", "防止越狱"],
+      "attitude": "neutral",
+      "passive_perception": 12,
+      "abilities": {
+        "str": { "value": 15 },
+        "dex": { "value": 12 },
+        "wis": { "value": 12 },
+        "cha": { "value": 10 }
+      },
+      "guard": true,
+      "current_location": "dynamic"
     }
   }
 }

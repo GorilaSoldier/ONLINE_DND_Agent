@@ -7,6 +7,72 @@ def ability_mod(score: int) -> int:
     return (score - 10) // 2
 
 
+# 职业初始装备（简化 D&D 起始装备，不含服装；消耗品留给商人购买）
+CLASS_STARTING_EQUIPMENT = {
+    "fighter": [
+        {"equipment_id": "longsword", "name": "长剑", "quantity": 1, "equipped": True},
+        {"equipment_id": "chain_mail", "name": "锁子甲", "quantity": 1, "equipped": True},
+        {"equipment_id": "shield", "name": "盾牌", "quantity": 1, "equipped": True},
+    ],
+    "paladin": [
+        {"equipment_id": "longsword", "name": "长剑", "quantity": 1, "equipped": True},
+        {"equipment_id": "chain_mail", "name": "锁子甲", "quantity": 1, "equipped": True},
+        {"equipment_id": "shield", "name": "盾牌", "quantity": 1, "equipped": True},
+    ],
+    "barbarian": [
+        {"equipment_id": "greatsword", "name": "巨剑", "quantity": 1, "equipped": True},
+        {"equipment_id": "hide", "name": "兽皮甲", "quantity": 1, "equipped": True},
+    ],
+    "ranger": [
+        {"equipment_id": "shortbow", "name": "短弓", "quantity": 1, "equipped": True},
+        {"equipment_id": "shortsword", "name": "短剑", "quantity": 1, "equipped": True},
+        {"equipment_id": "leather", "name": "皮甲", "quantity": 1, "equipped": True},
+    ],
+    "rogue": [
+        {"equipment_id": "shortsword", "name": "短剑", "quantity": 2, "equipped": True},
+        {"equipment_id": "leather", "name": "皮甲", "quantity": 1, "equipped": True},
+        {"equipment_id": "thieves_tools", "name": "盗贼工具", "quantity": 1, "equipped": False},
+    ],
+    "cleric": [
+        {"equipment_id": "warhammer", "name": "战锤", "quantity": 1, "equipped": True},
+        {"equipment_id": "chain_shirt", "name": "锁子甲衫", "quantity": 1, "equipped": True},
+        {"equipment_id": "shield", "name": "盾牌", "quantity": 1, "equipped": True},
+    ],
+    "wizard": [
+        {"equipment_id": "quarterstaff", "name": "长棍", "quantity": 1, "equipped": True},
+        {"equipment_id": "dagger", "name": "匕首", "quantity": 1, "equipped": True},
+    ],
+    "bard": [
+        {"equipment_id": "shortsword", "name": "短剑", "quantity": 1, "equipped": True},
+        {"equipment_id": "dagger", "name": "匕首", "quantity": 1, "equipped": True},
+        {"equipment_id": "leather", "name": "皮甲", "quantity": 1, "equipped": True},
+    ],
+}
+
+# 护甲 AC 规则: (类型, 基础AC)。light = 基础+敏调; medium = 基础+min(敏调,2); heavy = 基础
+ARMOR_AC = {
+    "leather": ("light", 11),
+    "studded_leather": ("light", 12),
+    "hide": ("medium", 12),
+    "chain_shirt": ("medium", 13),
+    "breastplate": ("medium", 14),
+    "half_plate": ("medium", 15),
+    "ring_mail": ("heavy", 14),
+    "chain_mail": ("heavy", 16),
+}
+
+# 武器伤害
+WEAPON_DAMAGE = {
+    "longsword": "1d8", "greatsword": "2d6", "shortsword": "1d6", "dagger": "1d4",
+    "longbow": "1d8", "shortbow": "1d6", "quarterstaff": "1d6", "warhammer": "1d8",
+}
+
+# 近战武器
+MELEE_WEAPONS = {"longsword", "greatsword", "shortsword", "dagger", "quarterstaff", "warhammer"}
+# 远程武器
+RANGED_WEAPONS = {"longbow", "shortbow"}
+
+
 def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_data: dict, level: int = 1) -> dict:
     """为新角色构建所有默认字段，确保前端渲染不报错"""
     abilities_raw = data.get("abilities", {})
@@ -53,14 +119,47 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
     if max_hp < 1:
         max_hp = 1
 
-    combat = {"ac": base_ac, "hp": f"{max_hp} / {max_hp}"}
-    xp = {"current": 0, "max": 300, "display": "0 / 300"}
-    attack = {
-        "melee": {"label": "近战", "bonus": f"+{str_mod}" if str_mod >= 0 else str(str_mod), "damage": "1d4"},
-        "ranged": {"label": "远程", "bonus": f"+{dex_mod}" if dex_mod >= 0 else str(dex_mod), "damage": "1d4"},
-    }
+    # 职业初始装备（含护甲 AC 与武器伤害）
+    class_id = data.get("class_id", "")
+    starting_items = list(CLASS_STARTING_EQUIPMENT.get(class_id, []))
+    inventory = {"gold": data.get("starting_gold", 100), "items": starting_items}
 
-    inventory = {"gold": data.get("starting_gold", 100), "items": []}
+    # 初始护甲 AC：优先锁子甲等职业护甲
+    ac = base_ac
+    has_shield = False
+    for it in starting_items:
+        eq_id = it.get("equipment_id")
+        if eq_id in ARMOR_AC:
+            kind, base = ARMOR_AC[eq_id]
+            if kind == "light":
+                ac = base + dex_mod
+            elif kind == "medium":
+                ac = base + min(dex_mod, 2)
+            else:
+                ac = base
+        if eq_id == "shield":
+            has_shield = True
+    if has_shield:
+        ac += 2
+
+    combat = {"ac": ac, "hp": f"{max_hp} / {max_hp}"}
+    xp = {"current": 0, "max": 300, "display": "0 / 300"}
+
+    # 武器伤害：初始装备中的近战/远程武器更新 attack 显示
+    melee_damage = "1d4"
+    ranged_damage = "1d4"
+    for it in starting_items:
+        eq_id = it.get("equipment_id")
+        dmg = WEAPON_DAMAGE.get(eq_id)
+        if dmg:
+            if eq_id in RANGED_WEAPONS:
+                ranged_damage = dmg
+            elif eq_id in MELEE_WEAPONS and melee_damage == "1d4":
+                melee_damage = dmg
+    attack = {
+        "melee": {"label": "近战", "bonus": f"+{str_mod}" if str_mod >= 0 else str(str_mod), "damage": melee_damage},
+        "ranged": {"label": "远程", "bonus": f"+{dex_mod}" if dex_mod >= 0 else str(dex_mod), "damage": ranged_damage},
+    }
 
     # 种族特性与黑暗视觉
     base_traits = list(race_data.get("base_trait_ids", []))

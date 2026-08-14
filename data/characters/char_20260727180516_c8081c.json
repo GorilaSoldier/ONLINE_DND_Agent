@@ -31,7 +31,7 @@
     "melee": {
       "label": "近战",
       "bonus": "-1",
-      "damage": "1d4"
+      "damage": "1d6"
     },
     "ranged": {
       "label": "远程",
@@ -83,7 +83,10 @@
   },
   "inventory": {
     "gold": 100,
-    "items": []
+    "items": [
+      { "equipment_id": "quarterstaff", "name": "长棍", "quantity": 1, "equipped": true },
+      { "equipment_id": "dagger", "name": "匕首", "quantity": 1, "equipped": true }
+    ]
   },
   "features": {
     "status_ids": [],

@@ -69,6 +69,7 @@
   "cantrips": {
     "firebolt": {
       "id": "firebolt",
+      "effect": "damage 1d10 火焰",
       "name": "火焰箭",
       "level": 0,
       "school": "塑能",
@@ -79,6 +80,7 @@
     },
     "ray_of_frost": {
       "id": "ray_of_frost",
+      "effect": "damage 1d8 冷冻",
       "name": "冷冻射线",
       "level": 0,
       "school": "塑能",
@@ -89,6 +91,7 @@
     },
     "shocking_grasp": {
       "id": "shocking_grasp",
+      "effect": "damage 1d8 闪电",
       "name": "电爪",
       "level": 0,
       "school": "塑能",
@@ -139,6 +142,7 @@
     },
     "sacred_flame": {
       "id": "sacred_flame",
+      "effect": "damage 1d8 光耀",
       "name": "圣火术",
       "level": 0,
       "school": "塑能",
@@ -182,6 +186,7 @@
     "level_1": {
       "fireball": {
         "id": "fireball",
+      "effect": "damage 8d6 火焰 save=dex half",
         "name": "火球术",
         "level": 1,
         "school": "塑能",
@@ -192,6 +197,7 @@
       },
       "cure_wounds": {
         "id": "cure_wounds",
+      "effect": "heal 1d8+mod",
         "name": "治愈术",
         "level": 1,
         "school": "防护",
@@ -202,6 +208,7 @@
       },
       "magic_missile": {
         "id": "magic_missile",
+      "effect": "damage 3x(1d4+1) 力场",
         "name": "魔法飞弹",
         "level": 1,
         "school": "塑能",
@@ -232,6 +239,7 @@
       },
       "burning_hands": {
         "id": "burning_hands",
+      "effect": "damage 3d6 火焰 save=dex half",
         "name": "燃烧之手",
         "level": 1,
         "school": "塑能",
@@ -242,6 +250,7 @@
       },
       "chromatic_orb": {
         "id": "chromatic_orb",
+      "effect": "damage 3d8 力场",
         "name": "彩色法球",
         "level": 1,
         "school": "塑能",
@@ -282,6 +291,7 @@
       },
       "inflict_wounds": {
         "id": "inflict_wounds",
+      "effect": "damage 3d10 黯蚀",
         "name": "造成伤害",
         "level": 1,
         "school": "死灵",
@@ -302,6 +312,7 @@
       },
       "healing_word": {
         "id": "healing_word",
+      "effect": "heal 1d4+mod",
         "name": "治愈真言",
         "level": 1,
         "school": "塑能",
@@ -322,6 +333,7 @@
       },
       "guiding_bolt": {
         "id": "guiding_bolt",
+      "effect": "damage 4d6 光耀",
         "name": "导引箭",
         "level": 1,
         "school": "塑能",

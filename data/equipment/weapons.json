@@ -7,12 +7,27 @@
       "type": "weapon",
       "subtype": "sword",
       "rarity": "common",
-      "description": "一把标准的长剑，适合单手或双手持握。",
+      "description": "剑身修长、配以简单十字护手和皮制握柄的标准长剑，可单手挥砍，也可双手紧握发力。剑刃打磨得光可鉴人，是战士与骑士最可靠的伙伴。",
       "icon": "sword",
+      "price": 15,
       "properties": {
         "damage": "1d8 挥砍",
         "weight": "3磅",
-        "properties": " versatile（两用）"
+        "properties": "两用（Versatile 1d10）"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d8",
+        "damage_type": "slashing",
+        "damage_type_cn": "挥砍",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": "1d10",
+        "thrown": null,
+        "range": null
       }
     },
     "greatsword": {
@@ -21,12 +36,27 @@
       "type": "weapon",
       "subtype": "sword",
       "rarity": "common",
-      "description": "一柄沉重双手巨剑，能造成毁灭性伤害。",
-      "icon": "greatsword",
+      "description": "几乎与人同高、剑刃宽厚沉重的双手巨剑，剑身上刻着淡淡的符文纹路。需要双臂全力挥动才能驾驭，一击便足以撕裂敌阵。",
+      "icon": "sword",
+      "price": 50,
       "properties": {
         "damage": "2d6 挥砍",
         "weight": "6磅",
-        "properties": "heavy, two-handed"
+        "properties": "重型、双手"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "2d6",
+        "damage_type": "slashing",
+        "damage_type_cn": "挥砍",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": true,
+        "two_handed": true,
+        "versatile": null,
+        "thrown": null,
+        "range": null
       }
     },
     "shortsword": {
@@ -35,12 +65,27 @@
       "type": "weapon",
       "subtype": "sword",
       "rarity": "common",
-      "description": "轻便灵活的短剑，适合快速攻击。",
+      "description": "刃长约一臂的轻巧短剑，剑锋尖锐，配以皮革缠裹的握柄。轻便灵活，既适合快速连击，也能配合敏捷身形精准突刺。",
       "icon": "sword",
+      "price": 10,
       "properties": {
         "damage": "1d6 穿刺",
         "weight": "2磅",
-        "properties": "finesse, light"
+        "properties": "灵巧、轻型"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d6",
+        "damage_type": "piercing",
+        "damage_type_cn": "穿刺",
+        "bonus": 0,
+        "finesse": true,
+        "light": true,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": null,
+        "range": null
       }
     },
     "dagger": {
@@ -49,12 +94,27 @@
       "type": "weapon",
       "subtype": "dagger",
       "rarity": "common",
-      "description": "短小精悍的匕首，可作副手武器或投掷。",
-      "icon": "dagger",
+      "description": "短小精悍的金属匕首，刀身薄而锋利，配以简单的皮革刀鞘。既可贴身搏斗，也能作为投掷武器掷向敌人。",
+      "icon": "sword",
+      "price": 2,
       "properties": {
         "damage": "1d4 穿刺",
         "weight": "1磅",
-        "properties": "finesse, light, thrown (20/60)"
+        "properties": "灵巧、轻型、投掷（20/60）"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d4",
+        "damage_type": "piercing",
+        "damage_type_cn": "穿刺",
+        "bonus": 0,
+        "finesse": true,
+        "light": true,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": "20/60",
+        "range": null
       }
     },
     "longbow": {
@@ -63,12 +123,27 @@
       "type": "weapon",
       "subtype": "bow",
       "rarity": "common",
-      "description": "强力的长弓，能在远距离精准射击。",
+      "description": "以硬木压制而成的强弓，弓身比人还高，弓弦紧绷。需要双臂的力量才能拉开，射出的箭矢可穿透数百步外的铁甲。",
       "icon": "bow",
+      "price": 50,
       "properties": {
         "damage": "1d8 穿刺",
         "weight": "2磅",
-        "properties": "heavy, two-handed, ammunition (150/600)"
+        "properties": "重型、双手、弹药（150/600）"
+      },
+      "stats": {
+        "category": "ranged",
+        "damage_dice": "1d8",
+        "damage_type": "piercing",
+        "damage_type_cn": "穿刺",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": true,
+        "two_handed": true,
+        "versatile": null,
+        "thrown": null,
+        "range": "150/600"
       }
     },
     "shortbow": {
@@ -77,12 +152,27 @@
       "type": "weapon",
       "subtype": "bow",
       "rarity": "common",
-      "description": "便于携带的短弓，适合游侠和侦察兵。",
+      "description": "小巧便携的反曲短弓，弓身轻盈，拉满即可射出精准一箭。游侠与斥候行囊里的常备之物。",
       "icon": "bow",
+      "price": 25,
       "properties": {
         "damage": "1d6 穿刺",
         "weight": "2磅",
-        "properties": "two-handed, ammunition (80/320)"
+        "properties": "弹药（80/320）"
+      },
+      "stats": {
+        "category": "ranged",
+        "damage_dice": "1d6",
+        "damage_type": "piercing",
+        "damage_type_cn": "穿刺",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": null,
+        "range": "80/320"
       }
     },
     "quarterstaff": {
@@ -91,12 +181,27 @@
       "type": "weapon",
       "subtype": "staff",
       "rarity": "common",
-      "description": "一根结实的木杖，可作双手武器或施法焦点。",
-      "icon": "staff",
+      "description": "一根削得笔直坚实的硬木长棍，末端镶着铁箍。既可作双手武器横扫劈打，也是法师常用的施法媒介。",
+      "icon": "sword",
+      "price": 1,
       "properties": {
         "damage": "1d6 钝击",
         "weight": "4磅",
-        "properties": "versatile (1d8)"
+        "properties": "两用（1d8）"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d6",
+        "damage_type": "bludgeoning",
+        "damage_type_cn": "钝击",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": "1d8",
+        "thrown": null,
+        "range": null
       }
     },
     "warhammer": {
@@ -105,12 +210,85 @@
       "type": "weapon",
       "subtype": "hammer",
       "rarity": "common",
-      "description": "沉重的战锤，能击破最坚固的护甲。",
-      "icon": "hammer",
+      "description": "锤头沉重、锤柄粗壮的单手战锤，一端是平整的击打面，另一端是尖刺。挥动起来势大力沉，足以砸碎最坚固的护甲。",
+      "icon": "sword",
+      "price": 15,
       "properties": {
         "damage": "1d8 钝击",
         "weight": "2磅",
-        "properties": "versatile (1d10)"
+        "properties": "两用（1d10）"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d8",
+        "damage_type": "bludgeoning",
+        "damage_type_cn": "钝击",
+        "bonus": 0,
+        "finesse": false,
+        "light": false,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": "1d10",
+        "thrown": null,
+        "range": null
+      }
+    },
+    "torch": {
+      "id": "torch",
+      "name": "火把",
+      "type": "weapon",
+      "subtype": "torch",
+      "rarity": "common",
+      "description": "浸过树脂的火把，既可照明，也能临时充当武器挥舞（命中造成 1d4 火焰伤害）。",
+      "icon": "torch",
+      "price": 1,
+      "properties": {
+        "damage": "1d4 火焰",
+        "weight": "1磅",
+        "properties": "照明"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d4",
+        "damage_type": "fire",
+        "damage_type_cn": "火焰",
+        "bonus": 0,
+        "finesse": false,
+        "light": true,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": null,
+        "range": null
+      }
+    },
+    "lantern": {
+      "id": "lantern",
+      "name": "矿灯",
+      "type": "weapon",
+      "subtype": "lantern",
+      "rarity": "common",
+      "description": "装有玻璃罩的矿工提灯，能提供稳定的照明。紧急时可挥动抵挡（命中造成 1d4 钝击伤害）。",
+      "icon": "lantern",
+      "price": 5,
+      "properties": {
+        "damage": "1d4 钝击",
+        "weight": "2磅",
+        "properties": "照明"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d4",
+        "damage_type": "bludgeoning",
+        "damage_type_cn": "钝击",
+        "bonus": 0,
+        "finesse": false,
+        "light": true,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": null,
+        "range": null
       }
     }
   }

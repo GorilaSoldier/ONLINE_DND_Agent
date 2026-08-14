@@ -41,8 +41,8 @@ _opening_exchange_cache: dict = {}
 async def pre_generate_opening():
     """启动时预生成开场白，减少首轮延迟"""
     import asyncio
-    from services.ai_gm import AIGM
-    from services.game_state import load_adventure_chapter, find_scene, get_location, load_chapter_summary
+    from services.ai.ai_gm import AIGM
+    from services.core.game_state import load_adventure_chapter, find_scene, get_location, load_chapter_summary
 
     try:
         ai_gm = AIGM()

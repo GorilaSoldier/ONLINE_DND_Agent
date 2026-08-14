@@ -24,7 +24,10 @@
       "parent_location": "绝冬城",
       "description": "绝冬城的中心市场，各类商贩在此叫卖。武器铺、药剂店、杂货铺一应俱全。商旅在此补给物资后踏上旅途。",
       "scene_text": "市场广场人声鼎沸。铁匠铺的锤声叮当作响，药剂店门口飘出草药的味道，面包房飘来刚出炉的麦香。商贩们卖力吆喝着各自的货物。",
-      "npcs": [],
+      "npcs": [
+        { "id": "blacksmith", "sub": "铁匠铺" },
+        { "id": "market-merchant", "sub": "路边摊位" }
+      ],
       "items": [],
       "exits": [
         { "name": "返回矿业公会", "target": "neverwinter-guild", "description": "回到矿业公会大厅。" },
@@ -39,11 +42,25 @@
       "parent_location": "绝冬城",
       "description": "绝冬城的北城门，守卫森严。城门外的道路向北延伸，通往剑山山麓。满载货物的马车排着队等待出城检查。这里就是三猪小径的起点——离开这里就意味着正式踏上旅程。",
       "scene_text": "北城门的守卫核对着出城商旅的通行证。城门外，三猪小径蜿蜒向北延伸，消失在剑山山麓的雾气中。一辆载满采矿物资的马车已经在城门外等候——这就是你们要护送的货物。\n\n城门守卫看了你们一眼：\"去凡达林的？最近小径上有地精出没，多加小心。\"",
-      "npcs": [],
+      "npcs": ["gate-guard"],
       "items": [],
       "exits": [
         { "name": "返回矿业公会", "target": "neverwinter-guild", "description": "回到矿业公会大厅。" },
         { "name": "前往市场广场", "target": "neverwinter-market", "description": "前往市场区补给物资。" }
+      ],
+      "hidden": []
+    },
+    "neverwinter-jail": {
+      "id": "neverwinter-jail",
+      "name": "绝冬城监狱",
+      "type": "room",
+      "parent_location": "绝冬城",
+      "description": "绝冬城地牢中的一间牢房：锈迹斑斑的铁栏杆，墙角的稻草堆，走廊尽头挂着狱卒的钥匙串。",
+      "scene_text": "阴暗潮湿的牢房里，只有墙角一撮发霉的稻草和一桶浑浊的水。铁栏杆外是昏暗的走廊，狱卒坐在桌边，腰间挂着一串钥匙。牢门上的锁又旧又沉——但也许并不是无懈可击。",
+      "npcs": ["jailer"],
+      "items": [],
+      "exits": [
+        { "name": "监狱大门", "target": "neverwinter-market", "description": "走廊尽头的铁门，通往市场广场。" }
       ],
       "hidden": []
     },

@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Body
 from utils.file_io import load_json
-from services.character_builder import build_character_defaults
+from services.core.character_builder import build_character_defaults
 
 router = APIRouter(prefix="/api/characters", tags=["characters"])
 
@@ -92,6 +92,25 @@ def create_character(data: dict = Body(...)) -> dict:
 @router.get("/{char_id}")
 def get_character(char_id: str) -> dict:
     return _load_character(char_id)
+
+
+@router.put("/{char_id}")
+def update_character(char_id: str, data: dict = Body(...)) -> dict:
+    """更新角色字段（inventory/combat/attack 等），按需保存"""
+    char_data = _load_character(char_id)
+    # 只合并允许更新的顶层字段，避免覆盖 id 等只读字段
+    editable = {"inventory", "combat", "attack", "xp", "spells", "features", "skills", "background", "background_story"}
+    changed = False
+    for key in editable:
+        if key in data and isinstance(data[key], (dict, list)):
+            char_data[key] = data[key]
+            changed = True
+    if not changed:
+        return char_data
+    file_path = DATA_DIR / f"{char_id}.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(char_data, f, ensure_ascii=False, indent=2)
+    return char_data
 
 
 @router.delete("/{char_id}")

@@ -1,45 +1,6 @@
 {
   "type": "accessory",
   "items": {
-    "emblem": {
-      "id": "emblem",
-      "name": "圣徽",
-      "type": "accessory",
-      "subtype": "holy_symbol",
-      "rarity": "common",
-      "description": "信徒随身携带的圣徽，可作为施法焦点。",
-      "icon": "amulet",
-      "properties": {
-        "weight": "—",
-        "effect": "可作为牧师、圣武士等神术施法焦点"
-      }
-    },
-    "component_pouch": {
-      "id": "component_pouch",
-      "name": "材料包",
-      "type": "accessory",
-      "subtype": "spellcasting_focus",
-      "rarity": "common",
-      "description": "装有各种奥术材料的小包。",
-      "icon": "pouch",
-      "properties": {
-        "weight": "2磅",
-        "effect": "可作为奥术施法材料替代"
-      }
-    },
-    "arcane_focus": {
-      "id": "arcane_focus",
-      "name": "奥术法器",
-      "type": "accessory",
-      "subtype": "spellcasting_focus",
-      "rarity": "common",
-      "description": "法师使用的魔法法器，可作为奥术施法焦点。",
-      "icon": "crystal",
-      "properties": {
-        "weight": "1磅",
-        "effect": "可作为法师等奥术施法焦点"
-      }
-    },
     "ring_of_protection": {
       "id": "ring_of_protection",
       "name": "防护戒指",
@@ -51,6 +12,10 @@
       "properties": {
         "weight": "—",
         "effect": "AC 与豁免检定 +1"
+      },
+      "stats": {
+        "category": "accessory",
+        "bonus_ac": 1
       }
     },
     "cloak_of_elvenkind": {

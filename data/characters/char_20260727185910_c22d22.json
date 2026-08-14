@@ -19,7 +19,7 @@
   "background_name": "平民英雄",
   "level": 1,
   "combat": {
-    "ac": 12,
+    "ac": 14,
     "hp": "11 / 11"
   },
   "xp": {
@@ -30,12 +30,12 @@
   "attack": {
     "melee": {
       "label": "近战",
-      "bonus": "+1",
-      "damage": "1d4"
+      "bonus": "+3",
+      "damage": "1d6"
     },
     "ranged": {
       "label": "远程",
-      "bonus": "+2",
+      "bonus": "+5",
       "damage": "1d4"
     }
   },
@@ -83,7 +83,26 @@
   },
   "inventory": {
     "gold": 100,
-    "items": []
+    "items": [
+      {
+        "equipment_id": "shortbow",
+        "name": "短弓",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "equipment_id": "shortsword",
+        "name": "短剑",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "equipment_id": "leather",
+        "name": "皮甲",
+        "quantity": 1,
+        "equipped": true
+      }
+    ]
   },
   "features": {
     "status_ids": [],

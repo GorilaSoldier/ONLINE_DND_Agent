@@ -11,6 +11,10 @@
       "fears": ["黑蜘蛛的惩罚", "失去首领地位"],
       "secrets": ["他身上带着甘德伦的地图", "他知道甘德伦被送往克拉摩堡"],
       "passive_perception": 10,
+      "abilities": {
+        "str": 17,
+        "dex": 8
+      },
       "attitude": "hostile",
       "current_location": "cragmaw-hideout-boss",
       "reactions": {
@@ -192,6 +196,73 @@
       "description": "克拉格饲养的凶猛狼宠。",
       "attitude": "hostile",
       "current_location": "cragmaw-hideout-boss"
+    },
+    "market-merchant": {
+      "id": "market-merchant",
+      "name": "汉斯",
+      "race": "人类",
+      "role": "杂货商",
+      "description": "一位留着花白络腮胡的杂货商，摊位前摆满了干粮、绳索、火把和各式旅行用品。他热情地招呼着过往行人，说不定能从他那里买到旅途所需的物品。",
+      "personality": ["热情", "健谈", "精明"],
+      "passive_perception": 12,
+      "attitude": "friendly",
+      "current_location": "neverwinter-market",
+      "abilities": {
+        "str": 8,
+        "dex": 12
+      },
+      "merchant": {
+        "gold": 150,
+        "inventory": [
+          { "item_id": "rations", "price": 5, "stock": 10 },
+          { "item_id": "rope", "price": 10, "stock": 3 },
+          { "item_id": "torch", "price": 2, "stock": 10 },
+          { "item_id": "lantern", "price": 10, "stock": 3 },
+          { "item_id": "miner-pickaxe", "price": 10, "stock": 2 },
+          { "item_id": "potion-of-healing", "price": 50, "stock": 3 }
+        ]
+      }
+    },
+    "blacksmith": {
+      "id": "blacksmith",
+      "name": "格罗斯",
+      "race": "矮人",
+      "role": "铁匠",
+      "description": "一位手臂粗壮、围着皮围裙的矮人铁匠，铁砧旁挂着各式刀剑与护甲。他能打造并出售精良的武器和防具。",
+      "personality": ["豪爽", "寡言", "精明"],
+      "passive_perception": 12,
+      "attitude": "friendly",
+      "current_location": "neverwinter-market",
+      "abilities": {
+        "str": 14,
+        "dex": 8
+      },
+      "merchant": {
+        "gold": 300,
+        "inventory": [
+          { "item_id": "longsword", "price": 15, "stock": 2 },
+          { "item_id": "greatsword", "price": 50, "stock": 1 },
+          { "item_id": "shortsword", "price": 10, "stock": 3 },
+          { "item_id": "dagger", "price": 2, "stock": 5 },
+          { "item_id": "shortbow", "price": 25, "stock": 2 },
+          { "item_id": "warhammer", "price": 15, "stock": 2 },
+          { "item_id": "leather", "price": 10, "stock": 3 },
+          { "item_id": "studded_leather", "price": 45, "stock": 2 },
+          { "item_id": "chain_shirt", "price": 50, "stock": 1 },
+          { "item_id": "ring_mail", "price": 30, "stock": 1 },
+          { "item_id": "shield", "price": 10, "stock": 2 }
+        ]
+      }
+    },
+    "gate-guard": {
+      "id": "gate-guard",
+      "name": "城门守卫",
+      "race": "人类",
+      "role": "北城门守卫",
+      "description": "一位身披绝冬城制式轻甲的城门守卫，腰间佩剑，正逐一核对出城商旅的通行证。他看起来有些疲倦，但目光依然警觉。",
+      "personality": ["尽责", "谨慎", "友善"],
+      "attitude": "friendly",
+      "current_location": "neverwinter-gate"
     }
   }
 }

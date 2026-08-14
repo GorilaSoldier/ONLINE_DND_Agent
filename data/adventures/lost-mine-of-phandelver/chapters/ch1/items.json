@@ -5,7 +5,6 @@
       "name": "空地图匣",
       "description": "一个精致的皮革地图匣，原本装着甘德伦的潮音洞穴地图。现在里面空空如也，只留下一些压痕。",
       "type": "clue",
-      "stealable": false,
       "visible": true,
       "owner": null
     },
@@ -23,7 +22,7 @@
       "name": "甘德伦的地图",
       "description": "一张用矮人文字标注的地图，显示潮音洞穴的大致位置。这是黑蜘蛛最想要得到的东西。",
       "type": "quest_item",
-      "stealable": true,
+      "plot_critical": true,
       "visible": false,
       "owner": "klarg",
       "difficulty": 15,
@@ -36,18 +35,24 @@
       "name": "绝冬城补给箱",
       "description": "标有绝冬城蓝色狮子图案的半人高木箱，印着\"巴森工坊——小心轻放\"字样。打开可见：两把矿镐、一卷粗麻绳、三盏矿灯、数袋干粮、几捆火把。",
       "type": "quest_item",
-      "stealable": true,
       "visible": true,
       "owner": null,
-      "contains": ["potion-of-healing", "potion-of-healing"]
+      "contains": [
+        "miner-pickaxe", "miner-pickaxe",
+        "rope",
+        "lantern", "lantern", "lantern",
+        "rations", "rations", "rations",
+        "torch", "torch", "torch",
+        "potion-of-healing", "potion-of-healing"
+      ]
     },
     "potion-of-healing": {
       "id": "potion-of-healing",
-      "name": "治疗药水",
-      "description": "一瓶红色液体的治疗药水，饮用可恢复生命值。",
+      "name": "小型治疗药水",
+      "description": "一瓶红色液体的小型治疗药水。饮用后可恢复生命值（2d4+2）。",
+      "icon": "potion",
       "type": "consumable",
       "effect": "heal 2d4+2",
-      "stealable": true,
       "visible": false,
       "owner": null
     },
@@ -57,13 +62,59 @@
       "description": "一个鼓鼓囊囊的皮钱袋，里面装着克拉格劫掠来的金币和宝石。",
       "type": "treasure",
       "value": { "gp": 15, "sp": 30, "cp": 60, "gems": 2 },
-      "stealable": true,
       "visible": false,
       "owner": "klarg",
       "difficulty": 13,
       "notice_after": { "min": 1, "max": 4, "unit": "hours" },
       "notice_chance": 0.4,
       "notice_reason": "藏在身上，不太显眼"
+    },
+    "miner-pickaxe": {
+      "id": "miner-pickaxe",
+      "name": "矿镐",
+      "description": "一把结实耐用的矿镐，采矿工具。",
+      "icon": "pickaxe",
+      "type": "tool",
+      "visible": false,
+      "owner": null
+    },
+    "rope": {
+      "id": "rope",
+      "name": "粗麻绳",
+      "description": "一卷五十尺长的粗麻绳，攀爬和捆绑都很实用。",
+      "icon": "rope",
+      "type": "tool",
+      "visible": false,
+      "owner": null
+    },
+    "lantern": {
+      "id": "lantern",
+      "name": "矿灯",
+      "description": "装有玻璃罩的矿工提灯，提供稳定照明。可作为近战武器装备。",
+      "icon": "lantern",
+      "type": "equipment",
+      "equipment_id": "lantern",
+      "visible": false,
+      "owner": null
+    },
+    "torch": {
+      "id": "torch",
+      "name": "火把",
+      "description": "浸过树脂的火把，既可照明也能临时充当武器。可作为近战武器装备。",
+      "icon": "torch",
+      "type": "equipment",
+      "equipment_id": "torch",
+      "visible": false,
+      "owner": null
+    },
+    "rations": {
+      "id": "rations",
+      "name": "干粮",
+      "description": "一袋耐储存的旅行干粮，足够一日的口粮。",
+      "icon": "rations",
+      "type": "food",
+      "visible": false,
+      "owner": null
     }
   }
 }

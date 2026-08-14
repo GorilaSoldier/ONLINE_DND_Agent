@@ -101,16 +101,33 @@ class StateManager:
             "updates": {"attitude": "hostile", "awareness": "alert"}
         }
         """
+        # 运行时状态白名单：dead/stunned/left/alive，其余值视为非法
+        VALID_STATUS = {"dead", "stunned", "left", "alive"}
+
         npc_id = change.get("npc_id")
         updates = change.get("updates", {})
 
         if not npc_id or not updates:
             return None
 
+        if npc_id not in self.state.data.get("npcs", {}):
+            logger.warning(f"未知 NPC: {npc_id}")
+            return None
+
+        if "status" in updates and updates["status"] not in VALID_STATUS:
+            logger.warning(f"非法 NPC 状态值: npc_id={npc_id}, status={updates['status']}")
+            return None
+
         if npc_id not in self.state.npc_states:
             self.state.npc_states[npc_id] = {}
 
-        self.state.npc_states[npc_id].update(updates)
+        if updates.get("status") == "alive":
+            # alive 表示恢复正常，直接移除状态标记
+            self.state.npc_states[npc_id].pop("status", None)
+            remaining = {k: v for k, v in updates.items() if k != "status"}
+            self.state.npc_states[npc_id].update(remaining)
+        else:
+            self.state.npc_states[npc_id].update(updates)
         return change
 
     def _handle_reveal_secret(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:

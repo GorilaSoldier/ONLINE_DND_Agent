@@ -529,9 +529,56 @@
       background: var(--slot);
       border: 1px dashed var(--border);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 2px;
+      padding: 3px 2px;
       color: rgba(61, 43, 31, 0.25);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .slot.filled {
+      background: rgba(184, 115, 51, 0.12);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .slot.disabled {
+      background: rgba(61, 43, 31, 0.06);
+      border: 1px dashed var(--border);
+      color: rgba(61, 43, 31, 0.2);
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .slot-icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .slot-name {
+      font-size: 10px;
+      line-height: 1.2;
+      color: var(--ink);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 2px;
     }
 
     .slot svg {
@@ -5462,6 +5509,7 @@
           <div class="item-tooltip-name">${name} ${eqText}</div>
           <div class="item-tooltip-desc">${description || '详细属性待补充'}</div>
         `;
+        tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
         const rect = tooltip.getBoundingClientRect();
         let x = e.clientX + 14;
         let y = e.clientY - 10;
@@ -5469,7 +5517,39 @@
         if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
-        tooltip.classList.add('show');
+      }
+
+      function showSkillTooltip(e, block) {
+        const spellId = block.dataset.spellId;
+        const lookup = window.spellLookup || {};
+        const spell = spellId ? lookup[spellId] : null;
+        const name = block.textContent.trim();
+        if (spell) {
+          let html = `<div class="item-tooltip-name">${spell.name}</div>`;
+          if (spell.school || spell.casting_time) {
+            html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
+          }
+          if (spell.description) {
+            html += `<div class="item-tooltip-desc">${spell.description}</div>`;
+          }
+          if (spell.range) {
+            html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
+          }
+          tooltip.innerHTML = html;
+        } else {
+          tooltip.innerHTML = `
+            <div class="item-tooltip-name">${name}</div>
+            <div class="item-tooltip-desc">详细描述待补充</div>
+          `;
+        }
+        // 定位在元素下方
+        tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
+        const r = block.getBoundingClientRect();
+        tooltip.style.left = Math.max(8, r.left) + 'px';
+        tooltip.style.top = (r.bottom + 8) + 'px';
+        const tr = tooltip.getBoundingClientRect();
+        if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
+        if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
       }
 
       function hideTooltip() {
@@ -5524,28 +5604,31 @@
         contextMenu.classList.remove('visible');
       }
 
-      /* 物品悬浮提示 + 右键菜单（事件委托，兼容动态渲染） */
-      document.addEventListener('mouseenter', function(e) {
+      /* 物品/技能/法术悬浮提示（统一委托：mouseover 切换卡片时清理旧定时器，
+         mouseout 用 relatedTarget 判断是否仍在卡片内，避免移出到空白处后定时器
+         残留导致 tooltip 消失一会又出现在旧位置） */
+      document.addEventListener('mouseover', function(e) {
         if (!e.target || typeof e.target.closest !== 'function') return;
-        const card = e.target.closest('.item-card');
-        if (!card) return;
-        currentItemCard = card;
-        hoverTimer = setTimeout(() => showTooltip(e, card), 500);
+        const card = e.target.closest('.item-card, .skill-block');
+        if (card === currentItemCard) return;
+        clearTimeout(hoverTimer);
+        hideTooltip();
+        if (card) {
+          currentItemCard = card;
+          hoverTimer = setTimeout(() => {
+            if (card.classList.contains('skill-block')) showSkillTooltip(e, card);
+            else showTooltip(e, card);
+          }, 500);
+        }
       }, true);
 
-      document.addEventListener('mousemove', function(e) {
+      document.addEventListener('mouseout', function(e) {
         if (!e.target || typeof e.target.closest !== 'function') return;
-        const card = e.target.closest('.item-card');
+        const card = e.target.closest('.item-card, .skill-block');
         if (!card) return;
-        if (tooltip.classList.contains('show')) {
-          showTooltip(e, card);
-        }
-      });
-
-      document.addEventListener('mouseleave', function(e) {
-        if (!e.target || typeof e.target.closest !== 'function') return;
-        const card = e.target.closest('.item-card');
-        if (!card) return;
+        const to = e.relatedTarget;
+        // 鼠标仍在卡片内部（移到了卡片内的子元素）→ 不隐藏
+        if (to && to.closest && to.closest('.item-card, .skill-block')) return;
         clearTimeout(hoverTimer);
         hideTooltip();
         currentItemCard = null;
@@ -5557,55 +5640,6 @@
         if (!card) return;
         showContextMenu(e, card);
       });
-
-      /* 技能/法术悬浮提示（与创建人物页统一：元素下方定位 + 结构化信息） */
-      document.addEventListener('mouseenter', function(e) {
-        if (!e.target || typeof e.target.closest !== 'function') return;
-        const block = e.target.closest('.skill-block');
-        if (!block) return;
-        currentItemCard = block;
-        hoverTimer = setTimeout(() => {
-          const spellId = block.dataset.spellId;
-          const lookup = window.spellLookup || {};
-          const spell = spellId ? lookup[spellId] : null;
-          const name = block.textContent.trim();
-          if (spell) {
-            let html = `<div class="item-tooltip-name">${spell.name}</div>`;
-            if (spell.school || spell.casting_time) {
-              html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
-            }
-            if (spell.description) {
-              html += `<div class="item-tooltip-desc">${spell.description}</div>`;
-            }
-            if (spell.range) {
-              html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
-            }
-            tooltip.innerHTML = html;
-          } else {
-            tooltip.innerHTML = `
-              <div class="item-tooltip-name">${name}</div>
-              <div class="item-tooltip-desc">详细描述待补充</div>
-            `;
-          }
-          // 定位在元素下方
-          const r = block.getBoundingClientRect();
-          tooltip.style.left = Math.max(8, r.left) + 'px';
-          tooltip.style.top = (r.bottom + 8) + 'px';
-          const tr = tooltip.getBoundingClientRect();
-          if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
-          if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
-          tooltip.classList.add('show');
-        }, 500);
-      }, true);
-
-      document.addEventListener('mouseleave', function(e) {
-        if (!e.target || typeof e.target.closest !== 'function') return;
-        const block = e.target.closest('.skill-block');
-        if (!block) return;
-        clearTimeout(hoverTimer);
-        hideTooltip();
-        currentItemCard = null;
-      }, true);
 
       document.addEventListener('click', function(e) {
         if (!e.target || typeof e.target.closest !== 'function') {
@@ -5730,47 +5764,89 @@
       `;
     }
 
+    /* 根据已装备物品计算各装备槽位内容（与 adventure.html 逻辑一致） */
+    function computeEquippedSlots(char) {
+      const catalog = window.equipmentCatalog || {};
+      const slots = { helmet: null, body: null, shield: null, legs: null, boots: null, neck: null, ring1: null, ring2: null, tool: null, melee: [null, null], ranged: [null, null] };
+      const mk = ci => ({ name: ci.name, icon: ci.icon || 'pouch', twoHanded: !!(ci.stats && ci.stats.two_handed) });
+      let ringCount = 0;
+      for (const item of (char.inventory?.items || [])) {
+        if (!item.equipped) continue;
+        const ci = item.equipment_id ? catalog[item.equipment_id] : null;
+        if (!ci) continue;
+        if (ci.type === 'weapon') {
+          const cat = ci.stats && ci.stats.category;
+          if (cat === 'melee') {
+            if (!slots.melee[0]) slots.melee[0] = mk(ci);
+            else if (!slots.melee[1] && !slots.melee[0].twoHanded) slots.melee[1] = mk(ci);
+            if (slots.melee[0] && slots.melee[0].twoHanded) slots.melee[1] = { disabled: true };
+          }
+          if (cat === 'ranged') {
+            if (!slots.ranged[0]) slots.ranged[0] = mk(ci);
+            else if (!slots.ranged[1] && !slots.ranged[0].twoHanded) slots.ranged[1] = mk(ci);
+            if (slots.ranged[0] && slots.ranged[0].twoHanded) slots.ranged[1] = { disabled: true };
+          }
+        } else if (ci.type === 'armor') {
+          const cat = ci.stats && ci.stats.category;
+          if (cat === 'shield') { if (!slots.shield) slots.shield = mk(ci); }
+          else if (cat !== 'clothes') { if (!slots.body) slots.body = mk(ci); }
+        } else if (ci.type === 'accessory') {
+          if (ci.subtype === 'ring') { if (ringCount === 0) slots.ring1 = mk(ci); else if (ringCount === 1) slots.ring2 = mk(ci); ringCount++; }
+          else if (ci.subtype === 'tool') { if (!slots.tool) slots.tool = mk(ci); }
+        }
+      }
+      return slots;
+    }
+
+    /* 渲染单个装备槽：已装备 → 高亮 + 显示装备名 + 使用物品自身 icon；空槽 → 默认图标 */
+    async function renderSlot(slot, defaultIcon) {
+      const disabled = !!slot && slot.disabled;
+      const filled = !!slot && !disabled;
+      const iconName = filled ? slot.icon : defaultIcon;
+      const svg = await loadSvgIcon(iconName);
+      return `<div class="slot${filled ? ' filled' : ''}${disabled ? ' disabled' : ''}">
+        <div class="slot-icon">${svg}</div>
+        ${filled ? `<div class="slot-name">${escapeHtml(slot.name)}</div>` : ''}
+      </div>`;
+    }
+
     async function renderCharCard(char) {
       const xpPercent = char.xp && char.xp.max ? Math.round((char.xp.current / char.xp.max) * 100) : 0;
-      const [
-        helmetSvg,
-        chestplateSvg,
-        greavesSvg,
-        bootsSvg,
-        necklaceSvg,
-        ringSvg,
-        luteSvg,
-        swordSvg,
-        bowSvg
-      ] = await Promise.all([
-        loadSvgIcon('helmet'),
-        loadSvgIcon('chestplate'),
-        loadSvgIcon('greaves'),
-        loadSvgIcon('boots'),
-        loadSvgIcon('necklace'),
-        loadSvgIcon('ring'),
-        loadSvgIcon('lute'),
-        loadSvgIcon('sword'),
-        loadSvgIcon('bow')
-      ]);
+      const slots = computeEquippedSlots(char);
+      const slotDefs = [
+        ['helmet', slots.helmet],
+        ['chestplate', slots.body || slots.shield],
+        ['greaves', slots.legs],
+        ['boots', slots.boots],
+        ['necklace', slots.neck],
+        ['ring', slots.ring1],
+        ['ring', slots.ring2],
+        ['lute', slots.tool],
+        ['sword', slots.melee[0]],
+        ['sword', slots.melee[1]],
+        ['bow', slots.ranged[0]],
+        ['bow', slots.ranged[1]],
+      ];
+      const rendered = await Promise.all(slotDefs.map(([d, s]) => renderSlot(s, d)));
+      const [helmetSlot, bodySlot, legsSlot, bootsSlot, neckSlot, ring1Slot, ring2Slot, toolSlot, melee0Slot, melee1Slot, ranged0Slot, ranged1Slot] = rendered;
       return `
         <div class="char-top">
           <div class="char-name">${escapeHtml(char.name)}</div>
           <div class="char-portrait-row">
             <div class="equipment-column left-slots">
-              <div class="slot">${helmetSvg}</div>
-              <div class="slot">${chestplateSvg}</div>
-              <div class="slot">${greavesSvg}</div>
-              <div class="slot">${bootsSvg}</div>
+              ${helmetSlot}
+              ${bodySlot}
+              ${legsSlot}
+              ${bootsSlot}
             </div>
 
             <div class="char-portrait">${escapeHtml(char.portrait)}</div>
 
             <div class="equipment-column right-slots">
-              <div class="slot">${necklaceSvg}</div>
-              <div class="slot">${ringSvg}</div>
-              <div class="slot">${ringSvg}</div>
-              <div class="slot">${luteSvg}</div>
+              ${neckSlot}
+              ${ring1Slot}
+              ${ring2Slot}
+              ${toolSlot}
             </div>
           </div>
 
@@ -5800,8 +5876,8 @@
           <div class="weapon-slot-group">
             <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
             <div class="weapon-slots">
-              <div class="slot">${swordSvg}</div>
-              <div class="slot">${swordSvg}</div>
+              ${melee0Slot}
+              ${melee1Slot}
             </div>
           </div>
 
@@ -5813,8 +5889,8 @@
           <div class="weapon-slot-group">
             <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
             <div class="weapon-slots">
-              <div class="slot">${bowSvg}</div>
-              <div class="slot">${bowSvg}</div>
+              ${ranged0Slot}
+              ${ranged1Slot}
             </div>
           </div>
         </div>
@@ -6024,13 +6100,18 @@
         ? `<div class="divider"><span>${title}</span></div><div class="skill-grid">${renderGroup(items, catalog)}</div>`
         : '';
 
+      // ── 法术环：戏法（0 环，无限施放）+ 1 环（法术位，与 adventure 前端一致）──
+      const casterLevel = (char.spells.caster_level) || 1;
+      const slotMax1 = casterLevel >= 2 ? 3 : 2;  // 与后端 spell_slot_max 一致（简化：1 级 2 个、2 级 3 个）
+      const slotUsed1 = (char.spells.slots && char.spells.slots.level_1 && char.spells.slots.level_1.used) || 0;
+
       return `
         <div class="class-panel">
           ${section('常规动作', normalItems, spells.actions?.normal)}
           ${section('职业动作', classItems, spells.actions?.class)}
           ${section('被动技能', passiveItems, spells.passive)}
-          ${section('戏法', cantripItems, spells.cantrips)}
-          ${section('1环法术', spellL1Items, spells.spells?.level_1)}
+          ${cantripItems.length ? `<div class="divider"><span>戏法 · 无限施放</span></div><div class="skill-grid">${renderGroup(cantripItems, spells.cantrips)}</div>` : ''}
+          ${spellL1Items.length ? `<div class="divider"><span>1 环法术 · 法术位 ${Math.max(0, slotMax1 - slotUsed1)} / ${slotMax1}</span></div><div class="skill-grid">${renderGroup(spellL1Items, spells.spells?.level_1)}</div>` : ''}
         </div>
       `;
     }

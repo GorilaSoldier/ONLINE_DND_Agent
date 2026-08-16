@@ -71,6 +71,7 @@ def search_player(state, npc_id: str, s: dict, multiplier: int = 2) -> tuple:
     """搜查（实查背包）：道具赃物看是否还在背包；装备类赃物视为随身携带（刚偷的仍在身上）。
     返回 (消息, 是否搜出, 赔偿金额)。"""
     npc_name = _npc_name(state, npc_id)
+    pname = _pname(state)
     still_have = []
     for iid in s.get("item_ids", []):
         if iid == "__gold__":
@@ -82,10 +83,11 @@ def search_player(state, npc_id: str, s: dict, multiplier: int = 2) -> tuple:
     searched_out = bool(still_have) or have_gold
     if searched_out:
         cost = suspicion_cost(state, npc_id, s, multiplier)
+        value = state.stolen_value(s.get("item_ids", []), s.get("gold_amount", 0), npc_id=npc_id)
         gold_after = deduct_gold(state, cost)
         state.set_hostile(npc_id)
-        return f"{npc_name}从你身上搜出了赃物！你不得不赔偿 {cost} 金币（余额 {gold_after}）。", True, cost
-    return f"{npc_name}搜遍你的行囊，一无所获，悻悻地放你离开。", False, 0
+        return f"{npc_name}从{pname}身上搜出了赃物！{pname}不得不赔偿 {cost} 金币（赃物价值 {value}G ×{multiplier}，余额 {gold_after}）。", True, cost
+    return f"{npc_name}搜遍{pname}的行囊，一无所获，悻悻地放{pname}离开。", False, 0
 
 
 # ── 挣脱 / 逃脱 ──
@@ -98,7 +100,7 @@ def break_out(state, npc_id: str, character, opponent: str = "merchant") -> dict
     used = state.caught_breakout_used()
     if used >= 2:
         return {"success": False, "locked": True, "breakout_used": used, "check": None,
-                "message": "你已经没有力气再挣脱了，只能认栽。"}
+                "message": f"{_pname(state)}已经没有力气再挣脱了，只能认栽。"}
     if opponent == "guard":
         dc = 15 + (2 if used >= 1 else 0)  # 卫兵 DC15；第 2 次挣脱同样 +2 更难
     else:
@@ -137,20 +139,23 @@ def random_teleport(state) -> str:
     return target
 
 
-def _do_escape(state, npc_id: str) -> str:
-    """逃脱成功：随机传送相邻出口 + 当前（案发）区域通缉 + 清空对峙/被抓住/卫兵状态。返回叙事消息（角色名，无你/我）"""
+def _do_escape(state, npc_id: str, city_wanted: bool = False) -> str:
+    """逃脱成功：随机传送相邻出口 + 通缉（普通=案发区域；city=整个城市）+ 清空对峙/被抓住/卫兵状态。返回叙事消息（角色名，无你/我）。"""
     crime_loc = state.location_id
     random_teleport(state)
     state.clear_suspicion(npc_id)
     state.clear_caught()
     state.clear_arrest()
     state.remove_guard_from_scene()
-    state.set_wanted(crime_loc)
+    state.set_wanted(crime_loc, city=city_wanted)
     loc = get_location(state.data, state.location_id)
     loc_name = loc.get("name", "一处地方") if loc else "一处地方"
     pname = _pname(state)
-    # 不直接播报"被通缉"：通缉状态已标记（wanted_location），由 GM 在后续对话中自然揭示
-    return f"{pname}甩开追兵，转身钻进人群，三拐两拐冲出了这片区域，一路逃到{loc_name}。"
+    if city_wanted:
+        crime = get_location(state.data, crime_loc) or {}
+        city_name = crime.get("parent_location") or crime.get("name") or "这座城"
+        return f"{pname}甩开追兵，转身钻进人群，一路逃到{loc_name}。{pname}在{city_name}被通缉了，进出城都可能被盘查。"
+    return f"{pname}甩开追兵，转身钻进人群，三拐两拐冲出了这片区域，一路逃到{loc_name}。{pname}在这片区域被通缉了。"
 
 
 # ── 呼叫卫兵 ──
@@ -161,13 +166,13 @@ def _call_guard(state, npc_id: str, s: dict):
     state.add_guard_to_scene()
 
 
-def _round_announce(rounds_left: int) -> str:
+def _round_announce(rounds_left: int, pname: str) -> str:
     """卫兵赶来轮数播报（每轮递减）"""
     if rounds_left >= 3:
-        return "卫兵正在过来，你能听到远处传来急促的脚步声。"
+        return f"卫兵正在过来，{pname}能听到远处传来急促的脚步声。"
     if rounds_left == 2:
-        return "卫兵越来越近了，人群开始骚动，有人朝这边指指点点。"
-    return "卫兵就到门口了！你几乎已经看见他按着剑柄的身影。"
+        return f"卫兵越来越近了，人群开始骚动，有人朝{pname}这边指指点点。"
+    return f"卫兵就到门口了！{pname}几乎已经看见他按着剑柄的身影。"
 
 
 # ── 偷窃主流程：四情况分档（商人 / 钱袋）──
@@ -185,13 +190,14 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
             margin > 6           → 【情况三】无事发生
     target="item" 偷货架物品 item_id；target="gold" 偷钱袋金币。"""
     npc_name = _npc_name(state, npc_id)
+    pname = _pname(state)
 
     if not state.get_merchant(npc_id):
         return {"success": False, "message": f"{npc_name}不是商人，没什么可偷的。", "gold": get_player_gold(state)}
     if not npc_present(state, npc_id):
         return {"success": False, "message": f"{npc_name} 不在这里。", "gold": get_player_gold(state)}
     if state.has_active_suspicion() or state.has_active_arrest():
-        return {"success": False, "message": "你正被怀疑或被追捕，先应付眼前的事吧。", "gold": get_player_gold(state)}
+        return {"success": False, "message": f"{pname}正被怀疑或被追捕，先应付眼前的事吧。", "gold": get_player_gold(state)}
 
     # ── ① 前置潜行判定：未被在场目击者察觉（已处于隐匿状态则跳过）──
     stealth_check = None
@@ -200,8 +206,8 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
         stealth_check = roll_skill_check("stealth", character, stealth_dc)
         if not stealth_check["success"]:
             state.add_npc_alert(npc_id, 1)
-            noise = "你弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
-            msg = f"你悄悄靠近{npc_name}的摊位，但{noise}，只好先按兵不动。{npc_name}变得警觉了一些。"
+            noise = "弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
+            msg = f"{pname}悄悄靠近{npc_name}的摊位，但{noise}，只好先按兵不动。{npc_name}变得警觉了一些。"
             state.add_history("player", f"我想偷{npc_name}的东西")
             state.add_history("gm", msg)
             return {
@@ -240,10 +246,10 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
         state.set_hostile(npc_id)
         state.clear_stealth()
         state.add_history("player", f"我试图偷{npc_name}的 {stolen_desc}")
-        state.add_history("gm", f"你伸手想顺走{npc_name}的 {stolen_desc}，被他逮个正着！{npc_name}勃然大怒。")
+        state.add_history("gm", f"{pname}伸手想顺走{npc_name}的 {stolen_desc}，被{npc_name}逮个正着！{npc_name}勃然大怒。")
         return {
             "success": False, "case": 1,
-            "message": f"你伸手想顺走{npc_name}的 {stolen_desc}，却被他逮个正着！{npc_name}勃然大怒，指着你鼻子骂了一通。他现在对你充满敌意。",
+            "message": f"{pname}伸手想顺走{npc_name}的 {stolen_desc}，却被{npc_name}逮个正着！{npc_name}勃然大怒，指着{pname}的鼻子骂了一通。{npc_name}现在对{pname}充满敌意。",
             "check": check, "gold": get_player_gold(state),
         }
 
@@ -259,7 +265,7 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
             state.player_inventory.append(item_id)
     state.add_npc_alert(npc_id, 1)
     state.add_history("player", f"我偷偷拿走了{npc_name}的 {stolen_desc}")
-    state.add_history("gm", f"你悄悄偷走了{npc_name}的 {stolen_desc}。")
+    state.add_history("gm", f"{pname}悄悄偷走了{npc_name}的 {stolen_desc}。")
 
     if margin < FLAGRANTE_MAX_MARGIN:
         # 【情况二】刚偷到被当场瞥见 → 人赃并获，立即对峙（flagrante）
@@ -267,7 +273,7 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
         state.set_suspicion(npc_id, stolen_ids, gold_amount=stolen_amount, mode="flagrante")
         return {
             "success": True, "case": 2, "check": check, "is_equipment": is_equipment,
-            "message": f"你刚把{npc_name}的 {stolen_desc}摸到手，就被他一个转身撞见！他一把扣住你的手腕：“人赃并获！你还有什么话说？！”",
+            "message": f"{pname}刚把{npc_name}的 {stolen_desc}摸到手，就被他一个转身撞见！他一把扣住{pname}的手腕：“人赃并获！你还有什么话说？！”",
             "stolen_amount": stolen_amount, "gold": get_player_gold(state),
         }
     if margin <= DISCOVERED_MAX_MARGIN:
@@ -275,7 +281,7 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
         state.set_hostile(npc_id)
         return {
             "success": True, "case": 4, "check": check, "is_equipment": is_equipment,
-            "message": f"你成功偷走了{npc_name}的 {stolen_desc}，暂时没人注意到。",
+            "message": f"{pname}成功偷走了{npc_name}的 {stolen_desc}，暂时没人注意到。",
             "suspicion_triggered": True,
             "delayed_suspicion": {
                 "npc_id": npc_id,
@@ -287,7 +293,7 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
     # 【情况三】无事发生
     return {
         "success": True, "case": 3, "check": check, "is_equipment": is_equipment,
-        "message": f"你悄悄偷走了{npc_name}的 {stolen_desc}，没有引起任何注意。",
+        "message": f"{pname}悄悄偷走了{npc_name}的 {stolen_desc}，没有引起任何注意。",
         "stolen_amount": stolen_amount, "gold": get_player_gold(state),
     }
 
@@ -300,6 +306,7 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
     plot_critical 必败露）→ 情况四（discovered）或无事（情况三）。
     返回 (rule_dict, changes)。"""
     npc_name = _npc_name(state, owner_id)
+    pname = _pname(state)
     changes = []
 
     # ① 前置潜行判定（未处于隐匿状态时）
@@ -309,8 +316,8 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
         stealth_check = roll_skill_check("stealth", character, stealth_dc)
         if not stealth_check["success"]:
             state.add_npc_alert(owner_id, 1)
-            noise = "你弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
-            return ({"gm_text": f"你悄悄靠近，但{noise}，只好先按兵不动。", "checks": [stealth_check]}, changes)
+            noise = "弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
+            return ({"gm_text": f"{pname}悄悄靠近，但{noise}，只好先按兵不动。", "checks": [stealth_check]}, changes)
 
     # ② 巧手判定：DC = 主人被动感知+警觉（或物品 difficulty / AI 建议）
     dc = suggested_dc or item.get("difficulty") or (
@@ -323,7 +330,7 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
         state.clear_stealth()
         state.add_npc_alert(owner_id, 2)
         state.set_hostile(owner_id)
-        return ({"gm_text": f"你伸手想顺走 {item['name']}，却被{npc_name}逮个正着！{npc_name}勃然大怒，把你骂了一通。",
+        return ({"gm_text": f"{pname}伸手想顺走 {item['name']}，却被{npc_name}逮个正着！{npc_name}勃然大怒，把{pname}骂了一通。",
                  "checks": [result]}, changes)
 
     # 成功：得手
@@ -341,7 +348,7 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
         "memory": {"event": "item_stolen", "item_id": item_id, "suspect": "player_1",
                    "timestamp": state.game_time},
     })
-    rule = {"gm_text": f"你成功偷走了 {item['name']}，没有引起任何注意。", "checks": [result]}
+    rule = {"gm_text": f"{pname}成功偷走了 {item['name']}，没有引起任何注意。", "checks": [result]}
 
     # 败露判定：主人不在场则无人发现；在场时按 notice_chance（plot_critical 必败露）
     if npc_present(state, owner_id):
@@ -356,7 +363,7 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
         if discovered:
             state.set_hostile(owner_id)
             rule = {
-                "gm_text": f"你成功偷走了 {item['name']}，暂时没人注意到。",
+                "gm_text": f"{pname}成功偷走了 {item['name']}，暂时没人注意到。",
                 "checks": [result],
                 "delayed_suspicion": {"npc_id": owner_id, "item_ids": [item_id]},
             }
@@ -383,8 +390,10 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
       - refuse：拒绝 → 叫卫兵"""
     s = state.get_suspicion(npc_id)
     if not s:
-        return {"searched_out": False, "cost": 0, "gold": get_player_gold(state), "message": "对方没有怀疑你。"}
+        return {"searched_out": False, "cost": 0, "gold": get_player_gold(state),
+                "message": f"对方没有怀疑{_pname(state)}。"}
     npc_name = _npc_name(state, npc_id)
+    pname = _pname(state)
     mode = s.get("mode", "discovered")
     check = None
     searched_out = False
@@ -394,18 +403,19 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
     if mode == "flagrante":
         if action == "pay":
             cost = suspicion_cost(state, npc_id, s, 2)
+            value = state.stolen_value(s.get("item_ids", []), s.get("gold_amount", 0), npc_id=npc_id)
             gold_after = deduct_gold(state, cost)
             state.set_hostile(npc_id)
             state.clear_suspicion(npc_id)
-            msg = f"你认栽赔给{npc_name} {cost} 金币（余额 {gold_after}）。{npc_name}哼了一声，放开手放你离开。"
+            msg = f"{pname}认栽赔给{npc_name} {cost} 金币（赃物价值 {value}G ×2，余额 {gold_after}）。{npc_name}哼了一声，放开手放{pname}离开。"
         elif action in ("deception", "intimidation"):
             dc = 15 + state.npc_alert(npc_id) if action == "deception" else 12 + state.npc_alert(npc_id)
             check = roll_skill_check(action, character, dc)
             if check["success"]:
                 state.clear_suspicion(npc_id)
-                msg = f"你巧舌如簧，{npc_name}将信将疑地松开了手，放你离开。"
+                msg = f"{pname}巧舌如簧，{npc_name}将信将疑地松开了手，放{pname}离开。"
             else:
-                msg = f"{npc_name}不为所动：“人赃并获还想狡辩？！”他把你的手腕攥得更紧了。"
+                msg = f"{npc_name}不为所动：“人赃并获还想狡辩？！”他把{pname}的手腕攥得更紧了。"
         elif action == "flee":
             if s.get("grappled", True):
                 # 挣脱（第 1 次机会，vs 商人力量）
@@ -415,14 +425,14 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
                     msg = result["message"]
                 elif result["success"]:
                     s["grappled"] = False
-                    msg = (f"你猛地一挣，甩开了{npc_name}的手！{npc_name}又惊又怒。"
-                           f"你现在可以继续“逃跑”尝试敏捷逃脱，或赔偿/社交了结。")
+                    msg = (f"{pname}猛地一挣，甩开了{npc_name}的手！{npc_name}又惊又怒。"
+                           f"{pname}现在可以继续“逃跑”尝试敏捷逃脱，或赔偿/社交了结。")
                 else:
                     # 挣脱失败 → 被抓住 → 商人叫卫兵
                     state.set_caught(npc_id, result["breakout_used"])
                     _call_guard(state, npc_id, s)
                     state.clear_suspicion(npc_id)
-                    msg = (f"你没能挣脱{npc_name}的钳制，被他死死按住。{npc_name}高声呼叫卫兵：“来人啊，抓小偷！”")
+                    msg = (f"{pname}没能挣脱{npc_name}的钳制，被{npc_name}死死按住。{npc_name}高声呼叫卫兵：“来人啊，抓小偷！”")
             else:
                 # 已挣脱 → 敏捷逃脱（vs 商人敏捷）
                 result = escape_attempt(state, npc_id, character, opponent="merchant")
@@ -432,11 +442,11 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
                 else:
                     _call_guard(state, npc_id, s)
                     state.clear_suspicion(npc_id)
-                    msg = f"你刚要跑，却被{npc_name}扑住。{npc_name}高声呼叫卫兵：“抓小偷啊！”"
+                    msg = f"{pname}刚要跑，却被{npc_name}扑住。{npc_name}高声呼叫卫兵：“抓小偷啊！”"
         elif action == "refuse":
-            msg = f"{npc_name}怒视着你：“人赃并获还想抵赖？给钱，还是让我叫卫兵来？”"
+            msg = f"{npc_name}怒视着{pname}：“人赃并获还想抵赖？给钱，还是让我叫卫兵来？”"
         else:
-            msg = f"{npc_name}死死拽着你：“给个说法！”"
+            msg = f"{npc_name}死死拽着{pname}：“给个说法！”"
     else:
         if action == "search":
             mult = 3 if s.get("social_failed") else 2
@@ -444,20 +454,21 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
             state.clear_suspicion(npc_id)
         elif action == "pay":
             cost = suspicion_cost(state, npc_id, s, 2)
+            value = state.stolen_value(s.get("item_ids", []), s.get("gold_amount", 0), npc_id=npc_id)
             gold_after = deduct_gold(state, cost)
             state.set_hostile(npc_id)
             state.clear_suspicion(npc_id)
-            msg = f"你承认偷了东西，赔给{npc_name} {cost} 金币（余额 {gold_after}）。"
+            msg = f"{pname}承认偷了东西，赔给{npc_name} {cost} 金币（赃物价值 {value}G ×2，余额 {gold_after}）。"
         elif action in SOCIAL_SKILLS:
             dc = 12 + state.npc_alert(npc_id)
             check = roll_skill_check(action, character, dc)
             if check["success"]:
                 state.clear_suspicion(npc_id)
-                msg = f"你用{SOCIAL_SKILLS[action]}打发了{npc_name}，对方虽仍有些怀疑，但没再纠缠，放你离开。"
+                msg = f"{pname}用{SOCIAL_SKILLS[action]}打发了{npc_name}，对方虽仍有些怀疑，但没再纠缠，放{pname}离开。"
             else:
                 s["social_failed"] = True
                 msg = (f"{npc_name}不为所动：“别跟我耍花招！”他上前一步，“再不让我搜身，我就要动手了！”"
-                       f"（你可以选择“接受搜身”，或“逃跑”）")
+                       f"（{pname}可以选择“接受搜身”，或“逃跑”）")
         elif action == "flee":
             # 未抓住 → 敏捷逃脱
             result = escape_attempt(state, npc_id, character, opponent="merchant")
@@ -468,14 +479,14 @@ def resolve_suspicion_action(state, npc_id: str, action: str, character) -> dict
                 state.set_hostile(npc_id)
                 _call_guard(state, npc_id, s)
                 state.clear_suspicion(npc_id)
-                msg = f"你转身就跑，却被{npc_name}一把抓住！{npc_name}高声呼叫卫兵：“抓小偷！”"
+                msg = f"{pname}转身就跑，却被{npc_name}一把抓住！{npc_name}高声呼叫卫兵：“抓小偷！”"
         elif action == "refuse":
             state.set_hostile(npc_id)
             _call_guard(state, npc_id, s)
             state.clear_suspicion(npc_id)
-            msg = f"你拒绝承认偷窃。{npc_name}高声呼叫卫兵：“来人啊，抓小偷！”"
+            msg = f"{pname}拒绝承认偷窃。{npc_name}高声呼叫卫兵：“来人啊，抓小偷！”"
         else:
-            msg = f"{npc_name}盯着你：“给个说法！”"
+            msg = f"{npc_name}盯着{pname}：“给个说法！”"
 
     # 对峙结算统一写入 history（/suspicion 确定性端点不走 AI 叙事，AI 上下文需要此记忆）
     state.add_history("gm", msg)
@@ -498,10 +509,11 @@ def arrest_action(state, action: str, character) -> dict:
         失败被按死 → 被按死 = ×3 赔偿 + 进监狱。"""
     a = state.arrest
     if not a or not a.get("active"):
-        return {"message": "这里没有卫兵找你的麻烦。", "checks": []}
+        return {"message": f"这里没有卫兵找{_pname(state)}的麻烦。", "checks": []}
     phase = a.get("phase")
     guard_name = _npc_name(state, "town-guard")
-    pname = _npc_name(state, a.get("plaintiff", ""))
+    plaintiff = _npc_name(state, a.get("plaintiff", ""))
+    pname = _pname(state)
     check = None
     msg = ""
 
@@ -516,7 +528,7 @@ def arrest_action(state, action: str, character) -> dict:
                 return {"message": _do_escape(state, a.get("plaintiff", "")), "checks": [check], "escaped": True}
             a["phase"] = "arrived"
             a["guard_present"] = True
-            msg = f"你刚迈开腿就被{pname}拽住。此刻{guard_name}已经赶到！"
+            msg = f"{pname}刚迈开腿就被{plaintiff}拽住。此刻{guard_name}已经赶到！"
         elif action == "breakout":
             if state.is_caught():
                 result = break_out(state, a.get("plaintiff", ""), character, opponent="merchant")
@@ -525,53 +537,55 @@ def arrest_action(state, action: str, character) -> dict:
                     msg = result["message"]
                 elif result["success"]:
                     state.clear_caught()
-                    msg = f"你拼尽全力挣脱了{pname}的钳制！趁卫兵还没到，你可以尝试“逃跑”脱身。"
+                    msg = f"{pname}拼尽全力挣脱了{plaintiff}的钳制！趁卫兵还没到，{pname}可以尝试“逃跑”脱身。"
                 else:
-                    msg = f"你奋力挣扎，却被{pname}抓得更紧。你已经用光了挣脱的机会，再也挣不脱了。"
+                    msg = f"{pname}奋力挣扎，却被{plaintiff}抓得更紧。{pname}已经用光了挣脱的机会，再也挣不脱了。"
             else:
-                msg = "你现在并没有被抓住，不需要挣脱。想脱身就直接说“逃跑”。"
+                msg = f"{pname}现在并没有被抓住，不需要挣脱。想脱身就直接说“逃跑”。"
         elif action == "pay":
-            cost = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff")) * 3
+            value = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff"))
+            cost = value * 3
             gold_after = deduct_gold(state, cost)
             state.set_hostile(a.get("plaintiff", ""))
             _end_arrest(state)
-            msg = (f"你同意赔偿私了，赔给{pname} {cost} 金币（余额 {gold_after}）。"
-                   f"卫兵赶来后，{pname}说已经解决了，卫兵点了点头转身离开。")
+            msg = (f"{pname}同意赔偿私了，赔给{plaintiff} {cost} 金币（赃物价值 {value}G ×3，余额 {gold_after}）。"
+                   f"卫兵赶来后，{plaintiff}说已经解决了，卫兵点了点头转身离开。")
         elif action in SOCIAL_SKILLS:
             dc = 15 + state.npc_alert(a.get("plaintiff", ""))
             check = roll_skill_check(action, character, dc)
             if check["success"]:
                 _end_arrest(state)
-                msg = (f"你用{SOCIAL_SKILLS[action]}说服了{pname}，对方同意私了。"
+                msg = (f"{pname}用{SOCIAL_SKILLS[action]}说服了{plaintiff}，对方同意私了。"
                        f"卫兵赶来后见已和解，便离开了。")
             else:
-                msg = f"{pname}不为所动：“少来这套，等卫兵来处理你！”"
+                msg = f"{plaintiff}不为所动：“少来这套，等卫兵来处理你！”"
         else:
-            msg = _round_announce(rounds_left)
+            msg = _round_announce(rounds_left, pname)
         if a.get("phase") == "summoned" and rounds_left <= 0:
             a["phase"] = "arrived"
             a["guard_present"] = True
-            msg += f" {guard_name}赶到{pname}身边：“怎么回事？”{pname}指着你：“就是他偷了我的东西！”卫兵转向你：“搜身，还是赔钱，自己说。”"
+            msg += f" {guard_name}赶到{plaintiff}身边：“怎么回事？”{plaintiff}指着{pname}：“就是他偷了我的东西！”卫兵转向{pname}：“搜身，还是赔钱，自己说。”"
     elif phase == "arrived":
         # 卫兵到场 → 默认被抓住状态 → 要求搜身
         if not state.is_caught():
             state.set_caught("town-guard", int(a.get("breakout_used", 0)))
         if action == "search":
-            cost = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff")) * 3
+            value = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff"))
+            cost = value * 3
             gold_after = deduct_gold(state, cost)
             _seize_stolen(state)
             state.set_hostile(a.get("plaintiff", ""))
             _end_arrest(state)
-            msg = (f"你主动同意搜身。{guard_name}从你身上搜出了赃物，按镇规没收并罚赔 {cost} 金币"
-                   f"（余额 {gold_after}），训斥几句后放你离开。")
+            msg = (f"{pname}主动同意搜身。{guard_name}从{pname}身上搜出了赃物，按镇规没收并罚赔 {cost} 金币"
+                   f"（赃物价值 {value}G ×3，余额 {gold_after}），训斥几句后放{pname}离开。")
         elif action in SOCIAL_SKILLS:
             dc = 18
             check = roll_skill_check(action, character, dc)
             if check["success"]:
                 _end_arrest(state)
-                msg = f"你一番解释，{guard_name}与{pname}核对后确认是个误会，把你放了。"
+                msg = f"{pname}一番解释，{guard_name}与{plaintiff}核对后确认是个误会，把{pname}放了。"
             else:
-                msg = f"{guard_name}不为所动：“先搜了再说。”你现在可以“挣脱”，或“同意搜身”。"
+                msg = f"{guard_name}不为所动：“先搜了再说。”{pname}现在可以“挣脱”，或“同意搜身”。"
         elif action == "breakout":
             result = break_out(state, "town-guard", character, opponent="guard")
             check = result["check"]
@@ -585,22 +599,23 @@ def arrest_action(state, action: str, character) -> dict:
                 if esc["success"]:
                     return {"message": _do_escape(state, "town-guard"), "checks": [check], "escaped": True}
                 a["phase"] = "arrested"
-                msg = f"你刚挣开{guard_name}的手，一个趔趄又被按倒在地！"
+                msg = f"{pname}刚挣开{guard_name}的手，一个趔趄又被按倒在地！"
             else:
                 a["phase"] = "arrested"
-                msg = f"你拼命挣扎，却仍被{guard_name}反剪双手按倒在地！"
+                msg = f"{pname}拼命挣扎，却仍被{guard_name}反剪双手按倒在地！"
         elif action == "flee":
             esc = escape_attempt(state, "town-guard", character, opponent="guard")
             check = esc["check"]
             if esc["success"]:
                 return {"message": _do_escape(state, "town-guard"), "checks": [check], "escaped": True}
             a["phase"] = "arrested"
-            msg = f"你转身就跑，却没跑过{guard_name}，被一把按倒。"
+            msg = f"{pname}转身就跑，却没跑过{guard_name}，被一把按倒。"
         else:
-            msg = f"{guard_name}盯着你：“搜身，还是赔钱，自己说。”"
+            msg = f"{guard_name}盯着{pname}：“搜身，还是赔钱，自己说。”"
     elif phase == "arrested":
         # 被按死 → 没收赃物 + ×3 罚金 + 关进监狱（进监狱后可选：交保释金 / 蹲夜服刑 / 等巡逻撬锁越狱）
-        cost = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff")) * 3
+        value = state.stolen_value(a.get("item_ids", []), a.get("gold_amount", 0), npc_id=a.get("plaintiff"))
+        cost = value * 3
         gold_after = deduct_gold(state, cost)
         _seize_stolen(state)
         a["phase"] = "jailed"
@@ -608,8 +623,7 @@ def arrest_action(state, action: str, character) -> dict:
         return_loc = state.location_id
         state.location_id = JAIL_LOCATION
         _jail_init_guard(state, return_loc)
-        pname = _pname(state)
-        msg = (f"{pname}被{guard_name}按死，赃物被当场搜出没收，罚赔 {cost} 金币（余额 {gold_after}），"
+        msg = (f"{pname}被{guard_name}按死，赃物被当场搜出没收，罚赔 {cost} 金币（赃物价值 {value}G ×3，余额 {gold_after}），"
                f"随后被关进绝冬城监狱。狱卒守在走廊里。可以选择：交保释金（{JAIL_BAIL} 金币）提前出狱、"
                f"蹲到天亮服刑，或等狱卒巡逻时撬锁越狱。")
     elif phase == "jailed":
@@ -619,11 +633,11 @@ def arrest_action(state, action: str, character) -> dict:
             if get_player_gold(state) >= JAIL_BAIL:
                 gold_after = get_player_gold(state) - JAIL_BAIL
                 set_player_gold(state, gold_after)
-                msg = (f"{_pname(state)}掏出 {JAIL_BAIL} 金币交给狱卒作保释金。狱卒掂了掂钱袋，打开牢门："
+                msg = (f"{pname}掏出 {JAIL_BAIL} 金币交给狱卒作保释金。狱卒掂了掂钱袋，打开牢门："
                        f"“出去吧，别再犯事。”")
                 _release_from_jail(state)
             else:
-                msg = (f"翻遍口袋也只有 {get_player_gold(state)} 金币，不够 {JAIL_BAIL} 的保释金。"
+                msg = (f"{pname}翻遍口袋也只有 {get_player_gold(state)} 金币，不够 {JAIL_BAIL} 的保释金。"
                        f"要么想办法凑钱，要么蹲到天亮，要么等狱卒巡逻时撬锁越狱。")
         elif action == "pick_lock":
             if a.get("jail_guard") == "present":
@@ -647,7 +661,7 @@ def arrest_action(state, action: str, character) -> dict:
                 msg += "狱卒还在走廊里守着，再等等吧。"
         elif action == "serve":
             state.game_time += 8
-            msg = "决定服刑到天亮。一夜无事，第二天清晨，狱卒打开牢门：“滚吧，别再犯事。”"
+            msg = f"{pname}决定服刑到天亮。一夜无事，第二天清晨，狱卒打开牢门：“滚吧，别再犯事。”"
             _release_from_jail(state)
         else:
             msg = "狱卒在走廊里踱步，没有理人。"
@@ -741,5 +755,6 @@ def jail_escape(state) -> dict:
         # 狱卒刚好回来 → 强制关回（cell_open 已被 _jail_tick 复位）
         return {"ok": False, "message": tick_msg or "狱卒回来了，把玩家按回牢里。", "updates": state.to_client_updates()}
     pname = _pname(state)
-    msg = (f"{pname}趁狱卒巡逻的空档，猫着腰溜出牢房，穿过走廊推开监狱大门！" + _do_escape(state, "town-guard"))
+    msg = (f"{pname}趁狱卒巡逻的空档，猫着腰溜出牢房，穿过走廊推开监狱大门！"
+           + _do_escape(state, "town-guard", city_wanted=True))
     return {"ok": True, "message": msg, "updates": state.to_client_updates()}

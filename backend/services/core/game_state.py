@@ -98,7 +98,7 @@ class GameState:
         self.suspicion: dict = {}              # 被怀疑（强制对话）状态: {npc_id: {"active", "mode", "item_ids", "detected_at", ...}}
         self.arrest: dict | None = None        # 卫兵/逮捕状态（phase 见 set_arrest）
         self.caught: dict = {}                 # 被抓住状态（情况二挣脱失败等进入）: {"active", "plaintiff", "breakout_used", "breakout_locked"}
-        self.wanted_location: str | None = None  # 通缉区域（仅当前区域生效，本次只做标记 + GM 播报）
+        self.wanted_location: list | None = None  # 通缉区域（地点 id 列表；本次只做标记 + GM 播报，效果 P1 落地）
         self.merchant_theft: dict = {}         # 商人被偷记录: {npc_id: {item_id: 被偷数量}}
         self.player_stealth: dict = {}         # 潜行状态: {"active": bool, "npc_id": str, "dc": int}
         self.player_hp: dict = {}              # HP 状态（后端权威）: {"cur": N, "max": N}
@@ -293,8 +293,18 @@ class GameState:
         return int((self.caught or {}).get("breakout_used", 0))
 
     # ── 通缉（仅当前区域生效，本次只做标记；播报由调用方叙事）──
-    def set_wanted(self, location_id: str | None = None):
-        self.wanted_location = location_id or self.location_id
+    def set_wanted(self, location_id: str | None = None, city: bool = False):
+        """设置通缉区域：wanted_location 存**地点 id 列表**。
+        - city=True：通缉整个城市（与 location_id 同 parent_location 的所有地点，如越狱重罪通缉全城）
+        - 否则：仅通缉指定/当前地点（普通偷窃逃脱 = 案发区域）"""
+        loc_id = location_id or self.location_id
+        if city:
+            parent = (get_location(self.data, loc_id) or {}).get("parent_location")
+            ids = [lid for lid, loc in self.data["locations"].items()
+                   if (loc or {}).get("parent_location") == parent]
+            self.wanted_location = sorted(set(ids)) if ids else [loc_id]
+        else:
+            self.wanted_location = [loc_id]
 
     # ── NPC 力量/敏捷（挣脱/逃脱对抗用；abilities 兼容 {str: N} 与 {str: {value: N}}）──
     def _npc_stat(self, npc_id: str, short_key: str) -> int:

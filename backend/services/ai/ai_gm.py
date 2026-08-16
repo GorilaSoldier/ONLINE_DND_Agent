@@ -397,6 +397,7 @@ class AIGM:
 11. 数据边界：NPC 态度、物品、金币等持久状态变化一律由规则引擎执行（通过工具调用触发），你只描述神态、语气等即时反应，不得宣称数据之外的状态变化——不得让 NPC 凭空赠送物品、改变立场，不得让玩家无故得失物品金币。
 12. 【剧情关键 NPC 保护】NPC 数据中标注 plot_critical 的（【在场 NPC】中可见该字段）是剧本指定的关键角色，其生死由剧本/规则引擎决定，不要擅自宣判其死亡或调用 update_npc_status 将其标记为 dead；未标注 plot_critical 的 NPC 无此限制。
 13. 【工具调用格式】禁止以文本形式输出工具调用（如 <tool_calls>、<invoke> 等 XML 标签）。需要调用工具时必须使用系统提供的工具调用功能；若无法调用，则直接以 GM 口吻叙事，绝不把工具调用代码/标签显示给玩家。
+14. 【人称】用角色名称呼玩家角色，GM 叙述不得用"你/我"指代玩家（NPC 台词里可以用"你"）。
 
 工具使用（重要）：
 - 调用 process_action 的条件：玩家执行了需要后端校验的具体动作，包括但不限于：
@@ -438,7 +439,7 @@ class AIGM:
   * 蹲到天亮（"蹲牢/服刑/我认了/等到天亮"）→ action="serve"（game_time+8 后释放，免保释金）
   * 玩家与狱卒闲聊/提问 → 直接扮演狱卒对话，不调用工具
   * 狱卒巡逻状态在逮捕上下文中可见（jail_guard: present 在场 / away 巡逻、cell_open: 牢门是否已开），据此判断玩家能否撬锁、是否该提醒玩家点击监狱大门逃离
-- **通缉（wanted_location）**：玩家被通缉时，上下文中会带 `wanted_location`（通缉生效的区域）。玩家进入通缉区域或与 NPC 互动时，要**自然地**让玩家发现自己处境——路人的侧目与窃窃私语、卫兵的审视盘问、商人警惕戒备的态度等，通过世界反应逐步揭示；**禁止直接宣布"你被通缉了"**。玩家主动询问、或察觉出端倪追问时，才可明确告知，并可暗示可行的出路（如离开区域避风头、赔钱和解等，具体机制后续实现）。
+- **通缉（wanted_location）**：玩家被通缉时，结算结果与上下文的【通缉】中会明确列出通缉区域。AI 照实叙述该状态即可；后续玩家与卫兵、路人、商人互动时可自然体现通缉影响（如审视盘问、警惕戒备）。玩家主动询问时，可明确告知并暗示可行的出路（如离开区域避风头、赔钱和解等，具体机制后续实现）。
 - target_id 必须使用上文【在场 NPC】【可见物品】【出口】中列出的 id= 值，不要使用中文名称。
 - 调用 update_npc_status 的条件：当 NPC 死亡（如被击杀）、被击晕、或离开当前地点时，调用 update_npc_status(npc_id=..., status="dead"/"stunned"/"left") 同步角色栏显示。alive 用于恢复正常。纯叙事描述状态变化不需要调用，该工具只负责记录状态本身。
 - 不调用 process_action 的情况：与 NPC 交谈/提问/闲聊、描述周围环境、表达想法、扮演角色、查看自己有权打开的容器或物品（如受托护送的箱子、自己背包里的东西、摊开的书等）。"""
@@ -512,6 +513,13 @@ class AIGM:
             pass
         return ""
 
+    def _wanted_hint(self, context: Dict[str, Any]) -> str:
+        """通缉提示：注入当前被通缉的区域，AI 据此自然揭示处境（不直接宣布，靠世界反应体现）"""
+        names = context.get("wanted_names") or []
+        if not names:
+            return ""
+        return f"\n【通缉】玩家在以下区域被通缉：{'、'.join(names)}。在这些区域活动时，卫兵可能盘问、商人可能拒卖，请通过世界反应自然体现。"
+
     def _tc_full_user_prompt(self, player_input: str, context: Dict[str, Any]) -> str:
         """完整上下文 prompt：切换场景时使用（历史对话通过 history_messages 累积，不贴在此处）"""
         scene = context.get("scene", {})
@@ -560,6 +568,7 @@ class AIGM:
 
         suspicion_text = self._suspicion_hint(context)
         arrest_text = self._arrest_hint(context)
+        wanted_text = self._wanted_hint(context)
 
         # 角色已知法术（供施法识别 spell_id）
         spell_text = self._known_spell_text(character)
@@ -589,6 +598,7 @@ class AIGM:
 {passive_text}
 {suspicion_text}
 {arrest_text}
+{wanted_text}
 【玩家输入】
 {player_input}"""
 
@@ -617,6 +627,7 @@ class AIGM:
 
         suspicion_text = self._suspicion_hint(context)
         arrest_text = self._arrest_hint(context)
+        wanted_text = self._wanted_hint(context)
         # 已知法术（防止多轮后 AI 忘记角色会什么法术，误判"没有这个法术"）
         spell_text = self._known_spell_text(context.get("character") or {})
 
@@ -625,5 +636,6 @@ class AIGM:
 {merchant_text}
 {suspicion_text}
 {arrest_text}
+{wanted_text}
 【玩家输入】
 {player_input}"""

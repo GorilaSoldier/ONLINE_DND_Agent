@@ -70,7 +70,7 @@ ok("挣脱未叫卫兵", not s.has_active_arrest())
 before_loc = s.location_id
 rr = se.resolve_suspicion_action(s, "market-merchant", "flee", CHAR)
 ok("逃脱成功清 suspicion", not s.has_active_suspicion())
-ok("逃脱成功 + 通缉", s.wanted_location == "neverwinter-market")
+ok("逃脱成功 + 通缉", "neverwinter-market" in (s.wanted_location or []))
 ok("逃脱成功传送离开", s.location_id != before_loc)
 ok("逃脱后无卫兵", not s.has_active_arrest())
 
@@ -91,7 +91,7 @@ rr = se.arrest_action(s, "breakout", CHAR)
 ok("赶来中第2次挣脱成功", not s.is_caught())
 # 再逃跑脱身
 rr = se.arrest_action(s, "flee", CHAR)
-ok("赶来中逃跑逃脱+通缉", s.wanted_location == "neverwinter-market" and not s.has_active_arrest())
+ok("赶来中逃跑逃脱+通缉", "neverwinter-market" in (s.wanted_location or []) and not s.has_active_arrest())
 
 # ── 情况三：margin>6 → 无事发生 ──
 s = new_state()
@@ -146,7 +146,7 @@ s.set_arrest("market-merchant", ["rations"], 0, phase="arrived")
 s.add_guard_to_scene()
 TOTALS["athletics"] = 20
 rr = se.arrest_action(s, "breakout", CHAR)
-ok("到场挣脱成功逃脱+通缉", s.wanted_location == "neverwinter-market" and not s.has_active_arrest())
+ok("到场挣脱成功逃脱+通缉", "neverwinter-market" in (s.wanted_location or []) and not s.has_active_arrest())
 
 s = new_state()
 s.set_arrest("market-merchant", ["rations"], 0, phase="arrived")
@@ -204,7 +204,7 @@ rr = se.arrest_action(s, "pick_lock", CHAR)
 ok("撬锁成功牢门开", s.arrest["cell_open"] is True)
 # 越狱成功：通缉 + 传送到市场 + 清状态
 rr = se.jail_escape(s)
-ok("越狱成功通缉+传送", rr["ok"] and s.wanted_location == "neverwinter-jail" and s.location_id == "neverwinter-market" and not s.has_active_arrest())
+ok("越狱成功通缉+传送", rr["ok"] and "neverwinter-jail" in s.wanted_location and s.location_id == "neverwinter-market" and not s.has_active_arrest())
 
 # ── 越狱被强制关回：撬完锁狱卒刚好回来 ──
 s = new_state()
@@ -239,7 +239,7 @@ r = se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="ite
 s.set_suspicion("market-merchant", r["delayed_suspicion"]["item_ids"],
                 gold_amount=r["delayed_suspicion"].get("gold_amount", 0), mode="discovered")
 rr = se.resolve_suspicion_action(s, "market-merchant", "flee", CHAR)
-ok("情况四逃跑逃脱+通缉", s.wanted_location == "neverwinter-market" and not s.has_active_suspicion() and not s.has_active_arrest())
+ok("情况四逃跑逃脱+通缉", "neverwinter-market" in (s.wanted_location or []) and not s.has_active_suspicion() and not s.has_active_arrest())
 
 # ── 场景物品（有主物）：克拉格钱袋（notice_chance=0.4）——保留 notice_chance 判定 ──
 import random as _random

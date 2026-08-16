@@ -13,8 +13,9 @@ def _class_action_ids(character: dict) -> list:
 
 def use_action(state, character: dict, action_id: str) -> dict:
     """使用职业动作。返回 {success, message, heal, ...}，规则引擎/AI 基于真实结果叙事。"""
+    pname = (character or {}).get("name") or "冒险者"
     if action_id not in _class_action_ids(character):
-        return {"success": False, "message": "你不会这个动作。"}
+        return {"success": False, "message": f"{pname}不会这个动作。"}
 
     if action_id == "second_wind":
         # 回气：恢复 1d10 + 等级，每次短休/长休后一次
@@ -25,7 +26,7 @@ def use_action(state, character: dict, action_id: str) -> dict:
         total = random.randint(1, 10) + level
         healed = state.heal_player(total)
         state.short_rest_action_uses[action_id] = uses + 1
-        return {"success": True, "message": f"你使用回气，恢复了 {healed} 点生命值。", "heal": healed}
+        return {"success": True, "message": f"{pname}使用回气，恢复了 {healed} 点生命值。", "heal": healed}
 
     if action_id == "recovery":
         # 回复：花费一次短休充能，恢复少量生命值并刷新部分职业技能次数
@@ -33,7 +34,7 @@ def use_action(state, character: dict, action_id: str) -> dict:
             return {"success": False, "message": "没有短休次数了，需要长休恢复。"}
         state.short_rests_left -= 1
         healed = state.heal_player(max(2, state.player_hp_max() // 4))
-        return {"success": True, "message": f"你使用回复，恢复了 {healed} 点生命值（消耗一次短休充能，剩余 {state.short_rests_left} 次）。", "heal": healed}
+        return {"success": True, "message": f"{pname}使用回复，恢复了 {healed} 点生命值（消耗一次短休充能，剩余 {state.short_rests_left} 次）。", "heal": healed}
 
     if action_id == "fighting_spirit":
         # 斗气如潮：依赖战斗回合，非战斗不可用（战斗系统待实现）

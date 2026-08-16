@@ -27,10 +27,49 @@ SKILL_ABILITY_MAP = {
     "performance": "charisma",
 }
 
+# 技能英文 key → 角色卡 json 中的中文技能名（支持异名：说服/游说、察觉/侦察、求生/生存、医药/医疗）
+SKILL_CN_NAMES = {
+    "athletics": ["运动"],
+    "acrobatics": ["体操"],
+    "sleight_of_hand": ["巧手"],
+    "stealth": ["隐匿"],
+    "arcana": ["奥秘"],
+    "history": ["历史"],
+    "investigation": ["调查"],
+    "nature": ["自然"],
+    "religion": ["宗教"],
+    "animal_handling": ["驯兽", "驯服动物"],
+    "insight": ["洞悉"],
+    "medicine": ["医药", "医疗", "医术"],
+    "perception": ["察觉", "侦察"],
+    "survival": ["求生", "生存"],
+    "deception": ["欺瞒"],
+    "intimidation": ["威吓"],
+    "performance": ["表演"],
+    "persuasion": ["说服", "游说"],
+}
+
 
 def roll_d20(modifier: int = 0) -> dict:
     roll = random.randint(1, 20)
     return {"roll": roll, "modifier": modifier, "total": roll + modifier}
+
+
+def skill_bonus(character: dict | None, skill: str) -> int:
+    """技能检定加值：以角色卡 json 中写好的 value 为权威（已含熟练/专长/背景修正）。
+    未列出该技能（或角色无 skills 结构）时回退属性调整。"""
+    if not character:
+        return 0
+    names = SKILL_CN_NAMES.get(skill) or []
+    if names:
+        for sec in (character.get("skills") or {}).get("sections") or []:
+            for s in sec.get("skills") or []:
+                if s.get("name") in names:
+                    try:
+                        return int(str(s.get("value") or "0").replace("+", "").strip() or 0)
+                    except (ValueError, TypeError):
+                        break  # value 异常 → 回退属性调整
+    return ability_modifier(char_ability_score(character, SKILL_ABILITY_MAP.get(skill, "wisdom")))
 
 
 def ability_modifier(score: int) -> int:
@@ -59,9 +98,10 @@ def char_ability_score(character: dict | None, ability: str) -> int:
 
 
 def roll_skill_check(skill: str, character: dict | None, dc: int) -> dict:
-    """技能检定：d20 + 属性调整 vs DC（确定性）"""
+    """技能检定：d20 + 技能加值 vs DC（确定性）。
+    技能加值以角色卡 json（skills.sections 的 value）为权威，未列出则回退属性调整。"""
     ability = SKILL_ABILITY_MAP.get(skill, "wisdom")
-    mod = ability_modifier(char_ability_score(character, ability))
+    mod = skill_bonus(character, skill)
     result = roll_d20(mod)
     result["skill"] = skill
     result["ability"] = ability

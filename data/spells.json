@@ -74,7 +74,7 @@
       "level": 0,
       "school": "塑能",
       "casting_time": "1动作",
-      "range": "18米",
+      "range": "9米",
       "classes": ["wizard"],
       "description": "向目标投掷一团火焰，造成 1d10 火焰伤害。"
     },
@@ -191,9 +191,9 @@
         "level": 1,
         "school": "塑能",
         "casting_time": "1动作",
-        "range": "18米",
+        "range": "9米",
         "classes": ["wizard"],
-        "description": "发射一颗火球在目标点爆炸，对半径 4 米内所有生物造成 8d6 火焰伤害，敏捷豁免成功则伤害减半。"
+        "description": "向目标投掷一团爆裂火焰，造成 8d6 火焰伤害，敏捷豁免成功则伤害减半。"
       },
       "cure_wounds": {
         "id": "cure_wounds",

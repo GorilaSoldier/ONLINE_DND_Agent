@@ -1,0 +1,4865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNDBOX · 战斗地图</title>
+<style>
+
+  :root {
+    --ink:       #3d2b1f;
+    --ink-soft:  #6b4e3d;
+    --paper:     #faf6ee;
+    --paper-light: #fdfbf7;
+    --paper-card:  #fffdf7;
+    --paper-dark:  #e5dbca;
+    --accent:    #8b5a2b;
+    --accent-glow: #b8783e;
+    --border:    rgba(61, 43, 31, 0.12);
+    --shadow:    rgba(61, 43, 31, 0.12);
+    --slot:      rgba(61, 43, 31, 0.06);
+    --line-color: rgba(61, 43, 31, 0.35);
+    --danger:    #b53b3b;
+    --left-panel-w: 240px;
+    --right-panel-w: 260px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", "Songti SC", Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  body.page-in { opacity: 1; }
+
+  /* ── top bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+
+  .top-bar .brand {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-back-lobby {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .btn-back-lobby:hover {
+    color: var(--ink);
+    border-color: var(--ink-soft);
+  }
+
+  /* ── adventure body ── */
+  .adventure-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── left panel（尺寸随面板宽度等比缩放） ── */
+  .left-panel {
+    width: var(--left-panel-w);
+    min-width: 0;
+    flex-shrink: 0;
+    padding: calc(var(--left-panel-w) * 0.048) calc(var(--left-panel-w) * 0.041);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--left-panel-w) * 0.041);
+    overflow-y: auto;
+    transition: none;
+  }
+
+  .context-section {
+    border: 1px solid var(--border);
+    border-radius: calc(var(--left-panel-w) * 0.03);
+    padding: calc(var(--left-panel-w) * 0.036) calc(var(--left-panel-w) * 0.041);
+    background: var(--paper-light);
+  }
+
+  .context-section h3 {
+    font-size: calc(var(--left-panel-w) * 0.039);
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: calc(var(--left-panel-w) * 0.024);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .context-section h4 {
+    font-size: calc(var(--left-panel-w) * 0.036);
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: calc(var(--left-panel-w) * 0.018);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+
+  .context-location {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--left-panel-w) * 0.024) calc(var(--left-panel-w) * 0.036);
+    background: var(--slot);
+    border-radius: calc(var(--left-panel-w) * 0.024);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .context-location:hover {
+    background: rgba(139, 90, 43, 0.10);
+  }
+
+  .location-name {
+    font-size: calc(var(--left-panel-w) * 0.041);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .location-type-tag {
+    font-size: calc(var(--left-panel-w) * 0.033);
+    color: var(--ink-soft);
+    padding: calc(var(--left-panel-w) * 0.006) calc(var(--left-panel-w) * 0.024);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--left-panel-w) * 0.018);
+  }
+
+  .context-list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--left-panel-w) * 0.012);
+  }
+
+  .context-item {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--left-panel-w) * 0.024);
+    padding: calc(var(--left-panel-w) * 0.018) calc(var(--left-panel-w) * 0.03);
+    border-radius: calc(var(--left-panel-w) * 0.018);
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: calc(var(--left-panel-w) * 0.039);
+  }
+
+  .context-item:hover {
+    background: rgba(139, 90, 43, 0.08);
+  }
+
+  .context-item-icon {
+    width: calc(var(--left-panel-w) * 0.084);
+    height: calc(var(--left-panel-w) * 0.084);
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.12);
+    color: var(--accent);
+    font-size: calc(var(--left-panel-w) * 0.039);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .context-item-name {
+    flex: 1;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .context-item-meta {
+    font-size: calc(var(--left-panel-w) * 0.033);
+    color: var(--ink-soft);
+  }
+
+  /* ── 任务子项（侧边栏展开用） ── */
+  .quest-subtasks { width: 100%; padding-top: calc(var(--left-panel-w) * 0.012); border-top: 1px solid rgba(139,90,43,0.1); margin-top: calc(var(--left-panel-w) * 0.012); }
+  .quest-subtask {
+    display: flex; align-items: flex-start; gap: calc(var(--left-panel-w) * 0.018);
+    padding: calc(var(--left-panel-w) * 0.012) 0 calc(var(--left-panel-w) * 0.012) calc(var(--left-panel-w) * 0.012); font-size: calc(var(--left-panel-w) * 0.036); color: var(--ink-soft);
+    cursor: pointer; border-radius: calc(var(--left-panel-w) * 0.012); transition: background 0.15s;
+  }
+  .quest-subtask:hover { background: rgba(139,90,43,0.06); }
+  .quest-subtask.done { opacity: 0.65; }
+  .quest-subtask.done .quest-subtask-text { text-decoration: line-through; }
+  .quest-subtask-check {
+    width: calc(var(--left-panel-w) * 0.048);
+    height: calc(var(--left-panel-w) * 0.048);
+    border-radius: 50%;
+    border: calc(var(--left-panel-w) * 0.004) solid var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: calc(var(--left-panel-w) * 0.003); font-size: calc(var(--left-panel-w) * 0.03); color: transparent;
+  }
+  .quest-subtask.done .quest-subtask-check { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .quest-subtask-text { flex: 1; line-height: 1.5; }
+  .quest-item { cursor: pointer; flex-wrap: wrap; }
+  .quest-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--left-panel-w) * 0.067);
+    height: calc(var(--left-panel-w) * 0.067);
+    flex-shrink: 0;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease, color 0.2s ease;
+  }
+  .quest-expand-btn svg {
+    width: calc(var(--left-panel-w) * 0.05);
+    height: calc(var(--left-panel-w) * 0.05);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .quest-expand-btn:hover { color: var(--accent); }
+  .quest-expand-btn.open { transform: rotate(180deg); color: var(--accent); }
+
+  /* ── 任务详情模态框（完全照抄 lobby.html） ── */
+  .task-columns {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .task-sidebar {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+  .task-category {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .task-category-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(61, 43, 31, 0.04);
+    margin-bottom: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+  .task-category-title:hover {
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-category-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-soft);
+    transition: transform 0.25s ease;
+  }
+  .task-category-arrow svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-category.collapsed .task-category-arrow {
+    transform: rotate(-90deg);
+  }
+  .task-category.collapsed .task-category-list {
+    display: none;
+  }
+  .task-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .task-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .task-nav-item:hover {
+    background: rgba(184, 115, 51, 0.08);
+  }
+  .task-nav-item.active {
+    background: rgba(184, 115, 51, 0.16);
+    color: var(--ink);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .task-nav-item.task-completed {
+    color: var(--ink-soft);
+  }
+  .task-nav-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .task-nav-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--ink-soft);
+    transition: transform 0.25s ease;
+  }
+  .task-nav-arrow svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-nav-item.expanded .task-nav-arrow {
+    transform: rotate(180deg);
+  }
+  .task-nav-item.no-expand {
+    padding-right: 12px;
+  }
+  .task-nav-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .task-nav-status.ongoing {
+    color: var(--paper-light);
+    background: var(--accent);
+  }
+  .task-nav-status.completed {
+    color: var(--ink-soft);
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-sub-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px 7px 28px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .task-sub-nav-item:hover {
+    background: rgba(184, 115, 51, 0.06);
+  }
+  .task-sub-nav-item.active {
+    background: rgba(184, 115, 51, 0.12);
+    color: var(--ink);
+  }
+  .task-sub-nav-item.completed {
+    color: var(--ink-soft);
+  }
+  .task-sub-nav-item.completed .sub-nav-dot {
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  .task-sub-nav-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sub-nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .task-detail {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+    min-height: 420px;
+  }
+  .task-detail-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-detail-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+  .task-detail-tag.ongoing {
+    color: var(--paper-light);
+    background: var(--accent);
+  }
+  .task-detail-tag.completed {
+    color: var(--ink-soft);
+    background: rgba(61, 43, 31, 0.08);
+  }
+  .task-detail-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .task-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .task-section-title::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .task-subtasks {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .subtask {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .subtask:last-child { border-bottom: none; }
+  .subtask-check {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .subtask-check svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .subtask.completed .subtask-check svg { color: var(--accent); }
+  .subtask-text {
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .subtask.completed .subtask-text {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+  .task-description {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .context-placeholder {
+    font-size: calc(var(--left-panel-w) * 0.036);
+    color: var(--ink-soft);
+    font-style: italic;
+    opacity: 0.6;
+    text-align: center;
+    padding: calc(var(--left-panel-w) * 0.024) 0;
+  }
+
+  .context-empty {
+    font-size: calc(var(--left-panel-w) * 0.036);
+    color: var(--ink-soft);
+    opacity: 0.5;
+    text-align: center;
+    padding: calc(var(--left-panel-w) * 0.012) 0;
+  }
+
+  /* ── center area ── */
+  .center-area {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .location-header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper-light);
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .location-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .location-meta {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ── narrative log ── */
+  .narrative-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .narrative-log::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .narrative-log::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .narrative-log::-webkit-scrollbar-thumb {
+    background: rgba(61, 43, 31, 0.15);
+    border-radius: 3px;
+  }
+
+  .log-entry {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.75;
+    max-width: 720px;
+  }
+
+  .log-entry.gm {
+    background: rgba(61, 43, 31, 0.03);
+    border-left: 3px solid var(--accent);
+    align-self: flex-start;
+  }
+
+  .log-entry.player {
+    background: rgba(139, 90, 43, 0.06);
+    border-left: 3px solid var(--ink-soft);
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .log-entry.system {
+    background: rgba(139, 90, 43, 0.04);
+    border-left: 3px solid var(--danger);
+    align-self: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .log-entry.check {
+    background: rgba(139, 90, 43, 0.04);
+    border: 1px dashed var(--border);
+    align-self: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .log-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .log-text {
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .gm .log-label { color: var(--accent); }
+  .player .log-label { color: var(--ink-soft); }
+  .system .log-label { color: var(--danger); }
+  .check .log-label { color: var(--ink-soft); }
+
+  /* ── input area ── */
+  .input-area {
+    padding: 12px 24px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--paper-light);
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-area input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .input-area input::placeholder {
+    color: var(--ink-soft);
+    opacity: 0.5;
+  }
+
+  .input-area input:focus {
+    border-color: var(--accent);
+  }
+
+  .input-area button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .input-area button:hover {
+    background: var(--accent-glow);
+  }
+
+  /* ── right panel ── */
+  .right-panel {
+    width: var(--right-panel-w);
+    min-width: 0;
+    flex-shrink: 0;
+    padding: calc(var(--right-panel-w) * 0.011) calc(var(--right-panel-w) * 0.010);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--right-panel-w) * 0.010);
+    overflow-y: auto;
+    transition: none;
+  }
+
+  .char-card {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.015);
+    padding: calc(var(--right-panel-w) * 0.027) calc(var(--right-panel-w) * 0.015);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .char-card-placeholder {
+    font-size: calc(var(--right-panel-w) * 0.018);
+    color: var(--ink-soft);
+    text-align: center;
+    padding: calc(var(--right-panel-w) * 0.038) 0;
+  }
+
+  .char-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .char-name {
+    font-size: calc(var(--right-panel-w) * 0.027);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* 名字紧贴头像框上侧，不再独立占一整行 */
+  .portrait-mid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.045);
+    transform: translateY(calc(var(--right-panel-w) * -0.03)); 
+  }
+
+  .char-portrait-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.02);
+  }
+
+  .equipment-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.018);
+    justify-content: flex-start;
+    width: calc(var(--right-panel-w) * 0.129);
+  }
+
+  .left-slots { align-items: flex-start; }
+  .right-slots { align-items: flex-end; }
+
+  .slot {
+    width: calc(var(--right-panel-w) * 0.10);
+    height: calc(var(--right-panel-w) * 0.111);
+    border-radius: calc(var(--right-panel-w) * 0.018);
+    background: var(--slot);
+    border: 1px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.007);
+    padding: calc(var(--right-panel-w) * 0.009) calc(var(--right-panel-w) * 0.006);
+    color: rgba(61, 43, 31, 0.25);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .slot.filled {
+    background: rgba(184, 115, 51, 0.12);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .slot.disabled {
+    background: rgba(61, 43, 31, 0.06);
+    border: 1px dashed var(--border);
+    color: rgba(61, 43, 31, 0.2);
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .slot-icon {
+    width: calc(var(--right-panel-w) * 0.04);
+    height: calc(var(--right-panel-w) * 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .slot-name {
+    font-size: calc(var(--right-panel-w) * 0.018);
+    line-height: 1.2;
+    color: var(--ink);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 calc(var(--right-panel-w) * 0.004);
+  }
+
+  .char-portrait {
+    width: calc(var(--right-panel-w) * 0.25);
+    height: calc(var(--right-panel-w) * 0.321);
+    border-radius: calc(var(--right-panel-w) * 0.016);
+    background: linear-gradient(135deg, rgba(184, 115, 51, 0.3), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--right-panel-w) * 0.096);
+    font-weight: 700;
+    color: var(--paper-light);
+    box-shadow: 0 5px 20px rgba(139, 90, 43, 0.22);
+    flex-shrink: 0;
+  }
+
+  .combat-stats {
+    display: flex;
+    justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.038);
+    margin-top: calc(var(--right-panel-w) * 0.001);
+    width: 100%;
+  }
+
+  .combat-stat { text-align: center; }
+
+  .combat-stat-icon {
+    width: calc(var(--right-panel-w) * 0.060);
+    height: calc(var(--right-panel-w) * 0.060);
+    margin: 0 auto calc(var(--right-panel-w) * 0.008);
+    border-radius: calc(var(--right-panel-w) * 0.010);
+    background: rgba(184, 115, 51, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+  }
+
+  .combat-stat-icon svg {
+    width: 48%; height: 48%;
+    fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .combat-stat-value {
+    font-size: calc(var(--right-panel-w) * 0.028);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: calc(var(--right-panel-w) * 0.004);
+  }
+
+  .combat-stat-label {
+    font-size: calc(var(--right-panel-w) * 0.020);
+    color: var(--ink-soft);
+  }
+
+  .char-bottom {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.09);
+    margin-top: calc(var(--right-panel-w) * 0.015);
+    width: 100%;
+  }
+
+  .char-level-badge {
+    align-self: center;
+    transform: translateY(calc(var(--right-panel-w) * 0.02));
+    font-size: calc(var(--right-panel-w) * 0.035);
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .level-badge {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.006);
+    font-weight: 700;
+    color: var(--accent);
+    font-size: calc(var(--right-panel-w) * 0.016);
+  }
+
+  .level-badge .num {
+    width: calc(var(--right-panel-w) * 0.027);
+    height: calc(var(--right-panel-w) * 0.027);
+    border-radius: 50%;
+    background: rgba(184, 115, 51, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--right-panel-w) * 0.018);
+  }
+
+  .weapon-slot-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.006);
+  }
+
+  .weapon-slot-label {
+    font-size: calc(var(--right-panel-w) * 0.018);
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 1px;
+  }
+
+  .weapon-slots {
+    display: flex;
+    gap: calc(var(--right-panel-w) * 0.007);
+  }
+
+  .attack-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.023);
+    margin-top: calc(var(--right-panel-w) * 0.019);
+    padding-top: calc(var(--right-panel-w) * 0.019);
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .attack-weapon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.010);
+    width: calc(var(--right-panel-w) * 0.114);
+  }
+
+  .attack-weapon-group:first-child { margin-right: calc(var(--right-panel-w) * 0.105); }
+  .attack-weapon-group:last-child { margin-left: calc(var(--right-panel-w) * 0.105); }
+
+  .attack-value {
+    font-size: calc(var(--right-panel-w) * 0.024);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .attack-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: calc(var(--right-panel-w) * 0.010);
+    text-align: center;
+  }
+
+  .attack-label {
+    font-size: calc(var(--right-panel-w) * 0.021);
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  /* ═══ 标签页 — 与 lobby 完全一致 ═══ */
+
+  .tabs { display: flex; justify-content: center; gap: calc(var(--right-panel-w) * 0.008); margin-top: calc(var(--right-panel-w) * 0.015); margin-bottom: calc(var(--right-panel-w) * 0.013); flex-wrap: wrap; }
+
+  .tab {
+    padding: calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.019); border-radius: calc(var(--right-panel-w) * 0.008); font-size: calc(var(--right-panel-w) * 0.018); font-weight: 600;
+    color: var(--ink-soft); background: transparent; border: 1px solid transparent;
+    cursor: pointer; font-family: inherit; transition: all 0.2s ease;
+  }
+  .tab.active {
+    background: var(--paper-card); color: var(--ink);
+    border-color: var(--border); box-shadow: 0 2px 8px var(--shadow);
+  }
+  .tab:hover:not(.active) { background: rgba(184, 115, 51, 0.06); }
+
+  .char-tab-content { display: none; padding: calc(var(--right-panel-w) * 0.008) 0; animation: fadeIn 0.3s ease; }
+  .char-tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── 物品栏 ── */
+  .inventory-panel {
+    width: 100%; box-sizing: border-box;
+    background: var(--paper-card); border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.011); padding: calc(var(--right-panel-w) * 0.013); box-shadow: 0 2px 10px var(--shadow);
+  }
+  .inventory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: calc(var(--right-panel-w) * 0.011); }
+  .inventory-title {
+    display: flex; align-items: center; gap: calc(var(--right-panel-w) * 0.006); font-size: calc(var(--right-panel-w) * 0.018); font-weight: 700; color: var(--ink);
+  }
+  .inventory-title svg { width: calc(var(--right-panel-w) * 0.015); height: calc(var(--right-panel-w) * 0.015); fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .inventory-gold { font-size: calc(var(--right-panel-w) * 0.016); font-weight: 700; color: var(--accent); display: flex; align-items: center; }
+
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--right-panel-w) * 0.248), 1fr));
+    gap: calc(var(--right-panel-w) * 0.025);
+  }
+  .item-card {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.018);
+    padding: calc(var(--right-panel-w) * 0.025);
+    min-height: calc(var(--right-panel-w) * 0.184);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.2s ease;
+    position: relative;
+  }
+  .item-card:hover { background: rgba(255, 255, 255, 0.6); }
+  .item-top { display: flex; align-items: flex-start; gap: calc(var(--right-panel-w) * 0.018); }
+  .item-icon { width: calc(var(--right-panel-w) * 0.037); height: calc(var(--right-panel-w) * 0.037); flex-shrink: 0; color: var(--accent); opacity: 0.85; }
+  .item-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .item-info { flex: 1; display: flex; flex-direction: column; gap: calc(var(--right-panel-w) * 0.006); min-width: 0; }
+  .item-name { font-size: calc(var(--right-panel-w) * 0.022); font-weight: 600; color: var(--ink); line-height: 1.5; padding-right: calc(var(--right-panel-w) * 0.064); }
+  .item-equipped {
+    position: absolute;
+    top: calc(var(--right-panel-w) * 0.018);
+    right: calc(var(--right-panel-w) * 0.018);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--right-panel-w) * 0.008);
+    font-size: calc(var(--right-panel-w) * 0.017);
+    color: var(--accent);
+  }
+  .item-equipped::before {
+    content: "";
+    width: calc(var(--right-panel-w) * 0.011);
+    height: calc(var(--right-panel-w) * 0.011);
+    border-radius: 50%;
+    background: #4caf50;
+  }
+  .item-quantity { font-size: calc(var(--right-panel-w) * 0.02); color: var(--ink-soft); margin-top: auto; padding-top: calc(var(--right-panel-w) * 0.018); }
+
+  .inv-gold { font-size: calc(var(--right-panel-w) * 0.016); font-weight: 700; color: var(--accent); margin-bottom: calc(var(--right-panel-w) * 0.010); }
+  .inv-empty { display: block; width: 100%; font-size: calc(var(--right-panel-w) * 0.020); color: var(--ink-soft); font-style: italic; text-align: center; padding: calc(var(--right-panel-w) * 0.010); }
+
+  /* ── 工具提示 ── */
+  .item-tooltip {
+    position: fixed; z-index: 1200; background: var(--paper-light);
+    border: 2px solid var(--accent); border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 8px 28px rgba(61,43,31,0.22); min-width: 220px; max-width: 280px;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s; display: none;
+  }
+  .item-tooltip.show { display: block; opacity: 1; }
+  .item-tooltip-name { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .item-tooltip-save { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; }
+  .item-tooltip-desc { font-size: 11px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .item-tooltip-breakdown { font-size: 11px; color: var(--ink-soft); margin-bottom: 3px; padding-left: 6px; }
+
+  /* ── 物品右键菜单（抄自 lobby.html） ── */
+  .item-context-menu {
+    position: fixed;
+    z-index: 1201;
+    background: var(--paper-light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 0;
+    box-shadow: 0 8px 24px rgba(61, 43, 31, 0.2);
+    min-width: 140px;
+    display: none;
+  }
+  .item-context-menu.visible { display: block; }
+  .item-context-menu .menu-action {
+    display: block;
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 14px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+  }
+  .item-context-menu .menu-action:hover { background: rgba(184, 115, 51, 0.08); }
+  .item-context-menu .menu-action:first-child { border-radius: 10px 10px 0 0; }
+  .item-context-menu .menu-action:last-child { border-radius: 0 0 10px 10px; }
+  .item-context-menu .menu-action.danger { color: var(--danger); }
+  .item-context-menu .menu-action.danger:hover { background: rgba(181, 59, 59, 0.08); }
+
+  .inv-list { display: flex; flex-direction: column; gap: 6px; }
+  .inv-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(var(--right-panel-w) * 0.008) calc(var(--right-panel-w) * 0.010); background: rgba(255,255,255,0.4); border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.010); font-size: calc(var(--right-panel-w) * 0.013);
+  }
+  .inv-item-name { font-size: calc(var(--right-panel-w) * 0.014); color: var(--ink); font-weight: 500; }
+  .inv-item-equipped { font-size: calc(var(--right-panel-w) * 0.012); color: var(--accent); margin-left: calc(var(--right-panel-w) * 0.004); }
+  .inv-item-quantity { font-size: calc(var(--right-panel-w) * 0.012); color: var(--ink-soft); }
+
+  /* ── divider（双渐变线） ── */
+  .divider {
+    display: flex; align-items: center; gap: calc(var(--right-panel-w) * 0.010);
+    margin: calc(var(--right-panel-w) * 0.015) 0 calc(var(--right-panel-w) * 0.010); color: var(--ink); font-size: calc(var(--right-panel-w) * 0.022); font-weight: 700; letter-spacing: 1px;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(107,78,61,0.35), transparent);
+  }
+
+  /* ── 能力值六边形 ── */
+  .ability-scores {
+    display: flex; justify-content: center; gap: calc(var(--right-panel-w) * 0.008); margin: calc(var(--right-panel-w) * 0.011) 0; flex-wrap: wrap;
+  }
+  .ability { display: flex; flex-direction: column; align-items: center; gap: calc(var(--right-panel-w) * 0.004); }
+  .ability-star { font-size: calc(var(--right-panel-w) * 0.014); color: var(--accent); height: calc(var(--right-panel-w) * 0.011); }
+  .ability-label { font-size: calc(var(--right-panel-w) * 0.022); font-weight: 600; color: var(--ink-soft); }
+  .ability-value {
+    width: calc(var(--right-panel-w) * 0.044);
+    height: calc(var(--right-panel-w) * 0.050);
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--right-panel-w) * 0.026); font-weight: 700; color: var(--ink);
+    background: rgba(61,43,31,0.06);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  .ability-value.highlighted { background: var(--accent); color: var(--paper-light); }
+
+  /* ── 特性列表（可展开） ── */
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: calc(var(--right-panel-w) * 0.006); }
+  .feature-list li {
+    font-size: calc(var(--right-panel-w) * 0.020); color: var(--ink); padding: calc(var(--right-panel-w) * 0.007) calc(var(--right-panel-w) * 0.010);
+    border-radius: calc(var(--right-panel-w) * 0.008);
+    background: rgba(255,255,255,0.35); cursor: pointer; user-select: none;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.2s;
+  }
+  .feature-list li:hover { background: rgba(255,255,255,0.55); }
+  .feature-list li .feature-arrow { flex-shrink: 0; margin-left: calc(var(--right-panel-w) * 0.006); transition: transform 0.2s; }
+  .feature-list li .feature-arrow svg { width: calc(var(--right-panel-w) * 0.010); height: calc(var(--right-panel-w) * 0.007); fill: none; stroke: var(--ink-soft); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .feature-list li.expanded .feature-arrow { transform: rotate(180deg); }
+  .feature-detail {
+    display: none; font-size: calc(var(--right-panel-w) * 0.019); color: var(--ink-soft);
+    padding: calc(var(--right-panel-w) * 0.006) calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.004);
+    line-height: 1.6; background: rgba(255,255,255,0.25); border-radius: 0 0 calc(var(--right-panel-w) * 0.008) calc(var(--right-panel-w) * 0.008); margin-top: calc(var(--right-panel-w) * -0.002);
+  }
+  .feature-list li.expanded + .feature-detail { display: block; }
+
+  /* ── 职业&属性面板（抄自 lobby） ── */
+  .class-panel {
+    background: var(--paper-card); border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.015); padding: calc(var(--right-panel-w) * 0.030);
+    box-shadow: 0 2px 12px var(--shadow); text-align: center; margin: 0 auto;
+    box-sizing: border-box;
+  }
+  .class-race {
+    font-size: calc(var(--right-panel-w) * 0.019); color: var(--ink-soft);
+    letter-spacing: 2px; margin-bottom: calc(var(--right-panel-w) * 0.015);
+  }
+  .class-icon {
+    font-size: calc(var(--right-panel-w) * 0.072); line-height: 1;
+    margin-bottom: calc(var(--right-panel-w) * 0.015);
+    filter: drop-shadow(0 2px 4px rgba(139,90,43,0.2));
+  }
+  .class-subclass {
+    font-size: calc(var(--right-panel-w) * 0.026); font-weight: 700;
+    color: var(--accent); margin-bottom: calc(var(--right-panel-w) * 0.006);
+  }
+  .class-level {
+    font-size: calc(var(--right-panel-w) * 0.020); color: var(--ink-soft);
+    margin-bottom: calc(var(--right-panel-w) * 0.027);
+  }
+
+  /* ── 熟练加值 ── */
+  .prof-bonus {
+    font-size: calc(var(--right-panel-w) * 0.025); font-weight: 700; color: var(--ink); margin-bottom: calc(var(--right-panel-w) * 0.011);
+    display: flex; align-items: center; justify-content: center; gap: calc(var(--right-panel-w) * 0.006);
+  }
+  .prof-bonus .star { color: var(--accent); font-size: calc(var(--right-panel-w) * 0.023); }
+  .skill-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(var(--right-panel-w) * 0.007) calc(var(--right-panel-w) * 0.006); border-radius: calc(var(--right-panel-w) * 0.008);
+    font-size: calc(var(--right-panel-w) * 0.020); transition: background 0.2s;
+  }
+  .skill-row:hover { background: rgba(255,255,255,0.4); }
+  .skill-name { color: var(--ink); }
+  .skill-value { font-weight: 700; color: var(--ink); min-width: 28px; text-align: right; }
+  .skill-value.positive { color: var(--accent); }
+  .skill-value.negative { color: #b54a3f; }
+  .skill-value.neutral { color: var(--ink-soft); }
+
+  /* ── 技能&法术 ── */
+  .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--right-panel-w) * 0.006); }
+  .skill-block {
+    background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.008); padding: calc(var(--right-panel-w) * 0.008) calc(var(--right-panel-w) * 0.010);
+    font-size: calc(var(--right-panel-w) * 0.019); font-weight: 600;
+    color: var(--ink); text-align: center; transition: background 0.2s, box-shadow 0.2s;
+  }
+  .skill-block:hover { background: rgba(255,255,255,0.7); box-shadow: 0 2px 6px var(--shadow); }
+  .skill-block.spell-block {
+    cursor: pointer;
+  }
+
+  /* ── 人物背景 ── */
+  .bg-info-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: calc(var(--right-panel-w) * 0.007) calc(var(--right-panel-w) * 0.006); border-radius: calc(var(--right-panel-w) * 0.008);
+    font-size: calc(var(--right-panel-w) * 0.020); transition: background 0.2s;
+  }
+  .bg-info-row:hover { background: rgba(255,255,255,0.4); }
+  .bg-info-label { color: var(--ink-soft); }
+  .bg-info-value { color: var(--ink); font-weight: 600; text-align: right; }
+
+  .bg-trait {
+    background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.010); padding: calc(var(--right-panel-w) * 0.011) calc(var(--right-panel-w) * 0.013);
+    margin-bottom: calc(var(--right-panel-w) * 0.008);
+  }
+  .bg-trait-title {
+    text-align: center; font-size: calc(var(--right-panel-w) * 0.020); font-weight: 700; color: var(--ink);
+    margin-bottom: calc(var(--right-panel-w) * 0.006);
+  }
+  .bg-trait-text { font-size: calc(var(--right-panel-w) * 0.019); color: var(--ink-soft); line-height: 1.6; text-align: center; }
+
+  .saving-throw-scores {
+    display: flex; justify-content: center; gap: calc(var(--right-panel-w) * 0.008); margin: calc(var(--right-panel-w) * 0.006) 0 calc(var(--right-panel-w) * 0.010); flex-wrap: wrap;
+  }
+
+  /* ── quick checks ── */
+  .quick-checks {
+    display: flex;
+    gap: calc(var(--right-panel-w) * 0.008);
+  }
+
+  .check-btn,
+  .rest-btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: calc(var(--right-panel-w) * 0.020);
+    font-weight: 600;
+    padding: calc(var(--right-panel-w) * 0.010) calc(var(--right-panel-w) * 0.011);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--right-panel-w) * 0.010);
+    cursor: pointer;
+    background: var(--paper-card);
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+
+  .check-btn:hover,
+  .rest-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(139, 90, 43, 0.06);
+  }
+
+  /* ── resize handles ── */
+  .resize-handle {
+    width: 6px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.15s;
+    position: relative;
+    z-index: 10;
+    user-select: none;
+  }
+
+  .resize-handle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background 0.15s;
+  }
+
+  .resize-handle:hover::after,
+  .resize-handle.active::after {
+    background: var(--accent);
+    opacity: 0.3;
+  }
+
+  /* ── modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 18, 10, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    background: var(--paper-card);
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(30, 18, 10, 0.35);
+    max-width: 480px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 32px 28px 24px;
+    animation: modalIn 0.3s ease;
+  }
+
+  .modal.task-panel {
+    max-width: 1100px;
+    width: 95vw;
+    max-height: 92vh;
+    padding: 28px 24px 20px;
+  }
+
+  .modal.task-panel .modal-close {
+    top: 16px; right: 20px;
+    width: 36px; height: 36px;
+    font-size: 24px;
+    z-index: 10;
+    background: var(--paper-card);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(30, 18, 10, 0.12);
+  }
+
+  /* ── 交易弹窗 ── */
+  #trade-modal-overlay { z-index: 1010; }
+  .modal.trade-modal {
+    max-width: 860px;
+    width: 94vw;
+    max-height: 88vh;
+    padding: 28px 24px 20px;
+  }
+  .trade-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .trade-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .trade-title .modal-avatar { width: 40px; height: 40px; font-size: 17px; }
+  .trade-role { font-size: 13px; font-weight: 400; color: var(--ink-soft); }
+  .trade-gold {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .trade-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .trade-col {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--paper-light);
+    max-height: 58vh;
+    overflow-y: auto;
+  }
+  .trade-col-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .trade-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .trade-item .item-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
+  .trade-item .item-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .trade-item-name { flex: 1; font-size: 14px; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .trade-item-qty { font-size: 12px; color: var(--ink-soft); margin-right: 6px; }
+  .trade-item-price { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-right: 8px; white-space: nowrap; }
+  .trade-btn {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .trade-btn:hover { background: var(--accent-glow); }
+  .trade-btn:disabled { opacity: 0.5; cursor: default; }
+  .trade-btn.sell { background: none; color: var(--accent); }
+  .trade-btn.sell:hover { background: rgba(139, 90, 43, 0.1); }
+  .trade-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .trade-empty { font-size: 13px; color: var(--ink-soft); padding: 12px 0; text-align: center; }
+
+  @keyframes modalIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    width: 32px; height: 32px;
+    border: none; background: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .modal-close:hover {
+    color: var(--ink);
+    background: var(--slot);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .modal-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(139, 90, 43, 0.15);
+    color: var(--accent);
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .modal-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .modal-meta {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .modal-desc {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .inv-box-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inv-box-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .inv-box-item .item-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    color: var(--accent);
+    opacity: 0.85;
+  }
+
+  .inv-box-item .item-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .inv-box-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .inv-box-qty {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-left: 6px;
+  }
+
+  .take-btn {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .take-btn:hover { opacity: 0.9; }
+  .take-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .inv-supplies-title {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .modal-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  .modal-info-label {
+    color: var(--ink-soft);
+  }
+
+  .modal-info-value {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .modal-info-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .modal-info-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: var(--slot);
+    border-radius: 6px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 900px) {
+    .left-panel { width: 180px !important; padding: 12px 8px; }
+    .right-panel { width: 180px !important; padding: 12px 8px; }
+    .narrative-log { padding: 12px 16px; }
+    .input-area { padding: 10px 16px 12px; }
+    .log-entry { max-width: 100%; }
+  }
+
+  @media (max-width: 680px) {
+    .adventure-body { flex-direction: column; overflow-y: auto; }
+    .left-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .right-panel { width: 100%; border-left: none; border-top: 1px solid var(--border); }
+    .center-area { order: -1; }
+  }
+
+
+
+  /* ── 战斗地图区域（替代原叙事日志/输入框） ── */
+  .combat-map-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  #combat-map-container {
+    /* 宽高由 JS 计算 */
+  }
+
+  /* 中央旧区域隐藏（叙事日志 / 输入框 / 地点标题） */
+  .narrative-log, .input-area, .location-header { display: none; }
+
+  /* 左栏隐藏：当前场景、可去地点 */
+  #context-location-section, #context-exits-section { display: none; }
+
+  /* 右栏隐藏：侦察/调查/短休/长休快捷按钮 */
+  .quick-checks { display: none; }
+
+  /* ── 状态栏 ── */
+  .status-bar {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 12px;
+    padding: 10px 18px;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--player);
+  }
+
+  .legend {
+    margin-left: auto;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <button class="btn-back-lobby" onclick="location.href='adventure.html'" type="button">
+    ← 返回冒险
+  </button>
+  <div class="brand">DNDBOX</div>
+  <div style="width:80px"></div>
+</div>
+
+<div class="adventure-body">
+
+  <!-- 左侧面板：当前场景上下文（当前场景/可去地点已隐藏） -->
+  <aside class="left-panel" id="left-panel">
+    <section class="context-section" id="context-location-section">
+      <h3>当前场景</h3>
+      <div class="context-location" id="context-location">
+        <span class="location-name">加载中...</span>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>人物</h4>
+      <div class="context-list" id="context-npcs">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>物品</h4>
+      <div class="context-list" id="context-items">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section" id="context-exits-section">
+      <h4>可去地点</h4>
+      <div class="context-list" id="context-exits">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+
+    <section class="context-section">
+      <h4>队伍成员</h4>
+      <div class="context-placeholder">暂无队伍</div>
+    </section>
+
+    <section class="context-section">
+      <h4>当前任务</h4>
+      <div class="context-list" id="context-quests">
+        <div class="context-placeholder">加载中...</div>
+      </div>
+    </section>
+  </aside>
+
+  <div class="resize-handle" id="resize-handle-left"></div>
+
+
+    <!-- 中央区域：战斗地图 -->
+    <main class="center-area">
+      <div class="location-header" id="location-header" style="display:none">
+        <div class="location-title" id="location-title">加载中...</div>
+        <div class="location-meta" id="location-meta"></div>
+      </div>
+
+      <div class="combat-map-wrapper">
+        <div id="combat-map-container"></div>
+      </div>
+
+      <div class="status-bar">
+        <span class="status-dot"></span>
+        <span id="combat-status">正在加载地图...</span>
+        <button type="button" id="btn-end-turn" class="end-turn-btn" style="display:none; margin-left:10px; padding:2px 12px; border-radius:4px; border:1px solid var(--player,#4a90d9); background:rgba(74,144,217,0.15); color:#4a90d9; cursor:pointer; font-size:13px;">结束回合</button>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-color" style="border-color: var(--player); background: rgba(74,144,217,0.18);"></span>玩家</span>
+          <span class="legend-item"><span class="legend-color" style="border-color: var(--enemy); background: rgba(196,75,75,0.18);"></span>敌人</span>
+          <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;background:rgba(74,144,217,0.28);border:1px solid rgba(74,144,217,0.45);"></span>可移动</span>
+        </div>
+      </div>
+
+      <div class="narrative-log" id="narrative-log" style="display:none">
+        <div class="log-entry system" style="align-self:center;text-align:center;">
+          <div class="log-label">系统</div>
+          <div>战斗进行中...</div>
+        </div>
+      </div>
+
+      <div class="input-area" style="display:none">
+        <input type="text" id="player-input" placeholder="我想说/想做..." autocomplete="off">
+        <button id="send-btn" type="button">发送</button>
+      </div>
+    </main>
+
+  <div class="resize-handle" id="resize-handle-right"></div>
+
+
+  <!-- 右侧面板：完整角色卡 -->
+  <aside class="right-panel" id="right-panel">
+    <div class="char-card" id="char-card">
+      <div class="char-card-placeholder">加载角色信息中...</div>
+    </div>
+    <div class="tabs" id="char-tabs">
+      <button class="tab active" type="button" data-tab="inventory">物品栏</button>
+      <button class="tab" type="button" data-tab="class-attr">职业特性</button>
+      <button class="tab" type="button" data-tab="skills">熟练加值</button>
+      <button class="tab" type="button" data-tab="spells">技能法术</button>
+      <button class="tab" type="button" data-tab="background">人物背景</button>
+    </div>
+    <div class="char-tab-content active" id="tab-inventory"></div>
+    <div class="char-tab-content" id="tab-class-attr"></div>
+    <div class="char-tab-content" id="tab-skills"></div>
+    <div class="char-tab-content" id="tab-spells"></div>
+    <div class="char-tab-content" id="tab-background"></div>
+    <div class="quick-checks">
+      <button class="check-btn" data-check="perception" type="button">侦察</button>
+      <button class="check-btn" data-check="investigation" type="button">调查</button>
+      <button class="rest-btn" data-rest="short" type="button">短休</button>
+      <button class="rest-btn" data-rest="long" type="button">长休</button>
+    </div>
+  </aside>
+
+</div>
+
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detail-modal-overlay">
+  <div class="modal" id="detail-modal">
+    <button class="modal-close" id="detail-modal-close" type="button">×</button>
+    <div id="detail-modal-content"></div>
+  </div>
+</div>
+
+<!-- 交易弹窗 -->
+<div class="modal-overlay" id="trade-modal-overlay">
+  <div class="modal trade-modal" id="trade-modal">
+    <button class="modal-close" id="trade-modal-close" type="button">×</button>
+    <div id="trade-modal-content"></div>
+  </div>
+</div>
+
+
+<script>
+(function() {
+  /* ── 常量 ── */
+  const ADVENTURE_ID = 'lost-mine-of-phandelver';
+  const CHAPTER_ID = 'ch1';
+
+  /* ── 全局状态 ── */
+  let state = {
+    adventureId: ADVENTURE_ID,
+    chapterId: CHAPTER_ID,
+    currentSceneId: null,
+    data: null,
+    character: null,
+    log: [],
+    quests: {},
+    npcStates: {},
+    locationStates: {},
+    containerTaken: {},
+    takenLocationItems: [],
+    tempEquipItems: [],
+    droppedItems: {},
+    merchantStates: {},
+    playerInventory: [],
+    tradeLog: [],
+    hostileNpcs: [],
+    suspicion: {},
+    arrest: null,
+    caught: {},
+    wantedLocation: null,
+    npcAlerts: {},
+    merchantTheft: {},
+    playerStealth: {},
+    playerHp: {},
+    spellSlotsUsed: {},
+    shortRestsLeft: 2,
+    sessionStarted: false,
+    sessionId: null
+  };
+
+  /* ── 辅助 ── */
+  function getCurrentScene() {
+    if (!state.data || !state.currentSceneId) return null;
+    return state.data.scenes[state.currentSceneId] || null;
+  }
+
+  function getCurrentLocation() {
+    const scene = getCurrentScene();
+    if (!scene) return null;
+    return state.data.locations[scene.location] || null;
+  }
+
+  /* ── DOM 引用 ── */
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  const narrativeLog = $('#narrative-log');
+  const playerInput = $('#player-input');
+  const sendBtn = $('#send-btn');
+  const charCard = $('#char-card');
+  const modalOverlay = $('#detail-modal-overlay');
+  const modalContent = $('#detail-modal-content');
+  const modalClose = $('#detail-modal-close');
+
+  /* ── 数据加载 ── */
+  const DEFAULT_CHAR_ID = 'char_20260727180516_c8081c';
+
+  function getAbility(char, key) {
+    /* 兼容两种角色卡格式：后端嵌套 abilities.str.value / 前端扁平 str/dex */
+    if (char.abilities && char.abilities[key] && char.abilities[key].value != null) {
+      return char.abilities[key].value;
+    }
+    const flatMap = { str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' };
+    const flatKey = flatMap[key] || key;
+    if (char[flatKey] != null) return char[flatKey];
+    if (char[key] != null) return char[key];
+    return 10;
+  }
+
+  function getAbilitiesArray(char) {
+    return [
+      { name: '力量', key: 'str', abbr: 'STR', val: getAbility(char, 'str') },
+      { name: '敏捷', key: 'dex', abbr: 'DEX', val: getAbility(char, 'dex') },
+      { name: '体质', key: 'con', abbr: 'CON', val: getAbility(char, 'con') },
+      { name: '智力', key: 'int', abbr: 'INT', val: getAbility(char, 'int') },
+      { name: '感知', key: 'wis', abbr: 'WIS', val: getAbility(char, 'wis') },
+      { name: '魅力', key: 'cha', abbr: 'CHA', val: getAbility(char, 'cha') }
+    ];
+  }
+
+  async function loadCharacter() {
+    /* 战斗地图固定使用 elias（与地图 token 一致）；localStorage 仅作兜底 */
+    try {
+      const raw = localStorage.getItem('currentCharacter');
+      const localChar = raw ? JSON.parse(raw) : null;
+      const charId = 'elias';
+      const resp = await fetch(`/api/characters/${charId}`);
+      if (resp.ok) {
+        state.character = normalizeChar(await resp.json());
+        return;
+      }
+      if (localChar) {
+        state.character = normalizeChar(localChar);
+        return;
+      }
+    } catch (e) {
+      console.warn('角色加载失败:', e);
+    }
+    state.character = null;
+  }
+
+  function normalizeAbilities(abilities) {
+    if (!abilities) return {};
+    const result = {};
+    const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const labels = { str: '力', dex: '敏', con: '体', int: '智', wis: '感', cha: '魅' };
+    for (const key of keys) {
+      const raw = abilities[key];
+      if (typeof raw === 'object' && raw !== null) {
+        result[key] = {
+          label: raw.label || labels[key] || key,
+          value: raw.value != null ? raw.value : 10,
+          save_bonus: raw.save_bonus || '+0',
+          highlighted: !!raw.highlighted,
+        };
+      } else {
+        const score = typeof raw === 'number' ? raw : 10;
+        const mod = Math.floor((score - 10) / 2);
+        result[key] = {
+          label: labels[key] || key,
+          value: score,
+          save_bonus: mod >= 0 ? '+' + mod : String(mod),
+          highlighted: false,
+        };
+      }
+    }
+    return result;
+  }
+
+  function normalizeChar(char) {
+    if (!char) return char;
+    return {
+      ...char,
+      combat: char.combat || { ac: 10, hp: '0 / 0' },
+      xp: char.xp || { current: 0, max: 300, display: '0 / 300' },
+      attack: char.attack || {
+        melee: { label: '近战', bonus: '+0', damage: '1d4' },
+        ranged: { label: '远程', bonus: '+0', damage: '1d4' },
+      },
+      inventory: char.inventory || { gold: 0, items: [] },
+      features: char.features || { status_ids: [], resistance_ids: [], class_feature_ids: [], trait_ids: [] },
+      skills: char.skills || { proficiency_bonus: '+2', sections: [] },
+      spells: char.spells || { caster_level: 1, action_ids: { normal: ["jump", "throw", "dash"], class: [] }, passive_ids: [], spell_ids: {} },
+      background: char.background || {
+        class: '', race: '', attributes: {},
+        traits: { personality: '', ideal: '', bond: '', flaw: '' },
+        story: [],
+      },
+      abilities: normalizeAbilities(char.abilities),
+    };
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  const _CACHE_BUST = Date.now();
+  const DATA_URLS = {
+    meta: `/data/adventures/${ADVENTURE_ID}/meta.json?t=${_CACHE_BUST}`,
+    globalNpcs: `/data/adventures/${ADVENTURE_ID}/global/npcs.json?t=${_CACHE_BUST}`,
+    chapter: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/chapter.json?t=${_CACHE_BUST}`,
+    locations: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/locations.json?t=${_CACHE_BUST}`,
+    chapterNpcs: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/npcs.json?t=${_CACHE_BUST}`,
+    items: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/items.json?t=${_CACHE_BUST}`,
+    quests: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/quests.json?t=${_CACHE_BUST}`,
+    encounters: `/data/adventures/${ADVENTURE_ID}/chapters/${CHAPTER_ID}/encounters.json?t=${_CACHE_BUST}`
+  };
+
+  async function loadAllData() {
+    const results = {};
+    const keys = Object.keys(DATA_URLS);
+
+    const responses = await Promise.all(
+      keys.map(k => fetch(DATA_URLS[k]).then(r => r.json()))
+    );
+
+    keys.forEach((k, i) => { results[k] = responses[i]; });
+
+    // 合并数据
+    const allNpcs = {
+      ...results.globalNpcs.npcs,
+      ...results.chapterNpcs.npcs
+    };
+
+    const allItems = results.items.items;
+    const chapter = results.chapter;
+
+    // 构建场景索引
+    const scenes = {};
+    (chapter.scenes || []).forEach(s => { scenes[s.id] = s; });
+
+    state.data = {
+      meta: results.meta,
+      chapter,
+      scenes,
+      locations: results.locations.locations,
+      npcs: allNpcs,
+      items: allItems,
+      quests: results.quests.quests,
+      encounters: results.encounters.encounters
+    };
+
+    state.currentSceneId = chapter.starting_scene || (chapter.scenes && chapter.scenes[0] ? chapter.scenes[0].id : null);
+    state.quests = { ...results.quests.quests };
+    state.sessionStarted = true;
+  }
+
+  /* ── 日志操作 ── */
+  /* 过滤 GM 输出里偶发泄漏的工具调用 XML（某些模型会把 process_action 原样输出） */
+  function cleanGmText(t) {
+    return String(t || '')
+      .replace(/<process_action>[\s\S]*?<\/process_action>/g, '')
+      .replace(/<\/?process_action\/?>/g, '');
+  }
+
+  function appendLog(type, text, meta) {
+    state.log.push({ type, text, timestamp: Date.now(), meta: meta || {} });
+    renderNarrativeLog();
+  }
+
+  /* ── 直接向 DOM 追加日志条目（用于流式输出初始化） ── */
+  function appendLogEntry(entry) {
+    state.log.push({ type: entry.type, text: entry.text || '', timestamp: Date.now(), meta: { id: entry.id } });
+    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定', npc: 'NPC' };
+    const el = document.createElement('div');
+    el.className = 'log-entry ' + entry.type;
+    el.setAttribute('data-log-id', entry.id);
+    el.innerHTML = `<div class="log-label">${labels[entry.type] || entry.type}</div><div class="log-text"></div>`;
+    narrativeLog.appendChild(el);
+    narrativeLog.scrollTop = narrativeLog.scrollHeight;
+  }
+
+  /* ── 更新流式日志条目的文本内容 ── */
+  function updateLogEntryText(id, newText) {
+    // 更新 state.log 中的文本
+    const logEntry = state.log.find(e => e.meta && e.meta.id === id);
+    if (logEntry) logEntry.text = newText;
+
+    // 直接更新 DOM
+    const el = narrativeLog.querySelector(`[data-log-id="${id}"]`);
+    if (el) {
+      const textEl = el.querySelector('.log-text');
+      if (textEl) textEl.textContent = newText;
+      narrativeLog.scrollTop = narrativeLog.scrollHeight;
+    }
+  }
+
+  /* ── 渲染叙事日志 ── */
+  function renderNarrativeLog() {
+    if (state.log.length === 0) {
+      narrativeLog.innerHTML = '';
+      return;
+    }
+
+    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定', npc: 'NPC' };
+
+    narrativeLog.innerHTML = state.log.map(entry => {
+      let extra = '';
+      const dataId = entry.meta && entry.meta.id ? `data-log-id="${entry.meta.id}"` : '';
+      if (entry.type === 'check' && entry.meta) {
+        const m = entry.meta;
+        const rollText = m.roll ? `d20(${m.roll})+${m.mod||0}` : '';
+        const dcText = m.dc ? ` DC ${m.dc}` : '';
+        const result = m.success ? '成功' : '失败';
+        const resultClass = m.success ? 'color:var(--accent);' : 'color:var(--danger);';
+        extra = `<div style="margin-top:6px;font-size:13px;">掷骰: ${rollText}${dcText} — <span style="${resultClass}font-weight:700;">${result}</span></div>`;
+      }
+      return `
+        <div class="log-entry ${entry.type}" ${dataId}>
+          <div class="log-label">${labels[entry.type] || entry.type}</div>
+          <div class="log-text">${entry.text}</div>
+          ${extra}
+        </div>
+      `;
+    }).join('');
+
+    narrativeLog.scrollTop = narrativeLog.scrollHeight;
+  }
+
+  /* ── 渲染地点标题 ── */
+  function renderLocationHeader() {
+    const scene = getCurrentScene();
+    const loc = getCurrentLocation();
+    if (!scene) return;
+
+    const titleEl = $('#location-title');
+    const metaEl = $('#location-meta');
+
+    // 如果有父地点则显示 "父地点 · 子地点"
+    if (loc && loc.parent_location) {
+      titleEl.textContent = `${loc.parent_location} · ${loc.name}`;
+    } else {
+      titleEl.textContent = loc ? loc.name : scene.name;
+    }
+    const chapter = state.data.chapter;
+    metaEl.textContent = chapter ? `${chapter.title} · ${scene.name}` : scene.name;
+  }
+
+  /* ── 渲染左侧上下文面板 ── */
+  function renderContextPanel() {
+    const scene = getCurrentScene();
+    const loc = getCurrentLocation();
+    if (!scene || !loc) return;
+
+    // 当前地点
+    const locEl = $('#context-location');
+    if (locEl) {
+      locEl.querySelector('.location-name').textContent = loc.name;
+      locEl.onclick = () => openDetailModal('location', loc.id);
+    }
+
+    // 人物：当前地点优先（地点显式定义了 npcs，含空数组），场景兜底
+    const npcsEl = $('#context-npcs');
+    const rawNpcIds = (loc.npcs !== undefined) ? (loc.npcs || []) : (scene.npcs || []);
+    // 兼容字符串 / {id, sub} 两种形式（sub=子区域，仅后端目击者判定用）
+    const npcIds = rawNpcIds.map(e => (typeof e === 'string') ? e : (e && e.id)).filter(Boolean);
+    // 已离开的 NPC 从列表移除；死亡/眩晕保留并加标记
+    const NPC_STATUS_SUFFIX = { dead: '（已死亡）', stunned: '（眩晕）' };
+    const visibleNpcIds = npcIds.filter(id => (state.npcStates[id]?.status || '') !== 'left');
+    if (visibleNpcIds.length === 0) {
+      npcsEl.innerHTML = '<div class="context-empty">此处没有其他人</div>';
+    } else {
+      npcsEl.innerHTML = visibleNpcIds.map(id => {
+        const npc = state.data.npcs[id];
+        if (!npc) return '';
+        const suffix = NPC_STATUS_SUFFIX[state.npcStates[id]?.status] || '';
+        return `
+          <div class="context-item" data-type="npc" data-id="${id}">
+            <div class="context-item-icon">${npc.name[0]}</div>
+            <div class="context-item-name">${npc.name}${suffix}</div>
+            <div class="context-item-meta">${npc.role || ''}</div>
+          </div>
+        `;
+      }).join('');
+      npcsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => openDetailModal('npc', el.dataset.id));
+      });
+    }
+
+    // 物品：当前地点优先（地点显式定义了 items，含空数组），场景兜底
+    const itemsEl = $('#context-items');
+    const locHasItems = loc.items !== undefined;
+    let visibleItems;
+    if (locHasItems) {
+      visibleItems = loc.items.filter(i => i.visible !== false);
+    } else if (scene.items && scene.items.length > 0) {
+      // 场景定义了物品列表，从 items 数据中查找详细信息
+      visibleItems = scene.items.map(id => ({ id, visible: true }));
+    } else {
+      visibleItems = [];
+    }
+    // 过滤本会话已直接拿走的物品（切场景回来不重复显示）
+    visibleItems = visibleItems.filter(entry => !state.takenLocationItems.includes(entry.id));
+    // 合并本会话丢弃在当前地点的物品（其他角色可拾取）
+    const dropped = (state.droppedItems || {})[loc.id] || [];
+    if (dropped.length > 0) {
+      const have = new Set(visibleItems.map(e => e.id));
+      dropped.forEach(id => { if (!have.has(id)) visibleItems.push({ id, visible: true }); });
+    }
+    if (visibleItems.length === 0) {
+      itemsEl.innerHTML = '<div class="context-empty">此处没有可见物品</div>';
+    } else {
+      itemsEl.innerHTML = visibleItems.map(entry => {
+        const item = findItemDef(entry.id);
+        if (!item) return '';
+        return `
+          <div class="context-item" data-type="item" data-id="${entry.id}">
+            <div class="context-item-icon">I</div>
+            <div class="context-item-name">${item.name}</div>
+          </div>
+        `;
+      }).join('');
+      itemsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => openDetailModal('item', el.dataset.id));
+      });
+    }
+
+    // 可去地点：仅显示当前地点的物理出口
+    const exitsSection = $('#context-exits-section');
+    const exitsEl = $('#context-exits');
+    const exits = buildSceneExits(scene);
+    if (exits.length === 0) {
+      exitsSection.style.display = 'none';
+    } else {
+      exitsSection.style.display = '';
+      exitsEl.innerHTML = exits.map((exit, i) => `
+        <div class="context-item" data-type="exit" data-index="${i}">
+          <div class="context-item-icon" style="font-size:11px;">→</div>
+          <div class="context-item-name">${exit.name}</div>
+        </div>
+      `).join('');
+      exitsEl.querySelectorAll('.context-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index);
+          const exit = exits[idx];
+          if (!exit || !exit.targetLocationId) return;
+
+          // 检查目标地点是否属于另一个场景
+          const targetScene = Object.values(state.data.scenes).find(
+            s => s.location === exit.targetLocationId
+          );
+          if (targetScene && targetScene.id !== state.currentSceneId) {
+            // 跨场景跳转（如洞穴房间之间）
+            navigateToScene(targetScene.id);
+          } else {
+            // 同场景内探索（如绝冬城内各地点）
+            navigateToLocation(exit.targetLocationId);
+          }
+        });
+      });
+    }
+
+    // 任务
+    const questsEl = $('#context-quests');
+    const quests = state.quests || state.data.quests;
+    const activeQuestIds = Object.keys(quests).filter(id => quests[id].status === 'active');
+    if (activeQuestIds.length === 0) {
+      questsEl.innerHTML = '<div class="context-empty">暂无任务</div>';
+    } else {
+      questsEl.innerHTML = activeQuestIds.map(id => {
+        const q = quests[id];
+        // 只显示：已完成子任务 + 第一个未完成子任务（防剧透）
+        const objectives = q.objectives || [];
+        let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
+        if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
+        const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
+
+        const subtaskHtml = visibleObjectives.length > 0 ? `
+          <div class="quest-subtasks" style="display:none;">
+            ${visibleObjectives.map((o, idx) => `
+              <div class="quest-subtask ${o.completed ? 'done' : ''}" data-quest-id="${id}" data-subtask-idx="${idx}">
+                <div class="quest-subtask-check">${o.completed ? '✓' : ''}</div>
+                <div class="quest-subtask-text">${o.description}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '';
+
+        return `
+          <div class="context-item quest-item" data-quest-id="${id}">
+            <div class="context-item-icon" style="font-size:10px;">Q</div>
+            <div class="context-item-name">${q.name}</div>
+            ${visibleObjectives.length > 0 ? `
+              <button class="quest-expand-btn" type="button" aria-label="展开任务">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </button>` : ''}
+            ${subtaskHtml}
+          </div>
+        `;
+      }).join('');
+
+      // 点击任务：展开/收起子任务
+      questsEl.querySelectorAll('.quest-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.quest-subtask')) return;
+          const subtasksEl = el.querySelector('.quest-subtasks');
+          if (subtasksEl) {
+            const isOpen = subtasksEl.style.display !== 'none';
+            subtasksEl.style.display = isOpen ? 'none' : 'block';
+            const btn = el.querySelector('.quest-expand-btn');
+            if (btn) btn.classList.toggle('open', !isOpen);
+          }
+        });
+      });
+
+      // 点击子任务：弹出任务详情模态框
+      questsEl.querySelectorAll('.quest-subtask').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const questId = el.dataset.questId;
+          const subtaskIdx = parseInt(el.dataset.subtaskIdx);
+          openQuestDetailModal(questId, subtaskIdx);
+        });
+      });
+    }
+  }
+
+  /* ── 渲染右侧角色卡 ── */
+
+  /* 根据已装备物品计算各装备槽位内容 */
+  function computeEquippedSlots(char) {
+    const catalog = catalogs.equipment || {};
+    const slots = { helmet: null, body: null, shield: null, legs: null, boots: null, neck: null, ring1: null, ring2: null, tool: null, melee: [null, null], ranged: [null, null] };
+    // 槽位信息对象：名称 + 描述 + 属性行 + 图标名（图标从 JSON 的 icon 字段动态加载）
+    const mk = ci => ({
+      name: ci.name,
+      desc: ci.description || '',
+      props: (ci.properties && (ci.properties.damage || ci.properties.ac || ci.properties.effect)) || '',
+      icon: ci.icon || 'pouch',
+      twoHanded: !!ci.stats?.two_handed,
+    });
+    let ringCount = 0;
+    for (const item of (char.inventory?.items || [])) {
+      if (!item.equipped) continue;
+      const ci = item.equipment_id ? catalog[item.equipment_id] : null;
+      if (!ci) continue;
+      if (ci.type === 'weapon') {
+        const cat = ci.stats?.category;
+        if (cat === 'melee') {
+          if (!slots.melee[0]) slots.melee[0] = mk(ci);
+          else if (!slots.melee[1] && !slots.melee[0].twoHanded) slots.melee[1] = mk(ci);
+          // 双手武器占满两格：第二格置灰不可操作
+          if (slots.melee[0] && slots.melee[0].twoHanded) slots.melee[1] = { disabled: true };
+        }
+        if (cat === 'ranged') {
+          if (!slots.ranged[0]) slots.ranged[0] = mk(ci);
+          else if (!slots.ranged[1] && !slots.ranged[0].twoHanded) slots.ranged[1] = mk(ci);
+          if (slots.ranged[0] && slots.ranged[0].twoHanded) slots.ranged[1] = { disabled: true };
+        }
+      } else if (ci.type === 'armor') {
+        const cat = ci.stats?.category;
+        if (cat === 'shield') {
+          if (!slots.shield) slots.shield = mk(ci);
+        } else if (cat !== 'clothes') {
+          if (!slots.body) slots.body = mk(ci);
+        }
+      } else if (ci.type === 'accessory') {
+        if (ci.subtype === 'ring') {
+          if (ringCount === 0) slots.ring1 = mk(ci);
+          else if (ringCount === 1) slots.ring2 = mk(ci);
+          ringCount++;
+        } else if (ci.subtype === 'tool') {
+          if (!slots.tool) slots.tool = mk(ci);
+        }
+      }
+    }
+    return slots;
+  }
+
+  function renderSlot(iconSvg, slot) {
+    const disabled = !!slot && slot.disabled;
+    const filled = !!slot && !disabled;
+    const dataAttrs = filled
+      ? ` data-name="${escapeHtml(slot.name)}" data-description="${escapeHtml(slot.desc)}" data-props="${escapeHtml(slot.props)}"`
+      : '';
+    return `<div class="slot${filled ? ' filled' : ''}${disabled ? ' disabled' : ''}"${dataAttrs}>
+      <div class="slot-icon">${iconSvg}</div>
+      ${filled ? `<div class="slot-name">${escapeHtml(slot.name)}</div>` : ''}
+    </div>`;
+  }
+
+  async function renderRightPanel() {
+    try {
+      const char = state.character;
+      if (!char || !char.name) {
+        charCard.innerHTML = '<div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div>';
+        return;
+      }
+      const slots = computeEquippedSlots(char);
+
+      // 槽位定义：空槽用默认槽图标，已装备槽用物品自身的 icon（动态加载）
+      const slotDefs = [
+        { defaultIcon: 'helmet', slot: slots.helmet },
+        { defaultIcon: 'chestplate', slot: slots.body || slots.shield },
+        { defaultIcon: 'greaves', slot: slots.legs },
+        { defaultIcon: 'boots', slot: slots.boots },
+        { defaultIcon: 'necklace', slot: slots.neck },
+        { defaultIcon: 'ring', slot: slots.ring1 },
+        { defaultIcon: 'ring', slot: slots.ring2 },
+        { defaultIcon: 'lute', slot: slots.tool },
+        { defaultIcon: 'sword', slot: slots.melee[0] },
+        { defaultIcon: 'sword', slot: slots.melee[1] },
+        { defaultIcon: 'bow', slot: slots.ranged[0] },
+        { defaultIcon: 'bow', slot: slots.ranged[1] },
+      ];
+      const rendered = await Promise.all(slotDefs.map(async d => {
+        const svg = await loadSvgIcon(d.slot && !d.slot.disabled ? d.slot.icon : d.defaultIcon);
+        return renderSlot(svg, d.slot);
+      }));
+      const [helmetSlot, bodySlot, legsSlot, bootsSlot, neckSlot, ring1Slot, ring2Slot, toolSlot, melee0Slot, melee1Slot, ranged0Slot, ranged1Slot] = rendered;
+
+      charCard.innerHTML = `
+        <div class="char-top">
+          <div class="char-portrait-row">
+            <div class="equipment-column left-slots">
+              ${helmetSlot}
+              ${bodySlot}
+              ${legsSlot}
+              ${bootsSlot}
+            </div>
+
+            <div class="portrait-mid">
+              <div class="char-name">${escapeHtml(char.name)}</div>
+              <div class="char-portrait">${escapeHtml(char.portrait || char.name[0])}</div>
+            </div>
+
+            <div class="equipment-column right-slots">
+              ${neckSlot}
+              ${ring1Slot}
+              ${ring2Slot}
+              ${toolSlot}
+            </div>
+          </div>
+
+          <div class="combat-stats">
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(String(char.combat.ac))}</div>
+              <div class="combat-stat-label">护甲等级</div>
+            </div>
+            <div class="combat-stat">
+              <div class="combat-stat-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <div class="combat-stat-value">${escapeHtml(String(char.combat.hp))}</div>
+              <div class="combat-stat-label">生命值</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="char-bottom">
+          <div class="weapon-slot-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
+            <div class="weapon-slots">
+              ${melee0Slot}
+              ${melee1Slot}
+            </div>
+          </div>
+
+          <div class="char-level-badge">Lv.${escapeHtml(char.level ?? 1)}</div>
+
+          <div class="weapon-slot-group">
+            <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
+            <div class="weapon-slots">
+              ${ranged0Slot}
+              ${ranged1Slot}
+            </div>
+          </div>
+        </div>
+
+        <div class="attack-stats">
+          <div class="attack-weapon-group">
+            <div class="attack-value">${escapeHtml(String(char.attack.melee.bonus))}</div>
+            <div class="attack-value">${escapeHtml(String(char.attack.melee.damage))}</div>
+          </div>
+          <div class="attack-labels">
+            <div class="attack-label">攻击加值</div>
+            <div class="attack-label">伤害</div>
+          </div>
+          <div class="attack-weapon-group">
+            <div class="attack-value">${escapeHtml(String(char.attack.ranged.bonus))}</div>
+            <div class="attack-value">${escapeHtml(String(char.attack.ranged.damage))}</div>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      charCard.innerHTML = '<div class="char-card-placeholder">角色数据读取失败</div>';
+    }
+  }
+
+  /* ── 目录数据加载 ── */
+  let catalogs = {};
+
+  async function loadCatalogs() {
+    try {
+      const [eq, features, spells, classes] = await Promise.all([
+        fetch('/api/equipment').then(r => r.json()),
+        fetch('/api/features').then(r => r.json()),
+        fetch('/api/spells').then(r => r.json()),
+        fetch('/api/classes').then(r => r.json()),
+      ]);
+      catalogs = { equipment: eq, features, spells, classes };
+    } catch (e) {
+      console.warn('目录加载失败:', e);
+    }
+  }
+
+  /* ── 标签页切换 ── */
+  function initTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.char-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById('tab-' + tab.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+  }
+
+  /* ── 渲染所有标签页 ── */
+  async function renderAllTabs() {
+    const char = state.character;
+    if (!char) return;
+    document.getElementById('tab-inventory').innerHTML = await renderInventoryTab(char);
+    document.getElementById('tab-class-attr').innerHTML = renderClassAttrTab(char);
+    document.getElementById('tab-skills').innerHTML = renderSkillsTab(char);
+    document.getElementById('tab-spells').innerHTML = renderSpellsTab(char);
+    document.getElementById('tab-background').innerHTML = renderBackgroundTab(char);
+    bindFeatureToggle();
+  }
+
+  /* ── 悬浮提示（物品 + 技能法术，0.5s 延迟） ── */
+  (function initTooltip() {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'item-tooltip';
+    document.body.appendChild(tooltip);
+
+    let hoverTimer = null;
+    let hoverTarget = null;  // 当前悬停目标（物品卡/装备槽/技能块），用于内部移动去重
+
+    function showTooltip(e, card) {
+      const name = card.dataset.name || card.querySelector('.item-name')?.textContent || '';
+      const description = card.dataset.description || '';
+      const props = card.dataset.props || '';
+      const equipped = card.querySelector('.item-equipped');
+      const eqText = equipped ? '（已装备）' : '';
+      tooltip.innerHTML = `
+        <div class="item-tooltip-name">${name} ${eqText}</div>
+        ${props ? `<div class="item-tooltip-save">${props}</div>` : ''}
+        <div class="item-tooltip-desc">${description || '详细属性待补充'}</div>
+      `;
+      tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
+      positionTooltip(e, tooltip);
+    }
+
+    function positionTooltip(e, el) {
+      const rect = el.getBoundingClientRect();
+      let x = e.clientX + 14;
+      let y = e.clientY - 10;
+      if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 14;
+      if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('show');
+    }
+
+    function showSkillTooltip(block) {
+      const spellId = block.dataset.spellId;
+      const lookup = window.spellLookup || {};
+      const spell = spellId ? lookup[spellId] : null;
+      const name = block.textContent.trim();
+      if (spell) {
+        let html = `<div class="item-tooltip-name">${spell.name}</div>`;
+        if (spell.school || spell.casting_time)
+          html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
+        if (spell.description)
+          html += `<div class="item-tooltip-desc">${spell.description}</div>`;
+        if (spell.range)
+          html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
+        tooltip.innerHTML = html;
+      } else {
+        tooltip.innerHTML = `<div class="item-tooltip-name">${name}</div><div class="item-tooltip-desc">详细描述待补充</div>`;
+      }
+      tooltip.classList.add('show');  // 先显示才能测量真实尺寸，避免越界修正失效
+      const r = block.getBoundingClientRect();
+      tooltip.style.left = Math.max(8, r.left) + 'px';
+      tooltip.style.top = (r.bottom + 8) + 'px';
+      const tr = tooltip.getBoundingClientRect();
+      if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
+      if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
+    }
+
+    /* 物品/装备槽/技能法术统一悬浮提示（mouseover/mouseout 委托，避免 timer 泄漏） */
+    document.addEventListener('mouseover', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card, .slot.filled, .inv-box-item, .trade-item');
+      const block = e.target.closest('.skill-block');
+      const el = card || block;
+      if (!el) return;
+      if (hoverTarget === el) return;  // 在元素内部移动，不重复计时
+      hoverTarget = el;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        if (el.classList.contains('skill-block')) showSkillTooltip(el);
+        else showTooltip(e, el);
+      }, 500);
+    });
+
+    document.addEventListener('mouseout', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card, .slot.filled, .inv-box-item, .trade-item');
+      const block = e.target.closest('.skill-block');
+      const el = card || block;
+      if (!el) return;
+      // 仍停留在同一元素内（进入其子元素）则忽略
+      const to = e.relatedTarget;
+      if (to && typeof to.closest === 'function' && to.closest('.item-card, .slot.filled, .inv-box-item, .trade-item, .skill-block') === el) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+      hoverTarget = null;
+      hideTooltip();
+    });
+
+    document.addEventListener('scroll', function() {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+      hideTooltip();
+    });
+  })();
+
+  /* ── 特性展开/折叠 ── */
+  function bindFeatureToggle() {
+    document.querySelectorAll('.feature-list li').forEach(li => {
+      li.onclick = function() {
+        this.classList.toggle('expanded');
+      };
+    });
+  }
+
+  /* ═══ 物品栏（抄自 lobby renderInventory） ═══ */
+  const svgIconCache = {};
+
+  /* 图标文件缺失时的兜底（极简背包图标） */
+  const FALLBACK_ICON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>';
+
+  async function loadSvgIcon(iconName) {
+    if (svgIconCache[iconName] !== undefined) return svgIconCache[iconName];
+    try {
+      const res = await fetch(`/assets/icons/equipment/${iconName}.svg?v=${Date.now()}`);
+      if (!res.ok) throw new Error(`Failed to load icon ${iconName}: ${res.status}`);
+      const svgText = await res.text();
+      svgIconCache[iconName] = svgText;
+      return svgText;
+    } catch (err) {
+      console.warn('loadSvgIcon failed:', err);
+      svgIconCache[iconName] = FALLBACK_ICON_SVG;
+      return svgIconCache[iconName];
+    }
+  }
+
+  function recalcCharacterStats(char) {
+    const catalog = catalogs.equipment || {};
+    const items = char.inventory?.items || [];
+    const dexMod = Math.floor(((char.abilities?.dex?.value ?? 10) - 10) / 2);
+    const strMod = Math.floor(((char.abilities?.str?.value ?? 10) - 10) / 2);
+    // 攻击加值 = 熟练加值 + 属性调整值 + 武器加值（D&D 5e 规则）
+    const prof = parseInt(String(char.skills?.proficiency_bonus || '+2').replace(/[^0-9-]/g, ''), 10) || 2;
+
+    // AC：无甲基础 + 已装备护甲（取最高）+ 盾牌 + 饰品加值
+    let ac = 10 + dexMod;
+    let meleeDamage = null;
+    let rangedDamage = null;
+    let meleeBonus = 0;
+    let rangedBonus = 0;
+    for (const item of items) {
+      if (!item.equipped) continue;
+      const ci = catalog[item.equipment_id];
+      if (!ci || !ci.stats) continue;
+      if (ci.type === 'weapon') {
+        if (ci.stats.category === 'melee' && !meleeDamage) {
+          meleeDamage = ci.stats.damage_dice;
+          meleeBonus = ci.stats.bonus || 0;
+        }
+        if (ci.stats.category === 'ranged' && !rangedDamage) {
+          rangedDamage = ci.stats.damage_dice;
+          rangedBonus = ci.stats.bonus || 0;
+        }
+      } else if (ci.type === 'armor') {
+        const s = ci.stats;
+        if (s.category === 'shield') {
+          ac += (s.bonus_ac || 0);
+        } else if (s.category !== 'clothes' && s.ac_base) {
+          let a = s.ac_base;
+          if (s.ac_ability === 'dex') {
+            a += (s.ac_max_dex != null ? Math.min(dexMod, s.ac_max_dex) : dexMod);
+          }
+          if (a > ac) ac = a;
+        }
+      } else if (ci.type === 'accessory' && ci.stats && ci.stats.bonus_ac) {
+        ac += ci.stats.bonus_ac;
+      }
+    }
+    char.combat = char.combat || { ac: 10, hp: '0 / 0' };
+    char.combat.ac = ac;
+    char.attack = char.attack || { melee: {}, ranged: {} };
+    const fmtBonus = v => (v >= 0 ? '+' : '') + v;
+    char.attack.melee.bonus = fmtBonus(strMod + prof + meleeBonus);
+    char.attack.melee.damage = meleeDamage ? meleeDamage + (meleeBonus ? `+${meleeBonus}` : '') : '1d4';
+    char.attack.ranged.bonus = fmtBonus(dexMod + prof + rangedBonus);
+    char.attack.ranged.damage = rangedDamage ? rangedDamage + (rangedBonus ? `+${rangedBonus}` : '') : '1d4';
+  }
+
+  async function saveCharacter() {
+    // 测试阶段：前端不把角色数据保存回后端 JSON，刷新页面即回退（持久化后期再做）
+    // const char = state.character;
+    // if (!char || !char.id) return;
+    // try {
+    //   await fetch(`/api/characters/${char.id}`, {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       inventory: char.inventory,
+    //       combat: char.combat,
+    //       attack: char.attack
+    //     })
+    //   });
+    // } catch (e) {
+    //   console.warn('保存角色失败:', e);
+    // }
+  }
+
+  /* 物品右键菜单（抄自 lobby.html，equip/discard 落地到角色数据） */
+  (function initItemContextMenu() {
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'item-context-menu';
+    document.body.appendChild(contextMenu);
+
+    function hideContextMenu() { contextMenu.classList.remove('visible'); }
+
+    function showContextMenu(e, card) {
+      e.preventDefault();
+      const equipped = !!card.querySelector('.item-equipped');
+      const equipmentId = card.dataset.equipmentId;
+      const catalogItem = catalogs.equipment ? catalogs.equipment[equipmentId] : null;
+      const isEquippable = catalogItem && (catalogItem.type === 'weapon' || catalogItem.type === 'armor');
+      const name = card.dataset.name || '';
+      const isSupplyItem = card.dataset.kind === 'item';
+      const itemId = card.dataset.itemId;
+      const supplyItem = isSupplyItem && itemId ? state.data.items[itemId] : null;
+
+      let html = '';
+      if (isSupplyItem) {
+        // 道具：有效果（如治疗药水）提供"使用"；有装备定义（如火把/矿灯）提供"装备"；均提供丢弃/赠送
+        const equipDef = supplyItem && supplyItem.equipment_id
+          ? (catalogs.equipment ? catalogs.equipment[supplyItem.equipment_id] : null) : null;
+        if (supplyItem && supplyItem.effect) {
+          html += `<button class="menu-action" data-action="use">使用</button>`;
+        }
+        if (equipDef) {
+          html += `<button class="menu-action" data-action="equip">装备</button>`;
+        }
+        html += `<button class="menu-action" data-action="sell">出售</button>`;
+        html += `<button class="menu-action" data-action="discard">丢弃</button>`;
+        html += `<button class="menu-action" data-action="gift">赠送</button>`;
+      } else {
+        if (isEquippable) {
+          html += `<button class="menu-action" data-action="equip">${equipped ? '卸下' : '装备'}</button>`;
+        }
+        html += `<button class="menu-action" data-action="discard">丢弃</button>`;
+        html += `<button class="menu-action" data-action="gift">赠送</button>`;
+      }
+      contextMenu.innerHTML = html;
+
+      let x = e.clientX;
+      let y = e.clientY;
+      const rect = contextMenu.getBoundingClientRect();
+      if (x + 150 > window.innerWidth) x = window.innerWidth - 150;
+      if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+      contextMenu.style.left = x + 'px';
+      contextMenu.style.top = y + 'px';
+      contextMenu.classList.add('visible');
+
+      contextMenu.querySelectorAll('.menu-action').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const action = btn.dataset.action;
+          contextMenu.classList.remove('visible');
+          if (isSupplyItem) {
+            await handleSupplyItemAction(action, itemId, name);
+          } else {
+            const src = card.dataset.src || 'char';
+            const idx = parseInt(card.dataset.idx ?? '-1', 10);
+            await handleItemAction(action, src, idx, name);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('contextmenu', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function') return;
+      const card = e.target.closest('.item-card');
+      if (!card) return;
+      showContextMenu(e, card);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target || typeof e.target.closest !== 'function' || !e.target.closest('.item-context-menu')) {
+        hideContextMenu();
+      }
+    });
+
+    document.addEventListener('scroll', function() {
+      hideContextMenu();
+    });
+  })();
+
+  async function handleItemAction(action, src, idx, itemName) {
+    const char = state.character;
+    if (!char) return;
+    const isTemp = src === 'temp';
+    const list = isTemp ? state.tempEquipItems : (char.inventory?.items || []);
+    const item = list[idx];
+    if (!item) return;
+    const equipmentId = item.equipment_id;
+    const catalogItem = catalogs.equipment ? catalogs.equipment[equipmentId] : null;
+
+    if (action === 'equip' && catalogItem && (catalogItem.type === 'weapon' || catalogItem.type === 'armor')) {
+      if (item.equipped) {
+        item.equipped = false;
+      } else {
+        // 护甲同类互斥：同 category 的护甲互斥，盾牌只与其他盾牌互斥
+        // 双手武器占满两格：装备时自动卸下同类型的其他已装备武器
+        const cat = catalogItem.stats ? catalogItem.stats.category : null;
+        const twoHanded = catalogItem.type === 'weapon' && !!catalogItem.stats?.two_handed;
+        const allEquip = [...(char.inventory?.items || []), ...(state.tempEquipItems || [])];
+        allEquip.forEach(i => {
+          if (i === item || !i.equipped) return;
+          const ci = catalogs.equipment ? catalogs.equipment[i.equipment_id] : null;
+          if (!ci || !ci.stats) return;
+          if (catalogItem.type === 'armor') {
+            if (ci.type === 'armor' && ci.stats.category === cat && ci.stats.category !== 'shield') i.equipped = false;
+            if (ci.type === 'armor' && ci.stats.category === 'shield' && cat === 'shield') i.equipped = false;
+          } else if (ci.type === 'weapon' && ci.stats.category === cat) {
+            // 装备双手武器：卸下同类型所有武器（占满两格）；
+            // 装备单手武器：卸下同类型中的双手武器（单手之间仍可双持）
+            if (twoHanded || ci.stats.two_handed) i.equipped = false;
+          }
+        });
+        item.equipped = true;
+      }
+    } else if (action === 'discard') {
+      const removed = list.splice(idx, 1);
+      if (removed.length > 0) await dropItemToLocation(equipmentId, itemName);
+    } else if (action === 'gift') {
+      appendLog('system', '赠送功能开发中。');
+      return;
+    }
+
+    recalcCharacterStats(char);
+    renderAllTabs();
+    await renderRightPanel();
+    // 阶段测试：内存装备（temp）不持久化，刷新即消失；角色原有装备正常保存
+    if (!isTemp) await saveCharacter();
+  }
+
+  /* 物品定义查找：先查冒险物品，再查全局装备目录（丢弃物可能是装备） */
+  function findItemDef(id) {
+    if (state.data.items && state.data.items[id]) return state.data.items[id];
+    return (catalogs.equipment && catalogs.equipment[id]) || null;
+  }
+
+  /* 物品效果文案：道具显示 effect（heal → 回复 X 生命值）；装备显示"造成 XdY 伤害"或护甲等级。
+     章节物品（如火把/矿灯）仅引用 equipment_id，属性从全局装备库补充。 */
+  function itemEffectText(item) {
+    if (!item) return '';
+    if (item.effect) {
+      return item.effect.startsWith('heal') ? `回复 ${item.effect.slice(5)} 生命值` : item.effect;
+    }
+    const eq = item.equipment_id && catalogs.equipment ? catalogs.equipment[item.equipment_id] : null;
+    const src = (eq && (eq.stats || eq.properties)) ? eq : item;
+    if (src.stats && src.stats.damage_dice) {
+      const type = src.stats.damage_type_cn ? ` ${src.stats.damage_type_cn}` : '';
+      return `造成 ${src.stats.damage_dice}${type}伤害`;
+    }
+    // 护甲/盾牌：补全"护甲等级"描述（如"11 + 敏捷调整值"、"＋2"）
+    if (src.properties && src.properties.ac) return `护甲等级 ${src.properties.ac}`;
+    if (src.properties) return src.properties.damage || '';
+    return '';
+  }
+
+  /* 丢弃物品到当前地点：落后端世界状态 + 前端本地记录（左侧物品列表显示） */
+  async function dropItemToLocation(itemId, itemName) {
+    try {
+      const res = await fetch('/api/game/drop_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          item_id: itemId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '丢弃失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+    } catch (err) {
+      appendLog('system', `丢弃失败: ${err.message}`);
+      return false;
+    }
+    // 本地记录：出现在当前地点左侧物品列表（其他角色/同页面可拾取）
+    const loc = getCurrentLocation();
+    if (loc) {
+      state.droppedItems = state.droppedItems || {};
+      const list = state.droppedItems[loc.id] || (state.droppedItems[loc.id] = []);
+      if (!list.includes(itemId)) list.push(itemId);
+    }
+    renderContextPanel();
+    appendLog('system', `已丢弃 ${itemName}`);
+    return true;
+  }
+
+  /* 道具操作（治疗药水等）：使用回血（后端解析效果，播报实际恢复量），丢弃 */
+  async function handleSupplyItemAction(action, itemId, itemName) {
+    const char = state.character;
+    if (!char) return;
+    const item = state.data.items[itemId];
+
+    if (action === 'sell') {
+      // 出售：需要当前有打开的交易弹窗（确定卖给哪个商人）
+      if (!currentTradeNpcId) {
+        appendLog('system', '附近没有商人，无法出售。请先打开与商人的交易窗口。');
+        return;
+      }
+      await callSellItem(currentTradeNpcId, itemId);
+      if (tradeModalOverlay.classList.contains('active')) await renderTradeModal();
+    } else if (action === 'use') {
+      if (!item || !item.effect) {
+        appendLog('system', '该道具无法使用。');
+        return;
+      }
+      const combat = char.combat || { ac: 10, hp: '0 / 0' };
+      const parts = String(combat.hp).split('/');
+      const curHp = parseInt(parts[0]) || 0;
+      const maxHp = parseInt(parts[1]) || curHp;
+      // 通知后端解析效果并消耗道具（heal 由后端掷骰并按 HP 截断，返回实际恢复值与文案）
+      try {
+        const res = await fetch('/api/game/use_item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            adventure_id: ADVENTURE_ID,
+            chapter_id: CHAPTER_ID,
+            item_id: itemId,
+            character: state.character,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '使用失败');
+        if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+        // HP 后端权威结算，从 updates 同步到角色卡
+        applyGameUpdates(data.updates);
+        // 播报后端生成的效果文案
+        const actorName = (state.character && state.character.name) || '你';
+        appendLog('gm', `${actorName} 使用了 ${item.name}${data.message ? `，${data.message}` : ''}。`);
+        await renderAllTabs();
+        await renderRightPanel();
+        await saveCharacter();
+      } catch (err) {
+        appendLog('system', `使用失败: ${err.message}`);
+        return;
+      }
+    } else if (action === 'equip') {
+      if (!item || !item.equipment_id) return;
+      // 通知后端同步移除背包道具（防止被 SSE 覆盖回去）
+      try {
+        const res = await fetch('/api/game/equip_item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            adventure_id: ADVENTURE_ID,
+            chapter_id: CHAPTER_ID,
+            item_id: itemId,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '装备失败');
+        if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      } catch (err) {
+        appendLog('system', `装备失败: ${err.message}`);
+        return;
+      }
+      // 转移进角色装备栏（占近战槽，由 computeEquippedSlots 自动分配）
+      char.inventory = char.inventory || { gold: 0, items: [] };
+      char.inventory.items.push({ equipment_id: item.equipment_id, quantity: 1, equipped: true });
+      const actorName = (state.character && state.character.name) || '你';
+      appendLog('gm', `${actorName} 装备了 ${item.name}。`);
+      recalcCharacterStats(char);
+      await renderAllTabs();
+      await renderRightPanel();
+      await saveCharacter();
+    } else if (action === 'discard') {
+      const idx = state.playerInventory.indexOf(itemId);
+      if (idx < 0) return;
+      state.playerInventory.splice(idx, 1);
+      await dropItemToLocation(itemId, itemName);
+      await renderAllTabs();
+    } else if (action === 'gift') {
+      appendLog('system', '赠送功能开发中。');
+    }
+  }
+
+  async function renderInventoryTab(char) {
+    const catalog = catalogs.equipment || {};
+    const items = char.inventory?.items || [];
+    const gold = char.inventory?.gold || 0;
+    const invItems = state.playerInventory || [];
+    // 装备栏 = 角色已保存装备 + 阶段测试拿取的内存装备（刷新即消失）
+    const tempItems = state.tempEquipItems || [];
+    const equipItems = [
+      ...items.map((it, i) => ({ ...it, src: 'char', idx: i })),
+      ...tempItems.map((it, i) => ({ ...it, src: 'temp', idx: i })),
+    ];
+    let itemsHtml;
+    let emptyDiv = '';
+    if (equipItems.length === 0) {
+      itemsHtml = '';
+      if (invItems.length === 0) emptyDiv = '<div class="inv-empty">背包空空如也</div>';
+    } else {
+      const itemsWithSvg = await Promise.all(equipItems.map(async item => {
+        const catalogItem = item.equipment_id ? catalog[item.equipment_id] : null;
+        const displayName = catalogItem ? catalogItem.name : (item.name || '未知物品');
+        const iconName = catalogItem ? catalogItem.icon : 'pouch';
+        const iconSvg = await loadSvgIcon(iconName);
+        const description = catalogItem ? catalogItem.description : '';
+        const props = catalogItem ? itemEffectText(catalogItem) : '';
+        return { ...item, displayName, iconSvg, description, props };
+      }));
+      itemsHtml = itemsWithSvg.map(item => `
+        <div class="item-card" data-src="${item.src}" data-idx="${item.idx}" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(item.displayName)}" data-description="${escapeHtml(item.description)}" data-props="${escapeHtml(item.props)}">
+          <div class="item-top">
+            <div class="item-icon">${item.iconSvg}</div>
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(item.displayName)}</div>
+            </div>
+          </div>
+          ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
+          <div class="item-quantity">x${item.quantity || 1}</div>
+        </div>
+      `).join('');
+    }
+    // 道具区（后端运行时背包 playerInventory，数量按 id 聚合）
+    let supplyHtml = '';
+    if (invItems.length > 0) {
+      const counts = {};
+      invItems.forEach(iid => counts[iid] = (counts[iid] || 0) + 1);
+      const supplyRows = await Promise.all(Object.entries(counts).map(async ([iid, n]) => {
+        const sub = state.data.items[iid];
+        const name = sub ? sub.name : iid;
+        const desc = sub ? sub.description : '';
+        const iconSvg = await loadSvgIcon((sub && sub.icon) || 'pouch');
+        return `
+          <div class="item-card" data-kind="item" data-item-id="${escapeHtml(iid)}" data-name="${escapeHtml(name)}" data-description="${escapeHtml(desc)}" data-props="">
+            <div class="item-top">
+              <div class="item-icon">${iconSvg}</div>
+              <div class="item-info">
+                <div class="item-name">${escapeHtml(name)}</div>
+              </div>
+            </div>
+            <div class="item-quantity">x${n}</div>
+          </div>`;
+      }));
+      supplyHtml = `
+        <div class="inv-supplies-title">道具</div>
+        <div class="items-grid">${supplyRows.join('')}</div>`;
+    }
+    // 装备区：装备类物品单独成栏
+    const equipHtml = items.length > 0 ? `
+        <div class="inv-supplies-title">装备</div>
+        <div class="items-grid">${itemsHtml}</div>` : '';
+    return `
+      <div class="inventory-panel">
+        <div class="inventory-header">
+          <div class="inventory-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            背包物资
+          </div>
+          <div class="inventory-gold">${gold} G</div>
+        </div>
+        ${emptyDiv}
+        ${equipHtml}
+        ${supplyHtml}
+      </div>
+    `;
+  }
+
+  /* ═══ 职业特性（抄自 lobby renderClassAttr） ═══ */
+  function renderClassAttrTab(char) {
+    const features = catalogs.features || {};
+    const classes = catalogs.classes || {};
+    const classData = char.class_id ? classes[char.class_id] : null;
+    const subclassData = classData && char.subclass_id ? (classData.subclasses || {})[char.subclass_id] : null;
+
+    const statusItems = (char.features?.status_ids || []).map(id => features.status ? features.status[id] : null).filter(Boolean);
+    const resistanceItems = (char.features?.resistance_ids || []).map(id => features.resistances ? features.resistances[id] : null).filter(Boolean);
+    const classFeatureItems = (char.features?.class_feature_ids || []).map(id => features.class_features ? features.class_features[id] : null).filter(Boolean);
+    const traitItems = (char.features?.trait_ids || []).map(id =>
+      (features.traits && features.traits[id]) || (features.racial && features.racial[id]) || null
+    ).filter(Boolean);
+
+    const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const abilityHtml = abilityOrder.map(key => {
+      const a = char.abilities[key];
+      return `<div class="ability">
+        <div class="ability-star">${a.highlighted ? '&#9733;' : ''}</div>
+        <div class="ability-label">${escapeHtml(a.label)}</div>
+        <div class="ability-value ${a.highlighted ? 'highlighted' : ''}">${a.value}</div>
+      </div>`;
+    }).join('');
+
+    const featSection = (title, items) => items.length
+      ? `<div class="divider"><span>${title}</span></div><ul class="feature-list">${items.map(f => `<li>${escapeHtml(f.name)} <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li><div class="feature-detail">${escapeHtml(f.description || '')}</div>`).join('')}</ul>`
+      : '';
+
+    const raceName = char.background?.race || '';
+    const className = classData ? classData.name : (char.class || '');
+    return `
+      <div class="class-panel">
+        <div class="class-race">${escapeHtml(raceName)}</div>
+        <div class="class-icon">${escapeHtml(classData ? (classData.icon || '') : '')}</div>
+        <div class="class-subclass">${escapeHtml(subclassData ? subclassData.name : '')}</div>
+        <div class="class-level">等级${char.level || 1} ${escapeHtml(className)}</div>
+
+        <div class="ability-scores">${abilityHtml}</div>
+        ${featSection('状态', statusItems)}
+        ${featSection('抗性', resistanceItems)}
+        ${featSection('职业特性', classFeatureItems)}
+        ${featSection('重要特性', traitItems)}
+      </div>
+    `;
+  }
+
+  /* ═══ 熟练加值（抄自 lobby renderSkills） ═══ */
+  function renderSkillsTab(char) {
+    const sections = char.skills?.sections || [];
+    const pb = char.skills?.proficiency_bonus || '+2';
+    return `
+      <div class="prof-bonus"><span class="star">★</span>熟练项加值 (${escapeHtml(pb)})</div>
+      ${sections.map(section => `
+        <div class="divider"><span>${escapeHtml(section.ability)} (${escapeHtml(section.modifier)})</span></div>
+        ${section.skills.map(skill => `
+          <div class="skill-row">
+            <span class="skill-name">${escapeHtml(skill.name)}</span>
+            <span class="skill-value ${skill.type}">${escapeHtml(skill.value)}</span>
+          </div>
+        `).join('')}
+      `).join('')}
+    `;
+  }
+
+  /* ═══ 技能&法术（抄自 lobby renderSpells） ═══ */
+  function renderSpellsTab(char) {
+    const spells = catalogs.spells || {};
+
+    // 构建快速查找表
+    window.spellLookup = {};
+    const addLookup = (catalog) => { if (catalog) Object.entries(catalog).forEach(([id, s]) => { window.spellLookup[id] = s; }); };
+    addLookup(spells.actions?.normal);
+    addLookup(spells.actions?.class);
+    addLookup(spells.passive);
+    addLookup(spells.spells?.level_1);
+    addLookup(spells.cantrips);
+
+    const lookupNames = (ids, catalog) =>
+      (ids || []).map(id => (catalog && catalog[id]) ? catalog[id].name : id);
+
+    const normalItems = lookupNames((char.spells?.action_ids || {}).normal || [], spells.actions?.normal);
+    const classItems  = lookupNames((char.spells?.action_ids || {}).class || [], spells.actions?.class);
+    const passiveItems = lookupNames(char.spells?.passive_ids || [], spells.passive);
+
+    // 判断某法术/动作的交互类型：
+    //  - 'self'  → 自身目标（跳跃/冲刺/回气等），点击直接使用
+    //  - 'target' → 需要在地图上选目标（普攻/远程法术/触碰治疗）
+    const kindOf = (spellId) => {
+      const s = window.spellLookup[spellId];
+      if (!s) return 'self';
+      const range = String(s.range || '').trim();
+      if (range === '自身' || range === '') return 'self';
+      return 'target';
+    };
+
+    const renderBlock = (name, spellId) => {
+      const k = kindOf(spellId);
+      return `<div class="skill-block combat-action" data-action-kind="${k}" data-spell-id="${escapeHtml(spellId || '')}">${escapeHtml(name)}</div>`;
+    };
+
+    const renderGroup = (list, catalog) => {
+      return list.map(item => {
+        const entries = catalog ? Object.entries(catalog) : [];
+        const found = entries.find(([, v]) => v.name === item);
+        return renderBlock(item, found ? found[0] : '');
+      }).join('');
+    };
+
+    const section = (title, items, catalog) => items.length
+      ? `<div class="divider"><span>${title}</span></div><div class="skill-grid">${renderGroup(items, catalog)}</div>`
+      : '';
+
+    // ── 普攻按钮（近战 / 远程，基于角色卡攻击数据）──
+    const melee = char.attack?.melee || {};
+    const ranged = char.attack?.ranged || {};
+    const attackButtons = `
+      <div class="divider"><span>攻击</span></div>
+      <div class="skill-grid">
+        <div class="skill-block combat-action" data-action-kind="target" data-action-type="attack" data-attack-kind="melee">近战攻击 <small style="opacity:.7">(${escapeHtml(String(melee.bonus || '+0'))} / ${escapeHtml(String(melee.damage || '—'))})</small></div>
+        <div class="skill-block combat-action" data-action-kind="target" data-action-type="attack" data-attack-kind="ranged">远程攻击 <small style="opacity:.7">(${escapeHtml(String(ranged.bonus || '+0'))} / ${escapeHtml(String(ranged.damage || '—'))})</small></div>
+      </div>`;
+
+    // ── 法术环：戏法（0 环，无限施放，不消耗法术位）+ 1 环（消耗法术位，长休恢复）──
+    const casterLevel = (char.spells?.caster_level) || 1;
+    const slotMax1 = casterLevel >= 2 ? 3 : 2;  // 与后端 spell_slot_max 一致（简化：1 级 2 个、2 级 3 个）
+    const slotUsed1 = (state.spellSlotsUsed || {})[1] || 0;
+
+    const renderSpellBlock = (spellId) => {
+      const s = window.spellLookup[spellId];
+      const name = s ? s.name : spellId;
+      const k = kindOf(spellId);
+      return `<div class="skill-block spell-block combat-action" data-action-kind="${k}" data-action-type="spell" data-spell-id="${escapeHtml(spellId)}">${escapeHtml(name)}</div>`;
+    };
+    const renderSpellGroup = (ids) => (ids || []).map(renderSpellBlock).join('');
+
+    const spellL1 = (char.spells?.spell_ids || {}).level_1 || [];
+    const cantrips = char.cantrip_ids || [];
+    const slotText1 = `${Math.max(0, slotMax1 - slotUsed1)} / ${slotMax1}`;
+
+    return `
+      ${attackButtons}
+      ${section('常规动作', normalItems, spells.actions?.normal)}
+      ${section('职业动作', classItems, spells.actions?.class)}
+      ${section('被动技能', passiveItems, spells.passive)}
+      ${cantrips.length ? `<div class="divider"><span>戏法 · 无限施放</span></div><div class="skill-grid">${renderSpellGroup(cantrips)}</div>` : ''}
+      ${spellL1.length ? `<div class="divider"><span>1 环法术 · 法术位 ${slotText1}</span></div><div class="skill-grid">${renderSpellGroup(spellL1)}</div>` : ''}
+    `;
+  }
+
+  /* ═══ 人物背景（抄自 lobby renderBackground） ═══ */
+  function renderBackgroundTab(char) {
+    const bg = char.background;
+    const labelMap = { move_speed:'移动速度', darkvision:'黑暗视觉范围', ranged_range:'远程攻击范围', melee_range:'近战攻击范围', throw_range:'投掷范围', size:'体型', weight:'重量', carry_weight:'负重' };
+    const attrsHtml = Object.entries(bg.attributes || {}).map(([k, v]) =>
+      `<div class="bg-info-row"><span class="bg-info-label">${labelMap[k] || k}</span><span class="bg-info-value">${escapeHtml(String(v))}</span></div>`
+    ).join('');
+
+    const saveAbilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const saveHtml = saveAbilities.map(key => {
+      const a = char.abilities[key];
+      return `<div class="ability"><div class="ability-label">${escapeHtml(a.label)}</div><div class="ability-value highlighted">${escapeHtml(a.save_bonus)}</div></div>`;
+    }).join('');
+
+    const traitMap = { personality:'个人特点', ideal:'理想', bond:'牵绊', flaw:'缺点' };
+    const traitsHtml = Object.entries(bg.traits || {}).map(([k, text]) =>
+      `<div class="bg-trait"><div class="bg-trait-title">${traitMap[k] || k}</div><div class="bg-trait-text">${escapeHtml(text || '—')}</div></div>`
+    ).join('');
+
+    return `
+      <div class="divider"><span>属性</span></div>
+      ${attrsHtml}
+      <div class="divider"><span>豁免</span></div>
+      <div class="ability-scores">${saveHtml}</div>
+      <div class="divider"><span>背景</span></div>
+      ${traitsHtml}
+    `;
+  }
+
+  /* ── 详情弹窗 ── */
+  let currentModalType = null;
+  let currentModalId = null;
+
+  async function openDetailModal(type, id, extra) {
+    currentModalType = type;
+    currentModalId = id;
+    let title = '';
+    let meta = '';
+    let desc = '';
+    let avatar = '?';
+    let extraContent = '';
+
+    switch (type) {
+      case 'npc': {
+        const npc = state.data.npcs[id];
+        if (!npc) return;
+        title = npc.name;
+        meta = `${npc.race || ''} · ${npc.role || ''}`;
+        desc = npc.description || '';
+        avatar = npc.name[0];
+        // 带 merchant 字段的 NPC 可交易
+        if (npc.merchant) {
+          extraContent = `
+            <button type="button" class="trade-btn trade-open" data-npc="${id}" style="width:100%; padding:9px 0; font-size:14px;">交易</button>`;
+        }
+        break;
+      }
+      case 'item': {
+        const item = findItemDef(id);
+        if (!item) return;
+        title = item.name;
+        meta = item.type || '';
+        desc = item.description || '';
+        avatar = 'I';
+        extraContent = await buildItemModalExtra(id, item);
+        break;
+      }
+      case 'exit': {
+        const targetLoc = state.data.locations[id];
+        title = extra.name || '出口';
+        meta = extra.description || '';
+        desc = targetLoc ? `通往: ${targetLoc.name}` : '';
+        avatar = '→';
+        break;
+      }
+      case 'location': {
+        const loc = state.data.locations[id];
+        if (!loc) return;
+        title = loc.name;
+        meta = loc.type || '';
+        desc = loc.description || '';
+        avatar = loc.name[0];
+        break;
+      }
+    }
+
+    modalContent.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar">${avatar}</div>
+        <div>
+          <div class="modal-name">${title}</div>
+          <div class="modal-meta">${meta}</div>
+        </div>
+      </div>
+      <div class="modal-desc">${desc.replace(/\n/g, '<br>')}</div>
+      ${extraContent}
+    `;
+
+    modalContent.querySelectorAll('.take-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const containerId = btn.dataset.container || null;
+        const itemId = btn.dataset.item;
+        await callTakeItem(containerId, itemId);
+      });
+    });
+
+    // 交易按钮：关闭详情弹窗后打开交易弹窗
+    modalContent.querySelectorAll('.trade-open').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeDetailModal();
+        openTradeModal(btn.dataset.npc);
+      });
+    });
+
+    modalOverlay.classList.add('active');
+  }
+
+  /* 物品详情附加内容：容器显示内含物品，普通无主物品显示拿取按钮 */
+  async function buildItemModalExtra(itemId, item) {
+    const contains = item.contains || [];
+    const parts = [];
+    const loc = getCurrentLocation();
+
+    if (contains.length > 0) {
+      // 容器：按 contains 聚合剩余数量（减去已取走的）
+      const taken = (loc && state.containerTaken[loc.id]?.[itemId]) || [];
+      const counts = {};
+      for (const cid of contains) {
+        const remaining = contains.filter(x => x === cid).length - taken.filter(x => x === cid).length;
+        if (remaining > 0) counts[cid] = remaining;
+      }
+      let rows = '';
+      if (Object.keys(counts).length > 0) {
+        const items = await Promise.all(Object.entries(counts).map(async ([cid, n]) => {
+          const sub = state.data.items[cid];
+          if (!sub) return '';
+          const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+          const props = itemEffectText(sub);
+          return `
+            <div class="inv-box-item" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+              <div class="item-icon">${iconSvg}</div>
+              <div class="inv-box-name">${escapeHtml(sub.name)} <span class="inv-box-qty">×${n}</span></div>
+              <button type="button" class="take-btn" data-container="${itemId}" data-item="${cid}">拿取</button>
+            </div>`;
+        }));
+        rows = items.join('');
+      }
+      parts.push(`<div class="modal-section-title">内含物品</div><div class="inv-box-list">${rows || '<div class="context-empty">箱子已空</div>'}</div>`);
+    } else {
+      // 普通物品：当前地点可见（含本会话丢弃物）且无主 → 可拿取
+      const locItemIds = (loc ? (loc.items || []) : []).map(e => (typeof e === 'object' ? e.id : e));
+      const isDroppedHere = !!(loc && (state.droppedItems || {})[loc.id] && (state.droppedItems)[loc.id].includes(itemId));
+      if ((locItemIds.includes(itemId) || isDroppedHere) && !item.owner) {
+        parts.push(`<div class="inv-box-list"><div class="inv-box-item"><button type="button" class="take-btn" data-item="${itemId}">拿取</button></div></div>`);
+      }
+    }
+
+    return parts.join('');
+  }
+
+  /* 拿取物品（专用端点，不经 AI 解析） */
+  async function callTakeItem(containerId, itemId) {
+    try {
+      const res = await fetch('/api/game/take_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          container_id: containerId || undefined,
+          item_id: itemId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '拿取失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.container_taken) state.containerTaken = data.updates.container_taken;
+      const item = state.data.items[itemId];
+      const actorName = (state.character && state.character.name) || '你';
+      appendLog('gm', `${actorName} 拿取了 ${item ? item.name : itemId}${containerId ? '。' : '，收进背包。'}`);
+      if (data.is_equipment && item && item.equipment_id) {
+        // 阶段测试：拿取的装备进前端内存（刷新页面即消失，不持久化到角色卡）
+        state.tempEquipItems.push({ equipment_id: item.equipment_id, quantity: 1, equipped: false });
+      }
+      if (!containerId) {
+        // 普通物品：从当前地点本地移除并记录（切场景回来不重复显示）
+        state.takenLocationItems.push(itemId);
+        const loc = getCurrentLocation();
+        if (loc) {
+          if (Array.isArray(loc.items)) {
+            loc.items = loc.items.filter(e => (typeof e === 'object' ? e.id : e) !== itemId);
+          }
+          // 若是本会话丢弃的物品，拾取后从左侧丢弃列表移除
+          const dropped = (state.droppedItems || {})[loc.id];
+          if (dropped) {
+            const di = dropped.indexOf(itemId);
+            if (di >= 0) dropped.splice(di, 1);
+          }
+        }
+      }
+      // 拿取成功：关闭详情弹窗并刷新左侧与背包（不再重开弹窗，避免再次弹出）
+      closeDetailModal();
+      renderContextPanel();
+      await renderAllTabs();
+    } catch (err) {
+      appendLog('system', `拿取失败: ${err.message}`);
+    }
+  }
+
+  let expandedQuestIds = new Set();
+  let selectedSubtask = null;
+
+  function openQuestDetailModal(questId, subtaskIdx) {
+    const questsRaw = state.quests || state.data.quests;
+
+    // 构建任务列表（排除 hidden）
+    const allQuests = Object.values(questsRaw)
+      .filter(q => q.status !== 'hidden')
+      .map(q => ({
+        id: q.id,
+        title: q.name,
+        description: q.description,
+        completed: q.status === 'completed' || (q.objectives && q.objectives.length > 0 && q.objectives.every(o => o.completed)),
+        objectives: (q.objectives || []).map(o => ({ text: o.description, description: o.description, completed: o.completed })),
+        reward: q.reward,
+      }));
+
+    const activeQuests = allQuests.filter(q => !q.completed);
+    const completedQuests = allQuests.filter(q => q.completed);
+
+    let selectedQuestId = questId;
+    expandedQuestIds = new Set([questId]);
+    selectedSubtask = subtaskIdx != null ? { questId: questId, subtaskIdx } : null;
+
+    function renderSidebar() {
+      let html = '';
+
+      if (activeQuests.length > 0) {
+        html += `
+          <div class="task-category" data-category="active">
+            <div class="task-category-title" data-category-toggle="active">
+              <span>进行中</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${activeQuests.map(q => renderNavItem(q)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (completedQuests.length > 0) {
+        html += `
+          <div class="task-category" data-category="completed">
+            <div class="task-category-title" data-category-toggle="completed">
+              <span>已完成任务</span>
+              <span class="task-category-arrow">
+                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+              </span>
+            </div>
+            <div class="task-category-list">
+              ${completedQuests.map(q => renderNavItem(q)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    function buildSubtaskRows(quest) {
+      if (!quest.objectives || quest.objectives.length === 0) return '';
+      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
+      let fiIdx = quest.objectives.findIndex(o => !o.completed);
+      if (fiIdx === -1) fiIdx = quest.objectives.length;
+      const visibleObjs = quest.objectives.slice(0, fiIdx + 1);
+      return visibleObjs.map((st, idx) => {
+        const subCompleted = st.completed ? ' completed' : '';
+        const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? ' active' : '';
+        const subName = st.text + (st.completed ? '（已完成）' : '');
+        return `
+          <div class="task-sub-nav-item${subCompleted}${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
+            <span class="sub-nav-dot"></span>
+            <span class="task-sub-nav-name">${escapeHtml(subName)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderNavItem(quest) {
+      const isActive = quest.id === selectedQuestId;
+      const completedClass = quest.completed ? ' task-completed' : '';
+      const statusText = quest.completed ? '已完成' : '进行中';
+      const statusClass = quest.completed ? 'completed' : 'ongoing';
+      const hasSubtasks = quest.objectives && quest.objectives.length > 0;
+      const isExpanded = expandedQuestIds.has(quest.id);
+      const expandClass = isExpanded ? ' expanded' : '';
+      const noExpandClass = !hasSubtasks ? ' no-expand' : '';
+
+      const subtaskRows = hasSubtasks && isExpanded ? buildSubtaskRows(quest) : '';
+
+      return `
+        <div class="task-nav-item${isActive ? ' active' : ''}${completedClass}${expandClass}${noExpandClass}" data-quest-id="${quest.id}">
+          <span class="task-nav-name">${escapeHtml(quest.title)}</span>
+          <span class="task-nav-status ${statusClass}">${statusText}</span>
+          ${hasSubtasks ? `
+            <span class="task-nav-arrow">
+              <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
+            </span>
+          ` : ''}
+        </div>
+        ${subtaskRows}
+      `;
+    }
+
+    function renderQuestDetail(quest) {
+      const tagClass = quest.completed ? 'completed' : 'ongoing';
+      const tagText = quest.completed ? '已完成' : '进行中';
+      const objectives = quest.objectives || [];
+
+      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
+      let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
+      if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
+      const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
+
+      let subtasksHtml = '';
+      if (visibleObjectives.length > 0) {
+        subtasksHtml = `
+          <div class="task-section-title">阶段目标</div>
+          <div class="task-subtasks">
+            ${visibleObjectives.map(st => `
+              <div class="subtask${st.completed ? ' completed' : ''}">
+                <div class="subtask-check">
+                  ${st.completed
+                    ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                    : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>'}
+                </div>
+                <div class="subtask-text">${escapeHtml(st.text)}${st.completed ? '（已完成）' : ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${escapeHtml(quest.title)}</h2>
+        </div>
+        <div class="task-detail-body">
+          ${subtasksHtml}
+          <div class="task-description">${escapeHtml(quest.description || '')}</div>
+        </div>
+      `;
+    }
+
+    function renderSubtaskDetail(qid, idx) {
+      const quest = allQuests.find(q => q.id === qid);
+      if (!quest) return '';
+      const st = quest.objectives && quest.objectives[idx];
+      if (!st) return '';
+
+      const tagClass = st.completed ? 'completed' : 'ongoing';
+      const tagText = st.completed ? '已完成' : '进行中';
+
+      return `
+        <div class="task-detail-header">
+          <div class="task-detail-tag ${tagClass}">${tagText}</div>
+          <h2>${escapeHtml(st.text)}</h2>
+        </div>
+        <div class="task-detail-body">
+          <div class="task-description">${escapeHtml(st.description || '详细描述待补充。')}</div>
+        </div>
+      `;
+    }
+
+    function renderDetail() {
+      if (selectedSubtask) {
+        return renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
+      }
+      const curQ = allQuests.find(q => q.id === selectedQuestId);
+      return curQ ? renderQuestDetail(curQ) : '';
+    }
+
+    function bindSubtaskEl(sub) {
+      sub.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const qid = sub.dataset.questId;
+        const idx = parseInt(sub.dataset.subtaskIdx);
+        selectedQuestId = qid;
+        selectedSubtask = { questId: qid, subtaskIdx: idx };
+        refreshModal();
+      });
+    }
+
+    function refreshModal() {
+      modalContent.innerHTML = `
+        <div class="task-columns">
+          <div class="task-sidebar">${renderSidebar()}</div>
+          <div class="task-detail" id="task-modal-detail">${renderDetail()}</div>
+        </div>
+      `;
+
+      // 分类折叠/展开
+      modalContent.querySelectorAll('.task-category-title').forEach(title => {
+        title.addEventListener('click', () => {
+          const category = title.closest('.task-category');
+          if (category) category.classList.toggle('collapsed');
+        });
+      });
+
+      // 任务项点击
+      modalContent.querySelectorAll('.task-nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          const qid = item.dataset.questId;
+          const arrowEl = item.querySelector('.task-nav-arrow');
+
+          if (arrowEl && arrowEl.contains(e.target)) {
+            // 切换展开/折叠（局部操作，保证箭头旋转动画生效）
+            const willExpand = !expandedQuestIds.has(qid);
+            if (willExpand) expandedQuestIds.add(qid);
+            else expandedQuestIds.delete(qid);
+            item.classList.toggle('expanded', willExpand);
+
+            // 局部插入/移除子任务行，避免整块重渲染导致动画失效
+            if (willExpand) {
+              const quest = allQuests.find(q => q.id === qid);
+              item.insertAdjacentHTML('afterend', buildSubtaskRows(quest));
+              let nxt = item.nextElementSibling;
+              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
+                bindSubtaskEl(nxt);
+                nxt = nxt.nextElementSibling;
+              }
+            } else {
+              let nxt = item.nextElementSibling;
+              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
+                const cur = nxt;
+                nxt = nxt.nextElementSibling;
+                cur.remove();
+              }
+            }
+
+            if (selectedSubtask && selectedSubtask.questId === qid) {
+              selectedSubtask = null;
+            }
+            selectedQuestId = qid;
+            const detailEl = modalContent.querySelector('#task-modal-detail');
+            if (detailEl) detailEl.innerHTML = renderDetail();
+            return;
+          }
+
+          // 普通点击——选中任务
+          selectedQuestId = qid;
+          selectedSubtask = null;
+          expandedQuestIds.add(qid);
+          refreshModal();
+        });
+      });
+
+      // 子任务项点击
+      modalContent.querySelectorAll('.task-sub-nav-item').forEach(bindSubtaskEl);
+    }
+
+    refreshModal();
+    $('#detail-modal').classList.add('task-panel');
+    modalOverlay.classList.add('active');
+  }
+
+  function closeDetailModal() {
+    currentModalType = null;
+    currentModalId = null;
+    modalOverlay.classList.remove('active');
+    // 延迟移除 task-panel，等 overlay 淡出动画 (0.25s) 完成再恢复尺寸
+    setTimeout(() => {
+      const modal = $('#detail-modal');
+      if (modal) modal.classList.remove('task-panel');
+    }, 300);
+  }
+
+  modalClose.addEventListener('click', closeDetailModal);
+  modalOverlay.addEventListener('click', e => {
+    if (e.target === modalOverlay) closeDetailModal();
+  });
+
+  /* ── 交易系统 ── */
+  let currentTradeNpcId = null;
+
+  /* 商人是否已敌对（偷窃败露/失败后涨价） */
+  function isHostileTo(npcId) {
+    return (state.hostileNpcs || []).includes(npcId);
+  }
+
+  /* 商人收购价：库存内物品按售价半价，否则按物品自身 price 半价（与后端一致）；敌对后买价 ×1.5、卖价更低 */
+  function merchantOffer(npc, itemId) {
+    const entry = (npc.merchant.inventory || []).find(e => e.item_id === itemId);
+    const item = findItemDef(itemId);
+    let price = entry ? entry.price : (item && item.price);
+    if (price == null) return null;
+    if (isHostileTo(currentTradeNpcId)) price = Math.ceil(price * 1.5);
+    return Math.max(1, Math.round(price / 2));
+  }
+
+  async function renderTradeModal() {
+    const npc = state.data.npcs[currentTradeNpcId];
+    if (!npc || !npc.merchant) return;
+    const tradeContent = $('#trade-modal-content');
+    const merchantGold = (state.merchantStates[currentTradeNpcId] && state.merchantStates[currentTradeNpcId].gold != null)
+      ? state.merchantStates[currentTradeNpcId].gold : (npc.merchant.gold || 0);
+    const char = state.character || {};
+    const playerGold = (char.inventory && char.inventory.gold) || 0;
+
+    // 商人货架
+    const soldMap = (state.merchantStates[currentTradeNpcId] && state.merchantStates[currentTradeNpcId].sold) || {};
+    const stolenMap = (state.merchantTheft[currentTradeNpcId]) || {};
+    const hostile = isHostileTo(currentTradeNpcId);
+    const shopRows = await Promise.all((npc.merchant.inventory || []).map(async entry => {
+      const sub = findItemDef(entry.item_id);
+      if (!sub) return '';
+      const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+      const props = itemEffectText(sub);
+      const stockLeft = entry.stock == null ? null : Math.max(0, entry.stock - (soldMap[entry.item_id] || 0) - (stolenMap[entry.item_id] || 0));
+      if (stockLeft === 0) return ''; // 售罄的商品直接从货架移除
+      const stockText = stockLeft != null ? `<span class="trade-item-qty">剩余${stockLeft}</span>` : '';
+      const displayPrice = hostile ? Math.ceil(entry.price * 1.5) : entry.price;
+      return `
+        <div class="trade-item" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+          <div class="item-icon">${iconSvg}</div>
+          <div class="trade-item-name">${escapeHtml(sub.name)} ${stockText}</div>
+          <div class="trade-item-price">${displayPrice} G${hostile ? '<span class="trade-item-qty" title="敌对商人涨价">▲</span>' : ''}</div>
+          <button type="button" class="trade-btn" data-buy="${escapeHtml(entry.item_id)}">购买</button>
+        </div>`;
+    }));
+    const shopHtml = shopRows.join('') || '<div class="trade-empty">货架空空如也</div>';
+
+    // 你的背包：可出售道具（按 id 聚合数量），装备类物品暂不可出售
+    const invItems = state.playerInventory || [];
+    const counts = {};
+    invItems.forEach(iid => counts[iid] = (counts[iid] || 0) + 1);
+    const bagRows = await Promise.all(Object.entries(counts).map(async ([iid, n]) => {
+      const sub = findItemDef(iid);
+      if (!sub) return '';
+      const offer = merchantOffer(npc, iid);
+      if (offer == null) return '';
+      const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
+      const props = itemEffectText(sub);
+      return `
+        <div class="trade-item" data-sell="${escapeHtml(iid)}" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
+          <div class="item-icon">${iconSvg}</div>
+          <div class="trade-item-name">${escapeHtml(sub.name)} <span class="trade-item-qty">×${n}</span></div>
+          <div class="trade-item-price">${offer} G</div>
+          <button type="button" class="trade-btn sell" data-sell="${escapeHtml(iid)}">出售</button>
+        </div>`;
+    }));
+    const bagHtml = bagRows.join('') || '<div class="trade-empty">背包里没有可出售的道具</div>';
+
+    tradeContent.innerHTML = `
+      <div class="trade-header">
+        <div class="trade-title"><span class="modal-avatar">${escapeHtml(npc.name[0] || '?')}</span>
+          交易 · ${escapeHtml(npc.name)}<span class="trade-role">（${escapeHtml(npc.role || '')}）</span>
+        </div>
+        <div class="trade-gold">商人金币 ${merchantGold} G</div>
+      </div>
+      <div class="trade-cols">
+        <div class="trade-col">
+          <div class="trade-col-title">商人货架</div>
+          ${shopHtml}
+        </div>
+        <div class="trade-col">
+          <div class="trade-col-title">你的背包 <span class="trade-item-qty">${playerGold} G</span></div>
+          ${bagHtml}
+        </div>
+      </div>`;
+
+    tradeContent.querySelectorAll('[data-buy]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await callBuyItem(currentTradeNpcId, btn.dataset.buy);
+        await renderTradeModal();
+      });
+    });
+    tradeContent.querySelectorAll('[data-sell]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        await callSellItem(currentTradeNpcId, btn.dataset.sell);
+        await renderTradeModal();
+      });
+    });
+    // 背包行右键：弹出出售菜单（复用 item-context-menu 样式）
+    tradeContent.querySelectorAll('.trade-item[data-sell]').forEach(row => {
+      row.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const itemId = row.dataset.sell;
+        document.querySelectorAll('.trade-context-menu').forEach(m => m.remove());
+        const menu = document.createElement('div');
+        menu.className = 'item-context-menu trade-context-menu visible';
+        menu.innerHTML = `<button class="menu-action" data-action="sell">出售</button>`;
+        document.body.appendChild(menu);
+        let x = e.clientX, y = e.clientY;
+        const rect = menu.getBoundingClientRect();
+        if (x + 150 > window.innerWidth) x = window.innerWidth - 150;
+        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        menu.querySelector('button').addEventListener('click', async () => {
+          menu.remove();
+          await callSellItem(currentTradeNpcId, itemId);
+          await renderTradeModal();
+        });
+        const hide = (ev) => {
+          if (!menu.contains(ev.target)) {
+            menu.remove();
+            document.removeEventListener('click', hide);
+            document.removeEventListener('scroll', hide);
+          }
+        };
+        setTimeout(() => {
+          document.addEventListener('click', hide);
+          document.addEventListener('scroll', hide);
+        }, 0);
+      });
+    });
+  }
+
+  function openTradeModal(npcId) {
+    currentTradeNpcId = npcId;
+    renderTradeModal();
+    tradeModalOverlay.classList.add('active');
+  }
+
+  /* 汇总本次交易（购买/出售的物品与金额），关闭交易弹窗时一次性播报 */
+  function summarizeTradeLog() {
+    const log = state.tradeLog || [];
+    if (log.length === 0) return null;
+    const buys = {}, sells = {};
+    let buyGold = 0, sellGold = 0;
+    log.forEach(t => {
+      if (t.type === 'buy') { buys[t.name] = (buys[t.name] || 0) + t.qty; buyGold += t.gold; }
+      else { sells[t.name] = (sells[t.name] || 0) + t.qty; sellGold += t.gold; }
+    });
+    const fmt = o => Object.entries(o).map(([n, q]) => q > 1 ? `${n}×${q}` : n).join('、');
+    const parts = [];
+    if (Object.keys(buys).length) parts.push(`购买了 ${fmt(buys)}，花费 ${buyGold} 金币`);
+    if (Object.keys(sells).length) parts.push(`出售了 ${fmt(sells)}，获得 ${sellGold} 金币`);
+    const npc = state.data.npcs[currentTradeNpcId];
+    const npcName = npc ? npc.name : '商人';
+    const actor = (state.character && state.character.name) || '你';
+    return `${actor}与${npcName}完成交易：${parts.join('；')}。`;
+  }
+
+  function closeTradeModal() {
+    const msg = summarizeTradeLog();
+    if (msg) appendLog('gm', msg);
+    state.tradeLog = [];
+    currentTradeNpcId = null;
+    tradeModalOverlay.classList.remove('active');
+  }
+
+  async function callBuyItem(npcId, itemId) {
+    try {
+      const res = await fetch('/api/game/buy_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          npc_id: npcId,
+          item_id: itemId,
+          quantity: 1,
+          location_id: currentLocationId(),
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '购买失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+      if (state.character && data.gold != null) {
+        state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+        state.character.inventory.gold = data.gold;
+      }
+      if (data.is_equipment) {
+        const item = findItemDef(itemId);
+        if (item) {
+          // 全局装备库物品没有 equipment_id 字段，直接用 item_id 作为装备索引
+          const eqId = item.equipment_id || itemId;
+          state.tempEquipItems.push({ equipment_id: eqId, quantity: 1, equipped: false });
+        }
+      }
+      // 静默记录交易，关闭交易弹窗时统一播报
+      const bought = findItemDef(itemId);
+      state.tradeLog.push({ type: 'buy', name: bought ? bought.name : itemId, qty: data.quantity || 1, gold: data.cost || 0 });
+      await renderAllTabs();
+      await renderRightPanel();
+      // 金币由后端写回角色 JSON，前端只读展示
+    } catch (err) {
+      appendLog('system', `购买失败: ${err.message}`);
+    }
+  }
+
+  async function callSellItem(npcId, itemId) {
+    try {
+      const res = await fetch('/api/game/sell_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          npc_id: npcId,
+          item_id: itemId,
+          quantity: 1,
+          location_id: currentLocationId(),
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '出售失败');
+      if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+      if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+      if (state.character && data.gold != null) {
+        state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+        state.character.inventory.gold = data.gold;
+      }
+      // 静默记录交易，关闭交易弹窗时统一播报
+      const sold = findItemDef(itemId);
+      state.tradeLog.push({ type: 'sell', name: sold ? sold.name : itemId, qty: data.quantity || 1, gold: data.gain || 0 });
+      await renderAllTabs();
+      await renderRightPanel();
+      // 金币由后端写回角色 JSON，前端只读展示
+    } catch (err) {
+      appendLog('system', `出售失败: ${err.message}`);
+    }
+  }
+
+  const tradeModalOverlay = $('#trade-modal-overlay');
+  const tradeModalClose = $('#trade-modal-close');
+  tradeModalClose.addEventListener('click', closeTradeModal);
+  tradeModalOverlay.addEventListener('click', e => {
+    if (e.target === tradeModalOverlay) closeTradeModal();
+  });
+
+  /* ── 偷窃系统 ── */
+  function applyGameUpdates(updates) {
+    if (!updates) return;
+    if (updates.player_inventory) state.playerInventory = updates.player_inventory;
+    if (updates.merchant_states) state.merchantStates = updates.merchant_states;
+    if (updates.hostile_npcs) state.hostileNpcs = updates.hostile_npcs;
+    if (updates.suspicion) state.suspicion = updates.suspicion;
+    if (updates.npc_alerts) state.npcAlerts = updates.npc_alerts;
+    if (updates.merchant_theft) state.merchantTheft = updates.merchant_theft;
+    if (updates.player_stealth) state.playerStealth = updates.player_stealth;
+    // 被抓住状态 / 通缉 / 逮捕（卫兵流程、监狱）
+    if (updates.caught) state.caught = updates.caught;
+    if (updates.wanted_location !== undefined) state.wantedLocation = updates.wanted_location;
+    if (updates.arrest !== undefined) state.arrest = updates.arrest;
+    // 逃脱传送：后端已切换地点，同步前端场景 location 并刷新
+    if (updates.location_id !== undefined && updates.location_id !== currentLocationId()) {
+      const scene = getCurrentScene();
+      if (scene) {
+        scene.location = updates.location_id;
+        const loc = state.data.locations[updates.location_id];
+        if (loc) {
+          appendLog('system', `你来到了: ${loc.name}`);
+          renderLocationHeader();
+          renderContextPanel();
+        }
+      }
+    }
+    // HP / 法术位 / 短休（后端权威，同步到角色卡显示）
+    if (updates.player_hp) {
+      state.playerHp = updates.player_hp;
+      if (state.character) {
+        state.character.combat = state.character.combat || {};
+        state.character.combat.hp = `${updates.player_hp.cur} / ${updates.player_hp.max}`;
+      }
+    }
+    if (updates.spell_slots_used !== undefined) state.spellSlotsUsed = updates.spell_slots_used;
+    if (updates.short_rests_left !== undefined) state.shortRestsLeft = updates.short_rests_left;
+    watchSuspicion(updates);
+    watchArrest(updates.arrest);
+  }
+
+  /* 监狱狱卒巡逻：在场时真实时间倒计时（guard_until 为秒级时间戳），到点播报"去巡逻"并本地置 away，
+     玩家此时可以撬锁（后端在下一次动作时懒计算确认，权威状态以后端为准） */
+  let jailGuardTimer = null;
+  function watchArrest(arrest) {
+    if (jailGuardTimer) { clearTimeout(jailGuardTimer); jailGuardTimer = null; }
+    if (!arrest || !arrest.active || arrest.phase !== 'jailed') return;
+    if (arrest.jail_guard !== 'present') return;
+    const msLeft = (arrest.guard_until || 0) * 1000 - Date.now();
+    if (msLeft <= 0) return;
+    jailGuardTimer = setTimeout(() => {
+      jailGuardTimer = null;
+      if (state.arrest && state.arrest.active && state.arrest.phase === 'jailed' &&
+          state.arrest.jail_guard === 'present') {
+        state.arrest.jail_guard = 'away';
+        appendLog('system', '狱卒起身去巡逻了，走廊里暂时没人——现在可以试着撬锁！');
+      }
+    }, msLeft);
+  }
+
+  /* 当前是否正被怀疑（强制对话中）：flagrante（情况二，人赃并获）立即锁定；discovered（情况四，延迟败露）超过 5 秒反应期才锁定 */
+  function activeSuspicion() {
+    const s = state.suspicion || {};
+    const now = Date.now();
+    for (const [nid, v] of Object.entries(s)) {
+      if (!(v && v.active)) continue;
+      if (v.mode === 'flagrante') return [nid, v]; // 人赃并获：无反应期，立即锁定质问
+      // detected_at 为后端秒级时间戳，换算为毫秒再比较
+      if (now - (v.detected_at || 0) * 1000 >= 5000) return [nid, v];
+    }
+    return null;
+  }
+
+  /* 被怀疑：锁定移动 + NPC 质问（玩家在聊天框回应，AI 扮演 NPC 推进）。mode=flagrante 为人赃并获，discovered 为延迟败露 */
+  function triggerSuspicion(npcId, mode) {
+    const npc = state.data.npcs[npcId];
+    const npcName = npc ? npc.name : '对方';
+    if (mode === 'flagrante') {
+      appendLog('npc', `${npcName}一把抓住你的手腕，怒目而视："人赃并获！你还有什么话说？！"`);
+      appendLog('system', '你被当场抓住。请在聊天框回应：给钱了事 / 欺骗 / 威吓 / 逃跑（挣脱）等');
+    } else {
+      appendLog('npc', `${npcName}一把拦住你："站住！我刚清点过货，怎么转眼就少了东西……是不是你偷的？让我搜一搜！"`);
+      appendLog('system', '你被怀疑偷窃，暂时无法离开此地。请在聊天框回应：同意搜身 / 给钱承认 / 拒绝 / 欺骗 / 威吓 / 游说 / 逃跑等');
+    }
+  }
+
+  /* 偷窃败露处理：flagrante 立即质问；discovered 走 5 秒反应期（期间不锁定，玩家可离开逃脱；超时仍在原地则触发质问） */
+  const suspicionTimers = {};
+  function watchSuspicion(updates) {
+    if (!updates || !updates.suspicion) return;
+    const now = Date.now();
+    for (const [nid, v] of Object.entries(updates.suspicion)) {
+      if (!(v && v.active)) { if (suspicionTimers[nid]) { clearTimeout(suspicionTimers[nid]); delete suspicionTimers[nid]; } continue; }
+      if (v.mode === 'flagrante') {
+        // 人赃并获：立即质问，不进 5 秒反应期
+        if (!suspicionTimers[nid]) {
+          suspicionTimers[nid] = setTimeout(() => {}, 0); // 占位标记，避免重复触发
+          triggerSuspicion(nid, 'flagrante');
+        }
+        continue;
+      }
+      if (suspicionTimers[nid]) continue; // 已有计时器
+      const elapsed = now - (v.detected_at || 0) * 1000; // detected_at 为秒级，换算毫秒
+      if (elapsed < 5000) {
+        suspicionTimers[nid] = setTimeout(() => {
+          delete suspicionTimers[nid];
+          if (activeSuspicion()) triggerSuspicion(nid, 'discovered');
+        }, 5000 - elapsed);
+      }
+    }
+  }
+
+  /* 当前地点 id（前端自由切换后同步给后端接口） */
+  function currentLocationId() {
+    const loc = getCurrentLocation();
+    return loc ? loc.id : null;
+  }
+
+  /* 确定性端点流式调用（SSE：meta → narrative_chunk → done）。
+     meta 到达即应用状态/骰子；narrative_chunk 流式渲染 GM 润色播报；AI 失败后端已回退固定播报。 */
+  async function callDeterministicStream(url, payload, thinkingText) {
+    const thinkingId = 'thinking-' + Date.now();
+    let gmEntryId = null, gmEntryCreated = false, gmFullText = '';
+    if (thinkingText) appendLog('system', thinkingText, { id: thinkingId });
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        if (thinkingId) removeLogEntry(thinkingId);
+        throw new Error(err.detail || '操作失败');
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === 'meta') {
+              if (data.session_id) state.sessionId = data.session_id;
+              if (data.updates) applyGameUpdates(data.updates);
+              if (data.checks && data.checks.length > 0) data.checks.forEach(c => showCheckLog(c));
+              if (data.gold != null && state.character) {
+                state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+                state.character.inventory.gold = data.gold;
+              }
+            } else if (data.type === 'narrative_chunk') {
+              if (!gmEntryCreated) {
+                if (thinkingId) removeLogEntry(thinkingId);
+                gmEntryId = 'gm-' + Date.now();
+                appendLogEntry({ type: 'gm', text: '', id: gmEntryId });
+                gmEntryCreated = true;
+              }
+              gmFullText += data.text;
+              updateLogEntryText(gmEntryId, gmFullText);
+            } else if (data.type === 'done') {
+              if (data.full_text && data.full_text !== gmFullText) {
+                gmFullText = data.full_text;
+                if (gmEntryId) updateLogEntryText(gmEntryId, gmFullText);
+              }
+            }
+          } catch (e) { /* 跳过解析失败的行 */ }
+        }
+      }
+    } catch (err) {
+      if (thinkingId) removeLogEntry(thinkingId);
+      appendLog('system', `操作失败: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* 被怀疑质问的回应：search（同意搜查）/ pay（给钱承认）/ refuse（拒绝）/ deception/intimidation/persuasion（社交检定），确定性接口 */
+  async function callResolveSuspicion(npcId, action) {
+    try {
+      await callDeterministicStream('/api/game/suspicion', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        npc_id: npcId,
+        action: action,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, 'GM 思考中...');
+      await renderAllTabs();
+      await renderRightPanel();
+      await renderTradeModal();
+    } catch (err) {
+      // callDeterministicStream 已提示错误
+    }
+  }
+
+  /* 点击"监狱大门"越狱（牢门已开）：后端推进狱卒巡逻轮数——狱卒刚好回来 → 强制关回；
+     否则越狱成功（传送市场 + 通缉 + 清状态）。SSE 流式：meta 先应用状态，GM 流式叙事（成功/被关回都会说话） */
+  async function callJailEscape() {
+    try {
+      await callDeterministicStream('/api/game/jail/escape', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, '越狱中，GM 叙事中...');
+      renderLocationHeader();
+      renderContextPanel();
+    } catch (err) {
+      // callDeterministicStream 已提示错误
+    }
+  }
+
+  /* 潜行（确定性接口，前端关键词触发，绕过 AI 意图识别——保证有骰子播报、无需指定目标、响应快） */
+  async function callStealth() {
+    try {
+      await callDeterministicStream('/api/game/stealth', {
+        session_id: state.sessionId,
+        adventure_id: ADVENTURE_ID,
+        chapter_id: CHAPTER_ID,
+        location_id: currentLocationId(),
+        character: state.character,
+      }, '正在潜行检定，GM 润色播报中...');
+      await renderAllTabs();
+      await renderRightPanel();
+      await renderTradeModal();
+    } catch (err) {
+      // callDeterministicStream 已提示错误
+    }
+  }
+
+  /* 展示检定结果（复用 meta.checks 的显示逻辑） */
+  function showCheckLog(c) {
+    if (!c) return;
+    const cnSkills = { perception: '侦察（感知）', investigation: '调查（智力）',
+      sleight_of_hand: '巧手（敏捷）', stealth: '隐匿（敏捷）',
+      insight: '洞悉（感知）', persuasion: '游说（魅力）',
+      deception: '欺瞒（魅力）', intimidation: '威吓（魅力）' };
+    const cnName = cnSkills[c.skill] || c.skill;
+    const dcText = c.dc ? `DC ${c.dc}` : '';
+    const rollText = `d20(${c.roll}) + ${c.modifier} = ${c.total}`;
+    const resultText = c.success ? '  ✓ 成功' : '  ✗ 失败';
+    appendLog('check', `${cnName} ${dcText}: ${rollText}${resultText}`, {
+      success: c.success, roll: c.roll, mod: c.modifier, dc: c.dc
+    });
+  }
+
+  /* ── 掷骰 ── */
+  function rollDice(sides, mod) {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    return { roll, mod: mod || 0, total: roll + (mod || 0) };
+  }
+
+  /* ── 快捷检定按钮 ── */
+  async function handleQuickCheck(type) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法进行检定。');
+      return;
+    }
+    await handlePlayerInput(type === 'perception' ? '侦察周围环境' : '调查这个区域');
+  }
+
+  $$('.check-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleQuickCheck(btn.dataset.check));
+  });
+
+  /* ── 施放法术（前端按钮，确定性结算；对指定目标请在聊天框输入"施放X 打向 Y"）── */
+  async function castSpellFromButton(spellId) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法施法。');
+      return;
+    }
+    try {
+      const res = await fetch('/api/game/cast_spell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          spell_id: spellId,
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '施法失败');
+      applyGameUpdates(data.updates);
+      appendLog('gm', data.message);
+      if (data.damage) {
+        appendLog('system', '若要对指定目标施放，请在聊天框输入：施放法术名 打向 目标名');
+      }
+      await renderAllTabs();
+      await renderRightPanel();
+    } catch (err) {
+      appendLog('system', `施法失败: ${err.message}`);
+    }
+  }
+
+  // 战斗动作事件委托：点击动作块 → 分发给战斗地图（target → 选目标，self → 直接使用）
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('.combat-action');
+    if (!el) return;
+    const api = window.__combatApi;
+    if (!api) return;
+
+    const kind = el.dataset.actionKind;
+    const actionType = el.dataset.actionType;
+
+    if (actionType === 'attack') {
+      api.selectAction({ type: 'attack', kind: el.dataset.attackKind });
+      return;
+    }
+    if (actionType === 'spell') {
+      if (kind === 'self') {
+        api.useSelfAction({ id: el.dataset.spellId });
+      } else {
+        api.selectAction({ type: 'spell', spellId: el.dataset.spellId });
+      }
+      return;
+    }
+    // 普通动作块（常规动作/职业动作）：根据 range 判断自身或需目标
+    if (kind === 'self') {
+      api.useSelfAction({ id: el.dataset.spellId });
+    } else {
+      api.selectAction({ type: 'spell', spellId: el.dataset.spellId });
+    }
+  });
+
+  /* ── 休息（短休回一半血+恢复短休动作 / 长休回满+法术位+消耗干粮）── */
+  async function doRest(type) {
+    if (!state.character) {
+      appendLog('system', '未选择角色，无法休息。');
+      return;
+    }
+    try {
+      const res = await fetch('/api/game/rest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          type: type,
+          character: state.character,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '休息失败');
+      applyGameUpdates(data.updates);
+      appendLog('gm', data.message);
+      await renderAllTabs();
+      await renderRightPanel();
+    } catch (err) {
+      appendLog('system', `休息失败: ${err.message}`);
+    }
+  }
+
+  $$('[data-rest]').forEach(btn => {
+    btn.addEventListener('click', () => doRest(btn.dataset.rest));
+  });
+
+  /* ── 构建场景出口列表 ── */
+  function buildSceneExits(scene) {
+    if (!scene) return [];
+    const exits = [];
+    const loc = getCurrentLocation();
+
+    // 只展示物理地点出口（不展示场景跳转）
+    if (loc && loc.exits) {
+      loc.exits.forEach(exit => {
+        const targetLoc = state.data.locations[exit.target];
+        exits.push({
+          name: exit.name,
+          targetLocationId: exit.target,
+          targetSceneId: null,
+          description: exit.description || (targetLoc ? targetLoc.description : '')
+        });
+      });
+    }
+
+    return exits;
+  }
+
+  /* ── 地点跳转（同场景内自由探索） ── */
+  function navigateToLocation(locationId) {
+    const targetLoc = state.data.locations[locationId];
+    if (!targetLoc) return;
+
+    // 监狱：牢门未开 → 锁定；牢门已开 → 只允许点"监狱大门"越狱（走后端）
+    if (state.arrest && state.arrest.active && state.arrest.phase === 'jailed') {
+      if (!state.arrest.cell_open) {
+        appendLog('system', '你被关在牢里，铁栏杆挡着出不去。等狱卒巡逻时撬锁，或交保释金、蹲夜服刑。');
+        return;
+      }
+      const isJailExit = (state.data.locations['neverwinter-jail']?.exits || []).some(e => e.target === locationId);
+      if (!isJailExit) {
+        appendLog('system', '牢门开着，但你现在只能从“监狱大门”逃出去。');
+        return;
+      }
+      callJailEscape();
+      return;
+    }
+
+    // 卫兵流程中锁定移动（逃跑须明说"逃跑"/"挣脱"）
+    if (state.arrest && state.arrest.active) {
+      appendLog('system', state.arrest.phase === 'summoned' ? '卫兵正在赶来，你没法现在离开。想脱身就说“逃跑”或“挣脱”。' : '卫兵拦住了你的去路，你现在没法离开。');
+      return;
+    }
+
+    // 被怀疑偷窃（强制对话）时锁定移动
+    const sus = activeSuspicion();
+    if (sus) {
+      const npc = state.data.npcs[sus[0]];
+      appendLog('system', `${npc ? npc.name : '对方'}正盯着你，你现在没法离开这里。`);
+      return;
+    }
+
+    // 检查目标地点是否在当前场景的 free_locations 内（如果定义了的话）
+    const scene = getCurrentScene();
+    if (scene && scene.free_locations && scene.free_locations.length > 0 && !scene.free_locations.includes(locationId)) {
+      appendLog('system', '无法到达那个地方。');
+      return;
+    }
+
+    // 更新场景的 location 引用（不切换场景）；离开时解除潜行与被怀疑（5 秒反应期内逃脱）
+    scene.location = locationId;
+    state.playerStealth = {};
+    if (Object.keys(state.suspicion || {}).length) {
+      state.suspicion = {};
+      Object.keys(suspicionTimers).forEach(k => { clearTimeout(suspicionTimers[k]); delete suspicionTimers[k]; });
+    }
+    appendLog('system', `你来到了: ${targetLoc.name}`);
+    appendLog('gm', targetLoc.scene_text || targetLoc.description || '');
+
+    renderLocationHeader();
+    renderContextPanel();
+  }
+
+  /* ── 场景跳转 ── */
+  function navigateToScene(sceneId) {
+    const targetScene = state.data.scenes[sceneId];
+    if (!targetScene) return;
+
+    // 卫兵流程中锁定移动
+    if (state.arrest && state.arrest.active) {
+      appendLog('system', '卫兵拦住了你的去路，你现在没法离开。');
+      return;
+    }
+
+    // 被怀疑偷窃（强制对话）时锁定移动
+    const sus = activeSuspicion();
+    if (sus) {
+      const npc = state.data.npcs[sus[0]];
+      appendLog('system', `${npc ? npc.name : '对方'}正盯着你，你现在没法离开这里。`);
+      return;
+    }
+
+    const targetLoc = state.data.locations[targetScene.location];
+    if (!targetLoc) {
+      appendLog('system', `无法到达: ${targetScene.name}`);
+      return;
+    }
+
+    state.currentSceneId = sceneId;
+    state.playerStealth = {};
+    if (Object.keys(state.suspicion || {}).length) {
+      state.suspicion = {};
+      Object.keys(suspicionTimers).forEach(k => { clearTimeout(suspicionTimers[k]); delete suspicionTimers[k]; });
+    }
+    appendLog('gm', targetLoc.scene_text || targetLoc.description || targetScene.description || '');
+
+    renderLocationHeader();
+    renderContextPanel();
+  }
+
+  /* ── 处理玩家输入（接入后端 API + AI GM） ── */
+  async function handlePlayerInput(text) {
+    if (!text || !text.trim()) return;
+    const inputText = text.trim();
+    appendLog('player', inputText);
+    playerInput.value = '';
+    sendBtn.disabled = true;
+
+    // 被怀疑（强制对话）：玩家在聊天框的回应直接触发确定性处理，不依赖 AI 意图识别
+    const sus = activeSuspicion();
+    if (sus) {
+      let action = null;
+      if (/(逃跑|跑路|溜走|挣脱|挣扎|开溜|溜之大吉)/.test(inputText)) action = 'flee';
+      else if (/(拒绝|休想|凭什么|不给|不赔|要钱没有)/.test(inputText)) action = 'refuse';
+      else if (/(威胁|你敢|不然|否则|别逼我|小心点)/.test(inputText)) action = 'intimidation';
+      else if (/(让.{0,4}搜|同意.{0,4}搜|随便.{0,4}搜|搜吧|搜身|检查|翻吧|你来搜)/.test(inputText)) action = 'search';
+      else if (/(给钱|赔钱|赔偿|承认|认了|愿意赔)/.test(inputText)) action = 'pay';
+      else if (/(说服|讲道理|解释|误会|求情|好好说)/.test(inputText)) action = 'persuasion';
+      else if (/(骗|撒谎|不是我|没偷|冤枉|瞒|诬陷)/.test(inputText)) action = 'deception';
+      if (action) {
+        await callResolveSuspicion(sus[0], action);
+        sendBtn.disabled = false;
+        return;
+      }
+    }
+
+    // 潜行（确定性触发，绕过 AI 意图识别——AI 因工具签名必填 target_id 常卡住不调工具）。
+    // 潜行无需目标；含"偷/窃"时交给偷窃流程（偷窃自带潜行判定）。
+    if (/(潜行|隐匿|躲起来|藏起来|偷偷摸摸|蹑手蹑脚|躲到|躲进|藏进)/.test(inputText) && !/(偷|窃)/.test(inputText)) {
+      await callStealth();
+      sendBtn.disabled = false;
+      return;
+    }
+
+    // 推测是否需要检定（含检定关键词时显示更强提示）
+    const checkKeywords = ['侦察', '调查', '洞悉', '察觉', '察言观色', '偷', '窃', '拿取',
+      '潜行', '隐匿', '威吓', '说服', '欺瞒', '巧手'];
+    const maybeCheck = checkKeywords.some(kw => inputText.includes(kw));
+    const thinkingId = 'thinking-' + Date.now();
+    const thinkingText = maybeCheck ? '正在进行检定，GM 思考中...' : 'GM 正在思考...';
+    appendLog('system', thinkingText, { id: thinkingId });
+    const gmEntryId = 'gm-' + Date.now();
+    let gmEntryCreated = false;
+
+    try {
+      const resp = await fetch('/api/game/action/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adventure_id: ADVENTURE_ID,
+          chapter_id: CHAPTER_ID,
+          session_id: state.sessionId,
+          scene_id: state.currentSceneId,
+          location_id: getCurrentLocation()?.id || null,
+          player_input: inputText,
+          character: state.character,
+        }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        removeLogEntry(thinkingId);
+        appendLog('system', `通讯失败：${err.detail || '请稍后重试'}`);
+        sendBtn.disabled = false;
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let gmFullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === 'meta') {
+              // 处理元数据
+              if (data.session_id) state.sessionId = data.session_id;
+              if (data.updates) {
+                if (data.updates.scene_id) state.currentSceneId = data.updates.scene_id;
+                if (data.updates.location_id !== undefined) {
+                  const scene = getCurrentScene();
+                  if (scene) scene.location = data.updates.location_id;
+                }
+                if (data.updates.player_inventory) state.playerInventory = data.updates.player_inventory;
+                if (data.updates.container_taken) state.containerTaken = data.updates.container_taken;
+                if (data.updates.npc_states) state.npcStates = data.updates.npc_states;
+                if (data.updates.merchant_states) state.merchantStates = data.updates.merchant_states;
+                if (data.updates.hostile_npcs) state.hostileNpcs = data.updates.hostile_npcs;
+                if (data.updates.suspicion) state.suspicion = data.updates.suspicion;
+                if (data.updates.arrest !== undefined) { state.arrest = data.updates.arrest; watchArrest(state.arrest); }
+                if (data.updates.caught !== undefined) state.caught = data.updates.caught;
+                if (data.updates.wanted_location !== undefined) state.wantedLocation = data.updates.wanted_location;
+                if (data.updates.npc_alerts) state.npcAlerts = data.updates.npc_alerts;
+                if (data.updates.merchant_theft) state.merchantTheft = data.updates.merchant_theft;
+                if (data.updates.player_stealth) state.playerStealth = data.updates.player_stealth;
+                if (data.updates.quest_states) {
+                  Object.entries(data.updates.quest_states).forEach(([qid, update]) => {
+                    if (state.quests[qid]) Object.assign(state.quests[qid], update);
+                    if (state.data && state.data.quests[qid]) Object.assign(state.data.quests[qid], update);
+                  });
+                }
+                watchSuspicion(data.updates);
+              }
+
+              // 检定提示（在 GM 回复前显示）
+              if (data.checks && data.checks.length > 0) {
+                const cnSkills = { perception: '侦察（感知）', investigation: '调查（智力）',
+                  sleight_of_hand: '巧手（敏捷）', stealth: '隐匿（敏捷）',
+                  insight: '洞悉（感知）', persuasion: '游说（魅力）',
+                  deception: '欺瞒（魅力）', intimidation: '威吓（魅力）',
+                  athletics: '运动（力量）', acrobatics: '体操（敏捷）' };
+                data.checks.forEach(c => {
+                  const cnName = cnSkills[c.skill] || c.skill;
+                  const dcText = c.dc ? `DC ${c.dc}` : '';
+                  const rollText = `d20(${c.roll}) + ${c.modifier} = ${c.total}`;
+                  const resultText = c.success ? '  ✓ 成功' : '  ✗ 失败';
+                  appendLog('check', `${cnName} ${dcText}: ${rollText}${resultText}`, {
+                    success: c.success, roll: c.roll, mod: c.modifier, dc: c.dc
+                  });
+                });
+              }
+
+              // 状态变更处理
+              if (data.state_changes && data.state_changes.length > 0) {
+                for (const ch of data.state_changes) {
+                  if (ch.type === 'advance_scene') {
+                    navigateToScene(ch.scene_id);
+                  } else if (ch.type === 'move_player') {
+                    navigateToLocation(ch.location_id);
+                  } else if (ch.type === 'move_item' && ch.to?.type === 'player') {
+                    appendLog('system', '你获得了：' + getItemName(ch.item_id));
+                  }
+                }
+              }
+            } else if (data.type === 'narrative_chunk') {
+              // 第一个 chunk 到达时，移除思考提示，创建 GM 条目
+              if (!gmEntryCreated) {
+                removeLogEntry(thinkingId);
+                appendLogEntry({ type: 'gm', text: '', id: gmEntryId });
+                gmEntryCreated = true;
+              }
+              gmFullText += cleanGmText(data.text);
+              updateLogEntryText(gmEntryId, gmFullText);
+            } else if (data.type === 'done') {
+              // 流结束，用最终完整文本替换
+              if (data.full_text && data.full_text !== gmFullText) {
+                gmFullText = cleanGmText(data.full_text);
+                updateLogEntryText(gmEntryId, gmFullText);
+              }
+            }
+          } catch (e) {
+            // 跳过解析失败的行
+          }
+        }
+      }
+
+      // 刷新 UI
+      renderLocationHeader();
+      renderContextPanel();
+      await renderRightPanel();
+    } catch (e) {
+      console.error('GM stream error:', e);
+      removeLogEntry(thinkingId);
+      appendLog('system', '与 GM 的连接中断，请稍后重试。');
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  function getItemName(itemId) {
+    if (!state.data || !state.data.items) return itemId;
+    return state.data.items[itemId]?.name || itemId;
+  }
+
+  function removeLogEntry(id) {
+    // 从 state.log 中移除
+    state.log = state.log.filter(e => !(e.meta && e.meta.id === id));
+    // 从 DOM 中移除
+    const entry = document.querySelector(`[data-log-id="${id}"]`);
+    if (entry) entry.remove();
+  }
+
+  sendBtn.addEventListener('click', () => {
+    const text = playerInput.value;
+    if (text.trim()) {
+      handlePlayerInput(text);
+      playerInput.value = '';
+    }
+  });
+
+  playerInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const text = playerInput.value;
+      if (text.trim()) {
+        handlePlayerInput(text);
+        playerInput.value = '';
+      }
+    }
+  });
+
+  /* ── 键盘快捷操作 ── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (modalOverlay.classList.contains('active')) {
+        closeDetailModal();
+      }
+    }
+  });
+
+  /* ── 面板拖拽调整宽度 ── */
+  (function initResize() {
+    try {
+      const leftPanel = $('#left-panel');
+      const rightPanel = $('#right-panel');
+      const handleLeft = $('#resize-handle-left');
+      const handleRight = $('#resize-handle-right');
+      const root = document.documentElement;
+      const MIN_W = 120;
+
+      const savedLW = parseInt(localStorage.getItem('adventure-left-panel-w'));
+      const savedRW = parseInt(localStorage.getItem('adventure-right-panel-w'));
+      if (savedLW && savedLW >= MIN_W) {
+        root.style.setProperty('--left-panel-w', savedLW + 'px');
+      }
+      if (savedRW && savedRW >= MIN_W) {
+        root.style.setProperty('--right-panel-w', savedRW + 'px');
+      }
+
+      function makeResizable(handle, panel, cssVar, isRight) {
+        if (!handle || !panel) return;
+        let dragging = false;
+        let startX, startW;
+
+        handle.addEventListener('mousedown', e => {
+          dragging = true;
+          startX = e.clientX;
+          startW = panel.getBoundingClientRect().width;
+          handle.classList.add('active');
+          document.body.style.cursor = 'col-resize';
+          document.body.style.userSelect = 'none';
+          e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+          if (!dragging) return;
+          const delta = isRight ? (startX - e.clientX) : (e.clientX - startX);
+          const newW = Math.max(MIN_W, startW + delta);
+          root.style.setProperty(cssVar, newW + 'px');
+        });
+        document.addEventListener('mouseup', () => {
+          if (!dragging) return;
+          dragging = false;
+          handle.classList.remove('active');
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+          const w = panel.getBoundingClientRect().width;
+          localStorage.setItem(isRight ? 'adventure-right-panel-w' : 'adventure-left-panel-w', Math.round(w));
+        });
+      }
+
+      makeResizable(handleLeft, leftPanel, '--left-panel-w', false);
+      makeResizable(handleRight, rightPanel, '--right-panel-w', true);
+    } catch (e) {}
+  })();
+
+  /* ── 初始化游戏 ── */
+  async function initGame() {
+    try {
+      await loadCharacter();
+      await loadAllData();
+      await loadCatalogs();
+      initTabs();
+
+      // 战斗地图：切换到地图配置指定的战斗场景（如三猪小径 → ch1-scene2），
+      // 使左侧栏显示当前战斗地点的 NPC / 物品 / 任务
+      try {
+        const mapId = new URLSearchParams(location.search).get('map') || 'triboar-trail-ambush';
+        const mapRes = await fetch(`/data/combat/maps/${encodeURIComponent(mapId)}.json`);
+        if (mapRes.ok) {
+          const mapCfg = await mapRes.json();
+          if (mapCfg.scene && state.data.scenes[mapCfg.scene]) {
+            state.currentSceneId = mapCfg.scene;
+          }
+        }
+      } catch (e) {
+        console.warn('读取战斗地图场景失败，使用默认场景:', e);
+      }
+
+      // 属性跟随已装备物品（护甲 AC / 武器伤害与攻击加值）
+      if (state.character) recalcCharacterStats(state.character);
+
+      const scene = getCurrentScene();
+      const loc = getCurrentLocation();
+      if (!scene || !loc) {
+        narrativeLog.innerHTML = '<div class="log-entry system" style="text-align:center;"><div class="log-label">错误</div><div>未找到初始场景</div></div>';
+        return;
+      }
+
+      // 清空日志 + 显示加载中
+      state.log = [];
+      narrativeLog.innerHTML = '<div class="log-entry system" style="text-align:center;"><div class="log-label">系统</div><div>游戏加载中，GM 正在准备开场...</div></div>';
+
+      // 请求开场白（后端启动时已预生成，毫秒级响应）
+      const resp = await fetch(`/api/game/opening?adventure_id=${encodeURIComponent(ADVENTURE_ID)}&chapter_id=${encodeURIComponent(CHAPTER_ID)}&scene_id=${encodeURIComponent(scene.id)}`);
+      const data = await resp.json();
+
+      // 存储 session_id 供后续对话使用
+      state.sessionId = data.session_id;
+
+      // 清空加载提示，显示开场白
+      state.log = [];
+      appendLog('gm', data.opening || loc.scene_text || loc.description || scene.description || '');
+
+      // 渲染 UI
+      renderLocationHeader();
+      renderContextPanel();
+      await renderRightPanel();
+      await renderAllTabs();
+
+      // 战斗结算回调：同步右侧面板（HP 等）
+      if (window.__combatApi) {
+        window.__combatApi.onResolve = (result) => {
+          // 玩家 HP 以地图玩家 token 为权威（玩家回合选中、敌人回合未选中都适用）
+          const api = window.__combatApi;
+          const playerTok = api && api.getPlayerToken ? api.getPlayerToken() : null;
+          if (playerTok && playerTok.data && state.character) {
+            const hpStr = `${playerTok.data.hpCur ?? 0} / ${playerTok.data.hpMax ?? 0}`;
+            state.character.combat.hp = hpStr;
+          }
+          renderRightPanel().then(() => renderAllTabs());
+        };
+      }
+    } catch (err) {
+      console.error('初始化失败:', err);
+      narrativeLog.innerHTML = `<div class="log-entry system" style="text-align:center;"><div class="log-label">错误</div><div>数据加载失败: ${err.message}</div></div>`;
+    }
+  }
+
+  /* ── 启动 ── */
+  document.body.classList.add('page-in');
+  initGame();
+})();
+</script>
+<script type="module" src="./js/combat/main.js"></script>
+</body>
+</html>

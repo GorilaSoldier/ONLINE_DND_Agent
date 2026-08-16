@@ -84,6 +84,11 @@ def _build_context(state) -> dict:
         },
         "arrest": state.arrest,
         "wanted_location": state.wanted_location,
+        # 通缉区域名称列表（供 AI prompt 渲染，wanted_location 为地点 id 列表）
+        "wanted_names": [
+            (get_location(state.data, lid) or {}).get("name", lid)
+            for lid in (state.wanted_location or [])
+        ],
     }
 
 

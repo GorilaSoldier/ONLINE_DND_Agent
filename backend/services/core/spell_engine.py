@@ -83,11 +83,16 @@ def resolve_spell_id(character: dict, spell_id: str) -> str:
     return spell_id
 
 
+def _pname(character: dict | None) -> str:
+    """玩家角色名（播报一律用角色名，禁止第一/第二人称）"""
+    return (character or {}).get("name") or "冒险者"
+
+
 def can_cast(state, character: dict, spell_id: str) -> tuple:
     """施法前置校验：法术已知（支持中文名/ id）+ 法术位充足（戏法不消耗）。返回 (是否可施放, 原因)"""
     spell_id = resolve_spell_id(character, spell_id)
     if spell_id not in known_spell_ids(character):
-        return False, "你不会这个法术。"
+        return False, f"{_pname(character)}不会这个法术。"
     if is_cantrip(spell_id, character):
         return True, ""
     level = 1
@@ -158,7 +163,7 @@ def cast_spell(state, character: dict, spell_id: str, target_npc_id: str = None)
         total = sum(random.randint(1, params["die"]) for _ in range(params["count"]))
         total += casting_ability_mod(character)
         healed = state.heal_player(total)
-        result.update(heal=healed, message=f"你施放{spell_name}，恢复了 {healed} 点生命值。")
+        result.update(heal=healed, message=f"{_pname(character)}施放{spell_name}，恢复了 {healed} 点生命值。")
 
     elif kind == "damage":
         total = 0
@@ -178,14 +183,14 @@ def cast_spell(state, character: dict, spell_id: str, target_npc_id: str = None)
                 result["damage"] = total // 2
             name = npc.get("name") or target_npc_id
             result["message"] = (
-                f"你施放{spell_name}，目标{name}{'豁免成功' if half else '豁免失败'}，"
+                f"{_pname(character)}施放{spell_name}，目标{name}{'豁免成功' if half else '豁免失败'}，"
                 f"受到 {result['damage']} 点{params['dtype']}伤害。"
             )
             npc_state = state.npc_states.setdefault(target_npc_id, {})
             npc_state["wounded"] = True
             npc_state["last_damage"] = result["damage"]
         else:
-            result["message"] = f"你施放{spell_name}，造成 {total} 点{params['dtype']}伤害。"
+            result["message"] = f"{_pname(character)}施放{spell_name}，造成 {total} 点{params['dtype']}伤害。"
             if npc:
                 npc_state = state.npc_states.setdefault(target_npc_id, {})
                 npc_state["wounded"] = True
@@ -193,6 +198,6 @@ def cast_spell(state, character: dict, spell_id: str, target_npc_id: str = None)
 
     else:  # narrative：隐身/护盾/法师护甲/睡眠等，效果由 AI 按 description 叙事
         result["narrative"] = spell.get("description", "")
-        result["message"] = f"你施放了{spell_name}。"
+        result["message"] = f"{_pname(character)}施放了{spell_name}。"
 
     return result

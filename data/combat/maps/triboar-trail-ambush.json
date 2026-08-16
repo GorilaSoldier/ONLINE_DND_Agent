@@ -1,0 +1,45 @@
+{
+  "id": "triboar-trail-ambush",
+  "name": "三猪小径·伏击点",
+  "image": "/pic/地图/三猪小径.png",
+  "scene": "ch1-scene2",
+  "meters_per_cell": 1.5,
+  "grid_cols": 18,
+  "grid_rows": 24,
+  "obstacles": [
+    {"col": 0, "row": 0, "kind": "tree"}, {"col": 1, "row": 0, "kind": "tree"}, {"col": 2, "row": 0, "kind": "tree"}, {"col": 3, "row": 0, "kind": "tree"}, {"col": 4, "row": 0, "kind": "tree"}, {"col": 5, "row": 0, "kind": "tree"}, {"col": 6, "row": 0, "kind": "tree"}, {"col": 7, "row": 0, "kind": "tree"}, {"col": 8, "row": 0, "kind": "tree"}, {"col": 9, "row": 0, "kind": "tree"}, {"col": 10, "row": 0, "kind": "tree"}, {"col": 11, "row": 0, "kind": "tree"}, {"col": 12, "row": 0, "kind": "tree"}, {"col": 13, "row": 0, "kind": "tree"}, {"col": 14, "row": 0, "kind": "tree"}, {"col": 15, "row": 0, "kind": "tree"}, {"col": 16, "row": 0, "kind": "tree"}, {"col": 17, "row": 0, "kind": "tree"},
+    {"col": 0, "row": 1, "kind": "tree"}, {"col": 1, "row": 1, "kind": "tree"}, {"col": 7, "row": 1, "kind": "tree"}, {"col": 8, "row": 1, "kind": "tree"}, {"col": 9, "row": 1, "kind": "tree"},
+    {"col": 0, "row": 2, "kind": "tree"}, {"col": 1, "row": 2, "kind": "tree"}, {"col": 7, "row": 2, "kind": "tree"}, {"col": 8, "row": 2, "kind": "tree"}, {"col": 9, "row": 2, "kind": "tree"}, {"col": 13, "row": 2, "kind": "tree"}, {"col": 14, "row": 2, "kind": "tree"}, {"col": 15, "row": 2, "kind": "tree"}, {"col": 16, "row": 2, "kind": "tree"}, {"col": 17, "row": 2, "kind": "tree"},
+    {"col": 0, "row": 3, "kind": "tree"}, {"col": 1, "row": 3, "kind": "tree"}, {"col": 2, "row": 3, "kind": "tree"}, {"col": 3, "row": 3, "kind": "tree"}, {"col": 6, "row": 3, "kind": "tree"}, {"col": 7, "row": 3, "kind": "tree"}, {"col": 8, "row": 3, "kind": "tree"}, {"col": 9, "row": 3, "kind": "tree"}, {"col": 10, "row": 3, "kind": "tree"}, {"col": 11, "row": 3, "kind": "tree"}, {"col": 13, "row": 3, "kind": "tree"}, {"col": 14, "row": 3, "kind": "tree"}, {"col": 15, "row": 3, "kind": "tree"}, {"col": 16, "row": 3, "kind": "tree"}, {"col": 17, "row": 3, "kind": "tree"},
+    {"col": 0, "row": 4, "kind": "tree"}, {"col": 1, "row": 4, "kind": "tree"}, {"col": 2, "row": 4, "kind": "tree"}, {"col": 3, "row": 4, "kind": "tree"}, {"col": 4, "row": 4, "kind": "tree"}, {"col": 9, "row": 4, "kind": "tree"}, {"col": 10, "row": 4, "kind": "tree"}, {"col": 11, "row": 4, "kind": "tree"}, {"col": 14, "row": 4, "kind": "tree"}, {"col": 15, "row": 4, "kind": "tree"}, {"col": 16, "row": 4, "kind": "tree"}, {"col": 17, "row": 4, "kind": "tree"},
+    {"col": 0, "row": 5, "kind": "tree"}, {"col": 1, "row": 5, "kind": "tree"}, {"col": 2, "row": 5, "kind": "tree"}, {"col": 3, "row": 5, "kind": "tree"}, {"col": 16, "row": 5, "kind": "tree"}, {"col": 17, "row": 5, "kind": "tree"},
+    {"col": 7, "row": 6, "kind": "tree"}, {"col": 8, "row": 6, "kind": "tree"}, {"col": 11, "row": 6, "kind": "tree"},
+    {"col": 11, "row": 7, "kind": "tree"}, {"col": 8, "row": 7, "kind": "tree"},
+    {"col": 11, "row": 8, "kind": "tree"},
+    {"col": 1, "row": 9, "kind": "rock"}, {"col": 2, "row": 9, "kind": "rock"},
+    {"col": 0, "row": 10, "kind": "rock"}, {"col": 1, "row": 10, "kind": "rock"}, {"col": 2, "row": 10, "kind": "rock"}, {"col": 6, "row": 10, "kind": "wall"}, {"col": 7, "row": 10, "kind": "wall"}, {"col": 11, "row": 10, "kind": "wall"},
+    {"col": 1, "row": 11, "kind": "rock"}, {"col": 7, "row": 11, "kind": "wall"}, {"col": 8, "row": 11, "kind": "wall"}, {"col": 9, "row": 11, "kind": "wall"}, {"col": 10, "row": 11, "kind": "wall"},
+    {"col": 4, "row": 14, "kind": "tree"},
+    {"col": 0, "row": 15, "kind": "tree"}, {"col": 1, "row": 15, "kind": "tree"}, {"col": 2, "row": 15, "kind": "tree"}, {"col": 3, "row": 15, "kind": "tree"},
+    {"col": 3, "row": 16, "kind": "tree"}, {"col": 4, "row": 16, "kind": "tree"},
+    {"col": 0, "row": 17, "kind": "tree"}, {"col": 1, "row": 17, "kind": "tree"}, {"col": 2, "row": 17, "kind": "tree"}, {"col": 3, "row": 17, "kind": "tree"}, {"col": 8, "row": 17, "kind": "wall"}, {"col": 9, "row": 17, "kind": "wall"}, {"col": 10, "row": 17, "kind": "wall"}, {"col": 11, "row": 17, "kind": "wall"}, {"col": 13, "row": 17, "kind": "tree"}, {"col": 14, "row": 17, "kind": "tree"}, {"col": 15, "row": 17, "kind": "tree"}, {"col": 17, "row": 17, "kind": "tree"},
+    {"col": 0, "row": 18, "kind": "tree"}, {"col": 1, "row": 18, "kind": "tree"}, {"col": 2, "row": 18, "kind": "tree"}, {"col": 3, "row": 18, "kind": "tree"}, {"col": 6, "row": 18, "kind": "wall"}, {"col": 7, "row": 18, "kind": "wall"}, {"col": 12, "row": 18, "kind": "tree"}, {"col": 13, "row": 18, "kind": "tree"}, {"col": 14, "row": 18, "kind": "tree"}, {"col": 15, "row": 18, "kind": "tree"}, {"col": 17, "row": 18, "kind": "tree"},
+    {"col": 0, "row": 19, "kind": "tree"}, {"col": 1, "row": 19, "kind": "tree"}, {"col": 2, "row": 19, "kind": "tree"}, {"col": 3, "row": 19, "kind": "tree"}, {"col": 4, "row": 19, "kind": "tree"}, {"col": 13, "row": 19, "kind": "tree"}, {"col": 14, "row": 19, "kind": "tree"}, {"col": 17, "row": 19, "kind": "tree"},
+    {"col": 0, "row": 20, "kind": "tree"}, {"col": 1, "row": 20, "kind": "tree"}, {"col": 2, "row": 20, "kind": "tree"}, {"col": 3, "row": 20, "kind": "tree"}, {"col": 14, "row": 20, "kind": "tree"}, {"col": 16, "row": 20, "kind": "tree"}, {"col": 17, "row": 20, "kind": "tree"},
+    {"col": 0, "row": 21, "kind": "tree"}, {"col": 1, "row": 21, "kind": "tree"}, {"col": 2, "row": 21, "kind": "tree"}, {"col": 3, "row": 21, "kind": "tree"}, {"col": 8, "row": 21, "kind": "tree"}, {"col": 9, "row": 21, "kind": "tree"}, {"col": 11, "row": 21, "kind": "tree"}, {"col": 16, "row": 21, "kind": "tree"}, {"col": 17, "row": 21, "kind": "tree"},
+    {"col": 7, "row": 22, "kind": "tree"}, {"col": 8, "row": 22, "kind": "tree"}, {"col": 10, "row": 22, "kind": "tree"}, {"col": 13, "row": 22, "kind": "tree"}, {"col": 16, "row": 22, "kind": "tree"}, {"col": 17, "row": 22, "kind": "tree"},
+    {"col": 5, "row": 23, "kind": "tree"}, {"col": 15, "row": 23, "kind": "tree"}, {"col": 16, "row": 23, "kind": "tree"}, {"col": 17, "row": 23, "kind": "tree"}
+  ],
+  "spawns": {
+    "players": [
+      { "col": 2, "row": 12 },
+      { "col": 3, "row": 13 }
+    ],
+    "enemies": [
+      { "col": 14, "row": 9 },
+      { "col": 15, "row": 11 },
+      { "col": 13, "row": 13 },
+      { "col": 16, "row": 7 }
+    ]
+  }
+}

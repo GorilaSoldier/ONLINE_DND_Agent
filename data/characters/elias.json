@@ -250,20 +250,22 @@
     ],
     "spell_ids": {
       "level_1": [
-        "fireball",
         "cure_wounds"
       ]
     }
   },
+  "cantrip_ids": [
+    "firebolt"
+  ],
   "background": {
     "class": "4级战士 战斗大师",
     "race": "人类",
     "attributes": {
-      "move_speed": "3格",
+      "move_speed": "4.5m",
       "darkvision": "0",
-      "ranged_range": "4格",
-      "melee_range": "1格",
-      "throw_range": "4格",
+      "ranged_range": "6m",
+      "melee_range": "1.5m",
+      "throw_range": "6m",
       "size": "中型",
       "weight": "65kg",
       "carry_weight": "200kg"

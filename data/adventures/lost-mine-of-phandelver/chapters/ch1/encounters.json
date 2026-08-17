@@ -23,10 +23,12 @@
       "type": "combat",
       "scene": "ch1-scene2",
       "location": "triboar-trail-ambush",
+      "map_id": "triboar-trail-ambush",
       "trigger": "player_approaches-horses",
       "description": "当玩家靠近死马调查时，埋伏在灌木丛中的四只地精发起伏击。",
       "enemies": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
       "tactics": "地精会先用远程攻击，若玩家接近则改用弯刀。若战斗不利，地精会试图逃跑向窝点报信。",
+      "loot": ["empty-map-case", "scattered-supplies"],
       "clues": [
         "死马身上有黑羽箭",
         "空地图匣说明地图被拿走了",

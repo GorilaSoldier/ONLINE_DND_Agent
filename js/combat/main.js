@@ -6,7 +6,7 @@
 import { loadMapConfig, loadImage, renderMap, computeMapDimensions, pixelToCell, highlightCells, clearHighlights, cellToPixel } from './map.js';
 import { createToken, moveToken, selectToken, deselectToken, updateTokenPosition, getMoveCells, updateTokenHp, spawnFloatingText } from './token.js';
 import { calculateReachableCells, filterByRadius, reconstructPath, parseMeters, metersToCells, cellKey } from './movement.js';
-import { resolveAttack, resolveSpell, resolveSelfAction, hpMax, hpCur } from './actions.js';
+import { resolveAttack, resolveSpell, resolveSelfAction, hpMax, hpCur, rollD20 } from './actions.js';
 
 const API_BASE = window.location.origin;
 const ADVENTURE_ID = 'lost-mine-of-phandelver';
@@ -23,6 +23,16 @@ let state = 'idle'; // idle | selected | moving | targeting
 let interactionsSetup = false;
 let rangeCircle = null;
 
+/* ══════════ M6：遭遇上下文（从 adventure.html 传入）══════════
+ * 通过 sessionStorage.encounterContext 传递，URL ?encounter=xxx 触发
+ * encounterContext = {
+ *   encounterId, encounterName, mapId, enemies: ['goblin-ambusher-1', ...],
+ *   allies: [], playerSnapshot: { charId, hpCur, hpMax, ac },
+ *   returnSceneId, nextSceneId, loot: [...], clues: [...], description
+ * }
+ */
+let encounterContext = null;
+
 // 当前选中的动作（targeting 时有效）：{type:'attack', kind} | {type:'spell', spellId}
 let pendingAction = null;
 // 射程内的可点击目标
@@ -30,8 +40,124 @@ let targetableTokens = [];
 
 // NPC / 法术目录（从后端 JSON 加载，供结算用）
 let npcCatalog = {};
+let npcTemplates = {};
 let spellLookup = {};
 let equipmentCatalog = {};
+
+/* ══════════ 动作经济（D&D 5e）══════════
+ * 每回合：1 动作 + 1 附赠动作 + 移动力（米，不结转）
+ * 展示用米（斜走消耗 √2 格 ≈ 2.12 米，非整数格）
+ * 回气（second_wind）：1 次/战斗
+ */
+let turnResources = {
+  action: 1,
+  bonus: 1,
+  moveLeft: 0,             // 剩余移动力（米）
+  moveBase: 0,             // 基础移动力（米）
+  secondWindUsed: false,   // 回气每场战斗 1 次
+  actionSurgeUsed: false,  // 动作如潮每场战斗 1 次
+};
+
+/* ══════════ 先攻顺序（D&D 5e RAW：逐个掷骰，降序排列）══════════
+ * initiativeOrder: [{ token, initiative, faction, name }, ...] 降序
+ * currentInitIndex: 当前行动者索引；advanceInitiative 跳过死亡
+ */
+let initiativeOrder = [];
+let currentInitIndex = -1;
+let turnCounter = 1;       // 第几轮（走完一圈 +1，用于状态栏提示）
+let lastLogTurn = null;    // 战斗日志：上一次记录的轮次，用于换轮时插入分隔条
+
+/** action_type 文案 → 消耗类型：'action' | 'bonus' | 'free' */
+function costFromType(type, fallback = 'action') {
+  if (type === '附赠动作') return 'bonus';
+  if (type === '1动作') return 'action';
+  if (type === '自由动作') return 'free';
+  return fallback;
+}
+
+/** 地图动作 → 消耗类型：攻击一律动作；法术/动作读 spells.json 的 action_type（默认 1 动作） */
+function actionCostOf(action) {
+  if (!action) return 'free';
+  if (action.type === 'attack') return 'action';
+  // 自身动作（useSelfAction 传 {id:'xxx'}）/ 法术（{type:'spell', spellId}）统一查 spellLookup
+  const id = action.type === 'spell' ? action.spellId : action.id;
+  if (id) {
+    const def = spellLookup[id];
+    if (def) return costFromType(def.action_type, 'action');
+  }
+  return costFromType(action.action_type, 'action');
+}
+
+/** 战斗外（idle）不限制；预算不足则提示并返回 false */
+function trySpendCost(action) {
+  if (combatPhase === 'idle') return true;
+  const cost = actionCostOf(action);
+  if (cost === 'free') return true;
+  if (cost === 'action' && turnResources.action <= 0) {
+    updateStatus('动作已用完，本回合不能再执行该操作（可结束回合）');
+    return false;
+  }
+  if (cost === 'bonus' && turnResources.bonus <= 0) {
+    updateStatus('附赠动作已用完');
+    return false;
+  }
+  return true;
+}
+
+/** 实际扣减预算并刷新资源条 */
+function spendCost(action) {
+  if (combatPhase === 'idle') return;
+  const cost = actionCostOf(action);
+  if (cost === 'action') turnResources.action = Math.max(0, turnResources.action - 1);
+  else if (cost === 'bonus') turnResources.bonus = Math.max(0, turnResources.bonus - 1);
+  updateResourceBar();
+}
+
+/** 玩家本回合剩余移动力（格）：战斗外为满速 */
+function playerMoveCellsLeft(token) {
+  const full = getMoveCells(token, mapConfig);
+  if (combatPhase === 'idle') return full;
+  return Math.max(0, Math.min(full, turnResources.moveLeft / mapConfig.meters_per_cell));
+}
+
+/** 玩家回合开始时重置预算（移动力不结转，回气/动作如潮次数跨回合保留） */
+function initTurnResources() {
+  const p = getPlayerToken();
+  const base = p ? parseMeters(p.data.character?.background?.attributes?.move_speed || '9m') : 9;
+  turnResources = {
+    action: 1,
+    bonus: 1,
+    moveLeft: base,
+    moveBase: base,
+    secondWindUsed: turnResources.secondWindUsed,
+    actionSurgeUsed: turnResources.actionSurgeUsed,
+  };
+  updateResourceBar();
+}
+
+/** 刷新地图底部资源条：动作● 附赠● 移动x.x米（仅玩家回合显示） */
+function updateResourceBar() {
+  const bar = document.getElementById('resource-bar');
+  if (bar) {
+    // 仅玩家回合显示资源条；敌人回合隐藏（按用户反馈：敌人回合不展示玩家资源状态）
+    bar.style.display = combatPhase === 'player' ? 'flex' : 'none';
+    bar.classList.remove('enemy-turn');
+    if (combatPhase !== 'player') {
+      bar.innerHTML = '';
+    } else {
+      const dot = ok => (ok ? '●' : '○');
+      const moveM = Math.round(turnResources.moveLeft * 10) / 10;
+      bar.innerHTML =
+        `<span class="res-chip${turnResources.action > 0 ? '' : ' used'}">动作 ${dot(turnResources.action > 0)}</span>` +
+        `<span class="res-chip${turnResources.bonus > 0 ? '' : ' used'}">附赠 ${dot(turnResources.bonus > 0)}</span>` +
+        `<span class="res-chip${moveM > 0.01 ? '' : ' used'}">移动 ${moveM}米</span>`;
+    }
+  }
+  // 通知右侧面板刷新按钮置灰状态
+  if (typeof window.__combatApi?.onTurnChanged === 'function') {
+    window.__combatApi.onTurnChanged({ ...turnResources });
+  }
+}
 
 async function loadJson(url) {
   const res = await fetch(url);
@@ -43,6 +169,7 @@ async function loadCombatData() {
   try {
     const npcData = await loadJson(NPC_JSON);
     npcCatalog = npcData.npcs || {};
+    npcTemplates = npcData._templates || {};
   } catch (e) { console.warn('加载 NPC 目录失败:', e); npcCatalog = {}; }
   try {
     const spellData = await loadJson(SPELLS_JSON);
@@ -138,11 +265,14 @@ function createPlayerToken(char, spawn) {
   }, mapConfig);
 }
 
-/** 敌人 token：id 关联 npc 目录（goblin-1 → goblin-ambusher-1），读取 HP/AC/攻击 */
-function createEnemyToken(index, spawn) {
-  const npcId = `goblin-ambusher-${index + 1}`;
-  const npc = npcCatalog[npcId] || {};
-  const combat = npc.combat || {};
+/** 敌人 token：按 npcId 从 npcCatalog 取数据（支持模板复用）
+ *  M6 之前写死 goblin-ambusher-{i+1}，M6 改为接受任意 npcId 参数 */
+function createEnemyToken(npcId, spawn, index = 0) {
+  const npc = npcCatalog[npcId] || { id: npcId, name: npcId };
+  // 合并模板基础数据 + 实例数据（实例 name 覆盖模板 name）
+  const tmpl = npc.template ? (npcTemplates[npc.template] || {}) : {};
+  const merged = { ...tmpl, ...npc };
+  const combat = merged.combat || {};
   const hp = combat.hp || {};
   const attacks = (combat.attacks || []).map(a => ({
     name: a.name || '攻击',
@@ -152,8 +282,8 @@ function createEnemyToken(index, spawn) {
   }));
   return createToken({
     id: npcId,
-    name: npc.name || `地精${index + 1}`,
-    portrait: '地',
+    name: merged.name || `地精${index + 1}`,
+    // 不传 portrait：token.js 自动取 name 首字（斯/格/克/弗，个体名区分）
     faction: 'enemy',
     col: spawn.col,
     row: spawn.row,
@@ -167,9 +297,16 @@ function createEnemyToken(index, spawn) {
   }, mapConfig);
 }
 
-/* ── 移动范围（复用原有逻辑） ── */
+/* ── 移动范围（复用原有逻辑；玩家战斗中按剩余移动力） ── */
 function showMovementRange(token) {
-  const moveCells = getMoveCells(token, mapConfig);
+  const moveCells = token.data.faction === 'player'
+    ? playerMoveCellsLeft(token)
+    : getMoveCells(token, mapConfig);
+  if (moveCells <= 0.01) {
+    currentRange = new Map();
+    clearHighlights(layers.highlightLayer);
+    return;
+  }
   const radiusCells = moveCells;
   const reachable = calculateReachableCells(
     { col: token.data.col, row: token.data.row },
@@ -213,7 +350,9 @@ function showRangeCircleBy(token, radiusCells, color = 'rgba(196, 75, 75, 0.75)'
 }
 
 function showRangeCircle(token) {
-  const moveCells = getMoveCells(token, mapConfig);
+  const moveCells = token.data.faction === 'player'
+    ? playerMoveCellsLeft(token)
+    : getMoveCells(token, mapConfig);
   showRangeCircleBy(token, moveCells);
 }
 
@@ -236,7 +375,19 @@ function showTargetables() {
   clearTargetables();
   if (!pendingAction || !selectedToken) return;
   const radiusCells = getActionRangeCells(pendingAction);
+  // 判定是否为自身/友善目标法术（触碰治疗、增益等可对自己施放）
+  const spell = pendingAction.type === 'spell' ? spellLookup[pendingAction.spellId] : null;
+  const selfTargetable = spell && (spell.range === '触碰' || spell.range === '自身');
   for (const t of tokens) {
+    if (t === selectedToken) {
+      // 自身目标法术（治愈术触碰等）可对自己施放
+      if (selfTargetable) {
+        t.circle.style.boxShadow = '0 0 0 3px rgba(126, 237, 159, 0.9), 0 0 12px rgba(126, 237, 159, 0.6)';
+        targetableTokens.push(t);
+      }
+      continue;
+    }
+    // 敌方目标（攻击/伤害法术）只高亮敌人
     if (t.data.faction !== 'enemy') continue;
     const dist = Math.hypot(t.data.col - selectedToken.data.col, t.data.row - selectedToken.data.row);
     if (dist <= radiusCells + 1e-6) {
@@ -245,7 +396,7 @@ function showTargetables() {
     }
   }
   if (targetableTokens.length === 0) {
-    updateStatus('射程内没有可攻击的目标');
+    updateStatus('射程内没有可作用的目标');
   }
 }
 
@@ -261,6 +412,7 @@ function getActionRangeCells(action) {
   }
   if (action.type === 'spell') {
     const spell = spellLookup[action.spellId];
+    if (spell?.id === 'shove') return 1; // 推离：近战距离 1 格
     const range = String(spell?.range || '').trim();
     if (range === '触碰') return 1;
     if (range === '自身') return 0;
@@ -280,18 +432,27 @@ function applyResult(result, targetToken) {
     if (targetToken.data.hpCur <= 0) {
       targetToken.element.style.opacity = '0.35';
       targetToken.data.dead = true;
+      renderInitiativeBar(); // 头像条标记死亡变灰
     }
   }
-  // 治疗 → 加 HP + 飘字
-  if (result.heal > 0 && selectedToken) {
-    selectedToken.data.hpCur = Math.min(
-      selectedToken.data.hpMax ?? 100,
-      (selectedToken.data.hpCur ?? 0) + result.heal
+  // 治疗 → 加目标 HP + 飘字（targetToken 为治疗目标，可能是自己或队友）
+  const healTarget = targetToken || selectedToken;
+  if (result.heal > 0 && healTarget) {
+    healTarget.data.hpCur = Math.min(
+      healTarget.data.hpMax ?? 100,
+      (healTarget.data.hpCur ?? 0) + result.heal
     );
-    updateTokenHp(selectedToken);
-    spawnFloatingText(selectedToken, `+${result.heal}`, '#7bed9f');
+    updateTokenHp(healTarget);
+    spawnFloatingText(healTarget, `+${result.heal}`, '#7bed9f');
   }
   updateStatus(result.text || '');
+  // 写入战斗日志
+  if (result.text) {
+    let logType = 'system';
+    if (result.heal > 0) logType = 'heal';
+    else if (result.damage > 0) logType = (result.crit || result.d20 === 20) ? 'crit' : 'attack';
+    appendCombatLog(result.text, logType, currentTurnLabel());
+  }
   // 通知右侧面板刷新
   if (window.__combatApi && typeof window.__combatApi.onResolve === 'function') {
     window.__combatApi.onResolve(result);
@@ -305,31 +466,120 @@ function applyResult(result, targetToken) {
 function executePendingAction(targetToken) {
   const char = selectedToken?.data?.character;
   if (!char) return;
+  if (!trySpendCost(pendingAction)) {
+    cancelTargeting();
+    return;
+  }
 
-  let result = null;
   if (pendingAction.type === 'attack') {
     const target = { name: targetToken.data.name, combat: { ac: targetToken.data.ac ?? 15 } };
-    result = resolveAttack(char, target, pendingAction.kind);
-  } else if (pendingAction.type === 'spell') {
-    const spell = spellLookup[pendingAction.spellId];
-    const target = targetToken ? { name: targetToken.data.name, combat: { ac: targetToken.data.ac ?? 15 } } : null;
-    result = resolveSpell(spell, char, target);
-    // 法术不消耗法术位（第一版简化，后续接后端）
+    spendCost(pendingAction);
+    const result = resolveAttack(char, target, pendingAction.kind);
+    applyResult(result, targetToken);
+    // 额外攻击被动（Extra Attack，5 级战士）：攻击动作额外结算一次，不另耗动作
+    if ((parseInt(char.level, 10) || 1) >= 5 && !targetToken.data.dead) {
+      const extra = resolveAttack(char, target, pendingAction.kind);
+      applyResult(extra, targetToken);
+    }
+    return;
   }
-  if (result) applyResult(result, targetToken);
+
+  if (pendingAction.type === 'spell') {
+    const spell = spellLookup[pendingAction.spellId];
+    // 推离：力量对抗检定，成功推远 1 格
+    if (spell.id === 'shove') {
+      spendCost(pendingAction);
+      resolveShove(selectedToken, targetToken);
+      return;
+    }
+    const target = targetToken ? { name: targetToken.data.name, combat: { ac: targetToken.data.ac ?? 15 } } : null;
+    const result = resolveSpell(spell, char, target);
+    spendCost(pendingAction);
+    // 法术不消耗法术位（第一版简化，后续接后端）
+    if (result) applyResult(result, targetToken);
+  }
+}
+
+/** 推离结算：双方掷 d20+力量调整值对抗，成功推远 1 格（被推方该次移动不触发借机攻击） */
+function resolveShove(attacker, target) {
+  const atkAttrs = attacker.data.character?.background?.attributes || {};
+  const tgtAttrs = target.data.character?.background?.attributes || target.data.attrs || {};
+  const atkStr = atkAttrs.力量 || atkAttrs.strength || 10;
+  const tgtStr = tgtAttrs.力量 || tgtAttrs.strength || 10;
+  const atkMod = Math.floor((atkStr - 10) / 2);
+  const tgtMod = Math.floor((tgtStr - 10) / 2);
+  const atkRoll = rollD20(atkMod);
+  const tgtRoll = rollD20(tgtMod);
+  const success = atkRoll.total >= tgtRoll.total;
+  if (!success) {
+    updateStatus(`${attacker.data.name}推离${target.data.name}失败（${atkRoll.total} vs ${tgtRoll.total}）`);
+    appendCombatLog(`推离失败：${atkRoll.total} vs ${tgtRoll.total}`, 'system', currentTurnLabel());
+    return;
+  }
+  // 推远方向：从攻击者指向目标的方向，取格化
+  const dc = target.data.col - attacker.data.col;
+  const dr = target.data.row - attacker.data.row;
+  const stepC = dc === 0 ? 0 : (dc > 0 ? 1 : -1);
+  const stepR = dr === 0 ? 0 : (dr > 0 ? 1 : -1);
+  const newCol = target.data.col + stepC;
+  const newRow = target.data.row + stepR;
+  // 落点校验：不出界、不是障碍格、不是其他 token 占据格
+  const obstacleKey = `${newCol},${newRow}`;
+  const blocked = mapConfig.obstacles?.some(o => o.col === newCol && o.row === newRow)
+    || tokens.some(t => t !== target && t.data.col === newCol && t.data.row === newRow && !t.data.dead)
+    || newCol < 0 || newCol >= mapConfig.grid_cols
+    || newRow < 0 || newRow >= mapConfig.grid_rows;
+  if (blocked) {
+    updateStatus(`${attacker.data.name}将${target.data.name}推离成功，但后方有障碍，未能推开（${atkRoll.total} vs ${tgtRoll.total}）`);
+    appendCombatLog(`推离成功但后方有障碍：${atkRoll.total} vs ${tgtRoll.total}`, 'system', currentTurnLabel());
+    return;
+  }
+  // 标记该次移动不触发借机攻击（推离替代脱离）
+  target.data._shovedAway = true;
+  target.data.col = newCol;
+  target.data.row = newRow;
+  updateTokenPosition(target);
+  updateStatus(`${attacker.data.name}将${target.data.name}推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`);
+  appendCombatLog(`推离成功，${target.data.name} 被推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`, 'attack', currentTurnLabel());
 }
 
 function useSelfAction(action) {
   const char = selectedToken?.data?.character;
   if (!char) return;
-  if (action.id === 'jump') {
-    startJump(char);
+  // 动作如潮（fighting_spirit）：自由动作，但每战斗 1 次。先校验次数
+  if (action.id === 'fighting_spirit' && combatPhase !== 'idle' && turnResources.actionSurgeUsed) {
+    updateStatus('动作如潮每场战斗只能使用一次');
     return;
   }
+  if (!trySpendCost(action)) return;
+  if (action.id === 'second_wind' && combatPhase !== 'idle' && turnResources.secondWindUsed) {
+    updateStatus('回气每场战斗只能使用一次');
+    return;
+  }
+  if (action.id === 'jump') {
+    startJump(char); // 跳跃在落点成功时才扣附赠动作 + 移动力
+    return;
+  }
+  spendCost(action);
+  if (action.id === 'second_wind') turnResources.secondWindUsed = true;
   const result = resolveSelfAction(action, char);
+  // 动作如潮：本回合获得 1 个额外动作（不消耗动作/附赠，自由动作）
+  if (result.actionSurge) {
+    turnResources.actionSurgeUsed = true;
+    turnResources.action += 1;
+    updateResourceBar();
+    // 重新计算按钮置灰（攻击等动作按钮恢复可点）
+    if (typeof window.__combatApi?.onTurnChanged === 'function') {
+      window.__combatApi.onTurnChanged({ ...turnResources });
+    }
+  }
   if (result.dash) {
-    // 冲刺：移动范围翻倍（重新计算并高亮）
-    showMovementRangeDouble();
+    // 冲刺（动作）：额外获得一倍移动力（RAW Dash），已消耗的移动力不返还
+    turnResources.moveLeft += turnResources.moveBase;
+    updateResourceBar();
+    showMovementRange(selectedToken);
+    hideRangeCircle();
+    showRangeCircle(selectedToken);
   }
   applyResult(result, null);
 }
@@ -347,6 +597,11 @@ function setTokensClickable(clickable) {
 }
 
 function startJump(char) {
+  // 跳跃 = 附赠动作 + 消耗移动力：先做预算校验（附赠在 useSelfAction 已校验）
+  if (combatPhase !== 'idle' && turnResources.moveLeft < mapConfig.meters_per_cell) {
+    updateStatus('移动力不足，无法跳跃');
+    return;
+  }
   const str = parseInt(((char.abilities || {}).str || {}).value ?? 10, 10);
   jumpRangeCells = Math.max(1, Math.round(str / 5)); // 力量17 → 3 格
   state = 'jumping';
@@ -383,6 +638,12 @@ async function doJump(col, row) {
     updateStatus('落点已被其他生物占据');
     return;
   }
+  // 跳跃消耗移动力 = 距离（格）× 每格米数（斜跳为 √2 × 1.5 ≈ 2.12 米）
+  const costM = dist * mapConfig.meters_per_cell;
+  if (combatPhase !== 'idle' && costM > turnResources.moveLeft + 1e-6) {
+    updateStatus(`移动力不足，跳不过去（需 ${costM.toFixed(1)} 米）`);
+    return;
+  }
 
   state = 'moving';
   hideRangeCircle();
@@ -390,6 +651,12 @@ async function doJump(col, row) {
   updateStatus(`${selectedToken.data.name} 跳跃中...`);
   // 跳跃无视障碍，直接移动到落点
   await moveToken(selectedToken, col, row, mapConfig, 320);
+  // 落点成功：扣附赠动作 + 移动力
+  if (combatPhase !== 'idle') {
+    turnResources.bonus = Math.max(0, turnResources.bonus - 1);
+    turnResources.moveLeft = Math.max(0, turnResources.moveLeft - costM);
+    updateResourceBar();
+  }
   select(selectedToken); // 保持选中，恢复移动范围
   updateStatus(`${selectedToken.data.name} 跳跃完成`);
 }
@@ -417,20 +684,32 @@ function abilityMod(abilityValue) {
   return Math.floor(((Number(abilityValue) || 10) - 10) / 2);
 }
 
-/** 掷先攻：d20 + 敏捷调整值。返回 { player, enemies, playerFirst } */
+/** 掷先攻（RAW 逐个）：每个生物 d20 + 敏捷调整值，降序排列，同值玩家优先 */
 function rollInitiative() {
+  const order = [];
   const player = getPlayerToken();
-  const char = player?.data?.character || {};
-  const pDex = abilityMod(char?.abilities?.dex?.value ?? 10);
-  const playerRoll = Math.floor(Math.random() * 20) + 1 + pDex;
-  // 地精群体取最高先攻（简化：取第一只存活地精），地精 dex 由 combat 提供
-  const enemies = getAliveEnemies();
-  let enemyRoll = -Infinity;
-  for (const e of enemies) {
-    const dex = abilityMod(e.data.enemyDex ?? 14);
-    enemyRoll = Math.max(enemyRoll, Math.floor(Math.random() * 20) + 1 + dex);
+  if (player) {
+    const char = player.data.character || {};
+    const pDex = abilityMod(char?.abilities?.dex?.value ?? 10);
+    order.push({
+      token: player,
+      initiative: Math.floor(Math.random() * 20) + 1 + pDex,
+      faction: 'player',
+      name: player.data.name || '玩家',
+    });
   }
-  return { player: playerRoll, enemies: enemyRoll, playerFirst: playerRoll >= enemyRoll };
+  for (const e of getAliveEnemies()) {
+    const dex = abilityMod(e.data.enemyDex ?? 14);
+    order.push({
+      token: e,
+      initiative: Math.floor(Math.random() * 20) + 1 + dex,
+      faction: 'enemy',
+      name: e.data.name || '地精',
+    });
+  }
+  // 降序；同值时玩家优先（D&D 5e 同值惯例：先攻加值高者先，此处简化玩家优先）
+  order.sort((a, b) => b.initiative - a.initiative || (a.faction === 'player' ? -1 : 1));
+  return order;
 }
 
 function showEndTurnBtn(show) {
@@ -438,72 +717,114 @@ function showEndTurnBtn(show) {
   if (btn) btn.style.display = show ? 'inline-block' : 'none';
 }
 
-/** 战斗开始：掷先攻，决定谁先动 */
+/** 战斗开始：掷先攻，按顺序逐个行动 */
 function startCombat() {
-  const init = rollInitiative();
-  const playerName = getPlayerToken()?.data?.name || '玩家';
-  const first = init.playerFirst ? playerName : '地精';
-  updateStatus(`战斗开始！先攻：${playerName} ${init.player} vs 地精 ${init.enemies}，${first}先行动`);
-  combatPhase = init.playerFirst ? 'player' : 'enemy';
-  if (combatPhase === 'player') {
+  initiativeOrder = rollInitiative();
+  currentInitIndex = 0;
+  turnCounter = 1;
+  lastLogTurn = null; // 重置分隔条状态
+  renderInitiativeBar();
+  const orderText = initiativeOrder.map(o => `${o.name} ${o.initiative}`).join(' / ');
+  updateStatus(`战斗开始！先攻顺序：${orderText}`);
+  // 先攻顺序作为战斗开场说明，独立于轮次分组之上（不触发分隔条）
+  appendCombatLog(`战斗开始！先攻顺序：\n${orderText}`, 'system', '', true);
+  // 延迟 1.2 秒让玩家看清顺序，再激活第一个行动者（不走 advanceInitiative，避免误触发轮数 +1）
+  setTimeout(() => activateCurrent(), 1200);
+}
+
+/** 渲染先攻顺序头像条（地图上方横向） */
+function renderInitiativeBar() {
+  const bar = document.getElementById('initiative-bar');
+  if (!bar) return;
+  if (!initiativeOrder.length) { bar.innerHTML = ''; return; }
+  bar.innerHTML = initiativeOrder.map((o, i) => {
+    const dead = o.token.data.dead;
+    const isCur = i === currentInitIndex && !dead;
+    const nextIdx = (currentInitIndex + 1) % initiativeOrder.length;
+    const isNext = i === nextIdx && !dead && i !== currentInitIndex;
+    const cls = dead ? 'dead' : (isCur ? 'current' : (isNext ? 'next' : ''));
+    const color = o.faction === 'player' ? 'var(--player,#4a90d9)' : 'var(--enemy,#d94a4a)';
+    const initial = (o.name || '?').charAt(0);
+    return `<div class="init-portrait ${cls}" title="${o.name}（先攻 ${o.initiative}）">
+      <div class="init-circle" style="border-color:${color};background:${color}33;color:${color}">${initial}</div>
+      <div class="init-name">${o.name}</div>
+      <div class="init-roll">${o.initiative}</div>
+    </div>`;
+  }).join('');
+}
+
+/** 激活当前 initiativeOrder[currentInitIndex]：玩家则等操作，敌人则 AI 行动 */
+function activateCurrent(isFirst = false) {
+  // 跳过死亡
+  while (initiativeOrder[currentInitIndex] && initiativeOrder[currentInitIndex].token.data.dead) {
+    currentInitIndex = (currentInitIndex + 1) % initiativeOrder.length;
+  }
+  const cur = initiativeOrder[currentInitIndex];
+  if (!cur) return;
+  renderInitiativeBar();
+  if (cur.faction === 'player') {
+    combatPhase = 'player';
+    initTurnResources(); // 重置动作/附赠/移动力（不结转）
     showEndTurnBtn(true);
-    select(getPlayerToken());
+    if (cur.token && !cur.token.data.dead) select(cur.token);
+    updateStatus(`第 ${turnCounter} 轮 · ${cur.name}的回合，行动后点击「结束回合」`);
+    appendCombatLog(`${cur.name}的回合开始`, 'system', currentTurnLabel());
   } else {
+    combatPhase = 'enemy';
     showEndTurnBtn(false);
     deselect();
-    setTimeout(() => runEnemyTurn(), 1200);
+    updateStatus(`第 ${turnCounter} 轮 · ${cur.name}行动中...`);
+    appendCombatLog(`${cur.name}的回合开始`, 'system', currentTurnLabel());
+    setTimeout(() => runSingleEnemyAct(cur.token), 500);
   }
+}
+
+/** 推进到下一个行动者（跳过死亡，到末尾回 0 并轮数 +1） */
+function advanceInitiative() {
+  currentInitIndex = (currentInitIndex + 1) % initiativeOrder.length;
+  if (currentInitIndex === 0) turnCounter++; // 走完一圈
+  // 检查战斗是否结束
+  if (getAliveEnemies().length === 0) { endCombat(true); return; }
+  const p = getPlayerToken();
+  if (!p || p.data.dead) { endCombat(false); return; }
+  activateCurrent();
+}
+
+/** 单只敌人行动（替代旧 runEnemyTurn 的 for 循环） */
+async function runSingleEnemyAct(enemy) {
+  if (combatPhase !== 'enemy' || enemyTurnRunning) return;
+  if (enemy.data.dead) { advanceInitiative(); return; }
+  enemyTurnRunning = true;
+  const player = getPlayerToken();
+  if (!player || player.data.dead) {
+    enemyTurnRunning = false;
+    if (player && player.data.dead) endCombat(false);
+    return;
+  }
+  await enemyAct(enemy);
+  await sleep(600);
+  enemyTurnRunning = false;
+  // 战斗结束判定（applyResult 内可能已触发 endCombat）
+  if (combatPhase === 'victory' || combatPhase === 'defeat') return;
+  advanceInitiative();
 }
 
 /** 玩家点击结束回合 */
 function endPlayerTurn() {
   if (combatPhase !== 'player') return;
   if (state === 'moving' || state === 'jumping' || state === 'targeting') return;
-  combatPhase = 'enemy';
-  showEndTurnBtn(false);
-  deselect();
-  updateStatus('地精回合...');
-  setTimeout(() => runEnemyTurn(), 600);
-}
-
-/** 敌人回合：存活地精逐只行动 */
-async function runEnemyTurn() {
-  if (combatPhase !== 'enemy' || enemyTurnRunning) return;
-  enemyTurnRunning = true;
-  const player = getPlayerToken();
-  if (!player || player.data.dead) {
-    endCombat(false);
-    enemyTurnRunning = false;
-    return;
-  }
-  const enemies = getAliveEnemies();
-  for (const enemy of enemies) {
-    if (combatPhase !== 'enemy') break;
-    if (player.data.dead) break;
-    await enemyAct(enemy);
-    if (combatPhase === 'enemy' && player.data.dead) break;
-    await sleep(700);
-  }
-  enemyTurnRunning = false;
-  // 敌人回合结束 → 回到玩家回合
-  if (combatPhase === 'enemy') {
-    combatPhase = 'player';
-    const p = getPlayerToken();
-    if (p && !p.data.dead) select(p);
-    showEndTurnBtn(true);
-    updateStatus('你的回合！行动后点击「结束回合」');
-  }
+  advanceInitiative();
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/** 敌人单只行动 AI：近战 → 弯刀；短弓射程 → 短弓；够不着 → 靠近玩家 */
+/** 敌人单只行动 AI（对等动作经济：移动力 + 1 动作）
+ *  远程射程内直接攻击；够不着先移动（消耗移动力），移动后射程内再攻击 */
 async function enemyAct(enemy) {
   const player = getPlayerToken();
   if (!player) return;
-  const dist = Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row);
   const attacks = enemy.data.attacks || [];
   const melee = attacks.find(a => a.name === '弯刀') || attacks[0];
   const ranged = attacks.find(a => a.name === '短弓') || attacks[1] || melee;
@@ -512,18 +833,26 @@ async function enemyAct(enemy) {
   const meleeRange = 1.5 / mapConfig.meters_per_cell; // 1 格
   const rangedRange = 6 / mapConfig.meters_per_cell;  // 4 格
 
+  let dist = Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row);
+
+  // 移动阶段：短弓射程外 → 靠近玩家（移动力）
+  if (dist > rangedRange) {
+    await moveEnemyToward(enemy);
+    dist = Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row);
+  }
+
+  // 动作阶段：射程内攻击（近战优先）
+  if (player.data.dead) return;
   if (dist <= meleeRange) {
     const result = resolveAttack(attackerFromEnemy(enemy, melee), playerTarget(), 'melee');
     await applyEnemyAttack(enemy, result);
-    return;
-  }
-  if (dist <= rangedRange) {
+  } else if (dist <= rangedRange) {
     const result = resolveAttack(attackerFromEnemy(enemy, ranged), playerTarget(), 'ranged');
     await applyEnemyAttack(enemy, result);
-    return;
+  } else {
+    updateStatus(`${enemy.data.name} 原地待命`);
+    await sleep(400);
   }
-  // 够不着：向玩家靠近一格
-  await moveEnemyToward(enemy);
 }
 
 /** 把敌人 attacks 转成 resolveAttack 需要的攻击者结构 */
@@ -568,6 +897,12 @@ async function applyEnemyAttack(enemy, result) {
 async function moveEnemyToward(enemy) {
   const player = getPlayerToken();
   if (!player) return;
+  // 记录起点（用于借机攻击检测：移动前与 enemy 相邻的玩家方 token）
+  const startCol = enemy.data.col;
+  const startRow = enemy.data.row;
+  const adjAlliesBefore = (!enemy.data._shovedAway)
+    ? tokens.filter(t => t.data.faction !== enemy.data.faction && !t.data.dead && cellsAdjacent(startCol, startRow, t.data.col, t.data.row))
+    : [];
   const moveCells = getMoveCells(enemy, mapConfig);
   const reachable = calculateReachableCells(
     { col: enemy.data.col, row: enemy.data.row },
@@ -587,9 +922,17 @@ async function moveEnemyToward(enemy) {
   if (best && bestDist < Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row)) {
     updateStatus(`${enemy.data.name} 向 ${player.data.name} 靠近`);
     await moveToken(enemy, best.col, best.row, mapConfig, 260);
+    // 借机攻击：enemy 离开了原本相邻的玩家方 token → 玩家方自动结算一次近战
+    for (const ao of adjAlliesBefore) {
+      if (ao.data.dead) continue;
+      if (!cellsAdjacent(enemy.data.col, enemy.data.row, ao.data.col, ao.data.row)) {
+        await triggerOpportunityAttack(ao, enemy);
+      }
+    }
   } else {
     updateStatus(`${enemy.data.name} 原地待命`);
   }
+  delete enemy.data._shovedAway;
 }
 
 /** 玩家攻击/施法后检查：敌人全灭 → 胜利 */
@@ -610,6 +953,10 @@ function endCombat(won) {
   setTokensClickable(true);
   if (selectedToken) deselect();
   clearHighlights(layers.highlightLayer);
+  updateResourceBar(); // 隐藏资源条 + 解锁按钮
+  // 战斗结束：标记所有头像非当前，但保留顺序让玩家看到最终局面（死亡者变灰）
+  currentInitIndex = -1;
+  renderInitiativeBar();
   if (won) {
     updateStatus('战斗胜利！所有敌人已被击败');
     showCombatResult(true);
@@ -617,9 +964,34 @@ function endCombat(won) {
     updateStatus('战斗失败！你倒下了');
     showCombatResult(false);
   }
+
+  // M6：写入战斗结果到 sessionStorage，2.5 秒后跳回 adventure.html
+  // 仅当 encounterContext 存在时才回传（独立调试模式不跳转）
+  if (encounterContext) {
+    const playerToken = tokens.find(t => t.data.faction === 'player');
+    const playerEndHp = playerToken ? playerToken.data.hpCur : 0;
+    const result = {
+      encounterId: encounterContext.encounterId,
+      encounterName: encounterContext.encounterName,
+      outcome: won ? 'victory' : 'defeat',
+      playerEndHp,
+      loot: won ? (encounterContext.loot || []) : [],
+      clues: won ? (encounterContext.clues || []) : [],
+      nextSceneId: won ? (encounterContext.nextSceneId || null) : null,
+    };
+    try {
+      sessionStorage.setItem('combatResult', JSON.stringify(result));
+    } catch (e) { console.error('写入 combatResult 失败:', e); }
+
+    // 2.5 秒延迟让玩家看清横幅，再跳转
+    setTimeout(() => {
+      window.location.href = `adventure.html?combat_result=${encodeURIComponent(encounterContext.encounterId)}`;
+    }, 2500);
+  }
 }
 
-/** 战斗结果提示（居中横幅，3.5 秒后自动消失） */
+/** 战斗结果提示（居中横幅，胜利/失败显示不同颜色）
+ *  M6：嵌入冒险时不再自动消失，等跳转；独立调试模式下 3.5 秒后消失 */
 function showCombatResult(won) {
   const container = document.getElementById('combat-map-container');
   if (!container) return;
@@ -639,24 +1011,24 @@ function showCombatResult(won) {
     pointer-events: none;
     text-align: center;
   `;
-  el.textContent = won ? '⚔ 战斗胜利' : '☠ 战斗失败';
+  // M6：嵌入冒险时显示跳转提示
+  if (encounterContext) {
+    el.innerHTML = won
+      ? '⚔ 战斗胜利<br><span style="font-size:14px;font-weight:normal">正在返回冒险流程...</span>'
+      : '☠ 战斗失败<br><span style="font-size:14px;font-weight:normal">冒险结束...</span>';
+  } else {
+    el.textContent = won ? '⚔ 战斗胜利' : '☠ 战斗失败';
+  }
   container.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  // 仅独立调试模式（无 encounterContext）下自动移除横幅
+  if (!encounterContext) {
+    setTimeout(() => el.remove(), 3500);
+  }
 }
 
 function showMovementRangeDouble() {
-  const moveCells = getMoveCells(selectedToken, mapConfig) * 2;
-  const reachable = calculateReachableCells(
-    { col: selectedToken.data.col, row: selectedToken.data.row },
-    moveCells,
-    mapConfig.obstacleSet,
-    mapConfig.grid_cols,
-    mapConfig.grid_rows
-  );
-  currentRange = filterByRadius(reachable, { col: selectedToken.data.col, row: selectedToken.data.row }, moveCells);
-  highlightCells(layers.highlightLayer, currentRange, mapConfig);
-  hideRangeCircle();
-  showRangeCircleBy(selectedToken, moveCells);
+  // 已被动作经济替代：冲刺（Dash）现在直接增加移动力预算 moveLeft
+  showMovementRange(selectedToken);
 }
 
 /* ── 选中 / 取消 ── */
@@ -702,7 +1074,10 @@ function enterTargeting(action) {
   const label = action.type === 'spell'
     ? (spellLookup[action.spellId]?.name || action.spellId)
     : (action.kind === 'melee' ? '近战攻击' : '远程攻击');
-  updateStatus(`${selectedToken.data.name} 选择【${label}】，点击红色高亮目标`);
+  const isShove = action.type === 'spell' && action.spellId === 'shove';
+  updateStatus(isShove
+    ? `${selectedToken.data.name} 选择【推离】，点击相邻敌人将其推远 1 格`
+    : `${selectedToken.data.name} 选择【${label}】，点击红色高亮目标`);
 }
 
 function cancelTargeting(keepMessage) {
@@ -726,6 +1101,15 @@ async function doMove(targetCol, targetRow) {
 
   const path = reconstructPath(currentRange, { col: targetCol, row: targetRow });
   if (path.length < 2) return;
+  // 路径成本（格，含 √2 斜步）→ 米，扣移动力预算
+  const costCells = currentRange.get(targetKey)?.cost ?? 0;
+
+  // 记录起点（用于借机攻击检测：移动前与 selectedToken 相邻的敌人）
+  const startCol = selectedToken.data.col;
+  const startRow = selectedToken.data.row;
+  const adjEnemiesBefore = (combatPhase !== 'idle' && !selectedToken.data._shovedAway)
+    ? tokens.filter(t => t.data.faction !== selectedToken.data.faction && !t.data.dead && cellsAdjacent(startCol, startRow, t.data.col, t.data.row))
+    : [];
 
   state = 'moving';
   hideRangeCircle();
@@ -735,10 +1119,53 @@ async function doMove(targetCol, targetRow) {
 
   for (let i = 1; i < path.length; i++) {
     await moveToken(selectedToken, path[i].col, path[i].row, mapConfig, 180);
+    // 逐格检测：本步是否离开了某个原本相邻的敌人 → 触发借机攻击
+    if (adjEnemiesBefore.length > 0) {
+      const stillAdj = adjEnemiesBefore.filter(t => !t.data.dead && cellsAdjacent(selectedToken.data.col, selectedToken.data.row, t.data.col, t.data.row));
+      const left = adjEnemiesBefore.filter(t => !t.data.dead && !stillAdj.includes(t));
+      for (const ao of left) {
+        await triggerOpportunityAttack(ao, selectedToken);
+      }
+      // 清除已触发的敌人，避免重复触发
+      adjEnemiesBefore.length = 0;
+      adjEnemiesBefore.push(...stillAdj);
+    }
   }
+  // 清理推离标记（推离只在被推的那次移动豁免）
+  delete selectedToken.data._shovedAway;
 
-  deselect();
-  updateStatus('移动完成');
+  if (combatPhase !== 'idle') {
+    turnResources.moveLeft = Math.max(0, turnResources.moveLeft - costCells * mapConfig.meters_per_cell);
+    updateResourceBar();
+  }
+  // 保持选中：支持「移动 → 攻击 → 再移动」拆分（剩余预算见资源条）
+  select(selectedToken);
+  updateStatus(`移动完成（剩余移动力 ${Math.round(turnResources.moveLeft * 10) / 10} 米）`);
+  if (combatPhase !== 'idle') {
+    appendCombatLog(`${selectedToken.data.name} 移动 ${costCells} 格（剩余 ${Math.round(turnResources.moveLeft * 10) / 10}m）`, 'move', currentTurnLabel());
+  }
+}
+
+/** 8 方向相邻判定（含斜角） */
+function cellsAdjacent(c1, r1, c2, r2) {
+  return Math.abs(c1 - c2) <= 1 && Math.abs(r1 - r2) <= 1 && !(c1 === c2 && r1 === r2);
+}
+
+/** 借机攻击触发：attacker 对 mover 自动结算一次近战攻击（不消耗反应预算，第一版简化） */
+async function triggerOpportunityAttack(attacker, mover) {
+  if (!attacker || !mover || mover.data.dead) return;
+  const atkChar = attacker.data.character;
+  const attacks = attacker.data.attacks || [];
+  const melee = attacks.find(a => a.name === '弯刀') || attacks[0];
+  if (!atkChar || !melee) return;
+  const target = { name: mover.data.name, combat: { ac: mover.data.ac ?? 15 } };
+  const result = resolveAttack(atkChar, target, 'melee');
+  applyResult(result, mover);
+  // 借机攻击单独标记（applyResult 已写伤害日志，这里补"借机"前缀）
+  if (result.text) {
+    appendCombatLog(`【借机】${result.text}`, result.damage > 0 ? 'attack' : 'system', currentTurnLabel());
+  }
+  await sleep(400);
 }
 
 function findTokenAt(col, row) {
@@ -778,11 +1205,10 @@ function handleMapClick(e) {
   }
 
   if (state === 'targeting') {
-    if (tokenOnCell && tokenOnCell.data.faction === 'enemy' && targetableTokens.includes(tokenOnCell)) {
+    if (tokenOnCell && targetableTokens.includes(tokenOnCell)) {
+      // 允许点自己 token（治愈术等自身目标法术）或点敌人
       executePendingAction(tokenOnCell);
       cancelTargeting(true); // 保留结算文字
-    } else if (tokenOnCell && tokenOnCell.data.faction === 'player') {
-      cancelTargeting();
     } else {
       cancelTargeting();
     }
@@ -845,6 +1271,49 @@ function updateStatus(text) {
   if (statusEl) statusEl.textContent = text;
 }
 
+/** 战斗日志：追加一条记录到左侧日志区
+ * @param {string} text - 日志内容
+ * @param {'attack'|'heal'|'move'|'system'|'crit'} type - 类型（决定颜色）
+ * @param {string} turnLabel - 回合标签（保留参数兼容，实际按 turnCounter 分组）
+ * @param {boolean} skipDivider - 跳过分隔条插入（用于战斗开场等非轮次内日志） */
+function appendCombatLog(text, type = 'system', turnLabel = '', skipDivider = false) {
+  const logEl = document.getElementById('combat-log');
+  if (!logEl) return;
+  // 清空"战斗尚未开始"占位
+  const empty = logEl.querySelector('.combat-log-empty');
+  if (empty) empty.remove();
+  // 按轮次分组：进入新一轮时插入分隔条，同一轮内所有角色动作合并在同一组
+  // skipDivider=true 时跳过分隔条，且不更新 lastLogTurn，下次调用仍会按当前轮次插入
+  if (!skipDivider) {
+    const turnKey = `第${turnCounter}轮`;
+    if (turnKey !== lastLogTurn) {
+      const divider = document.createElement('div');
+      divider.className = 'combat-log-divider';
+      divider.textContent = `── ${turnKey} ──`;
+      logEl.appendChild(divider);
+      lastLogTurn = turnKey;
+    }
+  }
+  const entry = document.createElement('div');
+  entry.className = `combat-log-entry log-${type}`;
+  entry.textContent = text; // textContent 自动转义，防注入
+  logEl.appendChild(entry);
+  // 自动滚动到底部
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+/** HTML 转义，防注入 */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/** 当前回合标签（用于日志前缀） */
+function currentTurnLabel() {
+  const cur = initiativeOrder[currentInitIndex];
+  const name = cur?.name || '未知';
+  return `第${turnCounter}轮 ${name}`;
+}
+
 function setupInteractions() {
   if (interactionsSetup) return;
   interactionsSetup = true;
@@ -879,8 +1348,19 @@ async function initMap() {
   if (!container) return;
 
   try {
+    // M6：从 URL 参数读取遭遇上下文（无参数时回退到调试模式，写死 triboar-trail-ambush）
+    const params = new URLSearchParams(window.location.search);
+    const encounterId = params.get('encounter');
+    if (encounterId) {
+      try {
+        const raw = sessionStorage.getItem('encounterContext');
+        if (raw) encounterContext = JSON.parse(raw);
+      } catch (e) { console.warn('读取 encounterContext 失败:', e); }
+    }
+
+    const mapId = encounterContext?.mapId || 'triboar-trail-ambush';
     if (!mapConfig) {
-      mapConfig = await loadMapConfig('triboar-trail-ambush');
+      mapConfig = await loadMapConfig(mapId);
     }
 
     await loadCombatData();
@@ -897,16 +1377,29 @@ async function initMap() {
     layers = renderMap(container, mapConfig, dims.widthPx, dims.heightPx);
 
     if (tokens.length === 0) {
-      const char = await loadCharacter('elias');
+      // M6：玩家角色 id 优先从 encounterContext.playerSnapshot.charId 取（默认 elias）
+      const charId = encounterContext?.playerSnapshot?.charId || 'elias';
+      const char = await loadCharacter(charId);
       recalcAttack(char);
+      // M6：用玩家快照中的 HP/AC 覆盖角色数据（保证战斗地图与冒险流程状态同步）
+      if (encounterContext?.playerSnapshot) {
+        const ps = encounterContext.playerSnapshot;
+        char.combat = char.combat || { ac: 10, hp: '0 / 0' };
+        char.combat.ac = ps.ac || char.combat.ac;
+        char.combat.hp = `${ps.hpCur} / ${ps.hpMax}`;
+      }
       const playerSpawn = mapConfig.spawns.players[0];
       const playerToken = createPlayerToken(char, playerSpawn);
       playerToken.data.character = char;
       tokens.push(playerToken);
       attachTokenClick(playerToken);
 
-      mapConfig.spawns.enemies.forEach((spawn, i) => {
-        const enemyToken = createEnemyToken(i, spawn);
+      // M6：敌人列表优先用 encounterContext.enemies；回退到调试模式 4 只地精
+      const enemyIds = encounterContext?.enemies || ['goblin-ambusher-1', 'goblin-ambusher-2', 'goblin-ambusher-3', 'goblin-ambusher-4'];
+      enemyIds.forEach((npcId, i) => {
+        const spawn = mapConfig.spawns.enemies[i] || mapConfig.spawns.enemies[mapConfig.spawns.enemies.length - 1];
+        if (!spawn) return; // spawn 不够则跳过
+        const enemyToken = createEnemyToken(npcId, spawn, i);
         tokens.push(enemyToken);
         attachTokenClick(enemyToken);
       });
@@ -914,7 +1407,11 @@ async function initMap() {
 
     renderTokens();
     setupInteractions();
-    updateStatus('战斗准备中，掷先攻...');
+    // M6：战斗准备文案显示遭遇名（若有）
+    const prepText = encounterContext?.encounterName
+      ? `遭遇：${encounterContext.encounterName}，掷先攻中...`
+      : '战斗准备中，掷先攻...';
+    updateStatus(prepText);
     bindEndTurnButton();
     setTimeout(() => startCombat(), 500);
   } catch (e) {
@@ -938,6 +1435,7 @@ window.__combatApi = {
       updateStatus('敌人回合中，请等待');
       return;
     }
+    if (!trySpendCost(action)) return; // 动作/附赠预算校验
     ensurePlayerSelected();
     if (!selectedToken) {
       updateStatus('请先点击自己的 token');
@@ -964,9 +1462,13 @@ window.__combatApi = {
   },
   /** 结算后回调（右侧面板刷新 HP / 法术位） */
   onResolve: null,
+  /** 动作预算变化回调（右侧面板刷新按钮置灰），参数为 turnResources 快照 */
+  onTurnChanged: null,
   getSelectedToken() { return selectedToken; },
   getPlayerToken() { return getPlayerToken(); },
   getState() { return state; },
+  getCombatPhase() { return combatPhase; },
+  getTurnResources() { return { ...turnResources }; },
   getSpellLookup() { return spellLookup; },
 };
 

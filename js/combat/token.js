@@ -201,8 +201,9 @@ export function moveToken(token, col, row, mapConfig, duration = 280) {
 export function selectToken(token) {
   token.selected = true;
   token.element.classList.add('selected');
-  token.circle.style.transform = 'scale(1.1)';
-  token.circle.style.boxShadow = `0 0 0 3px rgba(255, 255, 255, 0.8), 0 4px 14px ${FACTION_STYLES[token.data.faction]?.shadow || FACTION_STYLES.neutral.shadow}`;
+  // 选中态：仅放大 + 白色描边（按用户反馈：保持稍微放大+高亮即可，去掉光晕避免视觉干扰）
+  token.circle.style.transform = 'scale(1.12)';
+  token.circle.style.boxShadow = '0 0 0 3px rgba(255, 255, 255, 0.9)';
 }
 
 export function deselectToken(token) {

@@ -237,12 +237,13 @@
       "normal": [
         "jump",
         "throw",
-        "dash"
+        "dash",
+        "shove"
       ],
       "class": [
+        "second_wind",
         "fighting_spirit",
-        "recovery",
-        "extra_attack"
+        "recovery"
       ]
     },
     "passive_ids": [

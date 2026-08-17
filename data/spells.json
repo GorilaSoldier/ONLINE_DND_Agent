@@ -22,6 +22,13 @@
         "action_type": "1动作",
         "range": "自身",
         "description": "消耗一个动作专注奔跑，本回合移动距离翻倍。可用于快速接近敌人或逃离危险。"
+      },
+      "shove": {
+        "id": "shove",
+        "name": "推离",
+        "action_type": "1动作",
+        "range": "近战",
+        "description": "对相邻敌人发力推搡。双方掷 d20+力量调整值对抗，成功则将目标推远 1 格。被推离的目标该次移动不触发借机攻击。"
       }
     },
     "class": {
@@ -35,10 +42,10 @@
       },
       "fighting_spirit": {
         "id": "fighting_spirit",
-        "name": "斗气如潮",
-        "action_type": "附赠动作",
+        "name": "动作如潮",
+        "action_type": "自由动作",
         "range": "自身",
-        "description": "战士激发内在斗志，本回合内获得额外 1d8 的伤害加值，持续至回合结束。",
+        "description": "战士 2 级特性（Action Surge）。本回合获得 1 个额外动作。每短休恢复 1 次使用次数。",
         "classes": ["warrior"]
       },
       "recovery": {

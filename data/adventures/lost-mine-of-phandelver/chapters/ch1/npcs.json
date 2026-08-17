@@ -51,79 +51,23 @@
     },
     "goblin-ambusher-1": {
       "id": "goblin-ambusher-1",
-      "name": "地精伏击者",
-      "race": "地精",
-      "role": "伏击者",
-      "description": "埋伏在三猪小径旁灌木丛中的地精。",
-      "personality": ["狡猾", "胆小"],
-      "attitude": "hostile",
-      "current_location": "triboar-trail-ambush",
-      "combat": {
-        "ac": 15,
-        "hp": { "cur": 7, "max": 7 },
-        "move_speed": "9m",
-        "attacks": [
-          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍" },
-          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺" }
-        ]
-      }
+      "name": "斯尼格",
+      "template": "goblin-ambusher"
     },
     "goblin-ambusher-2": {
       "id": "goblin-ambusher-2",
-      "name": "地精伏击者",
-      "race": "地精",
-      "role": "伏击者",
-      "description": "埋伏在三猪小径旁灌木丛中的地精。",
-      "personality": ["狡猾", "胆小"],
-      "attitude": "hostile",
-      "current_location": "triboar-trail-ambush",
-      "combat": {
-        "ac": 15,
-        "hp": { "cur": 7, "max": 7 },
-        "move_speed": "9m",
-        "attacks": [
-          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍" },
-          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺" }
-        ]
-      }
+      "name": "格罗克斯",
+      "template": "goblin-ambusher"
     },
     "goblin-ambusher-3": {
       "id": "goblin-ambusher-3",
-      "name": "地精伏击者",
-      "race": "地精",
-      "role": "伏击者",
-      "description": "埋伏在三猪小径旁灌木丛中的地精。",
-      "personality": ["狡猾", "胆小"],
-      "attitude": "hostile",
-      "current_location": "triboar-trail-ambush",
-      "combat": {
-        "ac": 15,
-        "hp": { "cur": 7, "max": 7 },
-        "move_speed": "9m",
-        "attacks": [
-          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍" },
-          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺" }
-        ]
-      }
+      "name": "克鲁格",
+      "template": "goblin-ambusher"
     },
     "goblin-ambusher-4": {
       "id": "goblin-ambusher-4",
-      "name": "地精伏击者",
-      "race": "地精",
-      "role": "伏击者",
-      "description": "埋伏在三猪小径旁灌木丛中的地精。",
-      "personality": ["狡猾", "胆小"],
-      "attitude": "hostile",
-      "current_location": "triboar-trail-ambush",
-      "combat": {
-        "ac": 15,
-        "hp": { "cur": 7, "max": 7 },
-        "move_speed": "9m",
-        "attacks": [
-          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍" },
-          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺" }
-        ]
-      }
+      "name": "弗拉格",
+      "template": "goblin-ambusher"
     },
     "goblin-sentry-1": {
       "id": "goblin-sentry-1",
@@ -299,6 +243,25 @@
       "personality": ["尽责", "谨慎", "友善"],
       "attitude": "friendly",
       "current_location": "neverwinter-gate"
+    }
+  },
+  "_templates": {
+    "goblin-ambusher": {
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush",
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍" },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺" }
+        ]
+      }
     }
   }
 }

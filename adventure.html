@@ -4333,6 +4333,142 @@
     renderContextPanel();
   }
 
+  /* ── M6：战斗遭遇嵌入冒险流程 ──
+   *  进入含 type:'combat' 的 scene 时自动跳转到 combat-map.html
+   *  通过 sessionStorage 传递 encounterContext（mapId/enemies/playerSnapshot/loot/clues/nextScene）
+   *  战斗结束后 combat-map.html 回写 sessionStorage.combatResult 并跳回 adventure.html?combat_result=xxx
+   */
+  function triggerCombatEncounter(encounterId, returnSceneId) {
+    const enc = state.data.encounters[encounterId];
+    if (!enc || enc.type !== 'combat') return false;
+
+    // 推导 mapId：优先 encounter.map_id，否则按 location 推断（cragmaw-hideout-* 等暂不支持，仅 ch1-scene2 伏击战）
+    const mapId = enc.map_id || (enc.location === 'triboar-trail-ambush' ? 'triboar-trail-ambush' : null);
+    if (!mapId) {
+      console.warn('未配置地图的遭遇:', encounterId);
+      return false;
+    }
+
+    // 玩家快照：HP / AC / 角色基础信息（combat-map.html 据此初始化 token）
+    const char = state.character || {};
+    const hpParts = String(char.combat?.hp || '0 / 0').split('/').map(s => parseInt(s.trim(), 10));
+    const playerSnapshot = {
+      charId: char.id || 'elias',
+      hpCur: isNaN(hpParts[0]) ? 10 : hpParts[0],
+      hpMax: isNaN(hpParts[1]) ? 10 : hpParts[1],
+      ac: char.combat?.ac || 10,
+    };
+
+    // 战斗结束后的回写内容：战利品 + 线索 + 下一场景
+    const targetScene = state.data.scenes[returnSceneId];
+    const context = {
+      encounterId,
+      encounterName: enc.name,
+      mapId,
+      enemies: enc.enemies || [],
+      allies: enc.allies || [],
+      playerSnapshot,
+      returnSceneId,
+      nextSceneId: targetScene?.next_scene || null,
+      loot: enc.loot || [],
+      clues: enc.clues || [],
+      description: enc.description || '',
+    };
+
+    try {
+      sessionStorage.setItem('encounterContext', JSON.stringify(context));
+    } catch (e) {
+      console.error('写入 sessionStorage 失败:', e);
+      return false;
+    }
+
+    appendLog('system', `⚠ 遭遇战斗：${enc.name}，进入战斗地图...`);
+    // 延迟一帧让日志渲染
+    setTimeout(() => {
+      window.location.href = `combat-map.html?encounter=${encodeURIComponent(encounterId)}`;
+    }, 300);
+    return true;
+  }
+
+  /* ── 接收战斗结果（页面初始化时调用） ──
+   *  读 ?combat_result=xxx 参数，从 sessionStorage 取 combatResult，
+   *  回写 HP / 战利品 / 线索到 state，并追加叙事日志
+   *  返回 true 表示已处理战斗结果（应跳过常规开场白）
+   */
+  function consumeCombatResult() {
+    const params = new URLSearchParams(window.location.search);
+    const encId = params.get('combat_result');
+    if (!encId) return false;
+
+    let result = null;
+    try {
+      const raw = sessionStorage.getItem('combatResult');
+      if (raw) result = JSON.parse(raw);
+      sessionStorage.removeItem('combatResult');
+    } catch (e) { console.warn('读取战斗结果失败:', e); }
+
+    if (!result || result.encounterId !== encId) {
+      console.warn('战斗结果与 URL 参数不匹配:', result, encId);
+      return false;
+    }
+
+    if (result.outcome === 'victory') {
+      // 1. 回写玩家 HP（战斗结束时的剩余 HP）
+      if (state.character && typeof result.playerEndHp === 'number') {
+        const max = hpMaxFromState();
+        state.character.combat = state.character.combat || { ac: 10, hp: '0 / 0' };
+        state.character.combat.hp = `${Math.max(0, result.playerEndHp)} / ${max}`;
+      }
+      // 2. 战利品进入玩家背包
+      const loot = result.loot || [];
+      if (loot.length && state.character) {
+        state.character.inventory = state.character.inventory || { items: [] };
+        loot.forEach(itemId => {
+          state.character.inventory.items.push({
+            equipment_id: itemId,
+            equipped: false,
+            quantity: 1,
+          });
+        });
+      }
+      // 3. 追加胜利叙事日志
+      const lootNames = loot.map(id => state.data.items?.[id]?.name || id).join('、');
+      const clueText = (result.clues || []).join('；');
+      let msg = `⚔ 你击败了 ${result.encounterName || '敌人'}。`;
+      if (loot.length) msg += ` 获得战利品：${lootNames}。`;
+      if (clueText) msg += ` 线索：${clueText}。`;
+      appendLog('gm', msg);
+
+      // 4. 自动跳转到 nextScene
+      if (result.nextSceneId && state.data.scenes[result.nextSceneId]) {
+        state.currentSceneId = result.nextSceneId;
+        const nextScene = state.data.scenes[result.nextSceneId];
+        const nextLoc = state.data.locations[nextScene.location];
+        appendLog('gm', nextLoc?.scene_text || nextLoc?.description || nextScene.description || '');
+      }
+    } else {
+      // 失败：Game Over
+      appendLog('system', '☠ 你在战斗中倒下了，冒险就此结束。');
+      state.gameOver = true;
+    }
+
+    // 清理 URL 参数，避免刷新时重复消费
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('combat_result');
+      window.history.replaceState({}, '', url.toString());
+    } catch (e) {}
+
+    return true;
+  }
+
+  /** 辅助：从 state.character 解析最大 HP */
+  function hpMaxFromState() {
+    const hp = state.character?.combat?.hp || '0 / 0';
+    const parts = String(hp).split('/').map(s => parseInt(s.trim(), 10));
+    return isNaN(parts[1]) ? 10 : parts[1];
+  }
+
   /* ── 场景跳转 ── */
   function navigateToScene(sceneId) {
     const targetScene = state.data.scenes[sceneId];
@@ -4355,6 +4491,16 @@
     const targetLoc = state.data.locations[targetScene.location];
     if (!targetLoc) {
       appendLog('system', `无法到达: ${targetScene.name}`);
+      return;
+    }
+
+    // M6：检查场景事件是否含战斗遭遇，若是则跳转到战斗地图
+    const combatEncounter = (targetScene.events || [])
+      .map(eid => state.data.encounters[eid])
+      .find(e => e && e.type === 'combat' && (e.map_id || e.location === 'triboar-trail-ambush'));
+    if (combatEncounter) {
+      // 战斗触发后页面会跳转，不必更新 state.currentSceneId（由战斗结束回写时设置）
+      triggerCombatEncounter(combatEncounter.id, sceneId);
       return;
     }
 
@@ -4656,6 +4802,9 @@
       // 属性跟随已装备物品（护甲 AC / 武器伤害与攻击加值）
       if (state.character) recalcCharacterStats(state.character);
 
+      // M6：检查是否从战斗地图返回（URL ?combat_result=xxx）
+      const fromCombat = consumeCombatResult();
+
       const scene = getCurrentScene();
       const loc = getCurrentLocation();
       if (!scene || !loc) {
@@ -4666,6 +4815,23 @@
       // 清空日志 + 显示加载中
       state.log = [];
       narrativeLog.innerHTML = '<div class="log-entry system" style="text-align:center;"><div class="log-label">系统</div><div>游戏加载中，GM 正在准备开场...</div></div>';
+
+      if (fromCombat) {
+        // 战斗结果回写后：跳过开场白请求，直接用回写后的场景渲染
+        // consumeCombatResult 已追加胜利/失败日志和场景切换
+        if (state.gameOver) {
+          narrativeLog.innerHTML = '';
+          appendLog('system', '☠ 冒险结束。请刷新页面重新开始。');
+          renderLocationHeader();
+          renderContextPanel();
+          return;
+        }
+        renderLocationHeader();
+        renderContextPanel();
+        await renderRightPanel();
+        await renderAllTabs();
+        return;
+      }
 
       // 请求开场白（后端启动时已预生成，毫秒级响应）
       const resp = await fetch(`/api/game/opening?adventure_id=${encodeURIComponent(ADVENTURE_ID)}&chapter_id=${encodeURIComponent(CHAPTER_ID)}&scene_id=${encodeURIComponent(scene.id)}`);

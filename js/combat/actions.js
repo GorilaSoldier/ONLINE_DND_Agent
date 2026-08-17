@@ -147,7 +147,8 @@ export function resolveSelfAction(action, char) {
     return { ok: true, text: `${char.name}使用回复，恢复了 ${heal} 点生命值（消耗一次短休充能）。`, heal };
   }
   if (aId === 'fighting_spirit') {
-    return { ok: true, text: `${char.name}激发斗气如潮，本回合攻击获得额外伤害。`, fightingSpirit: true };
+    // 动作如潮（Action Surge，自由动作）：本回合获得 1 个额外动作。使用次数由 main.js 的 actionSurgeUsed 管理
+    return { ok: true, text: `${char.name}激发动作如潮，本回合获得 1 个额外动作。`, actionSurge: true };
   }
   if (aId === 'extra_attack') {
     return { ok: true, text: `${char.name}发动附加攻击，可再进行一次攻击。`, extraAttack: true };

@@ -29,6 +29,14 @@
         "action_type": "1动作",
         "range": "近战",
         "description": "对相邻敌人发力推搡。双方掷 d20+力量调整值对抗，成功则将目标推远 1 格。被推离的目标该次移动不触发借机攻击。"
+      },
+      "help_downed": {
+        "id": "help_downed",
+        "name": "扶起队友",
+        "action_type": "1动作",
+        "range": "触碰",
+        "effect": "revive",
+        "description": "触碰一名倒地的己方队友将其扶起。目标立即恢复 1 HP 并苏醒（本回合只能使用附赠动作）。无法扶起已死亡的队友。"
       }
     },
     "class": {

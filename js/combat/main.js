@@ -44,6 +44,13 @@ let npcTemplates = {};
 let spellLookup = {};
 let equipmentCatalog = {};
 
+/* ══════════ 法术位（D&D 5e）══════════
+ * 1 环法术消耗 1 个 1 环法术位；戏法（0 环）不消耗；长休恢复
+ * 与右侧角色卡 slotText1 共享，通过 __combatApi.getSpellSlots() 暴露
+ * caster_level 1 → 2 个 1 环位；caster_level ≥ 2 → 3 个（与后端 spell_slot_max 一致）
+ */
+let spellSlots = { 1: { max: 2, used: 0 } };
+
 /* ══════════ 动作经济（D&D 5e）══════════
  * 每回合：1 动作 + 1 附赠动作 + 移动力（米，不结转）
  * 展示用米（斜走消耗 √2 格 ≈ 2.12 米，非整数格）
@@ -93,6 +100,11 @@ function trySpendCost(action) {
   if (combatPhase === 'idle') return true;
   const cost = actionCostOf(action);
   if (cost === 'free') return true;
+  // BG3 规则：苏醒回合（被扶起/自然20/治疗）只能用附赠动作 → 禁止动作
+  if (turnResources.justRevived && cost === 'action') {
+    updateStatus('苏醒回合只能使用附赠动作（BG3 规则）');
+    return false;
+  }
   if (cost === 'action' && turnResources.action <= 0) {
     updateStatus('动作已用完，本回合不能再执行该操作（可结束回合）');
     return false;
@@ -131,6 +143,7 @@ function initTurnResources() {
     moveBase: base,
     secondWindUsed: turnResources.secondWindUsed,
     actionSurgeUsed: turnResources.actionSurgeUsed,
+    justRevived: false, // BG3：苏醒回合限制只在本回合有效，下回合开始清除
   };
   updateResourceBar();
 }
@@ -262,6 +275,12 @@ function createPlayerToken(char, spawn) {
     ac: char?.combat?.ac ?? 12,
     hpCur: hpCur(char),
     hpMax: hpMax(char),
+    // 死亡豁免（5e RAW）：HP=0 进入昏迷，每回合掷 d20
+    //   ≥10 成功 +1 / ≤9 失败 +1 / 自然1 失败 +2 / 自然20 立即回 1 HP 苏醒
+    //   3 成功 → 稳定（下回合自动回 1 HP 苏醒）；3 失败 → 死亡
+    //   昏迷中受伤 +1 失败；5 尺内近战命中昏迷目标自动暴击 +2 失败
+    downed: false, // 是否处于昏迷（HP=0 但未死）
+    deathSaves: { successes: 0, failures: 0, stable: false },
   }, mapConfig);
 }
 
@@ -378,20 +397,47 @@ function showTargetables() {
   // 判定是否为自身/友善目标法术（触碰治疗、增益等可对自己施放）
   const spell = pendingAction.type === 'spell' ? spellLookup[pendingAction.spellId] : null;
   const selfTargetable = spell && (spell.range === '触碰' || spell.range === '自身');
+  // 治疗法术（effect 以 "heal" 开头）只针对自己/队友；扶起队友（"revive"）只针对倒地队友；
+  // 伤害法术/攻击只针对敌人
+  // 原实现不区分治疗/伤害，导致治愈术高亮敌人 → 玩家可对敌人"加血"（错误）
+  const effectStr = String(spell?.effect || '').trim().toLowerCase();
+  const isHealSpell = effectStr.startsWith('heal');
+  const isReviveSpell = effectStr.startsWith('revive');
+  // 扶起队友：不能对自己（自己倒地时无法动作），只能对倒地且未死的己方
+  const selfCastable = selfTargetable && !isReviveSpell;
   for (const t of tokens) {
     if (t === selectedToken) {
-      // 自身目标法术（治愈术触碰等）可对自己施放
-      if (selfTargetable) {
+      // 自身目标法术（治愈术触碰等）可对自己施放（但扶起队友不可）
+      if (selfCastable) {
         t.circle.style.boxShadow = '0 0 0 3px rgba(126, 237, 159, 0.9), 0 0 12px rgba(126, 237, 159, 0.6)';
         targetableTokens.push(t);
       }
       continue;
     }
-    // 敌方目标（攻击/伤害法术）只高亮敌人
-    if (t.data.faction !== 'enemy') continue;
-    const dist = Math.hypot(t.data.col - selectedToken.data.col, t.data.row - selectedToken.data.row);
-    if (dist <= radiusCells + 1e-6) {
-      t.circle.style.boxShadow = '0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 80, 80, 0.9)';
+    // 治疗法术：高亮己方/友军；扶起队友：高亮倒地且未死的己方；伤害法术/攻击：高亮敌人
+    const isAlly = t.data.faction === 'player' || t.data.faction === 'ally';
+    if (isHealSpell) {
+      if (!isAlly) continue; // 治疗只针对己方
+    } else if (isReviveSpell) {
+      // 扶起队友：只针对倒地未死的己方（活着的不需要扶，死了的扶不起来）
+      if (!isAlly) continue;
+      if (!t.data.downed || t.data.dead) continue;
+    } else {
+      if (t.data.faction !== 'enemy') continue; // 伤害/攻击只针对敌人
+    }
+    const dc = Math.abs(t.data.col - selectedToken.data.col);
+    const dr = Math.abs(t.data.row - selectedToken.data.row);
+    // 5e 网格：≤1 格射程（近战/触碰/推离）含 8 方向相邻（含斜角，Chebyshev 距离 ≤ 1）
+    //          > 1 格射程按欧氏距离圆判定（与法术球面半径一致）
+    // 原实现用 Math.hypot 判 ≤1，导致斜角相邻敌人（dist=√2≈1.414）漏掉，推离/近战打不到
+    const inRange = radiusCells <= 1
+      ? (Math.max(dc, dr) <= 1 && (dc + dr > 0))
+      : (Math.hypot(dc, dr) <= radiusCells + 1e-6);
+    if (inRange) {
+      // 治疗目标用绿色高亮；伤害目标用红白高亮（区分视觉）
+      t.circle.style.boxShadow = isHealSpell
+        ? '0 0 0 3px rgba(126, 237, 159, 0.9), 0 0 12px rgba(126, 237, 159, 0.6)'
+        : '0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 80, 80, 0.9)';
       targetableTokens.push(t);
     }
   }
@@ -426,13 +472,50 @@ function getActionRangeCells(action) {
 function applyResult(result, targetToken) {
   // 伤害 → 扣目标 HP + 飘字
   if (result.damage > 0 && targetToken) {
+    const wasDowned = targetToken.data.downed === true && !targetToken.data.dead;
     targetToken.data.hpCur = Math.max(0, (targetToken.data.hpCur ?? 0) - result.damage);
     updateTokenHp(targetToken);
     spawnFloatingText(targetToken, `-${result.damage}`, '#ff6b6b');
-    if (targetToken.data.hpCur <= 0) {
-      targetToken.element.style.opacity = '0.35';
-      targetToken.data.dead = true;
-      renderInitiativeBar(); // 头像条标记死亡变灰
+
+    // 玩家走死亡豁免流程；敌人保持 HP=0 即死（杂兵惯例）
+    if (targetToken.data.faction === 'player') {
+      if (targetToken.data.hpCur <= 0 && !targetToken.data.dead) {
+        if (!wasDowned) {
+          // 首次倒下：进入昏迷，初始化死亡豁免计数
+          targetToken.data.downed = true;
+          targetToken.data.deathSaves = { successes: 0, failures: 0, stable: false };
+          targetToken.element.style.opacity = '0.55';
+          renderInitiativeBar();
+          appendCombatLog(`${targetToken.data.name} 倒下，进入昏迷状态！`, 'system', currentTurnLabel());
+        } else {
+          // 昏迷中受伤：失败 +1，暴击（含 5 尺近战昏迷自动暴击）+2
+          const ds = targetToken.data.deathSaves || (targetToken.data.deathSaves = { successes: 0, failures: 0, stable: false });
+          // 5e RAW：稳定状态下受伤 → 失去稳定状态，恢复死亡豁免流程
+          if (ds.stable) {
+            ds.stable = false;
+            appendCombatLog(`${targetToken.data.name} 稳定状态被伤害打断`, 'system', currentTurnLabel());
+          }
+          const add = result.crit ? 2 : 1;
+          ds.failures += add;
+          appendCombatLog(`${targetToken.data.name} 昏迷中受伤，死亡豁免失败 +${add}（累计 ${ds.failures}/3）`, 'system', currentTurnLabel());
+          if (ds.failures >= 3) {
+            targetToken.data.dead = true;
+            targetToken.data.downed = false;
+            targetToken.element.style.opacity = '0.35';
+            renderInitiativeBar();
+            appendCombatLog(`${targetToken.data.name} 死亡豁免失败累计 3 次，已经死亡...`, 'system', currentTurnLabel());
+            // 玩家死亡 → 战斗败北
+            setTimeout(() => endCombat(false), 1200);
+          }
+        }
+      }
+    } else {
+      // 敌人：HP=0 直接死亡（保持原状）
+      if (targetToken.data.hpCur <= 0) {
+        targetToken.element.style.opacity = '0.35';
+        targetToken.data.dead = true;
+        renderInitiativeBar(); // 头像条标记死亡变灰
+      }
     }
   }
   // 治疗 → 加目标 HP + 飘字（targetToken 为治疗目标，可能是自己或队友）
@@ -444,6 +527,23 @@ function applyResult(result, targetToken) {
     );
     updateTokenHp(healTarget);
     spawnFloatingText(healTarget, `+${result.heal}`, '#7bed9f');
+    // 玩家昏迷中治疗 → 苏醒，重置死亡豁免计数（5e RAW：任何治疗即苏醒）
+    if (healTarget.data.faction === 'player'
+        && healTarget.data.downed && !healTarget.data.dead
+        && healTarget.data.hpCur > 0) {
+      healTarget.data.downed = false;
+      healTarget.data.deathSaves = { successes: 0, failures: 0, stable: false };
+      healTarget.element.style.opacity = '1';
+      renderInitiativeBar();
+      // BG3：被治疗苏醒，本回合只能用附赠动作（仅当被治疗者正在当前回合行动时）
+      if (healTarget === selectedToken && combatPhase === 'player') {
+        turnResources.justRevived = true;
+        turnResources.action = 0;
+        turnResources.moveLeft = 0;
+        updateResourceBar();
+      }
+      appendCombatLog(`${healTarget.data.name} 受治疗苏醒！HP=${healTarget.data.hpCur}（本回合只能使用附赠动作）`, 'heal', currentTurnLabel());
+    }
   }
   updateStatus(result.text || '');
   // 写入战斗日志
@@ -492,6 +592,12 @@ function executePendingAction(targetToken) {
       resolveShove(selectedToken, targetToken);
       return;
     }
+    // 扶起队友（help_downed，effect: revive）：触碰倒地己方，恢复 1HP 苏醒
+    if (spell.id === 'help_downed' || String(spell.effect || '').toLowerCase().startsWith('revive')) {
+      spendCost(pendingAction);
+      resolveRevive(selectedToken, targetToken);
+      return;
+    }
     const target = targetToken ? { name: targetToken.data.name, combat: { ac: targetToken.data.ac ?? 15 } } : null;
     const result = resolveSpell(spell, char, target);
     spendCost(pendingAction);
@@ -500,14 +606,58 @@ function executePendingAction(targetToken) {
   }
 }
 
+/** 扶起队友（BG3 Help 动作）：触碰倒地己方，恢复 1 HP 并苏醒
+ *  目标需为 faction∈{player,ally} 且 downed=true 且 dead=false
+ *  被扶起者本回合只能用附赠动作（justRevived 标记，下回合开始清除）
+ */
+function resolveRevive(caster, target) {
+  if (!target) return;
+  if (target.data.faction !== 'player' && target.data.faction !== 'ally') {
+    updateStatus('扶起队友只能对己方使用');
+    appendCombatLog(`扶起队友失败：${target.data.name} 不是己方`, 'system', currentTurnLabel());
+    return;
+  }
+  if (target.data.dead) {
+    updateStatus(`${target.data.name} 已死亡，无法扶起（需复活类法术）`);
+    appendCombatLog(`扶起失败：${target.data.name} 已死亡`, 'system', currentTurnLabel());
+    return;
+  }
+  if (!target.data.downed) {
+    updateStatus(`${target.data.name} 未倒地，无需扶起`);
+    appendCombatLog(`扶起无效：${target.data.name} 未倒地`, 'system', currentTurnLabel());
+    return;
+  }
+  target.data.hpCur = 1;
+  target.data.downed = false;
+  target.data.deathSaves = { successes: 0, failures: 0, stable: false };
+  target.element.style.opacity = '1';
+  updateTokenHp(target);
+  renderInitiativeBar();
+  // BG3：被扶起的角色本回合只能用附赠动作（若该角色正在当前回合，置动作=0、移动力=0，仅留附赠）
+  if (target === selectedToken) {
+    turnResources.justRevived = true;
+    turnResources.action = 0;
+    turnResources.moveLeft = 0;
+    updateResourceBar();
+  }
+  const text = `${caster.data.name} 扶起 ${target.data.name}！恢复 1 HP 苏醒（本回合只能使用附赠动作）`;
+  appendCombatLog(text, 'heal', currentTurnLabel());
+  updateStatus(text);
+}
+
 /** 推离结算：双方掷 d20+力量调整值对抗，成功推远 1 格（被推方该次移动不触发借机攻击） */
 function resolveShove(attacker, target) {
-  const atkAttrs = attacker.data.character?.background?.attributes || {};
-  const tgtAttrs = target.data.character?.background?.attributes || target.data.attrs || {};
-  const atkStr = atkAttrs.力量 || atkAttrs.strength || 10;
-  const tgtStr = tgtAttrs.力量 || tgtAttrs.strength || 10;
-  const atkMod = Math.floor((atkStr - 10) / 2);
-  const tgtMod = Math.floor((tgtStr - 10) / 2);
+  // 力量值取数：玩家用 char.abilities.str.value（角色卡格式）；
+  //              敌人无 abilities 字段时 fallback 到 10（mod=0）
+  // 原实现读 background.attributes.力量 —— 该字段在角色卡里不存在，导致双方都 fallback Str=10
+  const atkStr = attacker.data.character?.abilities?.str;
+  const tgtStr = target.data.character?.abilities?.str
+    || target.data.attrs?.str
+    || target.data.combat?.strength;
+  const atkStrVal = (typeof atkStr === 'object' ? atkStr?.value : atkStr) ?? 10;
+  const tgtStrVal = (typeof tgtStr === 'object' ? tgtStr?.value : tgtStr) ?? 10;
+  const atkMod = Math.floor((atkStrVal - 10) / 2);
+  const tgtMod = Math.floor((tgtStrVal - 10) / 2);
   const atkRoll = rollD20(atkMod);
   const tgtRoll = rollD20(tgtMod);
   const success = atkRoll.total >= tgtRoll.total;
@@ -524,7 +674,6 @@ function resolveShove(attacker, target) {
   const newCol = target.data.col + stepC;
   const newRow = target.data.row + stepR;
   // 落点校验：不出界、不是障碍格、不是其他 token 占据格
-  const obstacleKey = `${newCol},${newRow}`;
   const blocked = mapConfig.obstacles?.some(o => o.col === newCol && o.row === newRow)
     || tokens.some(t => t !== target && t.data.col === newCol && t.data.row === newRow && !t.data.dead)
     || newCol < 0 || newCol >= mapConfig.grid_cols
@@ -538,7 +687,7 @@ function resolveShove(attacker, target) {
   target.data._shovedAway = true;
   target.data.col = newCol;
   target.data.row = newRow;
-  updateTokenPosition(target);
+  updateTokenPosition(target, mapConfig);
   updateStatus(`${attacker.data.name}将${target.data.name}推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`);
   appendCombatLog(`推离成功，${target.data.name} 被推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`, 'attack', currentTurnLabel());
 }
@@ -766,6 +915,17 @@ function activateCurrent(isFirst = false) {
     combatPhase = 'player';
     initTurnResources(); // 重置动作/附赠/移动力（不结转）
     showEndTurnBtn(true);
+    // ── 死亡豁免（5e RAW）：昏迷玩家回合开始掷 d20 ──
+    if (cur.token.data.downed && !cur.token.data.dead) {
+      const handled = runPlayerDeathSave(cur.token);
+      if (handled) {
+        // 昏迷中无法行动：自动结束回合（除非自然 20/稳定后苏醒 → 可正常行动）
+        if (cur.token.data.downed || cur.token.data.dead) {
+          setTimeout(() => advanceInitiative(), 1500);
+          return;
+        }
+      }
+    }
     if (cur.token && !cur.token.data.dead) select(cur.token);
     updateStatus(`第 ${turnCounter} 轮 · ${cur.name}的回合，行动后点击「结束回合」`);
     appendCombatLog(`${cur.name}的回合开始`, 'system', currentTurnLabel());
@@ -777,6 +937,91 @@ function activateCurrent(isFirst = false) {
     appendCombatLog(`${cur.name}的回合开始`, 'system', currentTurnLabel());
     setTimeout(() => runSingleEnemyAct(cur.token), 500);
   }
+}
+
+/**
+ * 玩家死亡豁免掷骰（BG3 风格）：昏迷玩家回合开始时调用。
+ * 自然 20 → 立即回 1 HP 苏醒（可正常行动）
+ * 自然 1  → 失败 +2
+ * ≥ 10    → 成功 +1，累计 3 → 稳定（不再掷骰，但仍昏迷，需队友扶起/治疗）
+ * ≤ 9     → 失败 +1，累计 3 → 死亡
+ * 稳定后回到此函数 → 跳过掷骰，仍昏迷等待救援（不自动苏醒）
+ * @returns {boolean} true 表示已处理（昏迷/苏醒/死亡）
+ */
+function runPlayerDeathSave(playerToken) {
+  const ds = playerToken.data.deathSaves || (playerToken.data.deathSaves = { successes: 0, failures: 0, stable: false });
+  const name = playerToken.data.name || '玩家';
+
+  // 稳定后：不再掷骰，但仍昏迷，需队友扶起/治疗才能苏醒（BG3 规则）
+  // 原实现：稳定后下回合自动回 1HP 苏醒 → 人物永远死不了（与用户反馈一致）
+  if (ds.stable) {
+    appendCombatLog(`${name} 已稳定（昏迷中，等待队友扶起或治疗）`, 'system', currentTurnLabel());
+    return true; // 跳过本回合掷骰，但仍占回合
+  }
+
+  const roll = Math.floor(Math.random() * 20) + 1;
+  let text;
+  if (roll === 20) {
+    // 自然 20：立即回 1 HP 苏醒；BG3 规则：本回合只能用附赠动作
+    playerToken.data.hpCur = 1;
+    playerToken.data.downed = false;
+    playerToken.data.deathSaves = { successes: 0, failures: 0, stable: false };
+    playerToken.element.style.opacity = '1';
+    updateTokenHp(playerToken);
+    renderInitiativeBar();
+    // BG3：苏醒回合只能用附赠动作（本函数仅在玩家回合开始调用，turnResources 属于该角色）
+    turnResources.justRevived = true;
+    turnResources.action = 0;
+    turnResources.moveLeft = 0;
+    updateResourceBar();
+    text = `${name} 死亡豁免掷出自然 20！立即恢复 1 HP 苏醒！（本回合只能使用附赠动作）`;
+    appendCombatLog(text, 'crit', currentTurnLabel());
+    updateStatus(text);
+    return true;
+  }
+  if (roll === 1) {
+    // 自然 1：失败 +2
+    ds.failures += 2;
+    text = `${name} 死亡豁免掷出自然 1，失败 +2（累计 ${ds.failures}/3）`;
+    appendCombatLog(text, 'system', currentTurnLabel());
+    updateStatus(text);
+    if (ds.failures >= 3) {
+      playerToken.data.dead = true;
+      playerToken.data.downed = false;
+      playerToken.element.style.opacity = '0.35';
+      renderInitiativeBar();
+      appendCombatLog(`${name} 死亡豁免失败累计 3 次，已经死亡...`, 'system', currentTurnLabel());
+      // 玩家死亡 → 战斗结束（败北）
+      setTimeout(() => endCombat(false), 1200);
+    }
+    return true;
+  }
+  if (roll >= 10) {
+    ds.successes += 1;
+    text = `${name} 死亡豁免掷出 ${roll}，成功（累计 ${ds.successes}/3）`;
+    appendCombatLog(text, 'heal', currentTurnLabel());
+    updateStatus(text);
+    if (ds.successes >= 3) {
+      ds.stable = true;
+      // BG3：稳定后仍昏迷，不自动苏醒；需队友扶起/治疗
+      appendCombatLog(`${name} 死亡豁免成功累计 3 次，状态稳定！但仍昏迷，需队友扶起或治疗才能苏醒`, 'system', currentTurnLabel());
+    }
+    return true;
+  }
+  // 2~9：失败 +1
+  ds.failures += 1;
+  text = `${name} 死亡豁免掷出 ${roll}，失败（累计 ${ds.failures}/3）`;
+  appendCombatLog(text, 'system', currentTurnLabel());
+  updateStatus(text);
+  if (ds.failures >= 3) {
+    playerToken.data.dead = true;
+    playerToken.data.downed = false;
+    playerToken.element.style.opacity = '0.35';
+    renderInitiativeBar();
+    appendCombatLog(`${name} 死亡豁免失败累计 3 次，已经死亡...`, 'system', currentTurnLabel());
+    setTimeout(() => endCombat(false), 1200);
+  }
+  return true;
 }
 
 /** 推进到下一个行动者（跳过死亡，到末尾回 0 并轮数 +1） */
@@ -821,7 +1066,10 @@ function sleep(ms) {
 }
 
 /** 敌人单只行动 AI（对等动作经济：移动力 + 1 动作）
- *  远程射程内直接攻击；够不着先移动（消耗移动力），移动后射程内再攻击 */
+ *  BG3 风格智能补刀：
+ *  - 有其他活着的、未倒地的玩家方威胁 → 优先打活的（不打倒地）
+ *  - 仅剩倒地玩家且未死 → 补刀倒地（近战自动暴击2失败，3次即死）
+ *  - 远程射程内直接攻击；够不着先移动，移动后射程内再攻击 */
 async function enemyAct(enemy) {
   const player = getPlayerToken();
   if (!player) return;
@@ -833,26 +1081,55 @@ async function enemyAct(enemy) {
   const meleeRange = 1.5 / mapConfig.meters_per_cell; // 1 格
   const rangedRange = 6 / mapConfig.meters_per_cell;  // 4 格
 
-  let dist = Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row);
+  // 判断玩家方威胁：活且未倒地的 player/ally
+  const liveThreats = tokens.filter(t =>
+    (t.data.faction === 'player' || t.data.faction === 'ally')
+    && !t.data.dead && !t.data.downed
+  );
+  const playerDowned = player.data.downed === true && !player.data.dead;
+  // BG3 智能补刀条件：玩家已倒地且无其他活威胁 → 补刀倒地（不再原地待命）
+  const willFinishDowned = playerDowned && liveThreats.length === 0;
 
-  // 移动阶段：短弓射程外 → 靠近玩家（移动力）
+  // 玩家倒地但仍有其他活威胁 → 敌人转去应对其他威胁，不打倒地（保留原待命行为）
+  if (playerDowned && !willFinishDowned) {
+    updateStatus(`${enemy.data.name} 看到玩家倒下，转而应对其他威胁`);
+    appendCombatLog(`${enemy.data.name} 原地待命`, 'system', currentTurnLabel());
+    await sleep(400);
+    return;
+  }
+
+  // 目标：补刀时打倒地玩家；否则打活玩家（当前getPlayerToken返回唯一玩家token，两者同一引用）
+  const target = player;
+
+  let dist = Math.hypot(enemy.data.col - target.data.col, enemy.data.row - target.data.row);
+
+  // 移动阶段：射程外 → 靠近目标
   if (dist > rangedRange) {
     await moveEnemyToward(enemy);
-    dist = Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row);
+    dist = Math.hypot(enemy.data.col - target.data.col, enemy.data.row - target.data.row);
   }
 
   // 动作阶段：射程内攻击（近战优先）
-  if (player.data.dead) return;
+  if (target.data.dead) return;
   if (dist <= meleeRange) {
-    const result = resolveAttack(attackerFromEnemy(enemy, melee), playerTarget(), 'melee');
-    await applyEnemyAttack(enemy, result);
+    const result = resolveAttack(attackerFromEnemy(enemy, melee), targetForEnemy(target), 'melee');
+    await applyEnemyAttack(enemy, result, target);
   } else if (dist <= rangedRange) {
-    const result = resolveAttack(attackerFromEnemy(enemy, ranged), playerTarget(), 'ranged');
-    await applyEnemyAttack(enemy, result);
+    const result = resolveAttack(attackerFromEnemy(enemy, ranged), targetForEnemy(target), 'ranged');
+    await applyEnemyAttack(enemy, result, target);
   } else {
     updateStatus(`${enemy.data.name} 原地待命`);
     await sleep(400);
   }
+}
+
+/** 把任意目标 token 转成 resolveAttack 需要的目标结构（暴露 downed 标记，5 尺近战昏迷自动暴击） */
+function targetForEnemy(target) {
+  return {
+    name: target?.data?.name || '玩家',
+    combat: { ac: target?.data?.ac ?? 12 },
+    downed: target?.data?.downed === true,
+  };
 }
 
 /** 把敌人 attacks 转成 resolveAttack 需要的攻击者结构 */
@@ -866,30 +1143,13 @@ function attackerFromEnemy(enemy, atk) {
   };
 }
 
-function playerTarget() {
-  const p = getPlayerToken();
-  return { name: p?.data?.name || '玩家', combat: { ac: p?.data?.ac ?? 12 } };
-}
-
-/** 敌人攻击结算：伤害扣到玩家，同步右侧面板 */
-async function applyEnemyAttack(enemy, result) {
-  const player = getPlayerToken();
-  if (!player) return;
-  if (result.damage > 0 && !player.data.dead) {
-    player.data.hpCur = Math.max(0, (player.data.hpCur ?? 0) - result.damage);
-    updateTokenHp(player);
-    spawnFloatingText(player, `-${result.damage}`, '#ff6b6b');
-  }
-  updateStatus(result.text || '');
-  // 同步右侧角色卡 HP
-  if (window.__combatApi && typeof window.__combatApi.onResolve === 'function') {
-    window.__combatApi.onResolve(result);
-  }
-  if (player.data.hpCur <= 0) {
-    player.data.dead = true;
-    player.element.style.opacity = '0.35';
-    endCombat(false);
-  }
+/** 敌人攻击结算：复用 applyResult 统一处理倒地、死亡豁免、稳定、暴击等所有逻辑
+ *  target 参数为可选（默认 player），用于补刀倒地玩家时传入 */
+async function applyEnemyAttack(enemy, result, target) {
+  const tgt = target || getPlayerToken();
+  if (!tgt) return;
+  // 复用 applyResult：处理倒地、死亡豁免（含稳定状态打断）、近战自动暴击等
+  applyResult(result, tgt);
   await sleep(600);
 }
 
@@ -1154,10 +1414,21 @@ function cellsAdjacent(c1, r1, c2, r2) {
 /** 借机攻击触发：attacker 对 mover 自动结算一次近战攻击（不消耗反应预算，第一版简化） */
 async function triggerOpportunityAttack(attacker, mover) {
   if (!attacker || !mover || mover.data.dead) return;
-  const atkChar = attacker.data.character;
-  const attacks = attacker.data.attacks || [];
-  const melee = attacks.find(a => a.name === '弯刀') || attacks[0];
-  if (!atkChar || !melee) return;
+  // 按阵营构造 resolveAttack 需要的攻击者结构：
+  //   - 玩家：data.character 已含 attack.melee.bonus/damage（与普通攻击 resolveAttack(char,...) 同源）
+  //   - 敌人：用 attackerFromEnemy 把扁平 attacks 项转成 { name, attack:{melee,ranged} } 结构
+  // 否则会出现：玩家移动离开敌人 → 敌人 data.character 为 undefined → 早返回不触发；
+  //              敌人移动离开玩家 → 玩家 data.attacks 为空 → melee 为 undefined → 早返回不触发。
+  let atkChar;
+  if (attacker.data.faction === 'player') {
+    atkChar = attacker.data.character;
+    if (!atkChar) return;
+  } else {
+    const attacks = attacker.data.attacks || [];
+    const melee = attacks.find(a => a.name === '弯刀') || attacks[0];
+    if (!melee) return;
+    atkChar = attackerFromEnemy(attacker, melee);
+  }
   const target = { name: mover.data.name, combat: { ac: mover.data.ac ?? 15 } };
   const result = resolveAttack(atkChar, target, 'melee');
   applyResult(result, mover);
@@ -1238,7 +1509,6 @@ function handleMapClick(e) {
 
 function handleTokenClick(token) {
   if (state === 'moving') return;
-  // 非玩家回合禁止操作
   if (combatPhase !== 'idle' && combatPhase !== 'player') return;
   if (state === 'jumping') {
     // 跳跃落点选在 token 所在格：跳到该 token 旁或直接落点
@@ -1250,7 +1520,10 @@ function handleTokenClick(token) {
     }
     return;
   }
-  if (token.data.faction === 'enemy' && state === 'targeting' && targetableTokens.includes(token)) {
+  // targeting 状态：点击 targetableTokens 中的任意 token（含自己 — 触碰法术自疗）触发结算
+  // 原实现只匹配 faction === 'enemy'，导致治愈术点击玩家自身 token 落到下面 deselect 分支，
+  // 不触发 executePendingAction → 自疗完全无效
+  if (state === 'targeting' && targetableTokens.includes(token)) {
     executePendingAction(token);
     cancelTargeting(true); // 保留结算文字
     return;

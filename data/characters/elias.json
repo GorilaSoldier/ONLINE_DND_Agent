@@ -238,7 +238,8 @@
         "jump",
         "throw",
         "dash",
-        "shove"
+        "shove",
+        "help_downed"
       ],
       "class": [
         "second_wind",

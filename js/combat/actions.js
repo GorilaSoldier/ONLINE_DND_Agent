@@ -40,8 +40,9 @@ export function rollD20(mod = 0) {
 /**
  * 普攻结算（D&D 5e 简化）：攻击检定 d20 + bonus vs 目标 AC。
  * 命中则掷伤害骰；重击(20)伤害骰翻倍；1 自动未命中。
+ * 特殊：5 尺内近战命中昏迷目标（target.downed === true）= 自动暴击（5e RAW）。
  * @param {Object} attacker 攻击者角色卡（含 attack.melee/ranged）
- * @param {Object} target 目标 { name, combat:{ ac } }
+ * @param {Object} target 目标 { name, combat:{ ac }, downed? }
  * @param {'melee'|'ranged'} kind
  * @returns {{hit:boolean, crit:boolean, damage:number, text:string, d20:number}}
  */
@@ -50,10 +51,17 @@ export function resolveAttack(attacker, target, kind = 'melee') {
   const bonus = parseInt(String(atk.bonus || '+0').replace('+', ''), 10) || 0;
   const ac = target.combat?.ac ?? 10;
   const atkName = (kind === 'melee' ? '近战' : '远程') + '攻击';
+  // 5 尺内近战命中昏迷目标 = 自动暴击（昏迷 → unconscious：攻击优势 + 5 尺内近战命中必暴击）
+  const isUnconsciousMelee = kind === 'melee' && target.downed === true;
   const res = rollD20(bonus);
 
   if (res.fumble) {
     return { hit: false, crit: false, damage: 0, d20: res.roll, text: `${attacker.name}的${atkName}掷出 1，失手了！` };
+  }
+  // 5 尺内近战昏迷目标：命中即暴击（仍走 d20 判定，自然 1 失手，其余命中即暴击）
+  if (isUnconsciousMelee) {
+    const damage = rollDice(atk.damage) + rollDice(atk.damage);
+    return { hit: true, crit: true, damage, d20: res.roll, text: `${attacker.name}对昏迷的${target.name}近战暴击，${damage} 点伤害！` };
   }
   if (res.crit) {
     // 重击：伤害骰翻倍（掷两次）

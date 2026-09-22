@@ -33,7 +33,8 @@
         "死马身上有黑羽箭",
         "空地图匣说明地图被拿走了",
         "地上的拖行痕迹指向北方"
-      ]
+      ],
+      "nextSceneId": "ch1-scene2b"
     },
     "cragmaw-hideout-entrance-sentries": {
       "id": "cragmaw-hideout-entrance-sentries",

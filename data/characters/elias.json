@@ -95,6 +95,12 @@
         "name": "普通服装 Common Clothes",
         "quantity": 1,
         "equipped": false
+      },
+      {
+        "equipment_id": "torch",
+        "name": "火把",
+        "quantity": 3,
+        "equipped": false
       }
     ]
   },
@@ -265,7 +271,7 @@
     "attributes": {
       "move_speed": "4.5m",
       "darkvision": "0",
-      "ranged_range": "6m",
+      "ranged_range": "9m",
       "melee_range": "1.5m",
       "throw_range": "6m",
       "size": "中型",

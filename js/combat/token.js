@@ -3,6 +3,8 @@
  */
 
 import { parseMeters, metersToCells } from './movement.js';
+import { CELL_METERS } from './constants.js';
+import { updateTokenVisibility } from './fog.js';
 
 const FACTION_STYLES = {
   player: { border: '#4a90d9', bg: 'linear-gradient(135deg, rgba(74, 144, 217, 0.55), rgba(42, 92, 160, 0.9))', shadow: 'rgba(74, 144, 217, 0.45)' },
@@ -20,9 +22,9 @@ function getCellPixel(mapConfig, col, row) {
   };
 }
 
-export function getMoveCells(token, mapConfig) {
+export function getMoveCells(token) {
   const meters = parseMeters(token.moveSpeed);
-  return metersToCells(meters, mapConfig.meters_per_cell);
+  return metersToCells(meters, CELL_METERS);
 }
 
 export function createToken(tokenData, mapConfig) {
@@ -189,6 +191,8 @@ export function moveToken(token, col, row, mapConfig, duration = 280) {
   token.element.style.top = `${pos.y}px`;
   token.data.col = col;
   token.data.row = row;
+  // 位置变化后立即刷新雾中显隐：敌人走出迷雾进入已揭示区即现身，走入未揭示区即隐没
+  updateTokenVisibility();
 
   return new Promise(resolve => {
     setTimeout(() => {

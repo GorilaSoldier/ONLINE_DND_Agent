@@ -48,10 +48,10 @@ export function calculateReachableCells(start, moveCells, obstacles, gridCols, g
     { col: 0, row: 1, cost: 1 },       // 下
     { col: -1, row: 0, cost: 1 },      // 左
     { col: 1, row: 0, cost: 1 },       // 右
-    { col: -1, row: -1, cost: Math.SQRT2 }, // 左上
-    { col: 1, row: -1, cost: Math.SQRT2 },  // 右上
-    { col: -1, row: 1, cost: Math.SQRT2 },  // 左下
-    { col: 1, row: 1, cost: Math.SQRT2 },   // 右下
+    { col: -1, row: -1, cost: 1.5 }, // 左上（斜走=1.5格，替代 √2）
+    { col: 1, row: -1, cost: 1.5 },  // 右上
+    { col: -1, row: 1, cost: 1.5 },  // 左下
+    { col: 1, row: 1, cost: 1.5 },   // 右下
   ];
 
   function heapPush(node) {

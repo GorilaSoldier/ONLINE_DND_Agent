@@ -6,16 +6,23 @@
       "description": "一个精致的皮革地图匣，原本装着甘德伦的潮音洞穴地图。现在里面空空如也，只留下一些压痕。",
       "type": "clue",
       "visible": true,
-      "owner": null
+      "owner": null,
+      "contains": []
     },
     "scattered-supplies": {
       "id": "scattered-supplies",
       "name": "散落的物资",
-      "description": "甘德伦雇佣你们护送的采矿物资，散落在伏击现场。包括绳索、干粮、火把和 mining tools。",
-      "type": "quest_item",
+      "description": "甘德伦雇佣你们护送的采矿物资，散落在伏击现场。包括绳索、干粮、火把和矿镐。",
+      "type": "container",
       "stealable": false,
       "visible": true,
-      "owner": "gundren-rockseeker"
+      "owner": "gundren-rockseeker",
+      "contains": [
+        "miner-pickaxe", "miner-pickaxe",
+        "rope",
+        "torch", "torch", "torch",
+        "rations", "rations", "rations"
+      ]
     },
     "gundrens-map": {
       "id": "gundrens-map",
@@ -113,6 +120,58 @@
       "description": "一袋耐储存的旅行干粮，足够一日的口粮。",
       "icon": "rations",
       "type": "food",
+      "visible": false,
+      "owner": null
+    },
+    "scimitar": {
+      "id": "scimitar",
+      "name": "弯刀",
+      "description": "地精常用的弯刀，刀刃略有缺口但依然锋利。",
+      "icon": "sword",
+      "type": "equipment",
+      "equipment_id": "scimitar",
+      "visible": false,
+      "owner": null
+    },
+    "shortbow": {
+      "id": "shortbow",
+      "name": "短弓",
+      "description": "地精使用的粗糙短弓，弓身略弯。",
+      "icon": "bow",
+      "type": "equipment",
+      "equipment_id": "shortbow",
+      "visible": false,
+      "owner": null
+    },
+    "leather-armor": {
+      "id": "leather-armor",
+      "name": "皮甲",
+      "description": "地精身上剥下的简陋皮甲，质地粗糙但可穿戴。",
+      "icon": "chestplate",
+      "type": "equipment",
+      "equipment_id": "leather",
+      "visible": false,
+      "owner": null
+    },
+    "goblin-coinpurse": {
+      "id": "goblin-coinpurse",
+      "name": "地精钱袋",
+      "description": "地精腰间拴着的破旧皮钱袋，鼓鼓囊囊的。",
+      "type": "container",
+      "stealable": false,
+      "visible": false,
+      "owner": null,
+      "contains": [
+        { "id": "silver-coins", "qty": 2 }
+      ]
+    },
+    "silver-coins": {
+      "id": "silver-coins",
+      "name": "银币",
+      "description": "几枚磨损的银币。",
+      "icon": "coins",
+      "type": "currency",
+      "value": 1,
       "visible": false,
       "owner": null
     }

@@ -49,6 +49,16 @@
       "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
       "items": ["empty-map-case", "scattered-supplies"],
       "events": ["goblin-ambush"],
+      "next_scene": "ch1-scene2b"
+    },
+    {
+      "id": "ch1-scene2b",
+      "name": "战后搜索",
+      "location": "triboar-trail-aftermath",
+      "description": "地精伏击被击退，硝烟散去。玩家搜索战场，发现空地图匣和通往北方的拖行痕迹。",
+      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "items": ["empty-map-case", "scattered-supplies"],
+      "events": [],
       "next_scene": "ch1-scene3"
     },
     {

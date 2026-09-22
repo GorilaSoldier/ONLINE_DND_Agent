@@ -1,4 +1,65 @@
 {
+  "_templates": {
+    "goblin-ambusher": {
+      "race": "地精",
+      "role": "伏击者",
+      "description": "埋伏在三猪小径旁灌木丛中的地精。",
+      "personality": ["狡猾", "胆小"],
+      "attitude": "hostile",
+      "current_location": "triboar-trail-ambush",
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍", "kind": "melee" },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺", "kind": "ranged" }
+        ]
+      },
+      "inventory": [
+        { "id": "scimitar", "qty": 1 },
+        { "id": "shortbow", "qty": 1 },
+        { "id": "leather-armor", "qty": 1 },
+        { "id": "goblin-coinpurse", "qty": 1 }
+      ]
+    },
+    "goblin-sentry": {
+      "race": "地精",
+      "role": "哨兵",
+      "description": "守在克拉摩窝点入口的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-entrance"
+    },
+    "wolf": {
+      "race": "野兽",
+      "role": "地精驯养的狼",
+      "description": "被链条拴住的饥饿野狼。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-wolf-cave",
+      "combat": {
+        "ac": 13,
+        "hp": { "cur": 11, "max": 11 },
+        "move_speed": "12m",
+        "attacks": [
+          { "name": "撕咬", "bonus": 4, "damage": "2d4+2", "type": "穿刺", "kind": "melee" }
+        ]
+      }
+    },
+    "goblin-bridge-guard": {
+      "race": "地精",
+      "role": "守卫",
+      "description": "守在木桥附近的地精。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-blind"
+    },
+    "goblin-klarg": {
+      "race": "地精",
+      "role": "克拉格的随从",
+      "description": "克拉格的地精随从。",
+      "attitude": "hostile",
+      "current_location": "cragmaw-hideout-boss"
+    }
+  },
   "npcs": {
     "gundren-rockseeker": {
       "id": "gundren-rockseeker",

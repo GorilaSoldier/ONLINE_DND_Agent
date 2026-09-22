@@ -1275,6 +1275,25 @@
     cursor: pointer;
   }
 
+  /* ── 非致命打击开关（被动技能栏内的可点击 toggle，D&D 5e PHB p198）── */
+  .skill-block.nonlethal-toggle {
+    cursor: pointer; user-select: none;
+    transition: background 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .skill-block.nonlethal-toggle:hover { background: rgba(255,255,255,0.7); box-shadow: 0 2px 6px var(--shadow); }
+  .skill-block.nonlethal-toggle.active {
+    border-color: #d4af37;
+    background: linear-gradient(135deg, rgba(212,175,55,0.28), rgba(212,175,55,0.08));
+    color: #8a6d10;
+    box-shadow: 0 0 8px rgba(212,175,55,0.45), inset 0 0 4px rgba(212,175,55,0.15);
+  }
+
+  /* ── 昏迷标记 Zzz 浮动动画 ── */
+  @keyframes zz-float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-3px); }
+  }
+
   /* ── 人物背景 ── */
   .bg-info-row {
     display: flex; align-items: center; justify-content: space-between;
@@ -1566,6 +1585,20 @@
     color: var(--accent);
     margin-bottom: 10px;
   }
+
+  /* NPC 详情弹窗状态徽章样式 */
+  .npc-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .npc-status-dead { background: rgba(220, 53, 69, 0.18); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.4); }
+  .npc-status-unconscious { background: rgba(255, 193, 7, 0.18); color: #d99e00; border: 1px solid rgba(255, 193, 7, 0.4); }
+  .npc-status-stunned { background: rgba(108, 117, 125, 0.18); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.4); }
+  .npc-status-left { background: rgba(108, 117, 125, 0.12); color: #6c757d; border: 1px dashed rgba(108, 117, 125, 0.3); }
 
   .inv-box-list {
     display: flex;
@@ -2242,17 +2275,22 @@
 
     keys.forEach((k, i) => { results[k] = responses[i]; });
 
-    // 合并数据
-    // NPC 模板复用：实例存 name + template(id)，combat/race/role 等从 _templates 取
-    const _npcTemplates = { ...(results.globalNpcs._templates || {}), ...(results.chapterNpcs._templates || {}) };
-    const _mergeNpcTemplate = (npc) => {
-      if (!npc || !npc.template) return npc;
-      const tmpl = _npcTemplates[npc.template] || {};
-      return { ...tmpl, ...npc }; // 实例 name 覆盖模板 name
+    // 合并 NPC 数据：先合并 _templates（global + chapter），再对每个实例做模板展开
+    const allTemplates = {
+      ...(results.globalNpcs._templates || {}),
+      ...(results.chapterNpcs._templates || {})
+    };
+    const rawNpcs = {
+      ...results.globalNpcs.npcs,
+      ...results.chapterNpcs.npcs
     };
     const allNpcs = {};
-    for (const [id, npc] of Object.entries({ ...results.globalNpcs.npcs, ...results.chapterNpcs.npcs })) {
-      allNpcs[id] = _mergeNpcTemplate(npc);
+    for (const [npcId, npc] of Object.entries(rawNpcs)) {
+      if (npc.template && allTemplates[npc.template]) {
+        allNpcs[npcId] = { id: npcId, ...allTemplates[npc.template], ...npc };
+      } else {
+        allNpcs[npcId] = { id: npcId, ...npc };
+      }
     }
 
     const allItems = results.items.items;
@@ -2388,7 +2426,7 @@
     // 兼容字符串 / {id, sub} 两种形式（sub=子区域，仅后端目击者判定用）
     const npcIds = rawNpcIds.map(e => (typeof e === 'string') ? e : (e && e.id)).filter(Boolean);
     // 已离开的 NPC 从列表移除；死亡/眩晕保留并加标记
-    const NPC_STATUS_SUFFIX = { dead: '（已死亡）', stunned: '（眩晕）' };
+    const NPC_STATUS_SUFFIX = { dead: '（已死亡）', stunned: '（眩晕）', unconscious: '（昏迷）' };
     const visibleNpcIds = npcIds.filter(id => (state.npcStates[id]?.status || '') !== 'left');
     if (visibleNpcIds.length === 0) {
       npcsEl.innerHTML = '<div class="context-empty">此处没有其他人</div>';
@@ -2805,9 +2843,32 @@
 
     function hideTooltip() {
       tooltip.classList.remove('show');
+      tooltip._nlBound = null;  // 隐藏时清除绑定标记
     }
 
     function showSkillTooltip(block) {
+      // 非致命打击 toggle：自定义 tooltip（规则说明 + 当前状态）
+      if (block.classList.contains('nonlethal-toggle')) {
+        const api = window.__combatApi;
+        const on = (typeof api?.getNonlethal === 'function') ? api.getNonlethal() : false;
+        tooltip.innerHTML = `
+          <div class="item-tooltip-name">非致命打击</div>
+          <div class="item-tooltip-save">被动 · 不消耗动作</div>
+          <div class="item-tooltip-desc">开启后近战攻击将敌人 HP 归零时强制留 1 滴血，敌人陷入昏迷（不致死），可战后处置。远程攻击和法术不受开关影响，强制致命。</div>
+          <div class="item-tooltip-breakdown">当前状态：${on ? '已开启（近战留活口）' : '已关闭（近战致命）'}</div>
+          <div class="item-tooltip-breakdown" style="opacity:.7">点击切换开关</div>
+        `;
+        tooltip._nlBound = block;  // 标记 tooltip 当前绑定到非致命按钮，供 toggleNonlethal 刷新内容
+        tooltip.classList.add('show');
+        const r = block.getBoundingClientRect();
+        tooltip.style.left = Math.max(8, r.left) + 'px';
+        tooltip.style.top = (r.bottom + 8) + 'px';
+        const tr = tooltip.getBoundingClientRect();
+        if (tr.right > window.innerWidth) tooltip.style.left = (window.innerWidth - tr.width - 8) + 'px';
+        if (tr.bottom > window.innerHeight) tooltip.style.top = (r.top - tr.height - 8) + 'px';
+        return;
+      }
+      tooltip._nlBound = null;  // 非 非致命按钮时清除标记
       const spellId = block.dataset.spellId;
       const lookup = window.spellLookup || {};
       const spell = spellId ? lookup[spellId] : null;
@@ -2902,55 +2963,8 @@
   }
 
   function recalcCharacterStats(char) {
-    const catalog = catalogs.equipment || {};
-    const items = char.inventory?.items || [];
-    const dexMod = Math.floor(((char.abilities?.dex?.value ?? 10) - 10) / 2);
-    const strMod = Math.floor(((char.abilities?.str?.value ?? 10) - 10) / 2);
-    // 攻击加值 = 熟练加值 + 属性调整值 + 武器加值（D&D 5e 规则）
-    const prof = parseInt(String(char.skills?.proficiency_bonus || '+2').replace(/[^0-9-]/g, ''), 10) || 2;
-
-    // AC：无甲基础 + 已装备护甲（取最高）+ 盾牌 + 饰品加值
-    let ac = 10 + dexMod;
-    let meleeDamage = null;
-    let rangedDamage = null;
-    let meleeBonus = 0;
-    let rangedBonus = 0;
-    for (const item of items) {
-      if (!item.equipped) continue;
-      const ci = catalog[item.equipment_id];
-      if (!ci || !ci.stats) continue;
-      if (ci.type === 'weapon') {
-        if (ci.stats.category === 'melee' && !meleeDamage) {
-          meleeDamage = ci.stats.damage_dice;
-          meleeBonus = ci.stats.bonus || 0;
-        }
-        if (ci.stats.category === 'ranged' && !rangedDamage) {
-          rangedDamage = ci.stats.damage_dice;
-          rangedBonus = ci.stats.bonus || 0;
-        }
-      } else if (ci.type === 'armor') {
-        const s = ci.stats;
-        if (s.category === 'shield') {
-          ac += (s.bonus_ac || 0);
-        } else if (s.category !== 'clothes' && s.ac_base) {
-          let a = s.ac_base;
-          if (s.ac_ability === 'dex') {
-            a += (s.ac_max_dex != null ? Math.min(dexMod, s.ac_max_dex) : dexMod);
-          }
-          if (a > ac) ac = a;
-        }
-      } else if (ci.type === 'accessory' && ci.stats && ci.stats.bonus_ac) {
-        ac += ci.stats.bonus_ac;
-      }
-    }
-    char.combat = char.combat || { ac: 10, hp: '0 / 0' };
-    char.combat.ac = ac;
-    char.attack = char.attack || { melee: {}, ranged: {} };
-    const fmtBonus = v => (v >= 0 ? '+' : '') + v;
-    char.attack.melee.bonus = fmtBonus(strMod + prof + meleeBonus);
-    char.attack.melee.damage = meleeDamage ? meleeDamage + (meleeBonus ? `+${meleeBonus}` : '') : '1d4';
-    char.attack.ranged.bonus = fmtBonus(dexMod + prof + rangedBonus);
-    char.attack.ranged.damage = rangedDamage ? rangedDamage + (rangedBonus ? `+${rangedBonus}` : '') : '1d4';
+    // 装备穿戴效果（AC/攻击/照明）唯一换算入口：js/character/equipment-effects.js
+    return window.applyEquipmentEffects(char, catalogs.equipment || {});
   }
 
   async function saveCharacter() {
@@ -3478,6 +3492,13 @@
         <div class="skill-block combat-action" data-action-kind="target" data-cost="action" data-action-type="attack" data-attack-kind="ranged">远程攻击 <small style="opacity:.7">(${escapeHtml(String(ranged.bonus || '+0'))} / ${escapeHtml(String(ranged.damage || '—'))})</small>${costTag('action')}</div>
       </div>`;
 
+    // 非致命打击开关（session 内存，调用 main.js 的 __combatApi.setNonlethal）
+    // 放在被动技能栏首位：本身不消耗动作预算（D&D 5e PHB p198：非致命是攻击的一部分）
+    // 复用 .skill-block 悬浮提示系统：hover 显示规则说明 + 当前状态
+    const nonlethalOn = (typeof window.__combatApi?.getNonlethal === 'function')
+      ? window.__combatApi.getNonlethal() : false;
+    const nonlethalBlock = `<div class="skill-block nonlethal-toggle ${nonlethalOn ? 'active' : ''}" id="nonlethal-toggle" onclick="toggleNonlethal()" data-nl="1">非致命打击</div>`;
+
     // ── 法术环：戏法（0 环，无限施放，不消耗法术位）+ 1 环（消耗法术位，长休恢复）──
     const casterLevel = (char.spells?.caster_level) || 1;
     const slotMax1 = casterLevel >= 2 ? 3 : 2;  // 与后端 spell_slot_max 一致（简化：1 级 2 个、2 级 3 个）
@@ -3500,7 +3521,7 @@
       ${attackButtons}
       ${section('常规动作', normalItems, spells.actions?.normal)}
       ${section('职业动作', classItems, spells.actions?.class)}
-      ${passiveItems.length ? `<div class="divider"><span>被动技能</span></div><div class="skill-grid">${passiveItems.map(name => `<div class="skill-block passive-skill">${escapeHtml(name)}</div>`).join('')}</div>` : ''}
+      ${passiveItems.length || nonlethalBlock ? `<div class="divider"><span>被动技能</span></div><div class="skill-grid">${nonlethalBlock}${passiveItems.map(name => `<div class="skill-block passive-skill">${escapeHtml(name)}</div>`).join('')}</div>` : ''}
       ${cantrips.length ? `<div class="divider"><span>戏法 · 无限施放</span></div><div class="skill-grid">${renderSpellGroup(cantrips)}</div>` : ''}
       ${spellL1.length ? `<div class="divider"><span>1 环法术 · 法术位 ${slotText1}</span></div><div class="skill-grid">${renderSpellGroup(spellL1)}</div>` : ''}
     `;
@@ -3556,9 +3577,16 @@
         meta = `${npc.race || ''} · ${npc.role || ''}`;
         desc = npc.description || '';
         avatar = npc.name[0];
+
+        // 状态徽章（已死亡/昏迷/已离开）
+        const npcStatus = state.npcStates?.[id]?.status;
+        if (npcStatus && NPC_STATUS_SUFFIX[npcStatus]) {
+          meta += ` <span class="npc-status-badge npc-status-${npcStatus}">${NPC_STATUS_SUFFIX[npcStatus]}</span>`;
+        }
+
         // 带 merchant 字段的 NPC 可交易
         if (npc.merchant) {
-          extraContent = `
+          extraContent += `
             <button type="button" class="trade-btn trade-open" data-npc="${id}" style="width:100%; padding:9px 0; font-size:14px;">交易</button>`;
         }
         break;
@@ -3626,11 +3654,16 @@
 
   /* 物品详情附加内容：容器显示内含物品，普通无主物品显示拿取按钮 */
   async function buildItemModalExtra(itemId, item) {
-    const contains = item.contains || [];
     const parts = [];
     const loc = getCurrentLocation();
 
-    if (contains.length > 0) {
+    // 判断是否为容器：显式声明 contains 字段（即使是空数组）即视为容器
+    if (Array.isArray(item.contains)) {
+      const contains = item.contains;
+      if (contains.length === 0) {
+        // 空容器：不显示"内含物品"标题，不显示"拿取"按钮（如空地图匣）
+        return '';
+      }
       // 容器：按 contains 聚合剩余数量（减去已取走的）
       const taken = (loc && state.containerTaken[loc.id]?.[itemId]) || [];
       const counts = {};
@@ -4574,7 +4607,28 @@
       }
       el.classList.toggle('disabled', dis);
     });
+    // 同步非致命开关视觉（按钮 active 类 + tooltip 内容由 showSkillTooltip 实时读取）
+    const nlBtn = document.getElementById('nonlethal-toggle');
+    if (nlBtn && typeof api.getNonlethal === 'function') {
+      nlBtn.classList.toggle('active', api.getNonlethal());
+    }
   }
+
+  // 非致命打击开关切换：ON=近战留 1 滴血昏迷，OFF=致命
+  // 不消耗动作预算（D&D 5e RAW：非致命是攻击的一部分，非独立动作）
+  window.toggleNonlethal = function() {
+    const api = window.__combatApi;
+    if (!api || typeof api.getNonlethal !== 'function' || typeof api.setNonlethal !== 'function') return;
+    const next = !api.getNonlethal();
+    api.setNonlethal(next);
+    const btn = document.getElementById('nonlethal-toggle');
+    if (btn) btn.classList.toggle('active', next);
+    // 若 tooltip 正显示在非致命按钮上，直接刷新 tooltip 内容
+    const tip = document.querySelector('.item-tooltip.show');
+    if (tip && tip._nlBound === btn) {
+      tip.querySelector('.item-tooltip-breakdown').textContent = `当前状态：${next ? '已开启（近战留活口）' : '已关闭（近战致命）'}`;
+    }
+  };
 
   // 战斗动作事件委托：点击动作块 → 分发给战斗地图（target → 选目标，self → 直接使用）
   document.addEventListener('click', (e) => {
@@ -5039,7 +5093,7 @@
       // 战斗地图：切换到地图配置指定的战斗场景（如三猪小径 → ch1-scene2），
       // 使左侧栏显示当前战斗地点的 NPC / 物品 / 任务
       try {
-        const mapId = new URLSearchParams(location.search).get('map') || 'triboar-trail-ambush';
+        const mapId = new URLSearchParams(location.search).get('map') || 'cragmaw-hideout-overview';
         const mapRes = await fetch(`/data/combat/maps/${encodeURIComponent(mapId)}.json`);
         if (mapRes.ok) {
           const mapCfg = await mapRes.json();

@@ -42,10 +42,10 @@ for (let r = 0; r < 5; r++) { box.add(cellKey(0, r)); box.add(cellKey(4, r)); }
 reachable = calculateReachableCells({ col: 2, row: 2 }, 10, box, 5, 5);
 assert(reachable.size === 9, '被墙围住时只能到达内部 3x3');
 
-// 5. 斜向移动消耗：对角应走 √2
+// 5. 斜向移动消耗：对角应走 1.5 格（替代 √2）
 reachable = calculateReachableCells({ col: 0, row: 0 }, 2, new Set(), 10, 10);
 const diag = reachable.get(cellKey(1, 1));
-assertApprox(diag.cost, Math.SQRT2, 1e-9, '对角距离应为 √2');
+assertApprox(diag.cost, 1.5, 1e-9, '对角距离应为 1.5');
 const straight = reachable.get(cellKey(2, 0));
 assertApprox(straight.cost, 2, 1e-9, '直线距离应为 2');
 

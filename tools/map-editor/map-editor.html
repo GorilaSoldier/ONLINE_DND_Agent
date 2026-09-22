@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战斗地图编辑器</title>
+<style>
+  :root {
+    --cream: #f6f0e3;
+    --paper: #ece1cd;
+    --brown: #3d2b1f;
+    --brown-soft: #6b4f36;
+    --gold: #a98a5a;
+    --line: rgba(61,43,31,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: var(--brown);
+    background: linear-gradient(160deg, #efe6d4, #e2d3b8);
+    min-height: 100vh;
+    padding: 16px;
+  }
+  header {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(61,43,31,0.18);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 20px rgba(61,43,31,0.12);
+  }
+  header h1 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+  header .sub { font-size: 12px; color: var(--brown-soft); margin-top: 2px; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(61,43,31,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .group { display: flex; align-items: center; gap: 6px; padding-right: 10px; border-right: 1px solid rgba(61,43,31,0.18); }
+  .group:last-child { border-right: none; padding-right: 0; }
+  label { font-size: 12px; color: var(--brown-soft); white-space: nowrap; }
+  input[type=text], input[type=number] {
+    border: 1px solid rgba(61,43,31,0.3);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+    background: var(--cream);
+    color: var(--brown);
+    width: 110px;
+  }
+  input[type=number] { width: 74px; }
+  input[type=file] { display: none; }
+  button {
+    border: 1px solid rgba(61,43,31,0.3);
+    background: var(--paper);
+    color: var(--brown);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .12s;
+    white-space: nowrap;
+  }
+  button:hover { background: #f0e6d2; border-color: var(--gold); }
+  button.primary { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+  button.primary:hover { background: #4d3626; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* 画笔工具条 */
+  .palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(61,43,31,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+  .palette .title { font-size: 13px; font-weight: 700; margin-right: 4px; }
+  .tool-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid rgba(61,43,31,0.28);
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .tool-btn .sw { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); }
+  .tool-btn.active { outline: 2px solid var(--brown); outline-offset: 1px; background: #efe3cd; }
+  .height-ctl { display: flex; align-items: center; gap: 4px; }
+  .height-ctl button { padding: 3px 8px; }
+  #zValue { width: 46px; text-align: center; font-weight: 700; }
+
+  /* 画布区 */
+  .canvas-wrap {
+    position: relative;
+    background: #2d251c;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(61,43,31,0.3);
+    padding: 14px;
+    min-height: 460px;
+  }
+  #stage {
+    position: relative;
+    margin: 0 auto;
+    background: #23201a;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  #imageLayer { position: absolute; inset: 0; width:100%; height:100%; object-fit: fill; pointer-events:none; }
+  #gridSvg { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #cellLayer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #dragBox {
+    position: absolute; display:none; pointer-events:none;
+    border: 1.5px dashed #fff; background: rgba(255,255,255,0.12); z-index: 1;
+  }
+  .cellmark { position:absolute; border:1px solid rgba(0,0,0,0.25); }
+  .zlbl {
+    position:absolute; font-size:10px; font-weight:700; color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.8); pointer-events:none;
+  }
+  .spawn {
+    position:absolute; border-radius:50%; pointer-events:none; z-index:2;
+    box-shadow:0 0 0 2px rgba(255,255,255,.85);
+  }
+
+  .status {
+    margin-top: 14px; font-size: 13px; color: var(--brown-soft);
+    background: rgba(255,255,255,.5); border-radius: 8px; padding: 8px 12px;
+  }
+  #hint.warn { color:#a33; font-weight:700; }
+  .coord { font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗺 战斗地图编辑器</h1>
+  <div class="sub">框选格子 → 选择类型/高度/迷雾/出生点 → 导出 JSON　（纯前端，导出到浏览器下载目录，自行放入 data/combat/maps/）</div>
+</header>
+
+<div class="toolbar">
+  <div class="group">
+    <label>新建/编辑</label>
+    <button id="btnNew">新建</button>
+    <button id="btnImportImg">导入图片</button>
+    <button id="btnImportJson">导入 JSON</button>
+    <input type="file" id="fileImg" accept="image/*">
+    <input type="file" id="fileJson" accept=".json,application/json">
+  </div>
+  <div class="group">
+    <label>地图 id</label><input type="text" id="mapId" placeholder="map-id">
+    <label>名称</label><input type="text" id="mapName" placeholder="地图名称">
+    <label>每格米</label><input type="number" id="meters" value="1.5" step="0.1" min="0.1">
+  </div>
+  <div class="group">
+    <label>image 路径</label><input type="text" id="imagePath" placeholder="/pic/地图/xxx.jpg" style="width:200px">
+  </div>
+  <div class="group">
+    <label>列 cols</label><input type="number" id="cols" value="30" min="1">
+    <label>行 rows</label><input type="number" id="rows" value="21" min="1">
+    <button id="btnApplyGrid">铺网格</button>
+  </div>
+  <div class="group">
+    <button id="btnExport" class="primary">⬇ 导出 JSON</button>
+  </div>
+</div>
+
+<div class="palette">
+  <span class="title">画笔：</span>
+  <button class="tool-btn" data-tool="wall"><span class="sw" style="background:#5a5a5a"></span>墙</button>
+  <button class="tool-btn" data-tool="tree"><span class="sw" style="background:#3c783c"></span>树</button>
+  <button class="tool-btn" data-tool="rock"><span class="sw" style="background:#82664a"></span>岩石</button>
+  <button class="tool-btn" data-tool="water"><span class="sw" style="background:#3d82c8"></span>水</button>
+  <button class="tool-btn" data-tool="background"><span class="sw" style="background:#222"></span>背景</button>
+  <button class="tool-btn" data-tool="fog"><span class="sw" style="background:#543ea0"></span>迷雾</button>
+  <button class="tool-btn" data-tool="erase"><span class="sw" style="background:#fff"></span>擦除</button>
+  <span style="width:14px"></span>
+  <span class="title">高度 z：</span>
+  <div class="height-ctl">
+    <button id="zDec">−</button>
+    <span id="zValue">0</span>
+    <button id="zInc">＋</button>
+  </div>
+  <button class="tool-btn" data-tool="height"><span class="sw" style="background:linear-gradient(#d9c6a5,#a98a5a)"></span>设高度</button>
+  <span style="width:14px"></span>
+  <span class="title">出生点：</span>
+  <button class="tool-btn" data-tool="spawnP"><span class="sw" style="background:#2fbf71"></span>玩家</button>
+  <button class="tool-btn" data-tool="spawnE"><span class="sw" style="background:#e2574c"></span>敌人</button>
+</div>
+
+<div class="canvas-wrap">
+  <div id="stage">
+    <img id="imageLayer" alt="">
+    <svg id="gridSvg"></svg>
+    <div id="cellLayer"></div>
+    <div id="dragBox"></div>
+  </div>
+</div>
+
+<div id="hint" class="status">尚未加载地图。可点「导入图片」+ 填 cols/rows 铺网格，或「导入 JSON」读取已有地图，或用 ?map=cragmaw-hideout-overview 直接编辑。</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ────────── 状态 ────────── */
+  const state = {
+    cols: 30, rows: 21,
+    cells: new Map(),      // "c,r" -> {kind, z}
+    players: [],           // [{col,row}]
+    enemies: [],           // [{col,row}]
+    metersPerCell: 1.5,
+    imagePath: '',
+    displayedW: 0, displayedH: 0,
+    imageLoaded: false,
+    currentTool: 'wall',
+    currentZ: 0,
+  };
+
+  /* ────────── DOM ────────── */
+  const stage = document.getElementById('stage');
+  const imageLayer = document.getElementById('imageLayer');
+  const gridSvg = document.getElementById('gridSvg');
+  const cellLayer = document.getElementById('cellLayer');
+  const dragBox = document.getElementById('dragBox');
+  const hint = document.getElementById('hint');
+  const $ = id => document.getElementById(id);
+
+  const KIND_COLOR = {
+    wall: '#5a5a5a', tree: '#3c783c', rock: '#82664a',
+    water: '#3d82c8', background: '#1a1a1a',
+  };
+
+  /* ────────── 网格/尺寸 ────────── */
+  function setGrid(cols, rows) {
+    state.cols = Math.max(1, parseInt(cols, 10) || 1);
+    state.rows = Math.max(1, parseInt(rows, 10) || 1);
+    render();
+    updateSquareHint();
+  }
+
+  // 计算舞台内合适显示尺寸（保持图片比例；无图则填满可用区域）
+  function computeStageSize() {
+    const wrap = document.querySelector('.canvas-wrap');
+    const availW = wrap.clientWidth - 28;
+    const availH = wrap.clientHeight - 28;
+    if (state.imageLoaded && imageLayer.naturalWidth > 0) {
+      const nw = imageLayer.naturalWidth, nh = imageLayer.naturalHeight;
+      const scale = Math.min(availW / nw, availH / nh);
+      return { w: Math.round(nw * scale), h: Math.round(nh * scale) };
+    }
+    return { w: availW, h: availH };
+  }
+
+  function render() {
+    const size = computeStageSize();
+    state.displayedW = size.w; state.displayedH = size.h;
+    stage.style.width = size.w + 'px';
+    stage.style.height = size.h + 'px';
+    renderGrid();
+    renderCells();
+  }
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function renderGrid() {
+    gridSvg.innerHTML = '';
+    const cellW = state.displayedW / state.cols;
+    const cellH = state.displayedH / state.rows;
+    for (let c = 0; c <= state.cols; c++) {
+      const x = c * cellW;
+      const l = document.createElementNS(SVG_NS, 'line');
+      l.setAttribute('x1', x); l.setAttribute('y1', 0);
+      l.setAttribute('x2', x); l.setAttribute('y2', state.displayedH);
+      l.setAttribute('stroke', 'rgba(230,215,190,0.5)'); l.setAttribute('stroke-width', 1);
+      gridSvg.appendChild(l);
+    }
+    for (let r = 0; r <= state.rows; r++) {
+      const y = r * cellH;
+      const l = document.createElementNS(SVG_NS, 'line');
+      l.setAttribute('x1', 0); l.setAttribute('y1', y);
+      l.setAttribute('x2', state.displayedW); l.setAttribute('y2', y);
+      l.setAttribute('stroke', 'rgba(230,215,190,0.5)'); l.setAttribute('stroke-width', 1);
+      gridSvg.appendChild(l);
+    }
+  }
+
+  function renderCells() {
+    cellLayer.innerHTML = '';
+    const cellW = state.displayedW / state.cols;
+    const cellH = state.displayedH / state.rows;
+    for (const [key, cell] of state.cells) {
+      const [c, r] = key.split(',').map(Number);
+      if (cell.kind && KIND_COLOR[cell.kind]) {
+        const d = document.createElement('div');
+        d.className = 'cellmark';
+        d.style.left = (c * cellW) + 'px';
+        d.style.top = (r * cellH) + 'px';
+        d.style.width = cellW + 'px'; d.style.height = cellH + 'px';
+        d.style.background = KIND_COLOR[cell.kind] + 'b3'; // 加透明度
+        cellLayer.appendChild(d);
+      }
+      if (cell.z && cell.z !== 0) {
+        const z = document.createElement('div');
+        z.className = 'zlbl';
+        z.textContent = cell.z;
+        z.style.left = (c * cellW + cellW * 0.2) + 'px';
+        z.style.top = (r * cellH + cellH * 0.15) + 'px';
+        z.style.fontSize = Math.max(9, Math.min(14, cellW * 0.35)) + 'px';
+        cellLayer.appendChild(z);
+      }
+      if (cell.fog) {
+        const d = document.createElement('div');
+        d.className = 'cellmark';
+        d.style.left = (c * cellW) + 'px';
+        d.style.top = (r * cellH) + 'px';
+        d.style.width = cellW + 'px'; d.style.height = cellH + 'px';
+        d.style.background = 'rgba(84, 62, 148, 0.6)';
+        d.style.boxShadow = 'inset 0 0 0 1px rgba(190, 170, 255, 0.9)';
+        cellLayer.appendChild(d);
+      }
+    }
+    // 出生点
+    const mkSpawn = (list, color) => {
+      for (const p of list) {
+        const d = document.createElement('div');
+        d.className = 'spawn';
+        const cx = p.col * cellW, cy = p.row * cellH;
+        const size = Math.max(6, Math.min(14, cellW * 0.45));
+        d.style.left = (cx + cellW / 2 - size / 2) + 'px';
+        d.style.top = (cy + cellH / 2 - size / 2) + 'px';
+        d.style.width = size + 'px'; d.style.height = size + 'px';
+        d.style.background = color;
+        cellLayer.appendChild(d);
+      }
+    };
+    mkSpawn(state.players, '#2fbf71');
+    mkSpawn(state.enemies, '#e2574c');
+  }
+
+  function updateSquareHint() {
+    const cellW = state.imageLoaded ? imageLayer.naturalWidth / state.cols : (state.displayedW / state.cols);
+    const cellH = state.imageLoaded ? imageLayer.naturalHeight / state.rows : (state.displayedH / state.rows);
+    const ratio = cellW / cellH;
+    const ideal = cellH.toFixed(1);
+    if (Math.abs(ratio - 1) > 0.03) {
+      hint.classList.add('warn');
+      hint.innerHTML = `⚠ 网格每个格子约为 ${cellW.toFixed(1)} × ${cellH.toFixed(1)} 像素，不是正方形。为保持正方形，图片宽高比应接近 ${(state.cols / state.rows).toFixed(3)}（当前 ${colRowRatio().toFixed(3)}），建议调整图片或 cols/rows。`;
+    } else {
+      hint.classList.remove('warn');
+      hint.innerHTML = `网格每个格子 ≈ ${cellW.toFixed(1)} × ${cellH.toFixed(1)} 像素（正方形）。`;
+    }
+  }
+  function colRowRatio() {
+    return state.imageLoaded ? imageLayer.naturalWidth / imageLayer.naturalHeight : state.displayedW / state.displayedH;
+  }
+
+  /* ────────── 点/拖 绘制 ────────── */
+  function cellFromEvent(e) {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    const cellW = state.displayedW / state.cols, cellH = state.displayedH / state.rows;
+    const c = Math.floor(x / cellW), r = Math.floor(y / cellH);
+    if (c < 0 || c >= state.cols || r < 0 || r >= state.rows) return null;
+    return { col: c, row: r };
+  }
+
+  function paint(cell, toolOverride) {
+    const key = cell.col + ',' + cell.row;
+    const cur = state.cells.get(key) || { kind: null, z: 0 };
+    const tool = toolOverride || state.currentTool;
+    if (tool === 'erase') {
+      state.cells.delete(key);
+      return;
+    }
+    if (tool === 'fog') {
+      // 迷雾开关：已涂迷雾的格再涂一次即取消（该格的障碍/高度标记保留）
+      if (cur.fog) {
+        delete cur.fog;
+        if (!cur.kind && !cur.z) state.cells.delete(key); else state.cells.set(key, cur);
+      } else {
+        cur.fog = true;
+        state.cells.set(key, cur);
+      }
+      return;
+    }
+    if (tool === 'height') {
+      cur.z = state.currentZ;
+      cur.kind = cur.kind || null;
+      if (cur.z === 0 && !cur.kind) state.cells.delete(key); else state.cells.set(key, cur);
+      return;
+    }
+    if (tool === 'spawnP' || tool === 'spawnE') {
+      const list = tool === 'spawnP' ? state.players : state.enemies;
+      const i = list.findIndex(p => p.col === cell.col && p.row === cell.row);
+      if (i >= 0) list.splice(i, 1); else list.push({ col: cell.col, row: cell.row });
+      return;
+    }
+    // 地形类
+    cur.kind = tool;
+    if (!cur.z) cur.z = 0;
+    state.cells.set(key, cur);
+  }
+
+  let dragging = false, dragStartCell = null, dragStartXY = null, curCell = null, dragTool = null;
+
+  stage.addEventListener('mousedown', e => {
+    e.preventDefault();
+    dragging = true;
+    dragTool = (e.button === 2) ? 'erase' : state.currentTool; // 右键=擦除
+    dragStartCell = cellFromEvent(e);
+    dragStartXY = { x: e.clientX, y: e.clientY };
+    curCell = dragStartCell;
+    showDragBox(e.clientX, e.clientY, e.clientX, e.clientY);
+  });
+
+  // 右键做擦除，阻止默认右键菜单
+  stage.addEventListener('contextmenu', e => e.preventDefault());
+
+  stage.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    showDragBox(dragStartXY.x, dragStartXY.y, e.clientX, e.clientY);
+    curCell = cellFromEvent(e);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    dragBox.style.display = 'none';
+    // 框选结束后，一次填满整个矩形范围内的格子
+    if (dragStartCell && curCell) {
+      const c0 = Math.min(dragStartCell.col, curCell.col);
+      const c1 = Math.max(dragStartCell.col, curCell.col);
+      const r0 = Math.min(dragStartCell.row, curCell.row);
+      const r1 = Math.max(dragStartCell.row, curCell.row);
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) {
+          paint({ col: c, row: r }, dragTool);
+        }
+      }
+      renderCells();
+    }
+  });
+
+  function showDragBox(x1, y1, x2, y2) {
+    const rect = stage.getBoundingClientRect();
+    dragBox.style.display = 'block';
+    dragBox.style.left = Math.min(x1, x2) - rect.left + 'px';
+    dragBox.style.top = Math.min(y1, y2) - rect.top + 'px';
+    dragBox.style.width = Math.abs(x2 - x1) + 'px';
+    dragBox.style.height = Math.abs(y2 - y1) + 'px';
+  }
+
+  // 触屏
+  stage.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    const fake = { clientX: t.clientX, clientY: t.clientY, preventDefault: () => {} };
+    stage.dispatchEvent(new MouseEvent('mousedown', { clientX: fake.clientX, clientY: fake.clientY }));
+  }, { passive: true });
+  stage.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    window.dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX, clientY: t.clientY }));
+  }, { passive: true });
+  stage.addEventListener('touchend', () => window.dispatchEvent(new MouseEvent('mouseup')));
+
+  /* ────────── 工具选择 ────────── */
+  const toolBtns = document.querySelectorAll('.tool-btn[data-tool]');
+  toolBtns.forEach(btn => btn.addEventListener('click', () => {
+    toolBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.currentTool = btn.dataset.tool;
+    hint.innerHTML = `当前画笔：${btn.textContent.trim()}`;
+  }));
+  document.querySelector('.tool-btn[data-tool="wall"]').classList.add('active');
+
+  $('zInc').addEventListener('click', () => { state.currentZ = Math.min(20, state.currentZ + 1); $('zValue').textContent = state.currentZ; });
+  $('zDec').addEventListener('click', () => { state.currentZ = Math.max(0, state.currentZ - 1); $('zValue').textContent = state.currentZ; });
+
+  /* ────────── 图片 ────────── */
+  // 图片加载完成后按图比例重排舞台并更新正方形提示
+  imageLayer.addEventListener('load', () => {
+    state.imageLoaded = true;
+    render();
+    updateSquareHint();
+  });
+
+  $('btnImportImg').addEventListener('click', () => $('fileImg').click());
+  $('fileImg').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    imageLayer.src = url;
+    hint.innerHTML = `已导入图片：${file.name}。设置好 cols/rows 后点「铺网格」。下面是最终 image 路径：`;
+  });
+
+  /* ────────── 新建 / 网格 ────────── */
+  $('btnNew').addEventListener('click', () => {
+    if (!confirm('清空当前所有格子并新建？')) return;
+    state.cells.clear(); state.players = []; state.enemies = [];
+    imageLayer.removeAttribute('src'); state.imageLoaded = false;
+    setGrid($('cols').value, $('rows').value);
+    hint.innerHTML = '已清空。可导入图片后设置网格。';
+  });
+
+  $('btnApplyGrid').addEventListener('click', () => setGrid($('cols').value, $('rows').value));
+  $('cols').addEventListener('change', () => { updateSquareHint(); });
+  $('rows').addEventListener('change', () => { updateSquareHint(); });
+
+  /* ────────── JSON 导入/导出 ────────── */
+  $('btnImportJson').addEventListener('click', () => $('fileJson').click());
+  $('fileJson').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    file.text().then(txt => {
+      try { loadJSON(JSON.parse(txt)); }
+      catch (err) { hint.innerHTML = 'JSON 解析失败：' + err.message; }
+    });
+  });
+
+  function loadJSON(data) {
+    if (!data || data.grid_cols == null || data.grid_rows == null) {
+      hint.innerHTML = 'JSON 缺少 grid_cols/grid_rows，无法载入。'; return;
+    }
+    state.cells.clear(); state.players = []; state.enemies = [];
+    // 障碍
+    for (const o of data.obstacles || []) {
+      const key = o.col + ',' + o.row;
+      const cell = state.cells.get(key) || { kind: null, z: 0 };
+      cell.kind = o.kind || 'wall';
+      state.cells.set(key, cell);
+    }
+    // 高度
+    for (const h of data.heights || []) {
+      const key = h.col + ',' + h.row;
+      const cell = state.cells.get(key) || { kind: null, z: 0 };
+      cell.z = h.z || 0;
+      if (cell.kind || cell.z !== 0) state.cells.set(key, cell);
+    }
+    // 迷雾
+    for (const f of data.fog_zones || []) {
+      const key = f.col + ',' + f.row;
+      const cell = state.cells.get(key) || { kind: null, z: 0 };
+      cell.fog = true;
+      state.cells.set(key, cell);
+    }
+    // 出生点
+    if (data.spawns) {
+      state.players = (data.spawns.players || []).map(p => ({ col: p.col, row: p.row }));
+      state.enemies = (data.spawns.enemies || []).map(p => ({ col: p.col, row: p.row }));
+    }
+    $('cols').value = data.grid_cols; $('rows').value = data.grid_rows;
+    $('meters').value = data.meters_per_cell != null ? data.meters_per_cell : 1.5;
+    $('mapId').value = data.id || '';
+    $('mapName').value = data.name || '';
+    $('imagePath').value = data.image || '';
+    state.metersPerCell = $('meters').value;
+    state.imagePath = data.image || '';
+    // 尝试加载底图（服务端相对路径，需在服务器下运行才有效）
+    // 若当前底图已是本地导入的 blob 图片（如先导图再导 JSON），保留它，避免被不可访问的路径覆盖损坏
+    const curSrc = imageLayer.getAttribute('src') || '';
+    if (data.image && !curSrc.startsWith('blob:')) { imageLayer.src = data.image; }
+    setGrid(data.grid_cols, data.grid_rows);
+    hint.classList.remove('warn');
+    hint.innerHTML = `已载入 JSON「${data.name || data.id || '未命名'}」：${state.cells.size} 个格子，玩家出生点 ${state.players.length}，敌人 ${state.enemies.length}。`;
+  }
+
+  // URL ?map=id 直达编辑
+  (function loadFromUrl() {
+    const q = new URLSearchParams(location.search).get('map');
+    if (q) {
+      fetch('/data/combat/maps/' + q + '.json')
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(loadJSON)
+        .catch(err => hint.innerHTML = '通过 ?map= 加载失败：' + err.message + '（需在服务器下运行）');
+    }
+  })();
+
+  $('btnExport').addEventListener('click', () => {
+    const obstacles = [];
+    for (const [key, cell] of state.cells) {
+      if (cell.kind && cell.kind !== 'erase') {
+        const [col, row] = key.split(',').map(Number);
+        obstacles.push({ col, row, kind: cell.kind });
+      }
+    }
+    const heights = [];
+    for (const [key, cell] of state.cells) {
+      if (cell.z && cell.z !== 0) {
+        const [col, row] = key.split(',').map(Number);
+        heights.push({ col, row, z: cell.z });
+      }
+    }
+    const fogZones = [];
+    for (const [key, cell] of state.cells) {
+      if (cell.fog) {
+        const [col, row] = key.split(',').map(Number);
+        fogZones.push({ col, row });
+      }
+    }
+    obstacles.sort((a, b) => a.col - b.col || a.row - b.row);
+    heights.sort((a, b) => a.col - b.col || a.row - b.row);
+    fogZones.sort((a, b) => a.col - b.col || a.row - b.row);
+    const out = {
+      id: $('mapId').value.trim() || 'untitled-map',
+      name: $('mapName').value.trim() || '',
+      image: $('imagePath').value.trim(),
+      meters_per_cell: parseFloat($('meters').value) || 1.5,
+      grid_cols: state.cols,
+      grid_rows: state.rows,
+      spawns: { players: state.players, enemies: state.enemies },
+    };
+    if (obstacles.length) out.obstacles = obstacles;
+    if (heights.length) out.heights = heights;
+    if (fogZones.length) out.fog_zones = fogZones;
+    download('map-editor-' + out.id + '.json', out);
+    hint.innerHTML = `已导出 ${out.id}：${obstacles.length} 个障碍格、${heights.length} 个高度格、${fogZones.length} 个迷雾格、玩家出生点 ${state.players.length}。请手动放到 data/combat/maps/。`;
+  });
+
+  function download(name, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 100);
+  }
+
+  // 初始
+  setGrid(state.cols, state.rows);
+})();
+</script>
+</body>
+</html>

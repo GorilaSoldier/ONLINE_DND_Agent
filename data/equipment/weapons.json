@@ -88,6 +88,35 @@
         "range": null
       }
     },
+    "scimitar": {
+      "id": "scimitar",
+      "name": "弯刀",
+      "type": "weapon",
+      "subtype": "sword",
+      "rarity": "common",
+      "description": "刀身弯曲的单刃短刀，挥砍发力顺畅。地精与半兽人偏爱此武器，刀刃常有缺口却依然致命。",
+      "icon": "sword",
+      "price": 25,
+      "properties": {
+        "damage": "1d6 挥砍",
+        "weight": "3磅",
+        "properties": "灵巧、轻型"
+      },
+      "stats": {
+        "category": "melee",
+        "damage_dice": "1d6",
+        "damage_type": "slashing",
+        "damage_type_cn": "挥砍",
+        "bonus": 0,
+        "finesse": true,
+        "light": true,
+        "heavy": false,
+        "two_handed": false,
+        "versatile": null,
+        "thrown": null,
+        "range": null
+      }
+    },
     "dagger": {
       "id": "dagger",
       "name": "匕首",
@@ -255,6 +284,7 @@
         "bonus": 0,
         "finesse": false,
         "light": true,
+        "light_radius_cells": 4,
         "heavy": false,
         "two_handed": false,
         "versatile": null,
@@ -284,6 +314,7 @@
         "bonus": 0,
         "finesse": false,
         "light": true,
+        "light_radius_cells": 4,
         "heavy": false,
         "two_handed": false,
         "versatile": null,

@@ -74,15 +74,15 @@
       "name": "妖精血统",
       "description": "拥有妖精血统，对魅惑状态具有豁免优势，且免疫魔法造成的睡眠效果。"
     },
-    "darkvision_12m": {
-      "id": "darkvision_12m",
-      "name": "黑暗视觉（12m）",
-      "description": "在黑暗环境中可视12米范围，但只能看到灰度画面。"
+    "darkvision_6m": {
+      "id": "darkvision_6m",
+      "name": "黑暗视觉（6m）",
+      "description": "在黑暗环境中可视6米（4格）范围，但只能看到灰度画面。"
     },
-    "superior_darkvision_24m": {
-      "id": "superior_darkvision_24m",
-      "name": "卓越黑暗视觉（24m）",
-      "description": "长期生活在幽暗地域赋予的超常黑暗视觉，可在黑暗中清晰看到24米范围。"
+    "superior_darkvision_9m": {
+      "id": "superior_darkvision_9m",
+      "name": "卓越黑暗视觉（9m）",
+      "description": "长期生活在幽暗地域赋予的超常黑暗视觉，可在黑暗中清晰看到9米（6格）范围。"
     },
     "keen_senses": {
       "id": "keen_senses",

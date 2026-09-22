@@ -15,7 +15,7 @@
     "name_en": "Elf",
     "description": "被遗忘国度最古老的种族之一，栖息于广阔的森林和古老的城市中。拥有妖精血统和极长的寿命，精于魔法，对美有着独特的追求。",
     "base_speed": 9,
-    "base_trait_ids": ["fey_ancestry", "darkvision_12m", "keen_senses", "elf_weapon_training"],
+    "base_trait_ids": ["fey_ancestry", "darkvision_6m", "keen_senses", "elf_weapon_training"],
     "subraces": {
       "high_elf": {
         "id": "high_elf",
@@ -40,7 +40,7 @@
     "name_en": "Drow",
     "description": "从高等精灵分裂出去的族群，常年居住幽暗地域，适应了黑暗生活。以暗紫色皮肤和银白头发为特征，是费伦公认的危险种族。",
     "base_speed": 9,
-    "base_trait_ids": ["fey_ancestry", "superior_darkvision_24m", "keen_senses", "drow_weapon_training", "drow_magic"],
+    "base_trait_ids": ["fey_ancestry", "superior_darkvision_9m", "keen_senses", "drow_weapon_training", "drow_magic"],
     "subraces": {
       "lolth_sworn": {
         "id": "lolth_sworn",
@@ -64,7 +64,7 @@
     "name_en": "Half-Elf",
     "description": "人类和精灵的后代，继承了双方优点，在两种社会中都被接纳。拥有精灵的优雅和人类的灵活性。",
     "base_speed": 9,
-    "base_trait_ids": ["fey_ancestry", "darkvision_12m", "civil_militia"],
+    "base_trait_ids": ["fey_ancestry", "darkvision_6m", "civil_militia"],
     "subraces": {
       "high_half_elf": {
         "id": "high_half_elf",
@@ -97,7 +97,7 @@
     "description": "人类与兽人的后裔，继承了兽人的力量与人类的适应力。外表粗犷但内心可以无比忠诚。",
     "subraces": {},
     "base_speed": 9,
-    "base_trait_ids": ["darkvision_12m", "relentless_endurance", "menacing", "savage_attacks"]
+    "base_trait_ids": ["darkvision_6m", "relentless_endurance", "menacing", "savage_attacks"]
   },
   "halfling": {
     "id": "halfling",
@@ -129,7 +129,7 @@
     "name_en": "Dwarf",
     "description": "矮人身材矮小但体魄强壮，是战斗、挖掘和冶炼的大师。比人类长寿且非常注重氏族传统，特别喜欢胡子。",
     "base_speed": 7.5,
-    "base_trait_ids": ["darkvision_12m", "dwarven_resilience", "dwarven_combat_training"],
+    "base_trait_ids": ["darkvision_6m", "dwarven_resilience", "dwarven_combat_training"],
     "subraces": {
       "gold_dwarf": {
         "id": "gold_dwarf",
@@ -150,7 +150,7 @@
         "name": "灰矮人",
         "name_en": "Duergar",
         "description": "矮人中的邪恶分支，住在地下深处。冷酷无情，善于潜行战斗，拥有强大的心灵抗力。",
-        "extra_trait_ids": ["superior_darkvision_24m", "duergar_resilience"]
+        "extra_trait_ids": ["superior_darkvision_9m", "duergar_resilience"]
       }
     }
   },
@@ -167,21 +167,21 @@
         "name": "森林侏儒",
         "name_en": "Forest Gnome",
         "description": "比普通侏儒更矮小，天生能与动物交流，是魔法和工艺的大师。",
-        "extra_trait_ids": ["darkvision_12m", "speak_with_animals"]
+        "extra_trait_ids": ["darkvision_6m", "speak_with_animals"]
       },
       "rock_gnome": {
         "id": "rock_gnome",
         "name": "岩侏儒",
         "name_en": "Rock Gnome",
         "description": "最常见的侏儒，对历史知识和发明创造有独特天赋。",
-        "extra_trait_ids": ["darkvision_12m", "artificer_lore"]
+        "extra_trait_ids": ["darkvision_6m", "artificer_lore"]
       },
       "deep_gnome": {
         "id": "deep_gnome",
         "name": "地底侏儒",
         "name_en": "Deep Gnome",
         "description": "生活在幽暗地域的侏儒，性格阴沉但生存能力极强，擅长在黑暗中隐匿。",
-        "extra_trait_ids": ["superior_darkvision_24m", "stone_camouflage"]
+        "extra_trait_ids": ["superior_darkvision_9m", "stone_camouflage"]
       }
     }
   },
@@ -191,7 +191,7 @@
     "name_en": "Tiefling",
     "description": "人类血统中注入了炼狱基因的后裔。外表带有恶魔特征（角、尾巴、尖牙），被世人畏惧但也拥有独特的黑暗力量。",
     "base_speed": 9,
-    "base_trait_ids": ["darkvision_12m", "hellish_resistance", "thaumaturgy"],
+    "base_trait_ids": ["darkvision_6m", "hellish_resistance", "thaumaturgy"],
     "subraces": {
       "asmodeus": {
         "id": "asmodeus",

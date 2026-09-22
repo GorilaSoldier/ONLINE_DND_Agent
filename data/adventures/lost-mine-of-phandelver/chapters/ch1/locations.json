@@ -100,6 +100,47 @@
         }
       ]
     },
+    "triboar-trail-aftermath": {
+      "id": "triboar-trail-aftermath",
+      "name": "三猪小径·战后",
+      "type": "wild",
+      "parent_location": "三猪小径",
+      "description": "地精伏击被击退，硝烟散去。死马旁的物资散落一地，空地图匣说明甘德伦的地图被地精带走。地精尸体（或昏迷的俘虏）横陈战场。",
+      "scene_text": "硝烟散去，血腥味引来了远处的乌鸦。地精伏击被你们击退，几具小绿皮尸体横陈在死马旁\n\n死马身旁，那张空的地图匣半开着，说明甘德伦的潮音洞穴地图已被地精带去他们的藏身之处。地上的拖行痕迹混合着血迹和脚印，一路向北延伸，指向剑山深处。",
+      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "items": [
+        { "id": "empty-map-case", "visible": true },
+        { "id": "scattered-supplies", "visible": true }
+      ],
+      "exits": [
+        {
+          "name": "沿拖行痕迹向北追踪",
+          "target": "cragmaw-hideout-entrance",
+          "description": "顺着地上的拖行痕迹一路向北，穿过剑山山麓，可找到地精的藏身之处——克拉摩窝点入口。"
+        }
+      ],
+      "hidden": [
+        {
+          "id": "drag-tracks",
+          "description": "一条通往北方的拖行痕迹，混合着血迹和脚印。沿着痕迹追踪应该能找到袭击者的藏身之处。",
+          "dc": 10,
+          "skill": "survival",
+          "passive": true
+        }
+      ],
+      "scene_nodes": [
+        {
+          "id": "search-battlefield",
+          "trigger": "player_searches-after-combat",
+          "description": "搜索战场可发现空地图匣、散落物资和拖行痕迹。"
+        },
+        {
+          "id": "interrogate-prisoner",
+          "trigger": "player_captures-goblin",
+          "description": "若留了地精活口（非致命打击昏迷），可审问俘虏获得窝点位置和克拉格大王的信息。"
+        }
+      ]
+    },
     "cragmaw-hideout-entrance": {
       "id": "cragmaw-hideout-entrance",
       "name": "隐蔽洞口",

@@ -110,7 +110,7 @@
     "class_feature_ids": [],
     "trait_ids": [
       "fey_ancestry",
-      "darkvision_12m",
+      "darkvision_6m",
       "keen_senses",
       "elf_weapon_training",
       "stealth_proficient",
@@ -260,8 +260,8 @@
     "race": "精灵 Elf",
     "attributes": {
       "move_speed": "9m",
-      "darkvision": "12m",
-      "ranged_range": "18m",
+      "darkvision": "6m",
+      "ranged_range": "9m",
       "melee_range": "1.5m",
       "throw_range": "18m",
       "size": "中型",

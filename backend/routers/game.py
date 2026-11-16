@@ -178,6 +178,7 @@ def game_action_stream(payload: dict = Body(...)):
             state_manager = StateManager(state)
             npc_status_valid = {"dead", "stunned", "left", "alive"}
             pending_suspicion = None  # 偷窃败露的延迟 suspicion（等待 AI 叙事完成后再设置）
+            loot_equipment = None  # 偷窃得手的装备 id（装备不进道具背包，由前端写入角色卡装备栏）
 
             if tool_call_name == "update_npc_status":
                 # 同步 NPC 死亡/眩晕/离开状态到前端角色栏
@@ -222,6 +223,7 @@ def game_action_stream(payload: dict = Body(...)):
                 rule_gm_text = rule_result.get("gm_text", "")
                 intent_value = intent_result.intent
                 pending_suspicion = rule_result.get("delayed_suspicion")
+                loot_equipment = rule_result.get("loot_equipment")
 
             state.add_history("player", player_input)
             state.game_time += 1
@@ -233,6 +235,7 @@ def game_action_stream(payload: dict = Body(...)):
                 "intent": intent_dict,
                 "checks": checks,
                 "state_changes": applied_changes,
+                "loot_equipment": loot_equipment,
                 "updates": updates,
                 "_debug": {
                     "mode": "tool_call",
@@ -313,12 +316,18 @@ def _get_container_taken(state, loc_id: str, container_id: str) -> list:
 
 @router.post("/take_item")
 def take_item(payload: dict = Body(...)):
-    """从当前地点拿取物品。container_id 存在时拿容器内的物品，否则直接拿场景中的无主物品。"""
+    """从当前地点、容器或 NPC inventory 拿取物品。
+
+    - npc_id 存在时：从死亡/昏迷 NPC 身上搜取物品（搜尸体）
+    - container_id 存在时：拿取容器内的物品
+    - 否则：直接拿取场景中的无主物品
+    """
     adventure_id = payload.get("adventure_id", "lost-mine-of-phandelver")
     chapter_id = payload.get("chapter_id", "ch1")
     session_id = payload.get("session_id")
     container_id = payload.get("container_id")
     item_id = payload.get("item_id", "")
+    npc_id = payload.get("npc_id")
 
     if not item_id:
         raise HTTPException(status_code=400, detail="item_id is required")
@@ -330,12 +339,32 @@ def take_item(payload: dict = Body(...)):
         raise HTTPException(status_code=404, detail="Item not found")
     is_equipment = is_equipment_item(item)
 
-    loc = get_location(state.data, state.location_id) if state.location_id else None
-    if not loc:
-        raise HTTPException(status_code=404, detail="Location not found")
-
-    if container_id:
+    if npc_id:
+        # ── 从 NPC inventory 拿取（搜尸体）──
+        npc = state.data.get("npcs", {}).get(npc_id)
+        if not npc:
+            raise HTTPException(status_code=404, detail="NPC not found")
+        npc_status = state.npc_states.get(npc_id, {}).get("status")
+        if npc_status not in ("dead", "unconscious"):
+            raise HTTPException(status_code=400, detail="只能从死亡或昏迷的 NPC 身上拿取物品")
+        inventory = npc.get("inventory") or []
+        # inventory 条目支持 {"id": ..., "qty": ...} 对象和纯字符串两种格式
+        found_idx = None
+        for i, entry in enumerate(inventory):
+            eid = entry.get("id") if isinstance(entry, dict) else entry
+            if eid == item_id:
+                found_idx = i
+                break
+        if found_idx is None:
+            raise HTTPException(status_code=400, detail="该 NPC 身上没有此物品")
+        # 从 inventory 整件移除（含 qty 全部，session 内存，不持久化）
+        inventory.pop(found_idx)
+        note = f"我拿取了 {item.get('name', item_id)}（从{npc.get('name', npc_id)}身上）"
+    elif container_id:
         # ── 拿取容器内的物品 ──
+        loc = get_location(state.data, state.location_id) if state.location_id else None
+        if not loc:
+            raise HTTPException(status_code=404, detail="Location not found")
         container = items.get(container_id)
         if not container:
             raise HTTPException(status_code=404, detail="Container not found")
@@ -351,6 +380,9 @@ def take_item(payload: dict = Body(...)):
         note = f"我拿取了 {item.get('name', item_id)}（从{container.get('name', container_id)}）"
     else:
         # ── 直接拿取场景中的无主物品 ──
+        loc = get_location(state.data, state.location_id) if state.location_id else None
+        if not loc:
+            raise HTTPException(status_code=404, detail="Location not found")
         if item_id not in _loc_item_ids(loc):
             raise HTTPException(status_code=400, detail="该物品不在当前地点")
         if item.get("owner"):
@@ -367,27 +399,26 @@ def take_item(payload: dict = Body(...)):
     return {
         "item_id": item_id,
         "container_id": container_id or None,
+        "npc_id": npc_id or None,
         "is_equipment": is_equipment,
         "updates": state.to_client_updates(),
     }
 
 
-def _resolve_item_effect(effect: str, cur_hp: int = 0, max_hp: int = 0) -> dict:
+def _resolve_item_effect(effect: dict, cur_hp: int = 0, max_hp: int = 0) -> dict:
     """
-    通用道具效果解析器。
-    - "heal NdM+K"：掷骰并按当前/上限生命值截断，返回实际恢复值与文案
-    - 其他非空字符串：视为叙事效果文案，原样返回（如"解除了中毒状态"）
+    通用道具效果解析器（canonical 结构化 effect）。
+    - {"kind":"heal","dice":"2d4","bonus":2}：掷骰并按当前/上限生命值截断，返回实际恢复值与文案
+    - 其他 kind：无数值效果，按 description 叙事
     返回 {"value": 数值(无数值为 0), "message": 播报文案(可为空)}
     """
-    effect = (effect or "").strip()
-    if not effect:
-        return {"value": 0, "message": ""}
-
-    m = re.match(r'heal\s+(\d+)d(\d+)(?:\s*\+\s*(\d+))?', effect, re.IGNORECASE)
-    if m:
-        count = int(m.group(1))
-        die = int(m.group(2))
-        bonus = int(m.group(3) or 0)
+    eff = effect if isinstance(effect, dict) else {}
+    kind = eff.get("kind")
+    if kind == "heal":
+        m = re.match(r"(\d+)d(\d+)", str(eff.get("dice") or ""), re.IGNORECASE)
+        count = int(m.group(1)) if m else 0
+        die = int(m.group(2)) if m else 0
+        bonus = int(eff.get("bonus") or 0)
         total = bonus
         for _ in range(count):
             total += random.randint(1, die)
@@ -397,7 +428,7 @@ def _resolve_item_effect(effect: str, cur_hp: int = 0, max_hp: int = 0) -> dict:
             healed = total
         return {"value": healed, "message": f"恢复了 {healed} 点生命值"}
 
-    return {"value": 0, "message": effect}
+    return {"value": 0, "message": ""}
 
 
 @router.post("/use_item")
@@ -423,9 +454,10 @@ def use_item(payload: dict = Body(...)):
 
     state.player_inventory.remove(item_id)
     state.init_player_hp(state.character)
-    effect_result = _resolve_item_effect(item.get("effect", ""), state.player_hp_cur(), state.player_hp_max())
+    use_effect = (item.get("use") or {}).get("effect") or {}
+    effect_result = _resolve_item_effect(use_effect, state.player_hp_cur(), state.player_hp_max())
     # heal 类：后端权威结算实际恢复量（按 HP 上限截断）
-    if (item.get("effect") or "").strip().lower().startswith("heal") and effect_result.get("value"):
+    if use_effect.get("kind") == "heal" and effect_result.get("value"):
         healed = state.heal_player(effect_result["value"])
         effect_result["value"] = healed
         effect_result["message"] = f"恢复了 {healed} 点生命值"

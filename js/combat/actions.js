@@ -1,34 +1,30 @@
 /**
  * 战斗结算引擎（前端本地掷骰）
  * - 普攻：d20 + 攻击加值 vs 目标 AC，命中掷伤害骰
- * - 法术：解析 spells.json effect（damage / heal / narrative）
+ * - 法术：读取 spells.json 结构化 effect（damage / heal / revive / utility）
  * - 自身动作：跳跃 / 冲刺 / 回气 / 回复（目标为施放者自己）
  */
+import { damageTypeLabel } from './constants.js';
+import { getPrimaryAttack } from '../character/equipment-effects.js';
 
-/** 解析 "1d8+3" / "2d6" / "1d10" 形式的骰子表达式，返回 (count, die, bonus) */
+/** 解析 "1d8+3" / "2d6" / "1d6-1" 形式的骰子表达式，返回 (count, die, bonus) */
 export function parseDice(expr) {
-  const m = String(expr || '').trim().match(/^(\d+)d(\d+)(?:\s*\+\s*(\d+))?$/i);
+  const m = String(expr || '').trim().match(/^(\d+)d(\d+)(?:\s*([+-]\s*\d+))?$/i);
   if (!m) return null;
-  return { count: parseInt(m[1], 10), die: parseInt(m[2], 10), bonus: parseInt(m[3] || 0, 10) };
+  return {
+    count: parseInt(m[1], 10),
+    die: parseInt(m[2], 10),
+    bonus: parseInt(String(m[3] || '0').replace(/\s/g, ''), 10),
+  };
 }
 
-/**
- * 掷骰 "1d8+3" 并返回总点数。
- * 兼容范围格式（"6~16" / "3~12"）：在该范围内随机取值（旧角色卡伤害格式）。
- */
+/** 掷骰 "1d8+3" 并返回总点数（最小值为 0） */
 export function rollDice(expr) {
   const d = parseDice(expr);
-  if (d) {
-    let total = d.bonus;
-    for (let i = 0; i < d.count; i++) total += Math.floor(Math.random() * d.die) + 1;
-    return total;
-  }
-  const range = String(expr || '').trim().match(/^(\d+)\s*[~-]\s*(\d+)$/);
-  if (range) {
-    const lo = parseInt(range[1], 10), hi = parseInt(range[2], 10);
-    return lo + Math.floor(Math.random() * (hi - lo + 1));
-  }
-  return 0;
+  if (!d) return 0;
+  let total = d.bonus;
+  for (let i = 0; i < d.count; i++) total += Math.floor(Math.random() * d.die) + 1;
+  return Math.max(0, total);
 }
 
 /** d20 检定：返回 { roll, total, crit, fumble }，mod 为调整值（如攻击加值） */
@@ -41,16 +37,16 @@ export function rollD20(mod = 0) {
  * 普攻结算（D&D 5e 简化）：攻击检定 d20 + bonus vs 目标 AC。
  * 命中则掷伤害骰；重击(20)伤害骰翻倍；1 自动未命中。
  * 特殊：5 尺内近战命中昏迷目标（target.downed === true）= 自动暴击（5e RAW）。
- * @param {Object} attacker 攻击者角色卡（含 attack.melee/ranged）
+ * @param {Object} attacker 攻击者（玩家读 combat.attacks.current，敌人读 attacks[]）
  * @param {Object} target 目标 { name, combat:{ ac }, downed? }
  * @param {'melee'|'ranged'} kind
  * @returns {{hit:boolean, crit:boolean, damage:number, text:string, d20:number}}
  */
 export function resolveAttack(attacker, target, kind = 'melee') {
-  const atk = (attacker.attack || {})[kind] || {};
-  const bonus = parseInt(String(atk.bonus || '+0').replace('+', ''), 10) || 0;
+  const atk = getPrimaryAttack(attacker, kind) || {};
+  const bonus = typeof atk.bonus === 'number' ? atk.bonus : (parseInt(atk.bonus, 10) || 0);
   const ac = target.combat?.ac ?? 10;
-  const atkName = (kind === 'melee' ? '近战' : '远程') + '攻击';
+  const atkName = (atk.name || (kind === 'melee' ? '近战' : '远程')) + '攻击';
   // 5 尺内近战命中昏迷目标 = 自动暴击（昏迷 → unconscious：攻击优势 + 5 尺内近战命中必暴击）
   const isUnconsciousMelee = kind === 'melee' && target.downed === true;
   const res = rollD20(bonus);
@@ -75,25 +71,26 @@ export function resolveAttack(attacker, target, kind = 'melee') {
   return { hit: true, crit: false, damage, d20: res.roll, text: `${attacker.name}的${atkName}命中${target.name}，造成 ${damage} 点伤害。` };
 }
 
-/** 解析法术 effect 字符串："damage 1d10 火焰" / "heal 1d8+mod" / "narrative" */
+/** 法术 effect 结构化对象（canonical v2） */
 export function parseSpellEffect(effect) {
-  const e = String(effect || '').trim().toLowerCase() || 'narrative';
-  let m = e.match(/^heal\s+(\d+)d(\d+)(?:\s*\+\s*mod)?/);
-  if (m) return { kind: 'heal', dice: `${m[1]}d${m[2]}`, addMod: e.includes('+mod') };
-  m = e.match(/^damage\s+(?:(\d+)x\s*\()?(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s*\)?\s*([a-z\u4e00-\u9fa5]+)?/);
-  if (m) {
-    const repeats = parseInt(m[1] || 1, 10);
-    const base = { count: parseInt(m[2], 10), die: parseInt(m[3], 10), bonus: parseInt(m[4] || 0, 10) };
-    return { kind: 'damage', repeats, dice: `${m[2]}d${m[3]}`, bonus: base.bonus, dtype: m[5] || '力场' };
-  }
-  return { kind: 'narrative' };
+  const e = effect && typeof effect === 'object' ? effect : {};
+  return {
+    kind: e.kind || 'utility',
+    repeats: e.repeats || 1,
+    dice: e.dice || '',
+    bonus: e.bonus || 0,
+    dtype: e.damage_type || '',
+    addMod: !!e.add_mod,
+    save: e.save || null,
+    autoHit: !!e.auto_hit,
+  };
 }
 
 /** 施法属性调整：取智力/感知/魅力最高 */
 export function castingMod(char) {
-  const ab = (char.abilities || {});
-  const val = (k) => { const v = ab[k]; return (typeof v === 'object' ? v?.value : v) ?? 10; };
-  return Math.max(val('int'), val('wis'), val('cha')) - 10 >> 1;
+  const ab = char?.abilities || {};
+  const val = (k) => (typeof ab[k] === 'number' ? ab[k] : 10);
+  return Math.floor((Math.max(val('int'), val('wis'), val('cha')) - 10) / 2);
 }
 
 /**
@@ -105,7 +102,7 @@ export function castingMod(char) {
  */
 export function resolveSpell(spell, caster, target) {
   const spellName = spell.name || spell.id || '法术';
-  const { kind, repeats = 1, dice, bonus = 0, dtype, addMod } = parseSpellEffect(spell.effect);
+  const { kind, repeats, dice, bonus, dtype, addMod } = parseSpellEffect(spell.effect);
 
   if (kind === 'heal') {
     let heal = 0;
@@ -122,7 +119,7 @@ export function resolveSpell(spell, caster, target) {
     for (let i = 0; i < repeats; i++) {
       damage += rollDice(dice) + bonus;
     }
-    return { ok: true, kind, damage, heal: 0, text: `${caster.name}施放${spellName}，对${target.name}造成 ${damage} 点${dtype}伤害。` };
+    return { ok: true, kind, damage, heal: 0, text: `${caster.name}施放${spellName}，对${target.name}造成 ${damage} 点${damageTypeLabel(dtype)}伤害。` };
   }
 
   // narrative：无数值效果，仅提示
@@ -164,22 +161,12 @@ export function resolveSelfAction(action, char) {
   return { ok: true, text: `${char.name}使用了${name}。` };
 }
 
-/** 角色最大生命值（兼容 combat.hp "cur / max" 字符串 与 combat.hp {cur,max}） */
+/** 角色最大生命值 */
 export function hpMax(char) {
-  const hp = (char.combat || {}).hp;
-  if (typeof hp === 'string') {
-    const m = hp.match(/(\d+)\s*\/\s*(\d+)/);
-    return m ? parseInt(m[2], 10) : 10;
-  }
-  return hp?.max ?? 10;
+  return char?.combat?.hp?.max ?? 10;
 }
 
 /** 角色当前生命值 */
 export function hpCur(char) {
-  const hp = (char.combat || {}).hp;
-  if (typeof hp === 'string') {
-    const m = hp.match(/(\d+)\s*\/\s*(\d+)/);
-    return m ? parseInt(m[1], 10) : 10;
-  }
-  return hp?.cur ?? hpMax(char);
+  return char?.combat?.hp?.cur ?? hpMax(char);
 }

@@ -24,9 +24,19 @@ export const combatState = {
   targetableTokens: [],             // 射程内可点击目标
   rangeCircle: null,                // 射程圆 DOM 元素
   jumpRangeCells: 0,                // 跳跃半径（格）
+  verticalPrompt: null,             // 垂直移动选择浮层 DOM（相邻格 |Δz|≥2 时弹出）
 
   /* ── 遭遇上下文（M6：从 adventure.html 经 sessionStorage 传入） ── */
   encounterContext: null,
+
+  /* ── 当前战斗（battles.json 条目；activeBattleId 从 localStorage 读取） ── */
+  activeBattle: null,
+
+  /* ── 地图探险模式（activeMapId 从 localStorage 读取；与 activeBattleId 二选一） ── */
+  mapMode: false,
+  mapId: null,
+  debugMap: false,                  // ?map= 调试入口（无冒险上下文）
+  mapBattles: [],                   // 当前地图上尚未击败的 on_enter 战斗
 
   /* ── 探索迷雾（fog.js 初始化；revealed 会话内存，刷新即重置） ── */
   fog: {

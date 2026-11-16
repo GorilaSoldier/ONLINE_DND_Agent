@@ -7,13 +7,14 @@
       "personality": ["狡猾", "胆小"],
       "attitude": "hostile",
       "current_location": "triboar-trail-ambush",
+      "abilities": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
       "combat": {
         "ac": 15,
         "hp": { "cur": 7, "max": 7 },
         "move_speed": "9m",
         "attacks": [
-          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "type": "挥砍", "kind": "melee" },
-          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "type": "穿刺", "kind": "ranged" }
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "kind": "melee", "rangeCells": 1 },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
         ]
       },
       "inventory": [
@@ -28,7 +29,17 @@
       "role": "哨兵",
       "description": "守在克拉摩窝点入口的地精。",
       "attitude": "hostile",
-      "current_location": "cragmaw-hideout-entrance"
+      "current_location": "cragmaw-hideout-entrance",
+      "abilities": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "kind": "melee", "rangeCells": 1 },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
+        ]
+      }
     },
     "wolf": {
       "race": "野兽",
@@ -36,12 +47,13 @@
       "description": "被链条拴住的饥饿野狼。",
       "attitude": "hostile",
       "current_location": "cragmaw-hideout-wolf-cave",
+      "abilities": { "str": 12, "dex": 15, "con": 12, "int": 3, "wis": 12, "cha": 6 },
       "combat": {
         "ac": 13,
         "hp": { "cur": 11, "max": 11 },
         "move_speed": "12m",
         "attacks": [
-          { "name": "撕咬", "bonus": 4, "damage": "2d4+2", "type": "穿刺", "kind": "melee" }
+          { "name": "撕咬", "bonus": 4, "damage": "2d4+2", "damage_type": "piercing", "kind": "melee", "rangeCells": 1 }
         ]
       }
     },
@@ -50,14 +62,34 @@
       "role": "守卫",
       "description": "守在木桥附近的地精。",
       "attitude": "hostile",
-      "current_location": "cragmaw-hideout-blind"
+      "current_location": "cragmaw-hideout-blind",
+      "abilities": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "kind": "melee", "rangeCells": 1 },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
+        ]
+      }
     },
     "goblin-klarg": {
       "race": "地精",
       "role": "克拉格的随从",
       "description": "克拉格的地精随从。",
       "attitude": "hostile",
-      "current_location": "cragmaw-hideout-boss"
+      "current_location": "cragmaw-hideout-boss",
+      "abilities": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "kind": "melee", "rangeCells": 1 },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
+        ]
+      }
     }
   },
   "npcs": {
@@ -144,10 +176,12 @@
       "attitude": "neutral",
       "passive_perception": 12,
       "abilities": {
-        "str": { "value": 14 },
-        "dex": { "value": 14 },
-        "wis": { "value": 12 },
-        "cha": { "value": 11 }
+        "str": 14,
+        "dex": 14,
+        "con": 12,
+        "int": 10,
+        "wis": 12,
+        "cha": 11
       },
       "guard": true,
       "current_location": "dynamic"
@@ -163,10 +197,12 @@
       "attitude": "neutral",
       "passive_perception": 12,
       "abilities": {
-        "str": { "value": 15 },
-        "dex": { "value": 12 },
-        "wis": { "value": 12 },
-        "cha": { "value": 10 }
+        "str": 15,
+        "dex": 12,
+        "con": 12,
+        "int": 10,
+        "wis": 12,
+        "cha": 10
       },
       "guard": true,
       "current_location": "dynamic"

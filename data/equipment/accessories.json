@@ -29,6 +29,9 @@
       "properties": {
         "weight": "2磅",
         "effect": "隐匿检定具有优势"
+      },
+      "stats": {
+        "category": "accessory"
       }
     },
     "bag_of_holding": {
@@ -42,6 +45,9 @@
       "properties": {
         "weight": "15磅",
         "effect": "内部可容纳最多 500磅、64立方尺的物品"
+      },
+      "stats": {
+        "category": "accessory"
       }
     },
     "healers_kit": {
@@ -55,6 +61,9 @@
       "properties": {
         "weight": "3磅",
         "effect": "可使用 10 次，用于稳定濒死生物"
+      },
+      "stats": {
+        "category": "accessory"
       }
     },
     "thieves_tools": {
@@ -68,6 +77,9 @@
       "properties": {
         "weight": "1磅",
         "effect": "用于解除陷阱和开锁"
+      },
+      "stats": {
+        "category": "accessory"
       }
     }
   }

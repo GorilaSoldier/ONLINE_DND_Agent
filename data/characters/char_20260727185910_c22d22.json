@@ -20,62 +20,29 @@
   "level": 1,
   "combat": {
     "ac": 14,
-    "hp": "11 / 11"
+    "hp": { "cur": 11, "max": 11 },
+    "speed": "9m",
+    "attacks": {
+      "base": [
+        { "name": "徒手", "bonus": 3, "damage": "1d4+1", "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1 }
+      ],
+      "current": [
+        { "name": "短剑", "bonus": 5, "damage": "1d6+3", "damage_type": "piercing", "kind": "melee", "hand": "main", "rangeCells": 1 },
+        { "name": "短弓", "bonus": 5, "damage": "1d6+3", "damage_type": "piercing", "kind": "ranged", "hand": "main", "rangeCells": 6 }
+      ]
+    }
   },
   "xp": {
     "current": 0,
-    "max": 300,
-    "display": "0 / 300"
-  },
-  "attack": {
-    "melee": {
-      "label": "近战",
-      "bonus": "+3",
-      "damage": "1d6"
-    },
-    "ranged": {
-      "label": "远程",
-      "bonus": "+5",
-      "damage": "1d4"
-    }
+    "max": 300
   },
   "abilities": {
-    "str": {
-      "label": "力",
-      "value": 12,
-      "save_bonus": "+1",
-      "highlighted": false
-    },
-    "dex": {
-      "label": "敏",
-      "value": 17,
-      "save_bonus": "+3",
-      "highlighted": true
-    },
-    "con": {
-      "label": "体",
-      "value": 13,
-      "save_bonus": "+1",
-      "highlighted": false
-    },
-    "int": {
-      "label": "智",
-      "value": 10,
-      "save_bonus": "+0",
-      "highlighted": false
-    },
-    "wis": {
-      "label": "感",
-      "value": 15,
-      "save_bonus": "+2",
-      "highlighted": true
-    },
-    "cha": {
-      "label": "魅",
-      "value": 8,
-      "save_bonus": "-1",
-      "highlighted": false
-    }
+    "str": 12,
+    "dex": 17,
+    "con": 13,
+    "int": 10,
+    "wis": 15,
+    "cha": 8
   },
   "ability_bonus": {
     "plus2": "dex",
@@ -88,19 +55,22 @@
         "equipment_id": "shortbow",
         "name": "短弓",
         "quantity": 1,
-        "equipped": true
+        "equipped": true,
+        "slot": "ranged-main"
       },
       {
         "equipment_id": "shortsword",
         "name": "短剑",
         "quantity": 1,
-        "equipped": true
+        "equipped": true,
+        "slot": "melee-main"
       },
       {
         "equipment_id": "leather",
         "name": "皮甲",
         "quantity": 1,
-        "equipped": true
+        "equipped": true,
+        "slot": "armor"
       }
     ]
   },

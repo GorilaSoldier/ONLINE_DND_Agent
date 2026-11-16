@@ -34,12 +34,6 @@
     "players": [
       { "col": 2, "row": 12 },
       { "col": 3, "row": 13 }
-    ],
-    "enemies": [
-      { "col": 14, "row": 9 },
-      { "col": 15, "row": 11 },
-      { "col": 13, "row": 13 },
-      { "col": 16, "row": 7 }
     ]
   }
 }

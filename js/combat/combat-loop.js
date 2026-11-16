@@ -10,7 +10,7 @@ import { combatState } from './state.js';
 import { appendCombatLog, currentTurnLabel, updateStatus, updateResourceBar, showEndTurnBtn, renderInitiativeBar, showCombatResult } from './combat-ui.js';
 import { runPlayerDeathSave } from './rules.js';
 import { runSingleEnemyAct } from './enemy.js';
-import { fogDisplayName } from './fog.js';
+import { isTokenVisible, fogDisplayName } from './fog.js';
 import { CELL_METERS } from './constants.js';
 
 const S = combatState;
@@ -22,7 +22,12 @@ export function getPlayerToken() {
 
 /** 存活敌人列表：昏迷 NPC 不算威胁（D&D 5e RAW：昏迷生物无威胁，可战后处置） */
 export function getAliveEnemies() {
-  return S.tokens.filter(t => t.data.faction === 'enemy' && !t.data.dead && !t.data.unconscious);
+  // 地图探险模式：只统计当前正在进行的战斗，避免把地图上其他区域的敌人拉进先攻
+  const activeBattleId = S.activeBattle?.id;
+  return S.tokens.filter(t =>
+    t.data.faction === 'enemy' && !t.data.dead && !t.data.unconscious &&
+    (!S.mapMode || t.data.battleId === activeBattleId)
+  );
 }
 
 /** 是否为空地图测试模式（没有任何敌人 token）：用于在空地图上自由移动、检查墙壁 */
@@ -32,15 +37,12 @@ export function isTestingMap() {
 
 /* ── 行动经济 ── */
 
-/** action_type 文案 → 消耗类型：'action' | 'bonus' | 'free' */
+/** action_cost 枚举 → 消耗类型：'action' | 'bonus' | 'reaction' | 'free' */
 export function costFromType(type, fallback = 'action') {
-  if (type === '附赠动作') return 'bonus';
-  if (type === '1动作') return 'action';
-  if (type === '自由动作') return 'free';
-  return fallback;
+  return ['action', 'bonus', 'reaction', 'free', 'special'].includes(type) ? type : fallback;
 }
 
-/** 地图动作 → 消耗类型：攻击一律动作；法术/动作读 spells.json 的 action_type（默认 1 动作） */
+/** 地图动作 → 消耗类型：攻击一律动作；法术/动作读 spells.json 的 action_cost（默认 1 动作） */
 export function actionCostOf(action) {
   if (!action) return 'free';
   if (action.type === 'attack') return 'action';
@@ -48,9 +50,9 @@ export function actionCostOf(action) {
   const id = action.type === 'spell' ? action.spellId : action.id;
   if (id) {
     const def = S.spellLookup[id];
-    if (def) return costFromType(def.action_type, 'action');
+    if (def) return costFromType(def.action_cost, 'action');
   }
-  return costFromType(action.action_type, 'action');
+  return costFromType(action.action_cost, 'action');
 }
 
 /** 战斗外（idle）不限制；预算不足则提示并返回 false */
@@ -113,6 +115,8 @@ export function initTurnResources() {
 
 /** 战斗开始：掷先攻，按顺序逐个行动 */
 export function startCombat() {
+  // 只允许从探索状态（idle）进入战斗，避免重复触发/重排后再次掷先攻
+  if (S.combatPhase !== 'idle') return;
   // 掷先攻（rules.rollInitiative，动态引用避免 rules → loop → rules 循环）
   // 注意：rollInitiative 依赖本模块的 getPlayerToken/getAliveEnemies，静态 import 会循环，
   // 故 rules.js 从本模块静态导入（单向 rules → loop），此处反向用动态 import
@@ -160,7 +164,12 @@ export function activateCurrent(isFirst = false) {
     }
     if (cur.token && !cur.token.data.dead) {
       // 玩家回合开始自动选中玩家 token（main.select 经动态 import 避免循环）
-      import('./main.js').then(({ select }) => { if (!cur.token.data.dead) select(cur.token); });
+      // M7：若上轮攀爬未完成，先自动续爬（占用本轮移动力），否则常规选中
+      import('./main.js').then(({ select, resumeClimb }) => {
+        if (cur.token.data.dead) return;
+        if (resumeClimb(cur.token)) return;
+        select(cur.token);
+      });
     }
     updateStatus(`第 ${S.turnCounter} 轮 · ${cur.name}的回合，行动后点击「结束回合」`);
     appendCombatLog(`${cur.name}的回合开始`, 'system', currentTurnLabel());
@@ -168,8 +177,14 @@ export function activateCurrent(isFirst = false) {
     S.combatPhase = 'enemy';
     showEndTurnBtn(false);
     import('./main.js').then(({ deselect }) => deselect());
-    updateStatus(`第 ${S.turnCounter} 轮 · ${fogDisplayName(cur.token)}行动中...`);
-    appendCombatLog(`${fogDisplayName(cur.token)}的回合开始`, 'system', currentTurnLabel());
+    if (isTokenVisible(cur.token)) {
+      updateStatus(`第 ${S.turnCounter} 轮 · ${fogDisplayName(cur.token)}行动中...`);
+      appendCombatLog(`${fogDisplayName(cur.token)}的回合开始`, 'system', currentTurnLabel());
+    } else {
+      // 未现身的雾中敌人：只给不点名的动静提示，不写日志
+      // （原实现播报"黑暗中的存在行动中"并写日志，等于白告诉玩家"有个不明单位在行动"）
+      updateStatus(`第 ${S.turnCounter} 轮 · 某处传来动静...`);
+    }
     setTimeout(() => runSingleEnemyAct(cur.token), 500);
   }
 }
@@ -192,9 +207,11 @@ export function endPlayerTurn() {
   advanceInitiative();
 }
 
-/** 玩家攻击/施法后检查：敌人全灭 → 胜利 */
+/** 玩家攻击/施法后检查：敌人全灭 → 胜利（空地图测试模式不判定） */
 export function checkVictory() {
-  if (S.combatPhase === 'victory' || S.combatPhase === 'defeat') return;
+  if (S.combatPhase === 'victory' || S.combatPhase === 'defeat') return false;
+  // 测试模式（无敌人）下不判定胜利：否则任何一次结算（含摔伤/治疗）都会误报「战斗胜利」
+  if (isTestingMap()) return false;
   if (getAliveEnemies().length === 0) {
     endCombat(true);
     return true;
@@ -225,34 +242,57 @@ export function endCombat(won) {
     showCombatResult(false);
   }
 
-  // M6：写入战斗结果到 sessionStorage，2.5 秒后跳回 adventure.html
-  // 仅当 encounterContext 存在时才回传（独立调试模式不跳转）
-  if (S.encounterContext) {
-    const playerToken = S.tokens.find(t => t.data.faction === 'player');
-    const playerEndHp = playerToken ? playerToken.data.hpCur : 0;
-    // 非致命打击产生的昏迷敌人列表（带回写 adventure.html 标 status:unconscious 留在场景）
-    const unconsciousEnemies = won
-      ? S.tokens
-          .filter(t => t.data.faction === 'enemy' && t.data.unconscious && !t.data.dead)
-          .map(t => ({ npcId: t.data.npcId || t.data.id, name: t.data.name, hp: t.data.hpCur }))
-      : [];
-    const result = {
-      encounterId: S.encounterContext.encounterId,
-      encounterName: S.encounterContext.encounterName,
-      outcome: won ? 'victory' : 'defeat',
-      playerEndHp,
-      loot: won ? (S.encounterContext.loot || []) : [],
-      clues: won ? (S.encounterContext.clues || []) : [],
-      nextSceneId: won ? (S.encounterContext.nextSceneId || null) : null,
-      unconsciousEnemies,
-    };
-    try {
-      sessionStorage.setItem('combatResult', JSON.stringify(result));
-    } catch (e) { console.error('写入 combatResult 失败:', e); }
-
-    // 2.5 秒延迟让玩家看清横幅，再跳转
+  // 地图探险模式：胜利后留在图上继续探险，不跳回冒险页
+  if (S.mapMode && won) {
+    const battle = S.activeBattle;
+    import('./main.js').then(({ recordBattleVictory }) => recordBattleVictory(battle.id));
+    appendCombatLog(`战斗结束：${battle.name} 已清除，可以继续探索。`, 'system');
     setTimeout(() => {
-      window.location.href = `adventure.html?combat_result=${encodeURIComponent(S.encounterContext.encounterId)}`;
+      S.combatPhase = 'idle';
+      S.initiativeOrder = [];
+      S.currentInitIndex = -1;
+      S.turnCounter = 1;
+      S.lastLogTurn = null;
+      S.activeBattle = null;
+      S.pendingAction = null;
+      updateStatus('战斗结束，继续探险');
+      import('./main.js').then(({ select }) => {
+        const playerToken = S.tokens.find(t => t.data.faction === 'player');
+        if (playerToken && !playerToken.data.dead) select(playerToken);
+      });
     }, 2500);
+    return;
   }
+
+  // 直接战斗 / 地图内战败：写入战斗结果到 sessionStorage，2.5 秒后跳回 adventure.html
+  // 直接战斗的战斗来源：localStorage.activeBattleId；地图内战败：当前触发的战斗
+  const battleId = S.mapMode ? S.activeBattle.id : localStorage.getItem('activeBattleId');
+  const playerToken = S.tokens.find(t => t.data.faction === 'player');
+  const playerEndHp = playerToken ? playerToken.data.hpCur : 0;
+  // 非致命打击产生的昏迷敌人列表（带回写 adventure.html 标 status:unconscious 留在场景）
+  const unconsciousEnemies = won
+    ? S.tokens
+        .filter(t => t.data.faction === 'enemy' && t.data.unconscious && !t.data.dead)
+        .map(t => ({ npcId: t.data.npcId || t.data.id, name: t.data.name, hp: t.data.hpCur }))
+    : [];
+  const result = {
+    battleId,
+    battleName: S.activeBattle.name,
+    outcome: won ? 'victory' : 'defeat',
+    playerEndHp,
+    loot: won ? (S.encounterContext.loot || []) : [],
+    clues: won ? (S.encounterContext.clues || []) : [],
+    nextSceneId: won ? (S.encounterContext.nextSceneId || null) : null,
+    unconsciousEnemies,
+  };
+  try {
+    sessionStorage.setItem('combatResult', JSON.stringify(result));
+  } catch (e) { console.error('写入 combatResult 失败:', e); }
+
+  localStorage.removeItem('activeBattleId');
+  if (S.mapMode) localStorage.removeItem('activeMapId');
+  // 2.5 秒延迟让玩家看清横幅，再跳转
+  setTimeout(() => {
+    window.location.href = `adventure.html?combat_result=${encodeURIComponent(battleId)}`;
+  }, 2500);
 }

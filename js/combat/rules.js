@@ -5,10 +5,11 @@
  */
 
 import { rollD20, resolveAttack } from './actions.js';
-import { updateTokenPosition, updateTokenHp } from './token.js';
+import { updateTokenPosition, updateTokenHp, tokenAc } from './token.js';
 import { combatState } from './state.js';
 import { appendCombatLog, currentTurnLabel, updateStatus, renderInitiativeBar, updateResourceBar } from './combat-ui.js';
 import { getPlayerToken, endCombat, getAliveEnemies } from './combat-loop.js';
+import { getCellZ } from './map.js';
 
 /** 属性调整值：属性值 → (值-10)/2 向下取整 */
 export function abilityMod(abilityValue) {
@@ -18,6 +19,18 @@ export function abilityMod(abilityValue) {
 /** 8 方向相邻判定（含斜角） */
 export function cellsAdjacent(c1, r1, c2, r2) {
   return Math.abs(c1 - c2) <= 1 && Math.abs(r1 - r2) <= 1 && !(c1 === c2 && r1 === r2);
+}
+
+/**
+ * 落差伤害骰数（5e：「每 10 尺 1d6」，封顶 20d6）。
+ * 单位换算注意事项：必须按 5e 原生「1 格 = 5 尺」算，不可走米制——
+ * 2 格 = 3m < 3.048m(10 尺) 会被误判为「不足 10 尺不伤」，得出荒谬结果。
+ * 故：每 2 格 1d6，落差 < 2 格（10 尺）不受伤。
+ * @param {number} dzCells 落差层数（正数，层=格）
+ * @returns {number} d6 骰数（0 表示不受伤）
+ */
+export function fallDamageDice(dzCells) {
+  return Math.min(Math.floor(Math.abs(Number(dzCells) || 0) / 2), 20);
 }
 
 /** 扶起队友（BG3 Help 动作）：触碰倒地己方，恢复 1 HP 并苏醒
@@ -59,17 +72,23 @@ export function resolveRevive(caster, target) {
   updateStatus(text);
 }
 
-/** 推离结算：双方掷 d20+力量调整值对抗，成功推远 1 格（被推方该次移动不触发借机攻击） */
+/**
+ * 推离结算：双方掷 d20+力量调整值对抗，成功推远 1 格（被推方该次移动不触发借机攻击）。
+ * 高差（§7.3）：不能把人推上崖（toZ > fromZ 拒绝）；推下崖合法，返回 fallDz 供调用方结算坠落伤害。
+ * @returns {{success:boolean, reason?:string, fallDz?:number}}
+ *   reason: 'contest'（对抗失败）/ 'blocked'（落点非法）/ 'uphill'（落差向上）
+ *   fallDz: 成功时为原高度 − 落点高度（层），0 表示平地/上台阶
+ */
 export function resolveShove(attacker, target) {
   const mapConfig = combatState.mapConfig;
-  // 力量值取数：玩家用 char.abilities.str.value（角色卡格式）；
+  // 力量值取数：玩家用 char.abilities.str（纯数字）；
   //              敌人无 abilities 字段时 fallback 到 10（mod=0）
   const atkStr = attacker.data.character?.abilities?.str;
   const tgtStr = target.data.character?.abilities?.str
     || target.data.attrs?.str
     || target.data.combat?.strength;
-  const atkStrVal = (typeof atkStr === 'object' ? atkStr?.value : atkStr) ?? 10;
-  const tgtStrVal = (typeof tgtStr === 'object' ? tgtStr?.value : tgtStr) ?? 10;
+  const atkStrVal = typeof atkStr === 'number' ? atkStr : 10;
+  const tgtStrVal = typeof tgtStr === 'number' ? tgtStr : 10;
   const atkMod = Math.floor((atkStrVal - 10) / 2);
   const tgtMod = Math.floor((tgtStrVal - 10) / 2);
   const atkRoll = rollD20(atkMod);
@@ -78,7 +97,7 @@ export function resolveShove(attacker, target) {
   if (!success) {
     updateStatus(`${attacker.data.name}推离${target.data.name}失败（${atkRoll.total} vs ${tgtRoll.total}）`);
     appendCombatLog(`推离失败：${atkRoll.total} vs ${tgtRoll.total}`, 'system', currentTurnLabel());
-    return;
+    return { success: false, reason: 'contest' };
   }
   // 推远方向：从攻击者指向目标的方向，取格化
   const dc = target.data.col - attacker.data.col;
@@ -95,15 +114,26 @@ export function resolveShove(attacker, target) {
   if (blocked) {
     updateStatus(`${attacker.data.name}将${target.data.name}推离成功，但后方有障碍，未能推开（${atkRoll.total} vs ${tgtRoll.total}）`);
     appendCombatLog(`推离成功但后方有障碍：${atkRoll.total} vs ${tgtRoll.total}`, 'system', currentTurnLabel());
-    return;
+    return { success: false, reason: 'blocked' };
+  }
+  // 高差校验（5e Shove 是水平推 5 尺，不抬升）：落点更高 → 无法推上崖
+  const fromZ = getCellZ(mapConfig, target.data.col, target.data.row);
+  const toZ = getCellZ(mapConfig, newCol, newRow);
+  if (toZ > fromZ) {
+    updateStatus(`${attacker.data.name}将${target.data.name}推离成功，但落点更高，无法把人推上崖（${atkRoll.total} vs ${tgtRoll.total}）`);
+    appendCombatLog(`推离成功但落点更高，未能推开（${atkRoll.total} vs ${tgtRoll.total}）`, 'system', currentTurnLabel());
+    return { success: false, reason: 'uphill' };
   }
   // 标记该次移动不触发借机攻击（推离替代脱离）
   target.data._shovedAway = true;
   target.data.col = newCol;
   target.data.row = newRow;
+  // 位置变化（被推离）→ 中断未完成的攀爬（§7.3 清空规则之一）
+  if (target.data.climb) target.data.climb = null;
   updateTokenPosition(target, mapConfig);
   updateStatus(`${attacker.data.name}将${target.data.name}推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`);
   appendCombatLog(`推离成功，${target.data.name} 被推远 1 格（${atkRoll.total} vs ${tgtRoll.total}）`, 'attack', currentTurnLabel());
+  return { success: true, fallDz: fromZ - toZ };
 }
 
 /** 玩家死亡豁免掷骰（BG3 风格）：昏迷玩家回合开始时调用。
@@ -194,7 +224,7 @@ export function rollInitiative() {
   const player = getPlayerToken();
   if (player) {
     const char = player.data.character || {};
-    const pDex = abilityMod(char?.abilities?.dex?.value ?? 10);
+    const pDex = abilityMod(char?.abilities?.dex ?? 10);
     order.push({
       token: player,
       initiative: Math.floor(Math.random() * 20) + 1 + pDex,
@@ -229,10 +259,7 @@ export function targetForEnemy(target) {
 export function attackerFromEnemy(enemy, atk) {
   return {
     name: enemy.data.name,
-    attack: {
-      melee: { bonus: atk.bonus, damage: atk.damage },
-      ranged: { bonus: atk.bonus, damage: atk.damage },
-    },
+    attacks: [atk],
   };
 }
 
@@ -240,8 +267,8 @@ export function attackerFromEnemy(enemy, atk) {
 export async function triggerOpportunityAttack(attacker, mover) {
   if (!attacker || !mover || mover.data.dead) return;
   // 按阵营构造 resolveAttack 需要的攻击者结构：
-  //   - 玩家：data.character 已含 attack.melee.bonus/damage（与普通攻击 resolveAttack(char,...) 同源）
-  //   - 敌人：用 attackerFromEnemy 把扁平 attacks 项转成 { name, attack:{melee,ranged} } 结构
+  //   - 玩家：data.character 已含 combat.attacks.current（与普通攻击 resolveAttack(char,...) 同源）
+  //   - 敌人：用 attackerFromEnemy 把扁平 attacks 项转成 { name, attacks:[atk] } 结构
   let atkChar;
   if (attacker.data.faction === 'player') {
     atkChar = attacker.data.character;
@@ -252,7 +279,7 @@ export async function triggerOpportunityAttack(attacker, mover) {
     if (!melee) return;
     atkChar = attackerFromEnemy(attacker, melee);
   }
-  const target = { name: mover.data.name, combat: { ac: mover.data.ac ?? 15 } };
+  const target = { name: mover.data.name, combat: { ac: tokenAc(mover) } };
   const result = resolveAttack(atkChar, target, 'melee');
   applyOpportunityResult(result, mover, attacker);
   // 借机攻击单独标记（applyResult 已写伤害日志，这里补"借机"前缀）
@@ -262,9 +289,9 @@ export async function triggerOpportunityAttack(attacker, mover) {
   await sleep(400);
 }
 
-/** 从 attacks 里选近战攻击项（kind 为 melee 或未标 kind 的第一项） */
+/** 从 attacks 里选近战攻击项 */
 export function pickMeleeAttack(attacks) {
-  return attacks.find(a => a.kind === 'melee') || attacks.find(a => !a.kind) || attacks[0];
+  return attacks.find(a => a.kind === 'melee') || null;
 }
 
 /** 从 attacks 里选远程攻击项（kind 为 ranged） */

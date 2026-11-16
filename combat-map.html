@@ -1940,7 +1940,7 @@
 </head>
 <body>
 <div class="top-bar">
-  <button class="btn-back-lobby" onclick="location.href='adventure.html'" type="button">
+  <button class="btn-back-lobby" onclick="window.__combatApi.leaveMap()" type="button">
     ← 返回冒险
   </button>
   <div class="brand">DNDBOX</div>
@@ -2023,6 +2023,9 @@
           <span class="legend-item"><span class="legend-color" style="border-color: var(--player); background: rgba(74,144,217,0.18);"></span>玩家</span>
           <span class="legend-item"><span class="legend-color" style="border-color: var(--enemy); background: rgba(196,75,75,0.18);"></span>敌人</span>
           <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;background:rgba(74,144,217,0.28);border:1px solid rgba(74,144,217,0.45);"></span>可移动</span>
+          <label class="legend-item" style="cursor:pointer; user-select:none;" title="显示/隐藏台地 z 角标与崖壁边线">
+            <input type="checkbox" id="toggle-height" checked style="margin:0; accent-color:#c49a5c;">高度
+          </label>
         </div>
       </div>
 
@@ -2086,12 +2089,29 @@
   </div>
 </div>
 
-
+<script src="./ui/ui-shared.js"></script>
+<script src="./ui/ui-panels.js"></script>
 <script>
 (function() {
   /* ── 常量 ── */
   const ADVENTURE_ID = 'lost-mine-of-phandelver';
   const CHAPTER_ID = 'ch1';
+
+  /* ── 共享 UI 工具（ui/ui-shared.js）：显式别名，避免各页再维护副本 ── */
+  const getAbility = window.getAbility;
+  const getAbilitiesArray = window.getAbilitiesArray;
+  const normalizeAbilities = window.normalizeAbilities;
+  const normalizeChar = window.normalizeChar;
+  const escapeHtml = window.escapeHtml;
+  const computeEquippedSlots = window.computeEquippedSlots;
+  const renderSlot = window.renderSlot;
+  const loadSvgIcon = window.loadSvgIcon;
+  const itemEffectText = window.itemEffectText;
+  const primaryAttack = window.primaryAttack;
+  const bonusText = window.bonusText;
+  const hpText = window.hpText;
+  const buildSpellViewModel = window.buildSpellViewModel;
+  const spellSection = window.spellSection;
 
   /* ── 全局状态 ── */
   let state = {
@@ -2106,7 +2126,6 @@
     locationStates: {},
     containerTaken: {},
     takenLocationItems: [],
-    tempEquipItems: [],
     droppedItems: {},
     merchantStates: {},
     playerInventory: [],
@@ -2153,29 +2172,6 @@
   /* ── 数据加载 ── */
   const DEFAULT_CHAR_ID = 'char_20260727180516_c8081c';
 
-  function getAbility(char, key) {
-    /* 兼容两种角色卡格式：后端嵌套 abilities.str.value / 前端扁平 str/dex */
-    if (char.abilities && char.abilities[key] && char.abilities[key].value != null) {
-      return char.abilities[key].value;
-    }
-    const flatMap = { str: 'strength', dex: 'dexterity', con: 'constitution', int: 'intelligence', wis: 'wisdom', cha: 'charisma' };
-    const flatKey = flatMap[key] || key;
-    if (char[flatKey] != null) return char[flatKey];
-    if (char[key] != null) return char[key];
-    return 10;
-  }
-
-  function getAbilitiesArray(char) {
-    return [
-      { name: '力量', key: 'str', abbr: 'STR', val: getAbility(char, 'str') },
-      { name: '敏捷', key: 'dex', abbr: 'DEX', val: getAbility(char, 'dex') },
-      { name: '体质', key: 'con', abbr: 'CON', val: getAbility(char, 'con') },
-      { name: '智力', key: 'int', abbr: 'INT', val: getAbility(char, 'int') },
-      { name: '感知', key: 'wis', abbr: 'WIS', val: getAbility(char, 'wis') },
-      { name: '魅力', key: 'cha', abbr: 'CHA', val: getAbility(char, 'cha') }
-    ];
-  }
-
   async function loadCharacter() {
     /* 战斗地图固定使用 elias（与地图 token 一致）；localStorage 仅作兜底 */
     try {
@@ -2197,62 +2193,6 @@
     state.character = null;
   }
 
-  function normalizeAbilities(abilities) {
-    if (!abilities) return {};
-    const result = {};
-    const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-    const labels = { str: '力', dex: '敏', con: '体', int: '智', wis: '感', cha: '魅' };
-    for (const key of keys) {
-      const raw = abilities[key];
-      if (typeof raw === 'object' && raw !== null) {
-        result[key] = {
-          label: raw.label || labels[key] || key,
-          value: raw.value != null ? raw.value : 10,
-          save_bonus: raw.save_bonus || '+0',
-          highlighted: !!raw.highlighted,
-        };
-      } else {
-        const score = typeof raw === 'number' ? raw : 10;
-        const mod = Math.floor((score - 10) / 2);
-        result[key] = {
-          label: labels[key] || key,
-          value: score,
-          save_bonus: mod >= 0 ? '+' + mod : String(mod),
-          highlighted: false,
-        };
-      }
-    }
-    return result;
-  }
-
-  function normalizeChar(char) {
-    if (!char) return char;
-    return {
-      ...char,
-      combat: char.combat || { ac: 10, hp: '0 / 0' },
-      xp: char.xp || { current: 0, max: 300, display: '0 / 300' },
-      attack: char.attack || {
-        melee: { label: '近战', bonus: '+0', damage: '1d4' },
-        ranged: { label: '远程', bonus: '+0', damage: '1d4' },
-      },
-      inventory: char.inventory || { gold: 0, items: [] },
-      features: char.features || { status_ids: [], resistance_ids: [], class_feature_ids: [], trait_ids: [] },
-      skills: char.skills || { proficiency_bonus: '+2', sections: [] },
-      spells: char.spells || { caster_level: 1, action_ids: { normal: ["jump", "throw", "dash"], class: [] }, passive_ids: [], spell_ids: {} },
-      background: char.background || {
-        class: '', race: '', attributes: {},
-        traits: { personality: '', ideal: '', bond: '', flaw: '' },
-        story: [],
-      },
-      abilities: normalizeAbilities(char.abilities),
-    };
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
   const _CACHE_BUST = Date.now();
   const DATA_URLS = {
     meta: `/data/adventures/${ADVENTURE_ID}/meta.json?t=${_CACHE_BUST}`,
@@ -2357,413 +2297,30 @@
   }
 
   /* ── 渲染叙事日志 ── */
-  function renderNarrativeLog() {
-    if (state.log.length === 0) {
-      narrativeLog.innerHTML = '';
-      return;
-    }
-
-    const labels = { gm: 'GM', player: '玩家', system: '系统', check: '检定', npc: 'NPC' };
-
-    narrativeLog.innerHTML = state.log.map(entry => {
-      let extra = '';
-      const dataId = entry.meta && entry.meta.id ? `data-log-id="${entry.meta.id}"` : '';
-      if (entry.type === 'check' && entry.meta) {
-        const m = entry.meta;
-        const rollText = m.roll ? `d20(${m.roll})+${m.mod||0}` : '';
-        const dcText = m.dc ? ` DC ${m.dc}` : '';
-        const result = m.success ? '成功' : '失败';
-        const resultClass = m.success ? 'color:var(--accent);' : 'color:var(--danger);';
-        extra = `<div style="margin-top:6px;font-size:13px;">掷骰: ${rollText}${dcText} — <span style="${resultClass}font-weight:700;">${result}</span></div>`;
-      }
-      return `
-        <div class="log-entry ${entry.type}" ${dataId}>
-          <div class="log-label">${labels[entry.type] || entry.type}</div>
-          <div class="log-text">${entry.text}</div>
-          ${extra}
-        </div>
-      `;
-    }).join('');
-
-    narrativeLog.scrollTop = narrativeLog.scrollHeight;
-  }
 
   /* ── 渲染地点标题 ── */
-  function renderLocationHeader() {
-    const scene = getCurrentScene();
-    const loc = getCurrentLocation();
-    if (!scene) return;
-
-    const titleEl = $('#location-title');
-    const metaEl = $('#location-meta');
-
-    // 如果有父地点则显示 "父地点 · 子地点"
-    if (loc && loc.parent_location) {
-      titleEl.textContent = `${loc.parent_location} · ${loc.name}`;
-    } else {
-      titleEl.textContent = loc ? loc.name : scene.name;
-    }
-    const chapter = state.data.chapter;
-    metaEl.textContent = chapter ? `${chapter.title} · ${scene.name}` : scene.name;
-  }
 
   /* ── 渲染左侧上下文面板 ── */
-  function renderContextPanel() {
-    const scene = getCurrentScene();
-    const loc = getCurrentLocation();
-    if (!scene || !loc) return;
-
-    // 当前地点
-    const locEl = $('#context-location');
-    if (locEl) {
-      locEl.querySelector('.location-name').textContent = loc.name;
-      locEl.onclick = () => openDetailModal('location', loc.id);
-    }
-
-    // 人物：当前地点优先（地点显式定义了 npcs，含空数组），场景兜底
-    const npcsEl = $('#context-npcs');
-    const rawNpcIds = (loc.npcs !== undefined) ? (loc.npcs || []) : (scene.npcs || []);
-    // 兼容字符串 / {id, sub} 两种形式（sub=子区域，仅后端目击者判定用）
-    const npcIds = rawNpcIds.map(e => (typeof e === 'string') ? e : (e && e.id)).filter(Boolean);
-    // 已离开的 NPC 从列表移除；死亡/眩晕保留并加标记
-    const NPC_STATUS_SUFFIX = { dead: '（已死亡）', stunned: '（眩晕）', unconscious: '（昏迷）' };
-    const visibleNpcIds = npcIds.filter(id => (state.npcStates[id]?.status || '') !== 'left');
-    if (visibleNpcIds.length === 0) {
-      npcsEl.innerHTML = '<div class="context-empty">此处没有其他人</div>';
-    } else {
-      npcsEl.innerHTML = visibleNpcIds.map(id => {
-        const npc = state.data.npcs[id];
-        if (!npc) return '';
-        const suffix = NPC_STATUS_SUFFIX[state.npcStates[id]?.status] || '';
-        return `
-          <div class="context-item" data-type="npc" data-id="${id}">
-            <div class="context-item-icon">${npc.name[0]}</div>
-            <div class="context-item-name">${npc.name}${suffix}</div>
-            <div class="context-item-meta">${npc.role || ''}</div>
-          </div>
-        `;
-      }).join('');
-      npcsEl.querySelectorAll('.context-item').forEach(el => {
-        el.addEventListener('click', () => openDetailModal('npc', el.dataset.id));
-      });
-    }
-
-    // 物品：当前地点优先（地点显式定义了 items，含空数组），场景兜底
-    const itemsEl = $('#context-items');
-    const locHasItems = loc.items !== undefined;
-    let visibleItems;
-    if (locHasItems) {
-      visibleItems = loc.items.filter(i => i.visible !== false);
-    } else if (scene.items && scene.items.length > 0) {
-      // 场景定义了物品列表，从 items 数据中查找详细信息
-      visibleItems = scene.items.map(id => ({ id, visible: true }));
-    } else {
-      visibleItems = [];
-    }
-    // 过滤本会话已直接拿走的物品（切场景回来不重复显示）
-    visibleItems = visibleItems.filter(entry => !state.takenLocationItems.includes(entry.id));
-    // 合并本会话丢弃在当前地点的物品（其他角色可拾取）
-    const dropped = (state.droppedItems || {})[loc.id] || [];
-    if (dropped.length > 0) {
-      const have = new Set(visibleItems.map(e => e.id));
-      dropped.forEach(id => { if (!have.has(id)) visibleItems.push({ id, visible: true }); });
-    }
-    if (visibleItems.length === 0) {
-      itemsEl.innerHTML = '<div class="context-empty">此处没有可见物品</div>';
-    } else {
-      itemsEl.innerHTML = visibleItems.map(entry => {
-        const item = findItemDef(entry.id);
-        if (!item) return '';
-        return `
-          <div class="context-item" data-type="item" data-id="${entry.id}">
-            <div class="context-item-icon">I</div>
-            <div class="context-item-name">${item.name}</div>
-          </div>
-        `;
-      }).join('');
-      itemsEl.querySelectorAll('.context-item').forEach(el => {
-        el.addEventListener('click', () => openDetailModal('item', el.dataset.id));
-      });
-    }
-
-    // 可去地点：仅显示当前地点的物理出口
-    const exitsSection = $('#context-exits-section');
-    const exitsEl = $('#context-exits');
-    const exits = buildSceneExits(scene);
-    if (exits.length === 0) {
-      exitsSection.style.display = 'none';
-    } else {
-      exitsSection.style.display = '';
-      exitsEl.innerHTML = exits.map((exit, i) => `
-        <div class="context-item" data-type="exit" data-index="${i}">
-          <div class="context-item-icon" style="font-size:11px;">→</div>
-          <div class="context-item-name">${exit.name}</div>
-        </div>
-      `).join('');
-      exitsEl.querySelectorAll('.context-item').forEach(el => {
-        el.addEventListener('click', () => {
-          const idx = parseInt(el.dataset.index);
-          const exit = exits[idx];
-          if (!exit || !exit.targetLocationId) return;
-
-          // 检查目标地点是否属于另一个场景
-          const targetScene = Object.values(state.data.scenes).find(
-            s => s.location === exit.targetLocationId
-          );
-          if (targetScene && targetScene.id !== state.currentSceneId) {
-            // 跨场景跳转（如洞穴房间之间）
-            navigateToScene(targetScene.id);
-          } else {
-            // 同场景内探索（如绝冬城内各地点）
-            navigateToLocation(exit.targetLocationId);
-          }
-        });
-      });
-    }
-
-    // 任务
-    const questsEl = $('#context-quests');
-    const quests = state.quests || state.data.quests;
-    const activeQuestIds = Object.keys(quests).filter(id => quests[id].status === 'active');
-    if (activeQuestIds.length === 0) {
-      questsEl.innerHTML = '<div class="context-empty">暂无任务</div>';
-    } else {
-      questsEl.innerHTML = activeQuestIds.map(id => {
-        const q = quests[id];
-        // 只显示：已完成子任务 + 第一个未完成子任务（防剧透）
-        const objectives = q.objectives || [];
-        let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
-        if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
-        const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
-
-        const subtaskHtml = visibleObjectives.length > 0 ? `
-          <div class="quest-subtasks" style="display:none;">
-            ${visibleObjectives.map((o, idx) => `
-              <div class="quest-subtask ${o.completed ? 'done' : ''}" data-quest-id="${id}" data-subtask-idx="${idx}">
-                <div class="quest-subtask-check">${o.completed ? '✓' : ''}</div>
-                <div class="quest-subtask-text">${o.description}</div>
-              </div>
-            `).join('')}
-          </div>
-        ` : '';
-
-        return `
-          <div class="context-item quest-item" data-quest-id="${id}">
-            <div class="context-item-icon" style="font-size:10px;">Q</div>
-            <div class="context-item-name">${q.name}</div>
-            ${visibleObjectives.length > 0 ? `
-              <button class="quest-expand-btn" type="button" aria-label="展开任务">
-                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
-              </button>` : ''}
-            ${subtaskHtml}
-          </div>
-        `;
-      }).join('');
-
-      // 点击任务：展开/收起子任务
-      questsEl.querySelectorAll('.quest-item').forEach(el => {
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('.quest-subtask')) return;
-          const subtasksEl = el.querySelector('.quest-subtasks');
-          if (subtasksEl) {
-            const isOpen = subtasksEl.style.display !== 'none';
-            subtasksEl.style.display = isOpen ? 'none' : 'block';
-            const btn = el.querySelector('.quest-expand-btn');
-            if (btn) btn.classList.toggle('open', !isOpen);
-          }
-        });
-      });
-
-      // 点击子任务：弹出任务详情模态框
-      questsEl.querySelectorAll('.quest-subtask').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const questId = el.dataset.questId;
-          const subtaskIdx = parseInt(el.dataset.subtaskIdx);
-          openQuestDetailModal(questId, subtaskIdx);
-        });
-      });
-    }
-  }
 
   /* ── 渲染右侧角色卡 ── */
 
-  /* 根据已装备物品计算各装备槽位内容 */
-  function computeEquippedSlots(char) {
-    const catalog = catalogs.equipment || {};
-    const slots = { helmet: null, body: null, shield: null, legs: null, boots: null, neck: null, ring1: null, ring2: null, tool: null, melee: [null, null], ranged: [null, null] };
-    // 槽位信息对象：名称 + 描述 + 属性行 + 图标名（图标从 JSON 的 icon 字段动态加载）
-    const mk = ci => ({
-      name: ci.name,
-      desc: ci.description || '',
-      props: (ci.properties && (ci.properties.damage || ci.properties.ac || ci.properties.effect)) || '',
-      icon: ci.icon || 'pouch',
-      twoHanded: !!ci.stats?.two_handed,
-    });
-    let ringCount = 0;
-    for (const item of (char.inventory?.items || [])) {
-      if (!item.equipped) continue;
-      const ci = item.equipment_id ? catalog[item.equipment_id] : null;
-      if (!ci) continue;
-      if (ci.type === 'weapon') {
-        const cat = ci.stats?.category;
-        if (cat === 'melee') {
-          if (!slots.melee[0]) slots.melee[0] = mk(ci);
-          else if (!slots.melee[1] && !slots.melee[0].twoHanded) slots.melee[1] = mk(ci);
-          // 双手武器占满两格：第二格置灰不可操作
-          if (slots.melee[0] && slots.melee[0].twoHanded) slots.melee[1] = { disabled: true };
-        }
-        if (cat === 'ranged') {
-          if (!slots.ranged[0]) slots.ranged[0] = mk(ci);
-          else if (!slots.ranged[1] && !slots.ranged[0].twoHanded) slots.ranged[1] = mk(ci);
-          if (slots.ranged[0] && slots.ranged[0].twoHanded) slots.ranged[1] = { disabled: true };
-        }
-      } else if (ci.type === 'armor') {
-        const cat = ci.stats?.category;
-        if (cat === 'shield') {
-          if (!slots.shield) slots.shield = mk(ci);
-        } else if (cat !== 'clothes') {
-          if (!slots.body) slots.body = mk(ci);
-        }
-      } else if (ci.type === 'accessory') {
-        if (ci.subtype === 'ring') {
-          if (ringCount === 0) slots.ring1 = mk(ci);
-          else if (ringCount === 1) slots.ring2 = mk(ci);
-          ringCount++;
-        } else if (ci.subtype === 'tool') {
-          if (!slots.tool) slots.tool = mk(ci);
-        }
-      }
-    }
-    return slots;
-  }
-
-  function renderSlot(iconSvg, slot) {
-    const disabled = !!slot && slot.disabled;
-    const filled = !!slot && !disabled;
-    const dataAttrs = filled
-      ? ` data-name="${escapeHtml(slot.name)}" data-description="${escapeHtml(slot.desc)}" data-props="${escapeHtml(slot.props)}"`
-      : '';
-    return `<div class="slot${filled ? ' filled' : ''}${disabled ? ' disabled' : ''}"${dataAttrs}>
-      <div class="slot-icon">${iconSvg}</div>
-      ${filled ? `<div class="slot-name">${escapeHtml(slot.name)}</div>` : ''}
-    </div>`;
-  }
-
-  async function renderRightPanel() {
-    try {
-      const char = state.character;
-      if (!char || !char.name) {
-        charCard.innerHTML = '<div class="char-card-placeholder">未选择角色<br>请在大厅创建或选择角色</div>';
-        return;
-      }
-      const slots = computeEquippedSlots(char);
-
-      // 槽位定义：空槽用默认槽图标，已装备槽用物品自身的 icon（动态加载）
-      const slotDefs = [
-        { defaultIcon: 'helmet', slot: slots.helmet },
-        { defaultIcon: 'chestplate', slot: slots.body || slots.shield },
-        { defaultIcon: 'greaves', slot: slots.legs },
-        { defaultIcon: 'boots', slot: slots.boots },
-        { defaultIcon: 'necklace', slot: slots.neck },
-        { defaultIcon: 'ring', slot: slots.ring1 },
-        { defaultIcon: 'ring', slot: slots.ring2 },
-        { defaultIcon: 'lute', slot: slots.tool },
-        { defaultIcon: 'sword', slot: slots.melee[0] },
-        { defaultIcon: 'sword', slot: slots.melee[1] },
-        { defaultIcon: 'bow', slot: slots.ranged[0] },
-        { defaultIcon: 'bow', slot: slots.ranged[1] },
-      ];
-      const rendered = await Promise.all(slotDefs.map(async d => {
-        const svg = await loadSvgIcon(d.slot && !d.slot.disabled ? d.slot.icon : d.defaultIcon);
-        return renderSlot(svg, d.slot);
-      }));
-      const [helmetSlot, bodySlot, legsSlot, bootsSlot, neckSlot, ring1Slot, ring2Slot, toolSlot, melee0Slot, melee1Slot, ranged0Slot, ranged1Slot] = rendered;
-
-      charCard.innerHTML = `
-        <div class="char-top">
-          <div class="char-portrait-row">
-            <div class="equipment-column left-slots">
-              ${helmetSlot}
-              ${bodySlot}
-              ${legsSlot}
-              ${bootsSlot}
-            </div>
-
-            <div class="portrait-mid">
-              <div class="char-name">${escapeHtml(char.name)}</div>
-              <div class="char-portrait">${escapeHtml(char.portrait || char.name[0])}</div>
-            </div>
-
-            <div class="equipment-column right-slots">
-              ${neckSlot}
-              ${ring1Slot}
-              ${ring2Slot}
-              ${toolSlot}
-            </div>
-          </div>
-
-          <div class="combat-stats">
-            <div class="combat-stat">
-              <div class="combat-stat-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <div class="combat-stat-value">${escapeHtml(String(char.combat.ac))}</div>
-              <div class="combat-stat-label">护甲等级</div>
-            </div>
-            <div class="combat-stat">
-              <div class="combat-stat-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-              </div>
-              <div class="combat-stat-value">${escapeHtml(String(char.combat.hp))}</div>
-              <div class="combat-stat-label">生命值</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="char-bottom">
-          <div class="weapon-slot-group">
-            <div class="weapon-slot-label">${escapeHtml(char.attack.melee.label)}</div>
-            <div class="weapon-slots">
-              ${melee0Slot}
-              ${melee1Slot}
-            </div>
-          </div>
-
-          <div class="char-level-badge">Lv.${escapeHtml(char.level ?? 1)}</div>
-
-          <div class="weapon-slot-group">
-            <div class="weapon-slot-label">${escapeHtml(char.attack.ranged.label)}</div>
-            <div class="weapon-slots">
-              ${ranged0Slot}
-              ${ranged1Slot}
-            </div>
-          </div>
-        </div>
-
-        <div class="attack-stats">
-          <div class="attack-weapon-group">
-            <div class="attack-value">${escapeHtml(String(char.attack.melee.bonus))}</div>
-            <div class="attack-value">${escapeHtml(String(char.attack.melee.damage))}</div>
-          </div>
-          <div class="attack-labels">
-            <div class="attack-label">攻击加值</div>
-            <div class="attack-label">伤害</div>
-          </div>
-          <div class="attack-weapon-group">
-            <div class="attack-value">${escapeHtml(String(char.attack.ranged.bonus))}</div>
-            <div class="attack-value">${escapeHtml(String(char.attack.ranged.damage))}</div>
-          </div>
-        </div>
-      `;
-    } catch (e) {
-      charCard.innerHTML = '<div class="char-card-placeholder">角色数据读取失败</div>';
-    }
-  }
+  // 共享实现见 ui/ui-panels.js；这里只把页面闭包状态喂进去
+  const renderRightPanel = () => window.renderCharCard(state.character, catalogs, charCard);
+  // 共享实现见 ui/ui-panels.js；这里只把页面闭包状态喂进去
+  const initTabs = () => window.initCharTabs();
+  const renderInventoryTab = (char) => window.renderInventoryPanel(char, catalogs, state);
+  const renderClassAttrTab = (char) => window.renderClassAttrPanel(char, catalogs);
+  const renderSkillsTab = (char) => window.renderSkillsPanel(char);
+  const renderBackgroundTab = (char) => window.renderBackgroundPanel(char);
+  const renderLocationHeader = () => window.renderLocationHeader(state);
+  const renderNarrativeLog = () => window.renderNarrativeLog(state);
+  const renderContextPanel = () => window.renderContextPanel(state, catalogs, {
+    onOpenDetail: (type, id) => openDetailModal(type, id),
+    onNavigateScene: (id) => navigateToScene(id),
+    onNavigateLocation: (id) => navigateToLocation(id),
+    onOpenQuestDetail: (qid, idx) => openQuestDetailModal(qid, idx),
+  });
+  const openQuestDetailModal = (qid, idx) => window.openQuestDetailModal(state, qid, idx);
 
   /* ── 目录数据加载 ── */
   let catalogs = {};
@@ -2783,17 +2340,6 @@
   }
 
   /* ── 标签页切换 ── */
-  function initTabs() {
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.char-tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        const target = document.getElementById('tab-' + tab.dataset.tab);
-        if (target) target.classList.add('active');
-      });
-    });
-  }
 
   /* ── 渲染所有标签页 ── */
   async function renderAllTabs() {
@@ -2875,12 +2421,12 @@
       const name = block.textContent.trim();
       if (spell) {
         let html = `<div class="item-tooltip-name">${spell.name}</div>`;
-        if (spell.school || spell.casting_time)
-          html += `<div class="item-tooltip-save">${[spell.school, spell.casting_time].filter(Boolean).join(' · ')}</div>`;
+        if (spell.school || spell.action_cost)
+          html += `<div class="item-tooltip-save">${[window.SCHOOL_LABEL?.[spell.school] || spell.school, window.ACTION_COST_LABEL?.[spell.action_cost] || spell.action_cost].filter(Boolean).join(' · ')}</div>`;
         if (spell.description)
           html += `<div class="item-tooltip-desc">${spell.description}</div>`;
         if (spell.range)
-          html += `<div class="item-tooltip-breakdown">射程：${spell.range}</div>`;
+          html += `<div class="item-tooltip-breakdown">射程：${window.rangeLabel?.(spell.range) || '—'}</div>`;
         tooltip.innerHTML = html;
       } else {
         tooltip.innerHTML = `<div class="item-tooltip-name">${name}</div><div class="item-tooltip-desc">详细描述待补充</div>`;
@@ -2942,29 +2488,16 @@
   }
 
   /* ═══ 物品栏（抄自 lobby renderInventory） ═══ */
-  const svgIconCache = {};
-
-  /* 图标文件缺失时的兜底（极简背包图标） */
-  const FALLBACK_ICON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>';
-
-  async function loadSvgIcon(iconName) {
-    if (svgIconCache[iconName] !== undefined) return svgIconCache[iconName];
-    try {
-      const res = await fetch(`/assets/icons/equipment/${iconName}.svg?v=${Date.now()}`);
-      if (!res.ok) throw new Error(`Failed to load icon ${iconName}: ${res.status}`);
-      const svgText = await res.text();
-      svgIconCache[iconName] = svgText;
-      return svgText;
-    } catch (err) {
-      console.warn('loadSvgIcon failed:', err);
-      svgIconCache[iconName] = FALLBACK_ICON_SVG;
-      return svgIconCache[iconName];
-    }
-  }
 
   function recalcCharacterStats(char) {
     // 装备穿戴效果（AC/攻击/照明）唯一换算入口：js/character/equipment-effects.js
     return window.applyEquipmentEffects(char, catalogs.equipment || {});
+  }
+
+  /* 装备/卸下后：立即刷新迷雾照明
+     （角色卡与战斗 token 是同一份对象，装备变化已直接生效，无需同步数值） */
+  function syncCombatVision() {
+    window.__combatApi?.refreshFog?.();
   }
 
   async function saveCharacter() {
@@ -3044,9 +2577,8 @@
           if (isSupplyItem) {
             await handleSupplyItemAction(action, itemId, name);
           } else {
-            const src = card.dataset.src || 'char';
             const idx = parseInt(card.dataset.idx ?? '-1', 10);
-            await handleItemAction(action, src, idx, name);
+            await handleItemAction(action, idx, name);
           }
         });
       });
@@ -3070,11 +2602,10 @@
     });
   })();
 
-  async function handleItemAction(action, src, idx, itemName) {
+  async function handleItemAction(action, idx, itemName) {
     const char = state.character;
     if (!char) return;
-    const isTemp = src === 'temp';
-    const list = isTemp ? state.tempEquipItems : (char.inventory?.items || []);
+    const list = char.inventory?.items || [];
     const item = list[idx];
     if (!item) return;
     const equipmentId = item.equipment_id;
@@ -3088,7 +2619,7 @@
         // 双手武器占满两格：装备时自动卸下同类型的其他已装备武器
         const cat = catalogItem.stats ? catalogItem.stats.category : null;
         const twoHanded = catalogItem.type === 'weapon' && !!catalogItem.stats?.two_handed;
-        const allEquip = [...(char.inventory?.items || []), ...(state.tempEquipItems || [])];
+        const allEquip = char.inventory?.items || [];
         allEquip.forEach(i => {
           if (i === item || !i.equipped) return;
           const ci = catalogs.equipment ? catalogs.equipment[i.equipment_id] : null;
@@ -3113,35 +2644,16 @@
     }
 
     recalcCharacterStats(char);
+    syncCombatVision(); // 装/卸火把等光源：立即刷新迷雾照明
     renderAllTabs();
     await renderRightPanel();
-    // 阶段测试：内存装备（temp）不持久化，刷新即消失；角色原有装备正常保存
-    if (!isTemp) await saveCharacter();
+    await saveCharacter();
   }
 
   /* 物品定义查找：先查冒险物品，再查全局装备目录（丢弃物可能是装备） */
   function findItemDef(id) {
     if (state.data.items && state.data.items[id]) return state.data.items[id];
     return (catalogs.equipment && catalogs.equipment[id]) || null;
-  }
-
-  /* 物品效果文案：道具显示 effect（heal → 回复 X 生命值）；装备显示"造成 XdY 伤害"或护甲等级。
-     章节物品（如火把/矿灯）仅引用 equipment_id，属性从全局装备库补充。 */
-  function itemEffectText(item) {
-    if (!item) return '';
-    if (item.effect) {
-      return item.effect.startsWith('heal') ? `回复 ${item.effect.slice(5)} 生命值` : item.effect;
-    }
-    const eq = item.equipment_id && catalogs.equipment ? catalogs.equipment[item.equipment_id] : null;
-    const src = (eq && (eq.stats || eq.properties)) ? eq : item;
-    if (src.stats && src.stats.damage_dice) {
-      const type = src.stats.damage_type_cn ? ` ${src.stats.damage_type_cn}` : '';
-      return `造成 ${src.stats.damage_dice}${type}伤害`;
-    }
-    // 护甲/盾牌：补全"护甲等级"描述（如"11 + 敏捷调整值"、"＋2"）
-    if (src.properties && src.properties.ac) return `护甲等级 ${src.properties.ac}`;
-    if (src.properties) return src.properties.damage || '';
-    return '';
   }
 
   /* 丢弃物品到当前地点：落后端世界状态 + 前端本地记录（左侧物品列表显示） */
@@ -3191,14 +2703,12 @@
       await callSellItem(currentTradeNpcId, itemId);
       if (tradeModalOverlay.classList.contains('active')) await renderTradeModal();
     } else if (action === 'use') {
-      if (!item || !item.effect) {
+      if (!item || !item.use?.effect) {
         appendLog('system', '该道具无法使用。');
         return;
       }
-      const combat = char.combat || { ac: 10, hp: '0 / 0' };
-      const parts = String(combat.hp).split('/');
-      const curHp = parseInt(parts[0]) || 0;
-      const maxHp = parseInt(parts[1]) || curHp;
+      const curHp = char.combat?.hp?.cur ?? 0;
+      const maxHp = char.combat?.hp?.max ?? curHp;
       // 通知后端解析效果并消耗道具（heal 由后端掷骰并按 HP 截断，返回实际恢复值与文案）
       try {
         const res = await fetch('/api/game/use_item', {
@@ -3254,6 +2764,7 @@
       const actorName = (state.character && state.character.name) || '你';
       appendLog('gm', `${actorName} 装备了 ${item.name}。`);
       recalcCharacterStats(char);
+      syncCombatVision(); // 装/卸火把等光源：立即刷新迷雾照明
       await renderAllTabs();
       await renderRightPanel();
       await saveCharacter();
@@ -3268,228 +2779,53 @@
     }
   }
 
-  async function renderInventoryTab(char) {
-    const catalog = catalogs.equipment || {};
-    const items = char.inventory?.items || [];
-    const gold = char.inventory?.gold || 0;
-    const invItems = state.playerInventory || [];
-    // 装备栏 = 角色已保存装备 + 阶段测试拿取的内存装备（刷新即消失）
-    const tempItems = state.tempEquipItems || [];
-    const equipItems = [
-      ...items.map((it, i) => ({ ...it, src: 'char', idx: i })),
-      ...tempItems.map((it, i) => ({ ...it, src: 'temp', idx: i })),
-    ];
-    let itemsHtml;
-    let emptyDiv = '';
-    if (equipItems.length === 0) {
-      itemsHtml = '';
-      if (invItems.length === 0) emptyDiv = '<div class="inv-empty">背包空空如也</div>';
-    } else {
-      const itemsWithSvg = await Promise.all(equipItems.map(async item => {
-        const catalogItem = item.equipment_id ? catalog[item.equipment_id] : null;
-        const displayName = catalogItem ? catalogItem.name : (item.name || '未知物品');
-        const iconName = catalogItem ? catalogItem.icon : 'pouch';
-        const iconSvg = await loadSvgIcon(iconName);
-        const description = catalogItem ? catalogItem.description : '';
-        const props = catalogItem ? itemEffectText(catalogItem) : '';
-        return { ...item, displayName, iconSvg, description, props };
-      }));
-      itemsHtml = itemsWithSvg.map(item => `
-        <div class="item-card" data-src="${item.src}" data-idx="${item.idx}" data-equipment-id="${escapeHtml(item.equipment_id || '')}" data-name="${escapeHtml(item.displayName)}" data-description="${escapeHtml(item.description)}" data-props="${escapeHtml(item.props)}">
-          <div class="item-top">
-            <div class="item-icon">${item.iconSvg}</div>
-            <div class="item-info">
-              <div class="item-name">${escapeHtml(item.displayName)}</div>
-            </div>
-          </div>
-          ${item.equipped ? '<div class="item-equipped">已装备</div>' : ''}
-          <div class="item-quantity">x${item.quantity || 1}</div>
-        </div>
-      `).join('');
-    }
-    // 道具区（后端运行时背包 playerInventory，数量按 id 聚合）
-    let supplyHtml = '';
-    if (invItems.length > 0) {
-      const counts = {};
-      invItems.forEach(iid => counts[iid] = (counts[iid] || 0) + 1);
-      const supplyRows = await Promise.all(Object.entries(counts).map(async ([iid, n]) => {
-        const sub = state.data.items[iid];
-        const name = sub ? sub.name : iid;
-        const desc = sub ? sub.description : '';
-        const iconSvg = await loadSvgIcon((sub && sub.icon) || 'pouch');
-        return `
-          <div class="item-card" data-kind="item" data-item-id="${escapeHtml(iid)}" data-name="${escapeHtml(name)}" data-description="${escapeHtml(desc)}" data-props="">
-            <div class="item-top">
-              <div class="item-icon">${iconSvg}</div>
-              <div class="item-info">
-                <div class="item-name">${escapeHtml(name)}</div>
-              </div>
-            </div>
-            <div class="item-quantity">x${n}</div>
-          </div>`;
-      }));
-      supplyHtml = `
-        <div class="inv-supplies-title">道具</div>
-        <div class="items-grid">${supplyRows.join('')}</div>`;
-    }
-    // 装备区：装备类物品单独成栏
-    const equipHtml = items.length > 0 ? `
-        <div class="inv-supplies-title">装备</div>
-        <div class="items-grid">${itemsHtml}</div>` : '';
-    return `
-      <div class="inventory-panel">
-        <div class="inventory-header">
-          <div class="inventory-title">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            背包物资
-          </div>
-          <div class="inventory-gold">${gold} G</div>
-        </div>
-        ${emptyDiv}
-        ${equipHtml}
-        ${supplyHtml}
-      </div>
-    `;
-  }
 
   /* ═══ 职业特性（抄自 lobby renderClassAttr） ═══ */
-  function renderClassAttrTab(char) {
-    const features = catalogs.features || {};
-    const classes = catalogs.classes || {};
-    const classData = char.class_id ? classes[char.class_id] : null;
-    const subclassData = classData && char.subclass_id ? (classData.subclasses || {})[char.subclass_id] : null;
-
-    const statusItems = (char.features?.status_ids || []).map(id => features.status ? features.status[id] : null).filter(Boolean);
-    const resistanceItems = (char.features?.resistance_ids || []).map(id => features.resistances ? features.resistances[id] : null).filter(Boolean);
-    const classFeatureItems = (char.features?.class_feature_ids || []).map(id => features.class_features ? features.class_features[id] : null).filter(Boolean);
-    const traitItems = (char.features?.trait_ids || []).map(id =>
-      (features.traits && features.traits[id]) || (features.racial && features.racial[id]) || null
-    ).filter(Boolean);
-
-    const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-    const abilityHtml = abilityOrder.map(key => {
-      const a = char.abilities[key];
-      return `<div class="ability">
-        <div class="ability-star">${a.highlighted ? '&#9733;' : ''}</div>
-        <div class="ability-label">${escapeHtml(a.label)}</div>
-        <div class="ability-value ${a.highlighted ? 'highlighted' : ''}">${a.value}</div>
-      </div>`;
-    }).join('');
-
-    const featSection = (title, items) => items.length
-      ? `<div class="divider"><span>${title}</span></div><ul class="feature-list">${items.map(f => `<li>${escapeHtml(f.name)} <span class="feature-arrow"><svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg></span></li><div class="feature-detail">${escapeHtml(f.description || '')}</div>`).join('')}</ul>`
-      : '';
-
-    const raceName = char.background?.race || '';
-    const className = classData ? classData.name : (char.class || '');
-    return `
-      <div class="class-panel">
-        <div class="class-race">${escapeHtml(raceName)}</div>
-        <div class="class-icon">${escapeHtml(classData ? (classData.icon || '') : '')}</div>
-        <div class="class-subclass">${escapeHtml(subclassData ? subclassData.name : '')}</div>
-        <div class="class-level">等级${char.level || 1} ${escapeHtml(className)}</div>
-
-        <div class="ability-scores">${abilityHtml}</div>
-        ${featSection('状态', statusItems)}
-        ${featSection('抗性', resistanceItems)}
-        ${featSection('职业特性', classFeatureItems)}
-        ${featSection('重要特性', traitItems)}
-      </div>
-    `;
-  }
 
   /* ═══ 熟练加值（抄自 lobby renderSkills） ═══ */
-  function renderSkillsTab(char) {
-    const sections = char.skills?.sections || [];
-    const pb = char.skills?.proficiency_bonus || '+2';
-    return `
-      <div class="prof-bonus"><span class="star">★</span>熟练项加值 (${escapeHtml(pb)})</div>
-      ${sections.map(section => `
-        <div class="divider"><span>${escapeHtml(section.ability)} (${escapeHtml(section.modifier)})</span></div>
-        ${section.skills.map(skill => `
-          <div class="skill-row">
-            <span class="skill-name">${escapeHtml(skill.name)}</span>
-            <span class="skill-value ${skill.type}">${escapeHtml(skill.value)}</span>
-          </div>
-        `).join('')}
-      `).join('')}
-    `;
-  }
 
   /* ═══ 技能&法术（抄自 lobby renderSpells） ═══ */
   function renderSpellsTab(char) {
-    const spells = catalogs.spells || {};
-
-    // 构建快速查找表
-    window.spellLookup = {};
-    const addLookup = (catalog) => { if (catalog) Object.entries(catalog).forEach(([id, s]) => { window.spellLookup[id] = s; }); };
-    addLookup(spells.actions?.normal);
-    addLookup(spells.actions?.class);
-    addLookup(spells.passive);
-    addLookup(spells.spells?.level_1);
-    addLookup(spells.cantrips);
-
-    const lookupNames = (ids, catalog) =>
-      (ids || []).map(id => (catalog && catalog[id]) ? catalog[id].name : id);
-
-    const normalItems = lookupNames((char.spells?.action_ids || {}).normal || [], spells.actions?.normal);
-    const classItems  = lookupNames((char.spells?.action_ids || {}).class || [], spells.actions?.class);
-    const passiveItems = lookupNames(char.spells?.passive_ids || [], spells.passive);
+    const vm = buildSpellViewModel(char, catalogs, { state });
 
     // 判断某法术/动作的交互类型：
     //  - 'self'  → 自身目标（跳跃/冲刺/回气等），点击直接使用
     //  - 'target' → 需要在地图上选目标（普攻/远程法术/触碰治疗）
     const kindOf = (spellId) => {
-      const s = window.spellLookup[spellId];
+      const s = vm.lookup[spellId];
       if (!s) return 'self';
-      const range = String(s.range || '').trim();
-      if (range === '自身' || range === '') return 'self';
-      return 'target';
+      return s.range?.kind === 'self' ? 'self' : 'target';
     };
 
-    // 动作类型角标：读 spells.json action_type（附赠动作=bonus / 1动作=action / 自由动作=free）
-    // 法术（戏法/1环）施法时间默认 1 动作
-    const costOfSpell = (spellId) => {
-      const t = window.spellLookup[spellId]?.action_type;
-      if (t === '附赠动作') return 'bonus';
-      if (t === '自由动作') return 'free';
-      return 'action';
-    };
+    // 动作类型角标：读 spells.json action_cost（附赠动作=bonus / 1动作=action / 自由动作=free）
+    const costOf = (spellId) => vm.lookup[spellId]?.action_cost || 'action';
     const costTag = (cost) =>
       cost === 'bonus' ? '<small class="cost-tag bonus">附赠</small>'
       : cost === 'free' ? '<small class="cost-tag">自由</small>'
       : '<small class="cost-tag">动作</small>';
 
-    const renderBlock = (name, spellId) => {
-      const k = kindOf(spellId);
-      const cost = costOfSpell(spellId);
-      return `<div class="skill-block combat-action" data-action-kind="${k}" data-cost="${cost}" data-spell-id="${escapeHtml(spellId || '')}">${escapeHtml(name)}${costTag(cost)}</div>`;
+    // 战斗页是「操作台」：胶囊额外携带 data-action-kind / data-cost 供 combat 逻辑识别
+    const actionBlock = (item) => {
+      const k = kindOf(item.id);
+      const cost = costOf(item.id);
+      return `<div class="skill-block combat-action" data-action-kind="${k}" data-cost="${cost}" data-spell-id="${escapeHtml(item.id)}">${escapeHtml(item.name)}${costTag(cost)}</div>`;
+    };
+    const spellBlock = (item) => {
+      const k = kindOf(item.id);
+      const cost = costOf(item.id);
+      return `<div class="skill-block spell-block combat-action" data-action-kind="${k}" data-cost="${cost}" data-action-type="spell" data-spell-id="${escapeHtml(item.id)}">${escapeHtml(item.name)}${costTag(cost)}</div>`;
     };
 
-    const renderGroup = (list, catalog) => {
-      return list.map(item => {
-        const entries = catalog ? Object.entries(catalog) : [];
-        const found = entries.find(([, v]) => v.name === item);
-        return renderBlock(item, found ? found[0] : '');
-      }).join('');
-    };
-
-    const section = (title, items, catalog) => items.length
-      ? `<div class="divider"><span>${title}</span></div><div class="skill-grid">${renderGroup(items, catalog)}</div>`
-      : '';
-
-    // ── 普攻按钮（近战 / 远程，基于角色卡攻击数据）──
-    const melee = char.attack?.melee || {};
-    const ranged = char.attack?.ranged || {};
+    // ── 普攻按钮（近战 / 远程，基于角色卡 combat.attacks.current）──
+    const melee = primaryAttack(char, 'melee');
+    const ranged = primaryAttack(char, 'ranged');
+    const meleeButton = `<div class="skill-block combat-action" data-action-kind="target" data-cost="action" data-action-type="attack" data-attack-kind="melee">${escapeHtml(melee.name || '近战')}攻击 <small style="opacity:.7">(${escapeHtml(bonusText(melee.bonus))} / ${escapeHtml(melee.damage || '—')})</small>${costTag('action')}</div>`;
+    const rangedButton = ranged.name ? `<div class="skill-block combat-action" data-action-kind="target" data-cost="action" data-action-type="attack" data-attack-kind="ranged">${escapeHtml(ranged.name)}攻击 <small style="opacity:.7">(${escapeHtml(bonusText(ranged.bonus))} / ${escapeHtml(ranged.damage || '—')})</small>${costTag('action')}</div>` : '';
     const attackButtons = `
       <div class="divider"><span>攻击</span></div>
       <div class="skill-grid">
-        <div class="skill-block combat-action" data-action-kind="target" data-cost="action" data-action-type="attack" data-attack-kind="melee">近战攻击 <small style="opacity:.7">(${escapeHtml(String(melee.bonus || '+0'))} / ${escapeHtml(String(melee.damage || '—'))})</small>${costTag('action')}</div>
-        <div class="skill-block combat-action" data-action-kind="target" data-cost="action" data-action-type="attack" data-attack-kind="ranged">远程攻击 <small style="opacity:.7">(${escapeHtml(String(ranged.bonus || '+0'))} / ${escapeHtml(String(ranged.damage || '—'))})</small>${costTag('action')}</div>
+        ${meleeButton}
+        ${rangedButton}
       </div>`;
 
     // 非致命打击开关（session 内存，调用 main.js 的 __combatApi.setNonlethal）
@@ -3498,159 +2834,34 @@
     const nonlethalOn = (typeof window.__combatApi?.getNonlethal === 'function')
       ? window.__combatApi.getNonlethal() : false;
     const nonlethalBlock = `<div class="skill-block nonlethal-toggle ${nonlethalOn ? 'active' : ''}" id="nonlethal-toggle" onclick="toggleNonlethal()" data-nl="1">非致命打击</div>`;
-
-    // ── 法术环：戏法（0 环，无限施放，不消耗法术位）+ 1 环（消耗法术位，长休恢复）──
-    const casterLevel = (char.spells?.caster_level) || 1;
-    const slotMax1 = casterLevel >= 2 ? 3 : 2;  // 与后端 spell_slot_max 一致（简化：1 级 2 个、2 级 3 个）
-    const slotUsed1 = (state.spellSlotsUsed || {})[1] || 0;
-
-    const renderSpellBlock = (spellId) => {
-      const s = window.spellLookup[spellId];
-      const name = s ? s.name : spellId;
-      const k = kindOf(spellId);
-      const cost = costOfSpell(spellId);
-      return `<div class="skill-block spell-block combat-action" data-action-kind="${k}" data-cost="${cost}" data-action-type="spell" data-spell-id="${escapeHtml(spellId)}">${escapeHtml(name)}${costTag(cost)}</div>`;
-    };
-    const renderSpellGroup = (ids) => (ids || []).map(renderSpellBlock).join('');
-
-    const spellL1 = (char.spells?.spell_ids || {}).level_1 || [];
-    const cantrips = char.cantrip_ids || [];
-    const slotText1 = `${Math.max(0, slotMax1 - slotUsed1)} / ${slotMax1}`;
+    const passiveBlock = (item) => `<div class="skill-block passive-skill">${escapeHtml(item.name)}</div>`;
 
     return `
       ${attackButtons}
-      ${section('常规动作', normalItems, spells.actions?.normal)}
-      ${section('职业动作', classItems, spells.actions?.class)}
-      ${passiveItems.length || nonlethalBlock ? `<div class="divider"><span>被动技能</span></div><div class="skill-grid">${nonlethalBlock}${passiveItems.map(name => `<div class="skill-block passive-skill">${escapeHtml(name)}</div>`).join('')}</div>` : ''}
-      ${cantrips.length ? `<div class="divider"><span>戏法 · 无限施放</span></div><div class="skill-grid">${renderSpellGroup(cantrips)}</div>` : ''}
-      ${spellL1.length ? `<div class="divider"><span>1 环法术 · 法术位 ${slotText1}</span></div><div class="skill-grid">${renderSpellGroup(spellL1)}</div>` : ''}
+      ${spellSection('常规动作', vm.normalItems, actionBlock)}
+      ${spellSection('职业动作', vm.classItems, actionBlock)}
+      ${vm.passiveItems.length || nonlethalBlock ? `<div class="divider"><span>被动技能</span></div><div class="skill-grid">${nonlethalBlock}${vm.passiveItems.map(passiveBlock).join('')}</div>` : ''}
+      ${spellSection('戏法 · 无限施放', vm.cantrips, spellBlock)}
+      ${spellSection(`1 环法术 · 法术位 ${vm.slotText1}`, vm.spellsL1, spellBlock)}
     `;
   }
 
   /* ═══ 人物背景（抄自 lobby renderBackground） ═══ */
-  function renderBackgroundTab(char) {
-    const bg = char.background;
-    const labelMap = { move_speed:'移动速度', darkvision:'黑暗视觉范围', ranged_range:'远程攻击范围', melee_range:'近战攻击范围', throw_range:'投掷范围', size:'体型', weight:'重量', carry_weight:'负重' };
-    const attrsHtml = Object.entries(bg.attributes || {}).map(([k, v]) =>
-      `<div class="bg-info-row"><span class="bg-info-label">${labelMap[k] || k}</span><span class="bg-info-value">${escapeHtml(String(v))}</span></div>`
-    ).join('');
-
-    const saveAbilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-    const saveHtml = saveAbilities.map(key => {
-      const a = char.abilities[key];
-      return `<div class="ability"><div class="ability-label">${escapeHtml(a.label)}</div><div class="ability-value highlighted">${escapeHtml(a.save_bonus)}</div></div>`;
-    }).join('');
-
-    const traitMap = { personality:'个人特点', ideal:'理想', bond:'牵绊', flaw:'缺点' };
-    const traitsHtml = Object.entries(bg.traits || {}).map(([k, text]) =>
-      `<div class="bg-trait"><div class="bg-trait-title">${traitMap[k] || k}</div><div class="bg-trait-text">${escapeHtml(text || '—')}</div></div>`
-    ).join('');
-
-    return `
-      <div class="divider"><span>属性</span></div>
-      ${attrsHtml}
-      <div class="divider"><span>豁免</span></div>
-      <div class="ability-scores">${saveHtml}</div>
-      <div class="divider"><span>背景</span></div>
-      ${traitsHtml}
-    `;
-  }
 
   /* ── 详情弹窗 ── */
   let currentModalType = null;
   let currentModalId = null;
 
-  async function openDetailModal(type, id, extra) {
+  // 详情弹窗：共享实现见 ui/ui-panels.js
+  const openDetailModal = (type, id, extra) => {
     currentModalType = type;
     currentModalId = id;
-    let title = '';
-    let meta = '';
-    let desc = '';
-    let avatar = '?';
-    let extraContent = '';
-
-    switch (type) {
-      case 'npc': {
-        const npc = state.data.npcs[id];
-        if (!npc) return;
-        title = npc.name;
-        meta = `${npc.race || ''} · ${npc.role || ''}`;
-        desc = npc.description || '';
-        avatar = npc.name[0];
-
-        // 状态徽章（已死亡/昏迷/已离开）
-        const npcStatus = state.npcStates?.[id]?.status;
-        if (npcStatus && NPC_STATUS_SUFFIX[npcStatus]) {
-          meta += ` <span class="npc-status-badge npc-status-${npcStatus}">${NPC_STATUS_SUFFIX[npcStatus]}</span>`;
-        }
-
-        // 带 merchant 字段的 NPC 可交易
-        if (npc.merchant) {
-          extraContent += `
-            <button type="button" class="trade-btn trade-open" data-npc="${id}" style="width:100%; padding:9px 0; font-size:14px;">交易</button>`;
-        }
-        break;
-      }
-      case 'item': {
-        const item = findItemDef(id);
-        if (!item) return;
-        title = item.name;
-        meta = item.type || '';
-        desc = item.description || '';
-        avatar = 'I';
-        extraContent = await buildItemModalExtra(id, item);
-        break;
-      }
-      case 'exit': {
-        const targetLoc = state.data.locations[id];
-        title = extra.name || '出口';
-        meta = extra.description || '';
-        desc = targetLoc ? `通往: ${targetLoc.name}` : '';
-        avatar = '→';
-        break;
-      }
-      case 'location': {
-        const loc = state.data.locations[id];
-        if (!loc) return;
-        title = loc.name;
-        meta = loc.type || '';
-        desc = loc.description || '';
-        avatar = loc.name[0];
-        break;
-      }
-    }
-
-    modalContent.innerHTML = `
-      <div class="modal-header">
-        <div class="modal-avatar">${avatar}</div>
-        <div>
-          <div class="modal-name">${title}</div>
-          <div class="modal-meta">${meta}</div>
-        </div>
-      </div>
-      <div class="modal-desc">${desc.replace(/\n/g, '<br>')}</div>
-      ${extraContent}
-    `;
-
-    modalContent.querySelectorAll('.take-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        const containerId = btn.dataset.container || null;
-        const itemId = btn.dataset.item;
-        await callTakeItem(containerId, itemId);
-      });
+    return window.openDetailModal(state, catalogs, type, id, extra, {
+      buildItemExtra: (itemId, item) => buildItemModalExtra(itemId, item),
+      onTakeItem: (containerId, itemId) => callTakeItem(containerId, itemId),
+      onTrade: (npcId) => { closeDetailModal(); openTradeModal(npcId); },
     });
-
-    // 交易按钮：关闭详情弹窗后打开交易弹窗
-    modalContent.querySelectorAll('.trade-open').forEach(btn => {
-      btn.addEventListener('click', () => {
-        closeDetailModal();
-        openTradeModal(btn.dataset.npc);
-      });
-    });
-
-    modalOverlay.classList.add('active');
-  }
+  };
 
   /* 物品详情附加内容：容器显示内含物品，普通无主物品显示拿取按钮 */
   async function buildItemModalExtra(itemId, item) {
@@ -3677,7 +2888,7 @@
           const sub = state.data.items[cid];
           if (!sub) return '';
           const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
-          const props = itemEffectText(sub);
+          const props = itemEffectText(sub, catalogs.equipment || {});
           return `
             <div class="inv-box-item" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
               <div class="item-icon">${iconSvg}</div>
@@ -3721,9 +2932,10 @@
       const item = state.data.items[itemId];
       const actorName = (state.character && state.character.name) || '你';
       appendLog('gm', `${actorName} 拿取了 ${item ? item.name : itemId}${containerId ? '。' : '，收进背包。'}`);
-      if (data.is_equipment && item && item.equipment_id) {
-        // 阶段测试：拿取的装备进前端内存（刷新页面即消失，不持久化到角色卡）
-        state.tempEquipItems.push({ equipment_id: item.equipment_id, quantity: 1, equipped: false });
+      if (data.is_equipment && item && item.equipment_id && state.character) {
+        // 装备类：直接写入角色卡装备栏（内存，测试阶段不持久化，刷新即回退）
+        state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+        state.character.inventory.items.push({ equipment_id: item.equipment_id, quantity: 1, equipped: false });
       }
       if (!containerId) {
         // 普通物品：从当前地点本地移除并记录（切场景回来不重复显示）
@@ -3750,266 +2962,7 @@
     }
   }
 
-  let expandedQuestIds = new Set();
-  let selectedSubtask = null;
 
-  function openQuestDetailModal(questId, subtaskIdx) {
-    const questsRaw = state.quests || state.data.quests;
-
-    // 构建任务列表（排除 hidden）
-    const allQuests = Object.values(questsRaw)
-      .filter(q => q.status !== 'hidden')
-      .map(q => ({
-        id: q.id,
-        title: q.name,
-        description: q.description,
-        completed: q.status === 'completed' || (q.objectives && q.objectives.length > 0 && q.objectives.every(o => o.completed)),
-        objectives: (q.objectives || []).map(o => ({ text: o.description, description: o.description, completed: o.completed })),
-        reward: q.reward,
-      }));
-
-    const activeQuests = allQuests.filter(q => !q.completed);
-    const completedQuests = allQuests.filter(q => q.completed);
-
-    let selectedQuestId = questId;
-    expandedQuestIds = new Set([questId]);
-    selectedSubtask = subtaskIdx != null ? { questId: questId, subtaskIdx } : null;
-
-    function renderSidebar() {
-      let html = '';
-
-      if (activeQuests.length > 0) {
-        html += `
-          <div class="task-category" data-category="active">
-            <div class="task-category-title" data-category-toggle="active">
-              <span>进行中</span>
-              <span class="task-category-arrow">
-                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
-              </span>
-            </div>
-            <div class="task-category-list">
-              ${activeQuests.map(q => renderNavItem(q)).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      if (completedQuests.length > 0) {
-        html += `
-          <div class="task-category" data-category="completed">
-            <div class="task-category-title" data-category-toggle="completed">
-              <span>已完成任务</span>
-              <span class="task-category-arrow">
-                <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
-              </span>
-            </div>
-            <div class="task-category-list">
-              ${completedQuests.map(q => renderNavItem(q)).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      return html;
-    }
-
-    function buildSubtaskRows(quest) {
-      if (!quest.objectives || quest.objectives.length === 0) return '';
-      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
-      let fiIdx = quest.objectives.findIndex(o => !o.completed);
-      if (fiIdx === -1) fiIdx = quest.objectives.length;
-      const visibleObjs = quest.objectives.slice(0, fiIdx + 1);
-      return visibleObjs.map((st, idx) => {
-        const subCompleted = st.completed ? ' completed' : '';
-        const subActive = selectedSubtask && selectedSubtask.questId === quest.id && selectedSubtask.subtaskIdx === idx ? ' active' : '';
-        const subName = st.text + (st.completed ? '（已完成）' : '');
-        return `
-          <div class="task-sub-nav-item${subCompleted}${subActive}" data-quest-id="${quest.id}" data-subtask-idx="${idx}">
-            <span class="sub-nav-dot"></span>
-            <span class="task-sub-nav-name">${escapeHtml(subName)}</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderNavItem(quest) {
-      const isActive = quest.id === selectedQuestId;
-      const completedClass = quest.completed ? ' task-completed' : '';
-      const statusText = quest.completed ? '已完成' : '进行中';
-      const statusClass = quest.completed ? 'completed' : 'ongoing';
-      const hasSubtasks = quest.objectives && quest.objectives.length > 0;
-      const isExpanded = expandedQuestIds.has(quest.id);
-      const expandClass = isExpanded ? ' expanded' : '';
-      const noExpandClass = !hasSubtasks ? ' no-expand' : '';
-
-      const subtaskRows = hasSubtasks && isExpanded ? buildSubtaskRows(quest) : '';
-
-      return `
-        <div class="task-nav-item${isActive ? ' active' : ''}${completedClass}${expandClass}${noExpandClass}" data-quest-id="${quest.id}">
-          <span class="task-nav-name">${escapeHtml(quest.title)}</span>
-          <span class="task-nav-status ${statusClass}">${statusText}</span>
-          ${hasSubtasks ? `
-            <span class="task-nav-arrow">
-              <svg viewBox="0 0 12 8"><polyline points="2,2 6,6 10,2"></polyline></svg>
-            </span>
-          ` : ''}
-        </div>
-        ${subtaskRows}
-      `;
-    }
-
-    function renderQuestDetail(quest) {
-      const tagClass = quest.completed ? 'completed' : 'ongoing';
-      const tagText = quest.completed ? '已完成' : '进行中';
-      const objectives = quest.objectives || [];
-
-      // 防剧透：只显示已完成子任务 + 第一个未完成子任务
-      let firstIncompleteIdx = objectives.findIndex(o => !o.completed);
-      if (firstIncompleteIdx === -1) firstIncompleteIdx = objectives.length;
-      const visibleObjectives = objectives.slice(0, firstIncompleteIdx + 1);
-
-      let subtasksHtml = '';
-      if (visibleObjectives.length > 0) {
-        subtasksHtml = `
-          <div class="task-section-title">阶段目标</div>
-          <div class="task-subtasks">
-            ${visibleObjectives.map(st => `
-              <div class="subtask${st.completed ? ' completed' : ''}">
-                <div class="subtask-check">
-                  ${st.completed
-                    ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>'
-                    : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>'}
-                </div>
-                <div class="subtask-text">${escapeHtml(st.text)}${st.completed ? '（已完成）' : ''}</div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      }
-
-      return `
-        <div class="task-detail-header">
-          <div class="task-detail-tag ${tagClass}">${tagText}</div>
-          <h2>${escapeHtml(quest.title)}</h2>
-        </div>
-        <div class="task-detail-body">
-          ${subtasksHtml}
-          <div class="task-description">${escapeHtml(quest.description || '')}</div>
-        </div>
-      `;
-    }
-
-    function renderSubtaskDetail(qid, idx) {
-      const quest = allQuests.find(q => q.id === qid);
-      if (!quest) return '';
-      const st = quest.objectives && quest.objectives[idx];
-      if (!st) return '';
-
-      const tagClass = st.completed ? 'completed' : 'ongoing';
-      const tagText = st.completed ? '已完成' : '进行中';
-
-      return `
-        <div class="task-detail-header">
-          <div class="task-detail-tag ${tagClass}">${tagText}</div>
-          <h2>${escapeHtml(st.text)}</h2>
-        </div>
-        <div class="task-detail-body">
-          <div class="task-description">${escapeHtml(st.description || '详细描述待补充。')}</div>
-        </div>
-      `;
-    }
-
-    function renderDetail() {
-      if (selectedSubtask) {
-        return renderSubtaskDetail(selectedSubtask.questId, selectedSubtask.subtaskIdx);
-      }
-      const curQ = allQuests.find(q => q.id === selectedQuestId);
-      return curQ ? renderQuestDetail(curQ) : '';
-    }
-
-    function bindSubtaskEl(sub) {
-      sub.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const qid = sub.dataset.questId;
-        const idx = parseInt(sub.dataset.subtaskIdx);
-        selectedQuestId = qid;
-        selectedSubtask = { questId: qid, subtaskIdx: idx };
-        refreshModal();
-      });
-    }
-
-    function refreshModal() {
-      modalContent.innerHTML = `
-        <div class="task-columns">
-          <div class="task-sidebar">${renderSidebar()}</div>
-          <div class="task-detail" id="task-modal-detail">${renderDetail()}</div>
-        </div>
-      `;
-
-      // 分类折叠/展开
-      modalContent.querySelectorAll('.task-category-title').forEach(title => {
-        title.addEventListener('click', () => {
-          const category = title.closest('.task-category');
-          if (category) category.classList.toggle('collapsed');
-        });
-      });
-
-      // 任务项点击
-      modalContent.querySelectorAll('.task-nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-          const qid = item.dataset.questId;
-          const arrowEl = item.querySelector('.task-nav-arrow');
-
-          if (arrowEl && arrowEl.contains(e.target)) {
-            // 切换展开/折叠（局部操作，保证箭头旋转动画生效）
-            const willExpand = !expandedQuestIds.has(qid);
-            if (willExpand) expandedQuestIds.add(qid);
-            else expandedQuestIds.delete(qid);
-            item.classList.toggle('expanded', willExpand);
-
-            // 局部插入/移除子任务行，避免整块重渲染导致动画失效
-            if (willExpand) {
-              const quest = allQuests.find(q => q.id === qid);
-              item.insertAdjacentHTML('afterend', buildSubtaskRows(quest));
-              let nxt = item.nextElementSibling;
-              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
-                bindSubtaskEl(nxt);
-                nxt = nxt.nextElementSibling;
-              }
-            } else {
-              let nxt = item.nextElementSibling;
-              while (nxt && nxt.classList.contains('task-sub-nav-item')) {
-                const cur = nxt;
-                nxt = nxt.nextElementSibling;
-                cur.remove();
-              }
-            }
-
-            if (selectedSubtask && selectedSubtask.questId === qid) {
-              selectedSubtask = null;
-            }
-            selectedQuestId = qid;
-            const detailEl = modalContent.querySelector('#task-modal-detail');
-            if (detailEl) detailEl.innerHTML = renderDetail();
-            return;
-          }
-
-          // 普通点击——选中任务
-          selectedQuestId = qid;
-          selectedSubtask = null;
-          expandedQuestIds.add(qid);
-          refreshModal();
-        });
-      });
-
-      // 子任务项点击
-      modalContent.querySelectorAll('.task-sub-nav-item').forEach(bindSubtaskEl);
-    }
-
-    refreshModal();
-    $('#detail-modal').classList.add('task-panel');
-    modalOverlay.classList.add('active');
-  }
 
   function closeDetailModal() {
     currentModalType = null;
@@ -4062,7 +3015,7 @@
       const sub = findItemDef(entry.item_id);
       if (!sub) return '';
       const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
-      const props = itemEffectText(sub);
+      const props = itemEffectText(sub, catalogs.equipment || {});
       const stockLeft = entry.stock == null ? null : Math.max(0, entry.stock - (soldMap[entry.item_id] || 0) - (stolenMap[entry.item_id] || 0));
       if (stockLeft === 0) return ''; // 售罄的商品直接从货架移除
       const stockText = stockLeft != null ? `<span class="trade-item-qty">剩余${stockLeft}</span>` : '';
@@ -4087,7 +3040,7 @@
       const offer = merchantOffer(npc, iid);
       if (offer == null) return '';
       const iconSvg = await loadSvgIcon(sub.icon || 'pouch');
-      const props = itemEffectText(sub);
+      const props = itemEffectText(sub, catalogs.equipment || {});
       return `
         <div class="trade-item" data-sell="${escapeHtml(iid)}" data-name="${escapeHtml(sub.name)}" data-description="${escapeHtml(sub.description || '')}" data-props="${escapeHtml(props)}">
           <div class="item-icon">${iconSvg}</div>
@@ -4224,12 +3177,14 @@
         state.character.inventory = state.character.inventory || { gold: 0, items: [] };
         state.character.inventory.gold = data.gold;
       }
-      if (data.is_equipment) {
+      if (data.is_equipment && state.character) {
         const item = findItemDef(itemId);
         if (item) {
           // 全局装备库物品没有 equipment_id 字段，直接用 item_id 作为装备索引
           const eqId = item.equipment_id || itemId;
-          state.tempEquipItems.push({ equipment_id: eqId, quantity: 1, equipped: false });
+          // 装备类：直接写入角色卡装备栏（内存，测试阶段不持久化，刷新即回退）
+          state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+          state.character.inventory.items.push({ equipment_id: eqId, quantity: 1, equipped: false });
         }
       }
       // 静默记录交易，关闭交易弹窗时统一播报
@@ -4556,38 +3511,6 @@
   $$('.check-btn').forEach(btn => {
     btn.addEventListener('click', () => handleQuickCheck(btn.dataset.check));
   });
-
-  /* ── 施放法术（前端按钮，确定性结算；对指定目标请在聊天框输入"施放X 打向 Y"）── */
-  async function castSpellFromButton(spellId) {
-    if (!state.character) {
-      appendLog('system', '未选择角色，无法施法。');
-      return;
-    }
-    try {
-      const res = await fetch('/api/game/cast_spell', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          adventure_id: ADVENTURE_ID,
-          chapter_id: CHAPTER_ID,
-          spell_id: spellId,
-          character: state.character,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || '施法失败');
-      applyGameUpdates(data.updates);
-      appendLog('gm', data.message);
-      if (data.damage) {
-        appendLog('system', '若要对指定目标施放，请在聊天框输入：施放法术名 打向 目标名');
-      }
-      await renderAllTabs();
-      await renderRightPanel();
-    } catch (err) {
-      appendLog('system', `施法失败: ${err.message}`);
-    }
-  }
 
   // 动作经济：按剩余预算刷新动作按钮置灰（动作/附赠耗尽、回气/动作如潮已用、敌人回合锁定）
   function refreshCombatButtons() {
@@ -4922,6 +3845,15 @@
                 watchSuspicion(data.updates);
               }
 
+              // 偷窃得手的装备：直接写入角色卡装备栏（与拾取/购买一致；测试阶段不持久化）
+              if (data.loot_equipment && state.character) {
+                const def = findItemDef(data.loot_equipment);
+                const eqId = (def && (def.equipment_id || def.id)) || data.loot_equipment;
+                state.character.inventory = state.character.inventory || { gold: 0, items: [] };
+                state.character.inventory.items.push({ equipment_id: eqId, quantity: 1, equipped: false });
+                renderAllTabs();
+              }
+
               // 检定提示（在 GM 回复前显示）
               if (data.checks && data.checks.length > 0) {
                 const cnSkills = { perception: '侦察（感知）', investigation: '调查（智力）',
@@ -5085,24 +4017,27 @@
   /* ── 初始化游戏 ── */
   async function initGame() {
     try {
-      await loadCharacter();
+      // 角色卡由页面统一加载（见文件末尾 window.__playerCharacterReady），战斗端引用同一对象
+      state.character = await window.__playerCharacterReady;
       await loadAllData();
       await loadCatalogs();
       initTabs();
 
-      // 战斗地图：切换到地图配置指定的战斗场景（如三猪小径 → ch1-scene2），
-      // 使左侧栏显示当前战斗地点的 NPC / 物品 / 任务
-      try {
-        const mapId = new URLSearchParams(location.search).get('map') || 'cragmaw-hideout-overview';
-        const mapRes = await fetch(`/data/combat/maps/${encodeURIComponent(mapId)}.json`);
-        if (mapRes.ok) {
-          const mapCfg = await mapRes.json();
-          if (mapCfg.scene && state.data.scenes[mapCfg.scene]) {
-            state.currentSceneId = mapCfg.scene;
-          }
+      // 左栏场景：?map= 调试入口取该地图对应的第一个冒险场景；正常流程用 returnSceneId
+      const debugMapId = new URLSearchParams(location.search).get('map');
+      const contextRaw = sessionStorage.getItem('encounterContext');
+      if (debugMapId) {
+        const mapScene = Object.values(state.data.scenes).find(s => s.map === debugMapId);
+        if (!mapScene) throw new Error(`没有冒险场景引用地图: ${debugMapId}`);
+        state.currentSceneId = mapScene.id;
+      } else if (contextRaw) {
+        const context = JSON.parse(contextRaw);
+        if (!context.returnSceneId || !state.data.scenes[context.returnSceneId]) {
+          throw new Error(`冒险场景不存在: ${context.returnSceneId}`);
         }
-      } catch (e) {
-        console.warn('读取战斗地图场景失败，使用默认场景:', e);
+        state.currentSceneId = context.returnSceneId;
+      } else {
+        throw new Error('缺少 encounterContext：请从冒险场景进入战斗地图');
       }
 
       // 属性跟随已装备物品（护甲 AC / 武器伤害与攻击加值）
@@ -5234,6 +4169,10 @@
     }, { passive: false });
     document.addEventListener('touchend', onUp);
   })();
+
+  /* 玩家角色卡唯一加载入口：页面加载后交给战斗端
+     （main.js 的 initMap 等这份 promise，并让 token.data.character 指向同一份对象） */
+  window.__playerCharacterReady = loadCharacter().then(() => state.character);
 
   initGame();
 })();

@@ -129,6 +129,15 @@ export function showCombatResult(won) {
     pointer-events: none;
     text-align: center;
   `;
+  // 地图探险模式：胜利后留在地图继续探索
+  if (S.mapMode) {
+    el.innerHTML = won
+      ? '⚔ 战斗胜利<br><span style="font-size:14px;font-weight:normal">继续探索洞窟...</span>'
+      : '☠ 战斗失败<br><span style="font-size:14px;font-weight:normal">冒险结束...</span>';
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2400);
+    return;
+  }
   // M6：嵌入冒险时显示跳转提示
   if (S.encounterContext) {
     el.innerHTML = won

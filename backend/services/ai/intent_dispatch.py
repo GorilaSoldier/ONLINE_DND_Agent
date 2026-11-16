@@ -17,6 +17,7 @@ from services.core.rules import (
     witness_stealth_dc,
     merchant_sells,
     skill_bonus,
+    is_equipment_item,
 )
 
 
@@ -447,6 +448,9 @@ class RuleEngine:
                     if self.state.get_merchant(nid) and merchant_sells(self.state, nid, target_id):
                         r = merchant_steal(self.state, nid, character, item_id=target_id, target="item")
                         rule = {"gm_text": r["message"], "checks": [r["check"]] if r.get("check") else []}
+                        # 得手的装备不进道具背包，由前端按 loot_equipment 写入角色卡装备栏
+                        if r.get("success") and r.get("is_equipment"):
+                            rule["loot_equipment"] = target_id
                         if r.get("delayed_suspicion"):
                             rule["delayed_suspicion"] = r["delayed_suspicion"]
                         return rule, []
@@ -549,7 +553,11 @@ class RuleEngine:
             "to": {"type": "player", "id": "player_1"},
             "hidden": False,
         }]
-        return {"gm_text": f"{pname}拿起了 {item['name']}。", "checks": []}, changes
+        rule = {"gm_text": f"{pname}拿起了 {item['name']}。", "checks": []}
+        # 装备类不进道具背包（StateManager 统一拦截），改由前端写入角色卡装备栏
+        if is_equipment_item(item):
+            rule["loot_equipment"] = item_id
+        return rule, changes
 
     def _handle_trade(self, intent_result: IntentResult, character: dict | None) -> Tuple[dict, List[dict]]:
         """交易意图（当前为占位实现）"""

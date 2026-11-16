@@ -13,7 +13,20 @@
       "passive_perception": 10,
       "abilities": {
         "str": 17,
-        "dex": 8
+        "dex": 8,
+        "con": 13,
+        "int": 8,
+        "wis": 11,
+        "cha": 9
+      },
+      "combat": {
+        "ac": 16,
+        "hp": { "cur": 27, "max": 27 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "晨星锤", "bonus": 5, "damage": "2d8+3", "damage_type": "bludgeoning", "kind": "melee", "rangeCells": 1 },
+          { "name": "标枪", "bonus": 1, "damage": "1d6-1", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
+        ]
       },
       "attitude": "hostile",
       "current_location": "cragmaw-hideout-boss",
@@ -33,26 +46,6 @@
       "attitude": "neutral",
       "current_location": "cragmaw-hideout"
     },
-    "goblin-ambusher-1": {
-      "id": "goblin-ambusher-1",
-      "name": "斯尼格",
-      "template": "goblin-ambusher"
-    },
-    "goblin-ambusher-2": {
-      "id": "goblin-ambusher-2",
-      "name": "格罗克斯",
-      "template": "goblin-ambusher"
-    },
-    "goblin-ambusher-3": {
-      "id": "goblin-ambusher-3",
-      "name": "克鲁格",
-      "template": "goblin-ambusher"
-    },
-    "goblin-ambusher-4": {
-      "id": "goblin-ambusher-4",
-      "name": "弗拉格",
-      "template": "goblin-ambusher"
-    },
     "goblin-sentry-1": {
       "id": "goblin-sentry-1",
       "name": "地精哨兵",
@@ -62,21 +55,6 @@
       "id": "goblin-sentry-2",
       "name": "地精哨兵",
       "template": "goblin-sentry"
-    },
-    "wolf-1": {
-      "id": "wolf-1",
-      "name": "狼",
-      "template": "wolf"
-    },
-    "wolf-2": {
-      "id": "wolf-2",
-      "name": "狼",
-      "template": "wolf"
-    },
-    "wolf-3": {
-      "id": "wolf-3",
-      "name": "狼",
-      "template": "wolf"
     },
     "goblin-bridge-guard-1": {
       "id": "goblin-bridge-guard-1",
@@ -102,7 +80,17 @@
       "role": "哨兵",
       "description": "站在瀑布洞穴高台上打瞌睡的地精。",
       "attitude": "hostile",
-      "current_location": "cragmaw-hideout-waterfall"
+      "current_location": "cragmaw-hideout-waterfall",
+      "abilities": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
+      "combat": {
+        "ac": 15,
+        "hp": { "cur": 7, "max": 7 },
+        "move_speed": "9m",
+        "attacks": [
+          { "name": "弯刀", "bonus": 4, "damage": "1d6+2", "damage_type": "slashing", "kind": "melee", "rangeCells": 1 },
+          { "name": "短弓", "bonus": 4, "damage": "1d6+2", "damage_type": "piercing", "kind": "ranged", "rangeCells": 6 }
+        ]
+      }
     },
     "goblin-klarg-1": {
       "id": "goblin-klarg-1",

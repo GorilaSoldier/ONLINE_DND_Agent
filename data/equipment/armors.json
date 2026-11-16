@@ -16,6 +16,7 @@
         "stealth": "劣势"
       },
       "stats": {
+        "slot": "armor",
         "category": "light",
         "ac_base": 11,
         "bonus_ac": 0,
@@ -40,6 +41,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "light",
         "ac_base": 11,
         "bonus_ac": 0,
@@ -64,6 +66,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "light",
         "ac_base": 12,
         "bonus_ac": 0,
@@ -88,6 +91,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "medium",
         "ac_base": 12,
         "bonus_ac": 0,
@@ -112,6 +116,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "medium",
         "ac_base": 13,
         "bonus_ac": 0,
@@ -136,6 +141,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "medium",
         "ac_base": 14,
         "bonus_ac": 0,
@@ -160,6 +166,7 @@
         "stealth": "劣势"
       },
       "stats": {
+        "slot": "armor",
         "category": "medium",
         "ac_base": 15,
         "bonus_ac": 0,
@@ -184,6 +191,7 @@
         "stealth": "劣势"
       },
       "stats": {
+        "slot": "armor",
         "category": "heavy",
         "ac_base": 14,
         "bonus_ac": 0,
@@ -209,6 +217,7 @@
         "requirement": "力量 13"
       },
       "stats": {
+        "slot": "armor",
         "category": "heavy",
         "ac_base": 16,
         "bonus_ac": 0,
@@ -234,6 +243,7 @@
         "requirement": "力量 15"
       },
       "stats": {
+        "slot": "armor",
         "category": "heavy",
         "ac_base": 18,
         "bonus_ac": 0,
@@ -258,6 +268,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "shield",
         "category": "shield",
         "ac_base": 0,
         "bonus_ac": 2,
@@ -282,6 +293,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "clothes",
         "ac_base": 0,
         "bonus_ac": 0,
@@ -306,6 +318,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "clothes",
         "ac_base": 0,
         "bonus_ac": 0,
@@ -330,6 +343,7 @@
         "stealth": "—"
       },
       "stats": {
+        "slot": "armor",
         "category": "clothes",
         "ac_base": 0,
         "bonus_ac": 0,

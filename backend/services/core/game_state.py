@@ -22,6 +22,30 @@ def _load_global_equipment_items() -> dict:
         return {}
 
 
+def _merge_npc_templates(global_npcs: dict, chapter_npcs: dict) -> dict:
+    """合并 NPC 数据：先合并 global + chapter 的 _templates，再对每个实例做模板展开。
+
+    与前端 _mergeNpcTemplate 逻辑保持一致：实例字段覆盖模板字段，
+    最终每个 NPC 携带完整数据（race/role/description/combat/inventory 等）。
+    """
+    all_templates = {
+        **(global_npcs.get("_templates") or {}),
+        **(chapter_npcs.get("_templates") or {}),
+    }
+    raw_npcs = {
+        **(global_npcs.get("npcs") or {}),
+        **(chapter_npcs.get("npcs") or {}),
+    }
+    merged = {}
+    for npc_id, npc in raw_npcs.items():
+        template_name = npc.get("template")
+        if template_name and template_name in all_templates:
+            merged[npc_id] = {"id": npc_id, **all_templates[template_name], **npc}
+        else:
+            merged[npc_id] = {"id": npc_id, **npc}
+    return merged
+
+
 def load_adventure_chapter(adventure_id: str, chapter_id: str) -> dict:
     """加载冒险章节的所有数据"""
     base = ADVENTURES_DIR / adventure_id
@@ -39,12 +63,16 @@ def load_adventure_chapter(adventure_id: str, chapter_id: str) -> dict:
     return {
         "chapter": _load(chapter_dir / "chapter.json"),
         "locations": _load(chapter_dir / "locations.json").get("locations", {}),
-        "npcs": {**global_npcs.get("npcs", {}), **chapter_npcs.get("npcs", {})},
+        # NPC 数据合并 _templates 模板：实例字段覆盖模板字段，
+        # 让每个 NPC 携带完整数据（race/role/combat/inventory 等），
+        # 与前端 _mergeNpcTemplate 保持一致。
+        "npcs": _merge_npc_templates(global_npcs, chapter_npcs),
         # 物品定义统一合并：全局物品库 + 章节物品（章节优先覆盖）。
         # 物品是否可用由场景/地点引用决定，而不是由是否"全局"决定。
         "items": {**_load_global_equipment_items(), **_load(chapter_dir / "items.json").get("items", {})},
         "quests": _load(chapter_dir / "quests.json").get("quests", {}),
         "encounters": _load(chapter_dir / "encounters.json").get("encounters", {}),
+        "battles": _load(chapter_dir / "battles.json").get("battles", {}),
         "secrets": _load(chapter_dir / "secrets.json").get("secrets", {}),
     }
 
@@ -108,17 +136,15 @@ class GameState:
 
     # ── HP 状态（后端权威，前端从 updates.player_hp 同步）──
     def init_player_hp(self, character: dict):
-        """从角色 combat.hp（"cur / max" 字符串）初始化 HP 状态（仅一次）"""
+        """从角色 combat.hp（{cur,max} 对象）初始化 HP 状态（仅一次）"""
         if self.player_hp:
             return
-        hp = (character or {}).get("combat", {}).get("hp", "")
-        cur = max_hp = 0
+        hp = (character or {}).get("combat", {}).get("hp", {}) or {}
         try:
-            parts = str(hp).split("/")
-            cur = int(parts[0].strip())
-            max_hp = int(parts[1].strip())
-        except (ValueError, IndexError):
-            pass
+            cur = int(hp.get("cur", 0))
+            max_hp = int(hp.get("max", cur))
+        except (AttributeError, ValueError):
+            cur = max_hp = 0
         cur = max(cur, 0)
         max_hp = max(max_hp, cur, 1)
         self.player_hp = {"cur": cur or max_hp, "max": max_hp}
@@ -306,15 +332,11 @@ class GameState:
         else:
             self.wanted_location = [loc_id]
 
-    # ── NPC 力量/敏捷（挣脱/逃脱对抗用；abilities 兼容 {str: N} 与 {str: {value: N}}）──
+    # ── NPC 力量/敏捷（挣脱/逃脱对抗用；abilities 为纯数字）──
     def _npc_stat(self, npc_id: str, short_key: str) -> int:
         npc = self.data.get("npcs", {}).get(npc_id, {})
         ab = (npc.get("abilities") or {}).get(short_key)
-        if isinstance(ab, dict):
-            return int(ab.get("value", 10))
-        if ab is not None:
-            return int(ab)
-        return 10
+        return int(ab) if isinstance(ab, (int, float)) else 10
 
     def npc_strength(self, npc_id: str) -> int:
         return self._npc_stat(npc_id, "str")

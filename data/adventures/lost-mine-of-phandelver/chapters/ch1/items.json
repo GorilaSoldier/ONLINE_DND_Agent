@@ -4,7 +4,8 @@
       "id": "empty-map-case",
       "name": "空地图匣",
       "description": "一个精致的皮革地图匣，原本装着甘德伦的潮音洞穴地图。现在里面空空如也，只留下一些压痕。",
-      "type": "clue",
+      "type": "quest_item",
+      "tags": ["clue"],
       "visible": true,
       "owner": null,
       "contains": []
@@ -59,7 +60,11 @@
       "description": "一瓶红色液体的小型治疗药水。饮用后可恢复生命值（2d4+2）。",
       "icon": "potion",
       "type": "consumable",
-      "effect": "heal 2d4+2",
+      "use": {
+        "action_cost": "action",
+        "target": "self",
+        "effect": { "kind": "heal", "dice": "2d4", "bonus": 2 }
+      },
       "visible": false,
       "owner": null
     },
@@ -81,7 +86,7 @@
       "name": "矿镐",
       "description": "一把结实耐用的矿镐，采矿工具。",
       "icon": "pickaxe",
-      "type": "tool",
+      "type": "gear",
       "visible": false,
       "owner": null
     },
@@ -90,7 +95,7 @@
       "name": "粗麻绳",
       "description": "一卷五十尺长的粗麻绳，攀爬和捆绑都很实用。",
       "icon": "rope",
-      "type": "tool",
+      "type": "gear",
       "visible": false,
       "owner": null
     },
@@ -99,7 +104,7 @@
       "name": "矿灯",
       "description": "装有玻璃罩的矿工提灯，提供稳定照明。可作为近战武器装备。",
       "icon": "lantern",
-      "type": "equipment",
+      "type": "weapon",
       "equipment_id": "lantern",
       "visible": false,
       "owner": null
@@ -109,7 +114,7 @@
       "name": "火把",
       "description": "浸过树脂的火把，既可照明也能临时充当武器。可作为近战武器装备。",
       "icon": "torch",
-      "type": "equipment",
+      "type": "weapon",
       "equipment_id": "torch",
       "visible": false,
       "owner": null
@@ -119,7 +124,7 @@
       "name": "干粮",
       "description": "一袋耐储存的旅行干粮，足够一日的口粮。",
       "icon": "rations",
-      "type": "food",
+      "type": "gear",
       "visible": false,
       "owner": null
     },
@@ -128,7 +133,7 @@
       "name": "弯刀",
       "description": "地精常用的弯刀，刀刃略有缺口但依然锋利。",
       "icon": "sword",
-      "type": "equipment",
+      "type": "weapon",
       "equipment_id": "scimitar",
       "visible": false,
       "owner": null
@@ -138,7 +143,7 @@
       "name": "短弓",
       "description": "地精使用的粗糙短弓，弓身略弯。",
       "icon": "bow",
-      "type": "equipment",
+      "type": "weapon",
       "equipment_id": "shortbow",
       "visible": false,
       "owner": null
@@ -148,7 +153,7 @@
       "name": "皮甲",
       "description": "地精身上剥下的简陋皮甲，质地粗糙但可穿戴。",
       "icon": "chestplate",
-      "type": "equipment",
+      "type": "armor",
       "equipment_id": "leather",
       "visible": false,
       "owner": null
@@ -170,7 +175,7 @@
       "name": "银币",
       "description": "几枚磨损的银币。",
       "icon": "coins",
-      "type": "currency",
+      "type": "treasure",
       "value": 1,
       "visible": false,
       "owner": null

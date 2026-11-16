@@ -7,13 +7,14 @@
 
 import { resolveAttack } from './actions.js';
 import { moveToken, getMoveCells } from './token.js';
-import { calculateReachableCells } from './movement.js';
+import { calculateReachableCells, reconstructPath } from './movement.js';
 import { combatState } from './state.js';
 import { appendCombatLog, currentTurnLabel, updateStatus } from './combat-ui.js';
 import { getPlayerToken, advanceInitiative, endCombat } from './combat-loop.js';
 import { cellsAdjacent, targetForEnemy, attackerFromEnemy, pickMeleeAttack, pickRangedAttack, sleep } from './rules.js';
+import { getCellZ } from './map.js';
 import { MELEE_RANGE_CELLS, RANGED_RANGE_CELLS } from './constants.js';
-import { revealAttacker, fogDisplayName } from './fog.js';
+import { isTokenVisible, revealAttacker, fogDisplayName } from './fog.js';
 
 const S = combatState;
 
@@ -67,8 +68,14 @@ async function enemyAct(enemy) {
 
   // 玩家倒地但仍有其他活威胁 → 敌人转去应对其他威胁，不打倒地（保留原待命行为）
   if (playerDowned && !willFinishDowned) {
-    updateStatus(`${fogDisplayName(enemy)} 看到玩家倒下，转而应对其他威胁`);
-    appendCombatLog(`${fogDisplayName(enemy)} 原地待命`, 'system', currentTurnLabel());
+    if (isTokenVisible(enemy)) {
+      updateStatus(`${fogDisplayName(enemy)} 看到玩家倒下，转而应对其他威胁`);
+      appendCombatLog(`${fogDisplayName(enemy)} 原地待命`, 'system', currentTurnLabel());
+    } else {
+      // 未现身的雾中敌人：不点名、不写日志，也不说"看到玩家倒下"
+      // （那等于告诉玩家有个看不见的东西正盯着他）
+      updateStatus('远处传来一阵骚动...');
+    }
     await sleep(400);
     return;
   }
@@ -93,7 +100,8 @@ async function enemyAct(enemy) {
     const result = resolveAttack(attackerFromEnemy(enemy, ranged), targetForEnemy(target), 'ranged');
     await applyEnemyAttack(enemy, result, target);
   } else {
-    updateStatus(`${fogDisplayName(enemy)} 原地待命`);
+    // 未现身的雾中敌人：静默（"原地待命"会暴露有隐藏单位在活动，且本就无动静可播报）
+    if (isTokenVisible(enemy)) updateStatus(`${fogDisplayName(enemy)} 原地待命`);
     await sleep(400);
   }
 }
@@ -130,16 +138,38 @@ export async function moveEnemyToward(enemy) {
     mapConfig.grid_cols,
     mapConfig.grid_rows
   );
-  // 在可达范围内选离玩家最近、且非障碍/非占用的格子
-  let best = null, bestDist = Infinity;
+  // 在可达范围内选离玩家最近、且非障碍/非占用的格子。
+  // 高度兜底（§7.3）：Dijkstra 不感知高度，路径可能穿崖壁。按距离从近到远逐候选重建路径，
+  // 任一步 |Δz| ≥ 2 即跳过该候选，避免敌人无消耗翻崖（上不去就停在崖壁旁待命）。
+  const candidates = [];
   for (const [, info] of reachable) {
-    const dist = Math.hypot(info.col - player.data.col, info.row - player.data.row);
     const occ = findTokenAt(info.col, info.row);
     if (occ && occ !== enemy) continue;
-    if (dist < bestDist) { bestDist = dist; best = info; }
+    candidates.push(info);
   }
+  candidates.sort((a, b) =>
+    Math.hypot(a.col - player.data.col, a.row - player.data.row)
+    - Math.hypot(b.col - player.data.col, b.row - player.data.row));
+  let best = null;
+  for (const info of candidates) {
+    const path = reconstructPath(reachable, info);
+    let crossesCliff = false;
+    for (let i = 1; i < path.length; i++) {
+      const dz = getCellZ(mapConfig, path[i].col, path[i].row)
+        - getCellZ(mapConfig, path[i - 1].col, path[i - 1].row);
+      if (Math.abs(dz) >= 2) { crossesCliff = true; break; }
+    }
+    if (!crossesCliff) { best = info; break; }
+  }
+  const bestDist = best
+    ? Math.hypot(best.col - player.data.col, best.row - player.data.row)
+    : Infinity;
   if (best && bestDist < Math.hypot(enemy.data.col - player.data.col, enemy.data.row - player.data.row)) {
-    updateStatus(`${fogDisplayName(enemy)} 向 ${player.data.name} 靠近`);
+    // 未现身的雾中敌人：只给不点名、不含方向的声响提示
+    // （原为"黑暗中的存在 向 XXX 靠近"，既报了存在又泄露了移动目标）
+    updateStatus(isTokenVisible(enemy)
+      ? `${fogDisplayName(enemy)} 向 ${player.data.name} 靠近`
+      : '某处传来移动的声响');
     await moveToken(enemy, best.col, best.row, mapConfig, 260);
     // 借机攻击：enemy 离开了原本相邻的玩家方 token → 玩家方自动结算一次近战
     const { triggerOpportunityAttack } = await import('./rules.js');
@@ -150,7 +180,8 @@ export async function moveEnemyToward(enemy) {
       }
     }
   } else {
-    updateStatus(`${fogDisplayName(enemy)} 原地待命`);
+    // 未现身的雾中敌人：静默（同射程外待命）
+    if (isTokenVisible(enemy)) updateStatus(`${fogDisplayName(enemy)} 原地待命`);
   }
   delete enemy.data._shovedAway;
 }

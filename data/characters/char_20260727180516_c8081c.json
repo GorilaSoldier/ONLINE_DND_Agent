@@ -20,62 +20,28 @@
   "level": 1,
   "combat": {
     "ac": 12,
-    "hp": "7 / 7"
+    "hp": { "cur": 7, "max": 7 },
+    "speed": "9m",
+    "attacks": {
+      "base": [
+        { "name": "徒手", "bonus": 1, "damage": "1d4-1", "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1 }
+      ],
+      "current": [
+        { "name": "长棍", "bonus": 1, "damage": "1d6-1", "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1 }
+      ]
+    }
   },
   "xp": {
     "current": 0,
-    "max": 300,
-    "display": "0 / 300"
-  },
-  "attack": {
-    "melee": {
-      "label": "近战",
-      "bonus": "-1",
-      "damage": "1d6"
-    },
-    "ranged": {
-      "label": "远程",
-      "bonus": "+2",
-      "damage": "1d4"
-    }
+    "max": 300
   },
   "abilities": {
-    "str": {
-      "label": "力",
-      "value": 8,
-      "save_bonus": "-1",
-      "highlighted": false
-    },
-    "dex": {
-      "label": "敏",
-      "value": 15,
-      "save_bonus": "+2",
-      "highlighted": true
-    },
-    "con": {
-      "label": "体",
-      "value": 13,
-      "save_bonus": "+1",
-      "highlighted": false
-    },
-    "int": {
-      "label": "智",
-      "value": 17,
-      "save_bonus": "+3",
-      "highlighted": true
-    },
-    "wis": {
-      "label": "感",
-      "value": 12,
-      "save_bonus": "+1",
-      "highlighted": false
-    },
-    "cha": {
-      "label": "魅",
-      "value": 10,
-      "save_bonus": "+0",
-      "highlighted": false
-    }
+    "str": 8,
+    "dex": 15,
+    "con": 13,
+    "int": 17,
+    "wis": 12,
+    "cha": 10
   },
   "ability_bonus": {
     "plus2": "int",
@@ -84,8 +50,8 @@
   "inventory": {
     "gold": 100,
     "items": [
-      { "equipment_id": "quarterstaff", "name": "长棍", "quantity": 1, "equipped": true },
-      { "equipment_id": "dagger", "name": "匕首", "quantity": 1, "equipped": true }
+      { "equipment_id": "quarterstaff", "name": "长棍", "quantity": 1, "equipped": true, "slot": "melee-main" },
+      { "equipment_id": "dagger", "name": "匕首", "quantity": 1, "equipped": true, "slot": "melee-offhand" }
     ]
   },
   "features": {

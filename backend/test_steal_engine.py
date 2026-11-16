@@ -7,7 +7,7 @@ from services.core.rules import witness_stealth_dc
 
 CHAR = {
     "name": "测试者",
-    "abilities": {"dex": {"value": 14}, "str": {"value": 14}, "cha": {"value": 12}},
+    "abilities": {"dex": 14, "str": 14, "cha": 12},
     "inventory": {"gold": 100},
 }
 
@@ -29,12 +29,14 @@ se.roll_skill_check = fake_skill
 se.roll_d20 = fake_d20
 
 
-def new_state():
+def new_state(stealth=True):
     data = load_adventure_chapter("lost-mine-of-phandelver", "ch1")
     scene = data["chapter"]["scenes"][0]
     st = GameState("lost-mine-of-phandelver", "ch1", data, scene)
     st.location_id = "neverwinter-market"  # 市场：汉斯(str8/dex12) + 格罗斯(str14/dex8)
     st.character = CHAR
+    if stealth:
+        st.set_stealth(None, 10)  # 前置潜行（新逻辑：未潜行不能偷）
     return st
 
 
@@ -54,9 +56,9 @@ ok("情况一警觉+2", s.npc_alert("market-merchant") == 2)
 ok("情况一转敌对", s.is_hostile("market-merchant"))
 ok("情况一未得手", "rations" not in s.player_inventory)
 
-# ── 情况二：margin<3 → flagrante 立即对峙；挣脱成功 → 再逃脱 → 通缉 ──
+# ── 情况二：margin==0 → flagrante 立即对峙；挣脱成功 → 再逃脱 → 通缉 ──
 s = new_state()
-TOTALS["sleight_of_hand"] = 13  # dc=12 → margin=1 < 3
+TOTALS["sleight_of_hand"] = 12  # dc=12 → margin=0（点数刚好等于 DC）
 r = se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="item")
 ok("情况二 case=2 得手", r["case"] == 2 and r["success"] and "rations" in s.player_inventory)
 sus = s.get_suspicion("market-merchant")
@@ -76,7 +78,7 @@ ok("逃脱后无卫兵", not s.has_active_arrest())
 
 # ── 情况二挣脱失败 → 被抓住 → 叫卫兵（赶来中）──
 s = new_state()
-TOTALS["sleight_of_hand"] = 13
+TOTALS["sleight_of_hand"] = 12
 se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="item")
 TOTALS["athletics"] = 1
 TOTALS["acrobatics"] = 1  # 运动/体操都低 → 挣脱失败
@@ -100,7 +102,7 @@ r = se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="ite
 ok("情况三 case=3 无事", r["case"] == 3 and r["success"])
 ok("情况三无 suspicion", not s.has_active_suspicion())
 
-# ── 情况四：margin 3~6 → discovered；同意搜身 ×2 ──
+# ── 情况四：margin 1~6 → discovered；同意搜身 ×2 ──
 s = new_state()
 TOTALS["sleight_of_hand"] = 17  # margin=5 → 情况四
 r = se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="item")
@@ -291,14 +293,14 @@ def _fake_engine_roll(self, skill, character, dc):
             "ability": "dex", "dc": dc, "success": total >= dc}
 RuleEngine._roll_skill_check = _fake_engine_roll
 
-s = new_state()
+s = new_state(stealth=False)
 TOTALS["stealth"] = 99
 rule, changes = RuleEngine(s.data, s.scene, state=s)._handle_stealth(_FakeIntent(""), CHAR)
 ok("潜行无需目标·成功进通用隐匿", s.has_stealth("market-merchant") and s.has_stealth("blacksmith"))
 ok("潜行无需目标·checks 播报", len(rule["checks"]) == 1 and rule["checks"][0]["skill"] == "stealth")
 ok("通用潜行后偷窃跳过潜行判定", not se.merchant_steal(s, "market-merchant", CHAR, item_id="rations", target="item").get("stealth_blocked"))
 
-s = new_state()
+s = new_state(stealth=False)
 rule, changes = RuleEngine(s.data, s.scene, state=s)._handle_stealth(_FakeIntent("blacksmith"), CHAR)
 ok("潜行指定目标·仅匹配该目标", s.has_stealth("blacksmith") and not s.has_stealth("market-merchant"))
 

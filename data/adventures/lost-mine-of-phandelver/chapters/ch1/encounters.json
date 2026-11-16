@@ -17,25 +17,6 @@
         "promised": { "gp": 10, "each": true }
       }
     },
-    "goblin-ambush": {
-      "id": "goblin-ambush",
-      "name": "地精伏击",
-      "type": "combat",
-      "scene": "ch1-scene2",
-      "location": "triboar-trail-ambush",
-      "map_id": "triboar-trail-ambush",
-      "trigger": "player_approaches-horses",
-      "description": "当玩家靠近死马调查时，埋伏在灌木丛中的四只地精发起伏击。",
-      "enemies": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
-      "tactics": "地精会先用远程攻击，若玩家接近则改用弯刀。若战斗不利，地精会试图逃跑向窝点报信。",
-      "loot": ["empty-map-case", "scattered-supplies"],
-      "clues": [
-        "死马身上有黑羽箭",
-        "空地图匣说明地图被拿走了",
-        "地上的拖行痕迹指向北方"
-      ],
-      "nextSceneId": "ch1-scene2b"
-    },
     "cragmaw-hideout-entrance-sentries": {
       "id": "cragmaw-hideout-entrance-sentries",
       "name": "窝点入口哨兵",
@@ -46,22 +27,6 @@
       "description": "两只地精哨兵守在荆棘丛后的洞口。如果他们发现玩家并发出警告，洞内其他地精会进入警戒状态。",
       "enemies": ["goblin-sentry-1", "goblin-sentry-2"],
       "tactics": "哨兵会试图大声警告洞内同伴，然后利用地形游击。"
-    },
-    "wolves-of-cragmaw": {
-      "id": "wolves-of-cragmaw",
-      "name": "养狼洞的狼",
-      "type": "combat",
-      "scene": "ch1-scene4",
-      "location": "cragmaw-hideout-wolf-cave",
-      "trigger": "player_enters-wolf-cave",
-      "description": "三只被链条拴住的狼。它们可以被食物安抚，否则会攻击进入洞穴的人。",
-      "enemies": ["wolf-1", "wolf-2", "wolf-3"],
-      "tactics": "狼被链条限制移动范围，但若玩家靠近会扑击。",
-      "options": [
-        "用食物安抚（驯兽 DC 15）",
-        "保持距离绕过去",
-        "击杀狼群"
-      ]
     },
     "bridge-guards": {
       "id": "bridge-guards",

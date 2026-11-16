@@ -101,42 +101,54 @@ def can_cast(state, character: dict, spell_id: str) -> tuple:
     return True, ""
 
 
-def _parse_effect(effect: str):
-    """解析 effect 字段：
-    - "heal NdM+mod" / "heal NdM"
-    - "damage NdM 类型 [save=dex half]" / "damage Nx(MdM+K) 类型"
-    - "narrative"（无数值效果，AI 按 description 叙事）
+DAMAGE_TYPE_CN = {
+    "acid": "强酸", "bludgeoning": "钝击", "cold": "冷冻", "fire": "火焰",
+    "force": "力场", "lightning": "闪电", "necrotic": "黯蚀", "piercing": "穿刺",
+    "poison": "毒素", "psychic": "心灵", "radiant": "光耀", "slashing": "挥砍",
+    "thunder": "雷鸣",
+}
+
+
+def _parse_dice(dice: str):
+    """解析 "NdM" 骰子表达式 → (count, die)"""
+    m = re.match(r"(\d+)d(\d+)", str(dice or "").strip(), re.IGNORECASE)
+    return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+
+
+def _parse_effect(effect):
+    """解析结构化 effect：
+    - {"kind":"heal","dice":"1d8","add_mod":true}
+    - {"kind":"damage","dice":"8d6","damage_type":"fire","save":{"ability":"dex","on_success":"half"}}
+    - 其他 kind（utility/revive/dash/...）无数值效果，AI 按 description 叙事
     返回 (kind, params)"""
-    effect = (effect or "").strip().lower() or "narrative"
-    m = re.match(r"heal\s+(\d+)d(\d+)(?:\s*\+\s*mod)?", effect)
-    if m:
-        return "heal", {"count": int(m.group(1)), "die": int(m.group(2))}
-    m = re.match(
-        r"damage\s+(?:(\d+)x\s*\()?(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s*\)?\s*([a-z\u4e00-\u9fa5]+)?(?:\s+save=(\w+)\s+half)?",
-        effect,
-    )
-    if m:
-        return "damage", {
-            "repeats": int(m.group(1) or 1),
-            "count": int(m.group(2)), "die": int(m.group(3)),
-            "bonus": int(m.group(4) or 0),
-            "dtype": m.group(5) or "力场", "save": m.group(6),
+    eff = effect if isinstance(effect, dict) else {}
+    kind = eff.get("kind") or "utility"
+    params = {}
+    if kind == "heal":
+        count, die = _parse_dice(eff.get("dice"))
+        params = {"count": count, "die": die, "add_mod": bool(eff.get("add_mod"))}
+    elif kind == "damage":
+        count, die = _parse_dice(eff.get("dice"))
+        save = eff.get("save") or {}
+        params = {
+            "repeats": int(eff.get("repeats") or 1),
+            "count": count, "die": die,
+            "bonus": int(eff.get("bonus") or 0),
+            "dtype": DAMAGE_TYPE_CN.get(eff.get("damage_type"), eff.get("damage_type") or "力场"),
+            "damage_type": eff.get("damage_type") or "force",
+            "save": save.get("ability") if save else None,
         }
-    return "narrative", {}
+    return kind, params
 
 
 def _npc_ability_mod(npc: dict, key: str) -> int:
     ab = npc.get("abilities") or {}
     v = ab.get(key)
-    if isinstance(v, dict):
-        v = v.get("value", 10)
-    elif v is None:
-        v = 10
-    return (int(v) - 10) // 2
+    return (int(v) - 10) // 2 if isinstance(v, (int, float)) else 0
 
 
 def cast_spell(state, character: dict, spell_id: str, target_npc_id: str = None) -> dict:
-    """施放法术：校验 → 消耗法术位 → 结算效果（heal / damage / narrative）。
+    """施放法术：校验 → 消耗法术位 → 结算效果（heal / damage / utility）。
     返回 {success, message, spell_name, used_slot, heal, damage, damage_type, narrative, checks}，
     规则引擎/AI 基于真实结果叙事，不凭空加效果。"""
     lookup = spell_lookup()
@@ -155,13 +167,14 @@ def cast_spell(state, character: dict, spell_id: str, target_npc_id: str = None)
         state.spell_slots_used[1] = int(state.spell_slots_used.get(1, 0)) + 1
         used_slot = True
 
-    kind, params = _parse_effect(spell.get("effect", ""))
+    kind, params = _parse_effect(spell.get("effect"))
     result = {"success": True, "spell_name": spell_name, "used_slot": used_slot,
               "checks": [], "heal": 0, "damage": 0}
 
     if kind == "heal":
         total = sum(random.randint(1, params["die"]) for _ in range(params["count"]))
-        total += casting_ability_mod(character)
+        if params.get("add_mod"):
+            total += casting_ability_mod(character)
         healed = state.heal_player(total)
         result.update(heal=healed, message=f"{_pname(character)}施放{spell_name}，恢复了 {healed} 点生命值。")
 

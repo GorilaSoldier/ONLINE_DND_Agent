@@ -8,12 +8,49 @@
   "spawns": {
     "players": [
       {
-        "col": 15,
-        "row": 10
+        "col": 7,
+        "row": 17
       }
-    ],
-    "enemies": []
+    ]
   },
+  "zones": [
+    {
+      "id": "wolf-cave",
+      "name": "养狼洞",
+      "cells": [
+        { "col": 13, "row": 10 },
+        { "col": 14, "row": 10 },
+        { "col": 15, "row": 10 },
+        { "col": 16, "row": 10 },
+        { "col": 17, "row": 10 },
+        { "col": 18, "row": 10 },
+        { "col": 13, "row": 11 },
+        { "col": 14, "row": 11 },
+        { "col": 15, "row": 11 },
+        { "col": 16, "row": 11 },
+        { "col": 17, "row": 11 },
+        { "col": 18, "row": 11 },
+        { "col": 13, "row": 12 },
+        { "col": 14, "row": 12 },
+        { "col": 15, "row": 12 },
+        { "col": 16, "row": 12 },
+        { "col": 17, "row": 12 },
+        { "col": 18, "row": 12 },
+        { "col": 13, "row": 13 },
+        { "col": 14, "row": 13 },
+        { "col": 15, "row": 13 },
+        { "col": 16, "row": 13 },
+        { "col": 17, "row": 13 },
+        { "col": 18, "row": 13 },
+        { "col": 13, "row": 14 },
+        { "col": 14, "row": 14 },
+        { "col": 15, "row": 14 },
+        { "col": 16, "row": 14 },
+        { "col": 17, "row": 14 },
+        { "col": 18, "row": 14 }
+      ]
+    }
+  ],
   "obstacles": [
     {
       "col": 0,
@@ -3292,6 +3329,12 @@
     {
       "col": 29,
       "row": 16
+    }
+  ],
+  "light_sources": [
+    {
+      "col": 23,
+      "row": 13
     }
   ]
 }

@@ -24,7 +24,7 @@ REPORT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__))
 
 CHAR = {
     "name": "爱米利亚",
-    "abilities": {"dex": {"value": 14}, "str": {"value": 14}, "cha": {"value": 12}},
+    "abilities": {"dex": 14, "str": 14, "cha": 12},
     "inventory": {"gold": 300},
 }
 
@@ -156,12 +156,14 @@ def run_scene(title, player_input, setup, action):
     return st
 
 
-def set_flagrante(st, total=13):
-    TOTALS["sleight_of_hand"] = total
+def set_flagrante(st, total=12):
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑：未潜行不能偷）
+    TOTALS["sleight_of_hand"] = total  # dc=12 → margin=0（点数刚好等于 DC）→ 情况二
     return se.merchant_steal(st, "market-merchant", CHAR, item_id="rations", target="item")
 
 
 def set_discovered(st, total=17):
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑：未潜行不能偷）
     TOTALS["sleight_of_hand"] = total
     r = se.merchant_steal(st, "market-merchant", CHAR, item_id="rations", target="item")
     if r.get("delayed_suspicion"):
@@ -181,25 +183,28 @@ def enter_jail(st):
 
 # ══════════════ 偷窃四情况 ══════════════
 
-# 1. 潜行失败
+# 1. 未潜行被阻止（新逻辑：必须先潜行才能偷，引擎不自动掷骰）
 def setup1(st):
-    TOTALS["stealth"] = 1
+    pass  # 故意不设置潜行
 
 
 def act1(st):
     r = se.merchant_steal(st, "market-merchant", CHAR, item_id="rations", target="item")
-    return r["message"], [r["check"]] if r.get("check") else [], [
+    return r["message"], [], [
         ("未得手", "rations" not in st.player_inventory),
-        ("警觉+1", st.npc_alert("market-merchant") == 1),
+        ("stealth_blocked", r.get("stealth_blocked") is True),
+        ("不掷骰（无 check）", "check" not in r),
+        ("不增加警觉", st.npc_alert("market-merchant") == 0),
         ("不进入对峙", not st.has_active_suspicion()),
         ("未通缉", st.wanted_location is None),
     ]
 
 
-run_scene("1 潜行失败（未得手 警觉+1）", "我偷汉斯的干粮", setup1, act1)
+run_scene("1 未潜行被阻止（不掷骰、不增加警觉）", "我偷汉斯的干粮", setup1, act1)
 
 # 2. 情况一：巧手失败
 def setup2(st):
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑）
     TOTALS["sleight_of_hand"] = 1
 
 
@@ -332,6 +337,7 @@ run_scene("9 情况二 flagrante：挣脱失败→被抓住→叫卫兵", "我�
 
 # 10. 情况三：无事发生
 def setup10(st):
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑）
     TOTALS["sleight_of_hand"] = 30
 
 
@@ -441,6 +447,7 @@ run_scene("16 情况四 discovered：拒绝→叫卫兵（赶来中）", "我没
 
 # 17. 钱袋偷窃（10%）
 def setup17(st):
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑）
     TOTALS["sleight_of_hand"] = 30
 
 
@@ -457,6 +464,7 @@ run_scene("17 钱袋偷窃：商人金币10%（成功无事）", "我偷汉斯�
 # 18. 场景物品：克拉格钱袋 notice_chance 败露 → discovered
 def setup18(st):
     st.location_id = "cragmaw-hideout-boss"
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑）
 
 
 def act18(st):
@@ -478,6 +486,7 @@ run_scene("18 场景物品：克拉格钱袋 notice_chance 败露→延迟发现
 # 19. 场景物品：plot_critical 必败露
 def setup19(st):
     st.location_id = "cragmaw-hideout-boss"
+    st.set_stealth(None, 10)  # 前置潜行（新逻辑）
 
 
 def act19(st):

@@ -77,7 +77,7 @@ def ability_modifier(score: int) -> int:
 
 
 def char_ability_score(character: dict | None, ability: str) -> int:
-    """读取角色属性值（兼容扁平 {dexterity: N} 与嵌套 {abilities: {dex: {value: N}}} 两种结构）"""
+    """读取角色属性值（canonical：abilities 六维纯数字）"""
     if not character:
         return 10
     top = character.get(ability)
@@ -92,9 +92,7 @@ def char_ability_score(character: dict | None, ability: str) -> int:
     ab = (character.get("abilities") or {}).get(short_key)
     if ab is None:
         ab = (character.get("abilities") or {}).get(ability)
-    if isinstance(ab, dict):
-        return int(ab.get("value", 10))
-    return int(ab) if ab is not None else 10
+    return int(ab) if isinstance(ab, (int, float)) else 10
 
 
 def roll_skill_check(skill: str, character: dict | None, dc: int) -> dict:

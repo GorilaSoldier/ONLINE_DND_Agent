@@ -1,0 +1,39 @@
+{
+  "battles": {
+    "goblin-ambush": {
+      "id": "goblin-ambush",
+      "name": "地精伏击",
+      "map": "triboar-trail-ambush",
+      "engage": { "type": "on_load" },
+      "gm_intro": "你们刚靠近路中央的死马，灌木丛里就响起尖利的怪叫——四只地精张弓搭箭，从两侧扑了出来！",
+      "gm_victory": "最后一只地精倒地，三猪小径重新安静下来。死马、箭矢和拖行痕迹还等着你们查看。",
+      "enemies": [
+        { "template": "goblin-ambusher", "name": "斯尼格", "col": 14, "row": 9 },
+        { "template": "goblin-ambusher", "name": "格罗克斯", "col": 15, "row": 11 },
+        { "template": "goblin-ambusher", "name": "克鲁格", "col": 13, "row": 13 },
+        { "template": "goblin-ambusher", "name": "弗拉格", "col": 16, "row": 7 }
+      ]
+    },
+    "wolves-of-cragmaw": {
+      "id": "wolves-of-cragmaw",
+      "name": "养狼洞的狼",
+      "map": "cragmaw-hideout-overview",
+      "zone": "wolf-cave",
+      "engage": { "type": "on_enter" },
+      "pre_battle": {
+        "skill": "驯兽",
+        "dc": 15,
+        "prompt": "三只狼被铁链拴住，冲你们低吼。可以试着用食物安抚它们。",
+        "success": "你把食物扔过去，狼群嗅了嗅，渐渐安静下来，不再敌视你们。",
+        "failure": "你的动作激怒了狼群，它们猛地扑了上来！"
+      },
+      "gm_intro": "洞穴深处弥漫着野兽的腥臊味。三道铁链绷紧，三只饥饿的狼伏低身子，喉咙里滚出低吼。",
+      "gm_victory": "狼群不再挣扎。养狼洞安静下来，只剩铁链轻响。",
+      "enemies": [
+        { "template": "wolf", "name": "狼", "col": 14, "row": 10, "state": ["chained"] },
+        { "template": "wolf", "name": "狼", "col": 17, "row": 10, "state": ["chained"] },
+        { "template": "wolf", "name": "狼", "col": 15, "row": 12, "state": ["chained"] }
+      ]
+    }
+  }
+}

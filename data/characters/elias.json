@@ -11,63 +11,33 @@
   "subclass": "战斗大师",
   "level": 4,
   "combat": {
-    "ac": 12,
-    "hp": "36 / 36"
+    "ac": 17,
+    "hp": { "cur": 36, "max": 36 },
+    "speed": "4.5m",
+    "attacks": {
+      "base": [
+        { "name": "徒手", "bonus": 6, "damage": "1d4+3", "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1 }
+      ],
+      "current": [
+        { "name": "徒手", "bonus": 6, "damage": "1d4+3", "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1 }
+      ]
+    }
   },
   "xp": {
     "current": 0,
-    "max": 6500,
-    "display": "0 / 6,500"
+    "max": 6500
   },
-  "attack": {
-    "melee": {
-      "label": "近战",
-      "bonus": "+13",
-      "damage": "6~16"
-    },
-    "ranged": {
-      "label": "远程",
-      "bonus": "+11",
-      "damage": "3~12"
-    }
+  "ability_bonus": {
+    "plus2": "str",
+    "plus1": "con"
   },
   "abilities": {
-    "str": {
-      "label": "力",
-      "value": 17,
-      "save_bonus": "+9",
-      "highlighted": true
-    },
-    "dex": {
-      "label": "敏",
-      "value": 13,
-      "save_bonus": "+4",
-      "highlighted": false
-    },
-    "con": {
-      "label": "体",
-      "value": 15,
-      "save_bonus": "+8",
-      "highlighted": true
-    },
-    "int": {
-      "label": "智",
-      "value": 10,
-      "save_bonus": "+3",
-      "highlighted": false
-    },
-    "wis": {
-      "label": "感",
-      "value": 12,
-      "save_bonus": "+4",
-      "highlighted": false
-    },
-    "cha": {
-      "label": "魅",
-      "value": 8,
-      "save_bonus": "+2",
-      "highlighted": false
-    }
+    "str": 17,
+    "dex": 13,
+    "con": 15,
+    "int": 10,
+    "wis": 12,
+    "cha": 8
   },
   "inventory": {
     "gold": 500,
@@ -76,25 +46,29 @@
         "equipment_id": "travel_clothes",
         "name": "旅行服装",
         "quantity": 1,
-        "equipped": false
+        "equipped": false,
+        "slot": "armor"
       },
       {
         "equipment_id": "breastplate",
         "name": "胸甲 Breastplate",
         "quantity": 1,
-        "equipped": true
+        "equipped": true,
+        "slot": "armor"
       },
       {
         "equipment_id": "shield",
         "name": "盾牌",
         "quantity": 1,
-        "equipped": true
+        "equipped": true,
+        "slot": "shield"
       },
       {
         "equipment_id": "common_clothes",
         "name": "普通服装 Common Clothes",
         "quantity": 1,
-        "equipped": false
+        "equipped": false,
+        "slot": "armor"
       },
       {
         "equipment_id": "torch",

@@ -27,6 +27,15 @@ export function getMoveCells(token) {
   return metersToCells(meters, CELL_METERS);
 }
 
+/** token 的 AC
+ *  - 玩家/队友：直接读角色卡（token.data.character 就是页面那份角色卡的引用，
+ *    装备变更由页面重算写回同一对象，引擎立即可见，不做拷贝也不做同步）
+ *  - 敌人：没有角色卡，读 npcs.json stat block 落在 token.data.ac 上的值 */
+export function tokenAc(token) {
+  const card = token.data.character;
+  return card ? card.combat.ac : token.data.ac;
+}
+
 export function createToken(tokenData, mapConfig) {
   const style = FACTION_STYLES[tokenData.faction] || FACTION_STYLES.neutral;
   const cellW = mapConfig.widthPx / mapConfig.grid_cols;

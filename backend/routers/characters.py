@@ -69,7 +69,6 @@ def create_character(data: dict = Body(...)) -> dict:
         "level": 1,
         "combat": defaults["combat"],
         "xp": defaults["xp"],
-        "attack": defaults["attack"],
         "abilities": defaults["abilities"],
         "ability_bonus": data.get("abilityBonus", {}),
         "inventory": defaults["inventory"],
@@ -96,10 +95,10 @@ def get_character(char_id: str) -> dict:
 
 @router.put("/{char_id}")
 def update_character(char_id: str, data: dict = Body(...)) -> dict:
-    """更新角色字段（inventory/combat/attack 等），按需保存"""
+    """更新角色字段（inventory/combat/xp 等），按需保存"""
     char_data = _load_character(char_id)
     # 只合并允许更新的顶层字段，避免覆盖 id 等只读字段
-    editable = {"inventory", "combat", "attack", "xp", "spells", "features", "skills", "background", "background_story"}
+    editable = {"inventory", "combat", "xp", "spells", "features", "skills", "background", "background_story"}
     changed = False
     for key in editable:
         if key in data and isinstance(data[key], (dict, list)):

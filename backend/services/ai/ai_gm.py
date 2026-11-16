@@ -251,7 +251,7 @@ class AIGM:
                 model=self.model,
                 messages=messages,
                 temperature=0.7,
-                max_tokens=1200,
+                max_tokens=4096,
                 stream=stream,
             )
 
@@ -405,8 +405,8 @@ class AIGM:
   * **动作类**：偷窃(steal)、拿取(take)、移动(move)、使用物品(use_item)、交易(trade)、战斗(combat)
 - **社交检定**：玩家试图说服/欺骗/威吓/游说NPC时，必须调用 process_action(intent="perception", skill="persuasion/deception/intimidation", target_id=NPC的id, target_type="npc", needs_check=true)。
 - **洞悉检定**：玩家说"洞悉/察言观色/判断NPC是否说谎/揣摩意图"时，必须调用 process_action(intent="perception", skill="insight", target_id=NPC的id, target_type="npc", needs_check=true)。
-- **潜行**（可选）：玩家说"潜行/偷偷摸摸/藏起来/躲起来"时，调用 process_action(intent="perception", skill="stealth", target_type="none", needs_check=true) 进入隐匿状态。**潜行不需要指定目标**——引擎会对在场全部目击者判定；玩家想瞒过特定某人时也可附 target_id（该 NPC 的 id）。潜行成功后偷窃会自动跳过潜行判定，直接调 steal 工具即可。
-- **偷窃**：玩家说"偷X/偷Y的东西"时，调用 process_action(intent="steal", target_id=物品id或商人的id, target_type="item"或"npc", needs_check=true)。规则引擎会自动先做潜行判定（不被在场目击者察觉）再做巧手检定，无需玩家先单独潜行。目标必须使用【在场 NPC】【可见物品】中的 id= 值。商人货架上的物品（含售价与剩余数量）在【在场 NPC】的 merchant 信息中列出。
+- **潜行**（偷窃必选前置）：玩家说"潜行/偷偷摸摸/藏起来/躲起来"时，调用 process_action(intent="perception", skill="stealth", target_type="none", needs_check=true) 进入隐匿状态。**潜行不需要指定目标**——引擎会对在场全部目击者判定；玩家想瞒过特定某人时也可附 target_id（该 NPC 的 id）。**未潜行时偷窃会被引擎直接阻止**——玩家说"偷X"但当前未处于隐匿状态时，引擎返回 stealth_blocked，你须如实告知玩家"还没潜行，先潜行躲过在场目击者的目光才能下手"，引导玩家先输入"潜行"。
+- **偷窃**：玩家说"偷X/偷Y的东西"时，调用 process_action(intent="steal", target_id=物品id或商人的id, target_type="item"或"npc", needs_check=true)。**规则引擎要求玩家先处于潜行状态才会进入巧手检定**——未潜行直接阻止（不自动替玩家掷潜行骰）。目标必须使用【在场 NPC】【可见物品】中的 id= 值。商人货架上的物品（含售价与剩余数量）在【在场 NPC】的 merchant 信息中列出。
   偷窃结果分四种情况（引擎返回，你如实叙事）：
   * 情况一（巧手失败被抓）：NPC 警觉+2、转敌对、生气骂人，但不会质问对峙——玩家可自决去留。
   * 情况二（人赃并获，刚偷到被当场瞥见）：NPC 立即抓住玩家质问。玩家可：给钱了事（赔2倍）/ 欺瞒（极难）/ 威吓 / 逃跑（先挣脱：运动/体操 vs 商人力量，挣脱成功后可再敏捷逃脱）。
@@ -419,9 +419,10 @@ class AIGM:
   * 玩家承认偷窃并给钱/愿意赔偿 → action="pay"
   * 玩家拒绝给钱/不给/强硬回绝 → action="refuse"（人赃并获时商人不会叫卫兵，只会更怒；延迟发现时才会叫卫兵）
   * 玩家撒谎/否认（欺瞒） → action="deception"；玩家威胁/恐吓 → action="intimidation"；玩家游说/解释/求情 → action="persuasion"（注意：人赃并获【flagrante】时游说无效，只有欺瞒/威吓可用）
-  * 玩家逃跑/挣脱/溜走 → action="flee"（人赃并获时先挣脱再敏捷逃脱；延迟发现时直接敏捷逃脱）
+  * 玩家逃跑/挣脱/溜走 → action="flee"。**人赃并获【flagrante】时这是两步动作**：第一次 flee = 挣脱（vs 商人力量，挣脱成功才解锁下一步），挣脱成功后玩家须再次输入"逃跑"才会触发敏捷逃脱（vs 商人敏捷）；挣脱失败则被按住、商人叫卫兵。延迟发现时直接敏捷逃脱，一步即可。**叙事/提示时不可把挣脱与逃跑合并为一项**——必须分开列出，让玩家明白要先挣脱成功才能逃跑。
   * 若玩家答非所问、试图解释或辩解，先由你扮演 NPC 继续质问（不调用工具），直到玩家明确选择。
   * 社交检定失败后：延迟发现场景 NPC 会强制搜身（玩家可再选"同意搜身"或"逃跑"）。
+  * **可行动作提示**：在【正在被质问】状态时，叙事结尾自然带一句简短的可行动作提示，选项取自上下文"回应方式"列表，按当前 mode（flagrante/discovered）挑选可用项。示例——flagrante："（你可以：赔钱了事 / 欺瞒 / 威吓 / 挣脱——挣脱成功后才能逃跑）"；discovered："（你可以：同意搜身 / 给钱 / 欺瞒 / 威吓 / 游说 / 逃跑）"。**多步动作必须分开列**，不可合并（如 flagrante 的"挣脱+逃跑"是两步，挣脱成功后才解锁逃跑）。**首次进入对峙、社交检定失败、挣脱成功、卫兵阶段切换等状态变化时**必提示一次；同一对峙轮次重复回应则不再复读完整列表，只叙事即可，避免啰嗦。
 - **卫兵逮捕**：玩家拒绝赔偿、拒绝搜身或挣脱失败导致 NPC 呼叫卫兵后（上下文/结果中会出现卫兵，可看到【在场 NPC】里的城镇卫兵），进入卫兵流程。根据玩家回应调用 process_action(intent="arrest", target_id=卫兵的id="town-guard", target_type="npc", action=...)：
   * 卫兵赶来中（每轮逼近，可看到【正在被卫兵逮捕】的剩余轮数播报）：
     - 玩家愿意赔钱私了 → action="pay"（赔偿×3，结束）
@@ -433,6 +434,7 @@ class AIGM:
     - 玩家求情/解释 → action="deception"/"intimidation"/"persuasion"（高难度，成功化解）
     - 玩家挣脱 → action="breakout"（对抗卫兵；成功 → 再敏捷逃脱，失败 → 被按死）
   * 被按死后 → 没收赃物 + 赔偿×3 + 关进绝冬城监狱（jailed，玩家被传送到监狱地点，【在场 NPC】会出现狱卒）。
+  * **可行动作提示**：在【正在被卫兵逮捕】状态时，叙事结尾自然带一句简短的可行动作提示（如"（你可以：赔钱私了 / 求情 / 逃跑 / 挣脱）"），选项取自上下文"phase"对应的回应方式。**卫兵阶段切换（summoned→arrived、被按死、关入监狱）时**必提示一次；同一阶段重复回应则不再复读完整列表。
 - **监狱（jailed）互动**：玩家在牢里时，根据回应调用 process_action(intent="arrest", target_type="none", action=...)：
   * 交保释金（"保释/交钱出去/我要出狱"）→ action="pay"（保释金 100 金币，当场释放；钱不够则提示）
   * 撬锁（"撬锁/开锁/撬开牢门"）→ action="pick_lock"（巧手 vs DC14）。**狱卒在场时撬不了**——狱卒会不定时起身巡逻（玩家输入"等待"消磨时间等巡逻；狱卒离开期间才能撬锁）。撬锁成功牢门打开（cell_open），玩家可点击"监狱大门"越狱；失败且差 5 点以上会惊动狱卒（提前回来+警告），差 5 点内无声失败可再试
@@ -492,10 +494,11 @@ class AIGM:
             mode = s.get("mode")
             if mode == "flagrante":
                 state_txt = "（人赃并获，当场抓住你手腕）"
-                opts = "给钱了事（赔2倍）/ 欺瞒（极难）/ 威吓 / 逃跑（先挣脱，挣脱后可敏捷逃脱）；游说当场无效"
+                opts = ("给钱了事（赔2倍）/ 欺瞒（极难）/ 威吓 / 挣脱（vs 商人力量，挣脱成功后才解锁逃跑）/ 逃跑（仅挣脱成功后可用，vs 商人敏捷）；"
+                        "游说当场无效。挣脱与逃跑是两步动作，不可合并")
             else:
                 state_txt = "（怀疑你偷了东西）"
-                opts = "同意搜身（搜出赔2倍）/ 给钱了事（2倍）/ 欺瞒/威吓/游说（成功放行，失败将被强制搜身赔3倍）/ 逃跑 / 拒绝（叫卫兵）"
+                opts = "同意搜身（搜出赔2倍）/ 给钱了事（2倍）/ 欺瞒/威吓/游说（成功放行，失败将被强制搜身赔3倍）/ 逃跑（直接敏捷逃脱，一步即可）/ 拒绝（叫卫兵）"
             lines.append(f"{name or nid}正怀疑你偷走了东西，拦住你质问{state_txt}。回应方式：{opts}。在问题解决前，你不能离开当前地点。")
         return "\n".join(lines)
 

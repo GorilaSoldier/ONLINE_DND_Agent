@@ -422,6 +422,7 @@
   <!-- 属性悬浮提示框 -->
   <div class="ability-tooltip" id="abilityTooltip"></div>
 
+  <script src="./ui/ui-shared.js"></script>
   <script>
     // ========== 数据 ==========
     const API_BASE = '';
@@ -436,6 +437,11 @@
     ];
     const ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
     const ABILITY_LABELS = { str: '力量', dex: '敏捷', con: '体质', int: '智力', wis: '感知', cha: '魅力' };
+    /* 法术/动作标签与射程文案来自 ui/ui-shared.js */
+    const SPELL_SCHOOL_LABEL = window.SPELL_SCHOOL_LABEL;
+    const ACTION_COST_LABEL = window.ACTION_COST_LABEL;
+    const rangeLabel = window.rangeLabel;
+    const escapeHtml = window.escapeHtml;
     const ABILITY_SKILL_MAP = {
       str: ['运动'], dex: ['体操', '巧手', '隐匿'], con: [],
       int: ['奥秘', '历史', '调查', '自然', '宗教'],
@@ -601,8 +607,8 @@
         tip.innerHTML = `
           <div class="tooltip-title">${s.name}</div>
           <div class="tooltip-desc">${s.description || '暂无描述'}</div>
-          <div class="tooltip-save">${s.school || '—'} · 施法时间：${s.casting_time || '—'}</div>
-          <div class="tooltip-breakdown">射程：${s.range || '—'}</div>
+          <div class="tooltip-save">${SPELL_SCHOOL_LABEL[s.school] || '—'} · 施法时间：${ACTION_COST_LABEL[s.action_cost] || '—'}</div>
+          <div class="tooltip-breakdown">射程：${rangeLabel(s.range)}</div>
         `;
         const rect = e.target.getBoundingClientRect();
         let left = rect.left;
@@ -633,8 +639,8 @@
         tip.innerHTML = `
           <div class="tooltip-title">${a.name}</div>
           <div class="tooltip-desc">${a.description || '暂无描述'}</div>
-          <div class="tooltip-save">${a.action_type || '—'}</div>
-          <div class="tooltip-breakdown">射程：${a.range || '—'}</div>
+          <div class="tooltip-save">${ACTION_COST_LABEL[a.action_cost] || '—'}</div>
+          <div class="tooltip-breakdown">射程：${rangeLabel(a.range)}</div>
         `;
         const rect = e.target.getBoundingClientRect();
         let left = rect.left;
@@ -957,7 +963,7 @@
         const checked = creationState.cantrip_ids.includes(s.id), disabled = !checked && count >= max;
         html += `<label class="check-item ${disabled?'disabled':''}" data-spell-type="cantrip" data-spell-id="${s.id}" onmouseenter="showSpellTooltip(event,'cantrip','${s.id}')" onmouseleave="hideSpellTooltip()">
           <input type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleCantrip('${s.id}',this.checked)">
-          <div><div class="check-label">${s.name}</div><div class="check-meta">${s.school||''} · ${s.range||''} · ${s.casting_time||''}</div></div></label>`;
+          <div><div class="check-label">${s.name}</div><div class="check-meta">${SPELL_SCHOOL_LABEL[s.school]||''} · ${rangeLabel(s.range)} · ${ACTION_COST_LABEL[s.action_cost]||''}</div></div></label>`;
       }
       html += '</div>'; main.innerHTML = html;
     }
@@ -980,7 +986,7 @@
         const checked = creationState.spell_ids.includes(s.id), disabled = !checked && count >= max;
         html += `<label class="check-item ${disabled?'disabled':''}" data-spell-type="level_1" data-spell-id="${s.id}" onmouseenter="showSpellTooltip(event,'level_1','${s.id}')" onmouseleave="hideSpellTooltip()">
           <input type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleSpell('${s.id}',this.checked)">
-          <div><div class="check-label">${s.name}</div><div class="check-meta">${s.school||''} · ${s.range||''} · ${s.casting_time||''}</div></div></label>`;
+          <div><div class="check-label">${s.name}</div><div class="check-meta">${SPELL_SCHOOL_LABEL[s.school]||''} · ${rangeLabel(s.range)} · ${ACTION_COST_LABEL[s.action_cost]||''}</div></div></label>`;
       }
       html += '</div>'; main.innerHTML = html;
     }
@@ -1020,7 +1026,6 @@
     }
     function selectBackground(id) { creationState.background_id = id; renderAll(); }
     function updateBgField(field, value) { creationState.background[field] = value; renderPreview(); }
-    function escapeHtml(str) { return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     // ---- 属性 ----
     function renderAbilitiesStep() {

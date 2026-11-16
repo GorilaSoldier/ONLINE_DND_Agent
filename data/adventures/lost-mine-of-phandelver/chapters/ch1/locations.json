@@ -70,7 +70,7 @@
       "type": "wild",
       "description": "三猪小径蜿蜒穿过剑山山麓，连接绝冬城与凡达林。路中央横卧着两匹死马，身上插满黑羽箭。周围散落着物资和一个空的地图匣。路旁灌木丛中传来细微的响动。",
       "scene_text": "你们沿着三猪小径南下，空气中的血腥味让马匹不安地打着响鼻。前方路中央，两匹死马倒在血泊中，身上插满了黑羽箭。散落的物资旁，一个空的地图匣半开着——甘德伦的地图不见了。",
-      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "npcs": [],
       "items": [
         { "id": "empty-map-case", "visible": true },
         { "id": "scattered-supplies", "visible": true }
@@ -107,7 +107,7 @@
       "parent_location": "三猪小径",
       "description": "地精伏击被击退，硝烟散去。死马旁的物资散落一地，空地图匣说明甘德伦的地图被地精带走。地精尸体（或昏迷的俘虏）横陈战场。",
       "scene_text": "硝烟散去，血腥味引来了远处的乌鸦。地精伏击被你们击退，几具小绿皮尸体横陈在死马旁\n\n死马身旁，那张空的地图匣半开着，说明甘德伦的潮音洞穴地图已被地精带去他们的藏身之处。地上的拖行痕迹混合着血迹和脚印，一路向北延伸，指向剑山深处。",
-      "npcs": ["goblin-ambusher-1", "goblin-ambusher-2", "goblin-ambusher-3", "goblin-ambusher-4"],
+      "npcs": [],
       "items": [
         { "id": "empty-map-case", "visible": true },
         { "id": "scattered-supplies", "visible": true }
@@ -168,7 +168,7 @@
       "type": "cave",
       "description": "洞穴中央有天然石笋柱，三只狼被链条拴住，但链条长度足以覆盖洞穴大部分区域。一条石阶通向高处平台。",
       "scene_text": "洞内弥漫着野兽的腥臊味。三只狼被粗大的铁链拴在洞穴中央的石笋柱上，链子长度让它们几乎能覆盖整个洞室。狼群低沉地咆哮着，眼睛在黑暗中发出幽光。北侧的石阶通向更高处。",
-      "npcs": ["wolf-1", "wolf-2", "wolf-3"],
+      "npcs": [],
       "items": [],
       "exits": [
         { "name": "石阶向上", "target": "cragmaw-hideout-blind", "description": "石阶通往地精盲区。" }

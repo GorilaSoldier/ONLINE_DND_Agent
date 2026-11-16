@@ -7,6 +7,24 @@ def ability_mod(score: int) -> int:
     return (score - 10) // 2
 
 
+def _assign_equipment_slots(items: list) -> None:
+    """按顺序为初始装备写入 slot（melee-main / melee-offhand / ranged-main / armor / shield）"""
+    melee_count = 0
+    ranged_count = 0
+    for it in items:
+        eq_id = it.get("equipment_id")
+        if eq_id in RANGED_WEAPONS:
+            it["slot"] = "ranged-main" if ranged_count == 0 else "ranged-offhand"
+            ranged_count += 1
+        elif eq_id in MELEE_WEAPONS:
+            it["slot"] = "melee-main" if melee_count == 0 else "melee-offhand"
+            melee_count += 1
+        elif eq_id == "shield":
+            it["slot"] = "shield"
+        elif eq_id in ARMOR_AC:
+            it["slot"] = "armor"
+
+
 # 职业初始装备（简化 D&D 起始装备，不含服装；消耗品留给商人购买）
 CLASS_STARTING_EQUIPMENT = {
     "fighter": [
@@ -94,13 +112,7 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
     abilities = {}
     for key in ability_keys:
         score = corrected_scores[key]
-        mod = ability_mod(score)
-        abilities[key] = {
-            "label": ability_labels.get(key, key),
-            "value": score,
-            "save_bonus": f"+{mod}" if mod >= 0 else str(mod),
-            "highlighted": key == ability_bonus.get("plus2") or key == ability_bonus.get("plus1"),
-        }
+        abilities[key] = score
 
     race_name = race_data.get("name", "")
     race_en = race_data.get("name_en", "")
@@ -122,6 +134,7 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
     # 职业初始装备（含护甲 AC 与武器伤害）
     class_id = data.get("class_id", "")
     starting_items = list(CLASS_STARTING_EQUIPMENT.get(class_id, []))
+    _assign_equipment_slots(starting_items)
     inventory = {"gold": data.get("starting_gold", 100), "items": starting_items}
 
     # 初始护甲 AC：优先锁子甲等职业护甲
@@ -142,24 +155,22 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
     if has_shield:
         ac += 2
 
-    combat = {"ac": ac, "hp": f"{max_hp} / {max_hp}"}
-    xp = {"current": 0, "max": 300, "display": "0 / 300"}
-
-    # 武器伤害：初始装备中的近战/远程武器更新 attack 显示
-    melee_damage = "1d4"
-    ranged_damage = "1d4"
-    for it in starting_items:
-        eq_id = it.get("equipment_id")
-        dmg = WEAPON_DAMAGE.get(eq_id)
-        if dmg:
-            if eq_id in RANGED_WEAPONS:
-                ranged_damage = dmg
-            elif eq_id in MELEE_WEAPONS and melee_damage == "1d4":
-                melee_damage = dmg
-    attack = {
-        "melee": {"label": "近战", "bonus": f"+{str_mod}" if str_mod >= 0 else str(str_mod), "damage": melee_damage},
-        "ranged": {"label": "远程", "bonus": f"+{dex_mod}" if dex_mod >= 0 else str(dex_mod), "damage": ranged_damage},
+    prof_bonus = 2 + (int(level) - 1) // 4
+    unarmed_bonus = str_mod + prof_bonus
+    unarmed_damage = "1d4" + (f"+{str_mod}" if str_mod > 0 else (str(str_mod) if str_mod < 0 else ""))
+    combat = {
+        "ac": ac,
+        "hp": {"cur": max_hp, "max": max_hp},
+        "speed": race_data.get("speed", "9m"),
+        "attacks": {
+            "base": [{
+                "name": "徒手", "bonus": unarmed_bonus, "damage": unarmed_damage,
+                "damage_type": "bludgeoning", "kind": "melee", "hand": "main", "rangeCells": 1,
+            }],
+            "current": [],
+        },
     }
+    xp = {"current": 0, "max": 300}
 
     # 种族特性与黑暗视觉
     base_traits = list(race_data.get("base_trait_ids", []))
@@ -170,11 +181,11 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
 
     darkvision = "0"
     for tid in all_race_trait_ids:
-        if "darkvision_12m" in tid or (tid == "darkvision_12m"):
-            darkvision = "12m"
         if "superior_darkvision" in tid:
-            darkvision = "24m"
+            darkvision = "9m"
             break
+        if "darkvision" in tid:
+            darkvision = "6m"
 
     features = {
         "status_ids": [],
@@ -252,7 +263,7 @@ def build_character_defaults(data: dict, class_data: dict, race_data: dict, bg_d
     }
 
     return {
-        "combat": combat, "xp": xp, "attack": attack,
+        "combat": combat, "xp": xp,
         "inventory": inventory, "features": features,
         "abilities": abilities, "skills": skills,
         "spells": spells, "background": background,

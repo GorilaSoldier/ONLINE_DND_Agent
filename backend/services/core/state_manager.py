@@ -60,12 +60,40 @@ class StateManager:
             logger.error(f"应用状态变更失败 {change}: {e}")
             return None
 
+    def transfer_item(
+        self,
+        item_id: str,
+        from_ref: Dict[str, Any],
+        to_ref: Dict[str, Any],
+        hidden: bool = False,
+    ) -> bool:
+        """
+        物品移动的唯一实现：从一处移到另一处。
+
+        from_ref / to_ref 形如 {"type": "location"|"player"|"npc", "id": "..."}
+        返回是否成功（来源中查不到该物品即失败）。
+
+        调用方有两类：路由层/引擎可直接调本方法；规则引擎提交 state_changes
+        时由 _handle_move_item 转交到这里。
+        """
+        if not item_id or not from_ref or not to_ref:
+            return False
+
+        # 从来源移除
+        if not self._remove_item_from(item_id, from_ref):
+            logger.warning(f"物品 {item_id} 不在来源 {from_ref} 中")
+            return False
+
+        # 添加到目标
+        self._add_item_to(item_id, to_ref, hidden=hidden)
+        return True
+
     # ------------------------------------------------------------------
     # 变更处理器
     # ------------------------------------------------------------------
     def _handle_move_item(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
-        移动物品
+        移动物品（state_changes 形式）—— 仅做参数提取，实际执行转交 transfer_item
         {
             "type": "move_item",
             "item_id": "gundrens-map",
@@ -74,23 +102,13 @@ class StateManager:
             "hidden": true
         }
         """
-        item_id = change.get("item_id")
-        from_ref = change.get("from", {})
-        to_ref = change.get("to", {})
-
-        if not item_id or not from_ref or not to_ref:
-            return None
-
-        # 从来源移除
-        removed = self._remove_item_from(item_id, from_ref)
-        if not removed:
-            logger.warning(f"物品 {item_id} 不在来源 {from_ref} 中")
-            return None
-
-        # 添加到目标
-        self._add_item_to(item_id, to_ref, hidden=change.get("hidden", False))
-
-        return change
+        ok = self.transfer_item(
+            change.get("item_id"),
+            change.get("from", {}),
+            change.get("to", {}),
+            hidden=change.get("hidden", False),
+        )
+        return change if ok else None
 
     def _handle_update_npc_state(self, change: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
@@ -381,6 +399,10 @@ class StateManager:
                 })
 
         elif ref_type == "player":
+            # 装备类不进道具背包（统一收口）：由前端按 rule.loot_equipment 写入角色卡装备栏
+            from services.core.rules import is_equipment_item
+            if is_equipment_item(self.state.data.get("items", {}).get(item_id, {})):
+                return
             self.state.player_inventory.append(item_id)
 
         elif ref_type == "npc":

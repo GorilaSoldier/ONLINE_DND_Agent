@@ -72,10 +72,138 @@ function buildObstacleSet(obstacles) {
   return set;
 }
 
+/** 高度表：地图 JSON heights（[{col,row,z}]）→ Map("col,row" → z 层)；无记录视为 0（地面） */
+function buildHeightMap(heights) {
+  const map = new Map();
+  for (const h of heights || []) {
+    if (h && Number(h.z)) map.set(`${h.col},${h.row}`, Number(h.z));
+  }
+  return map;
+}
+
+/** 读取某格的 z 层（层=格，1 层=1.5m；无记录 = 0 地面）。垂直移动判定见 §7.3 */
+export function getCellZ(mapConfig, col, row) {
+  return mapConfig?.heightMap?.get(`${col},${row}`) || 0;
+}
+
+/* ── 高度可视化：台地淡色底 + 崖壁边线 + 区域 z 角标（可开关） ── */
+
+let heightOverlayVisible = true;
+
+/** 切换高度可视化层显示（战斗界面「高度」开关） */
+export function setHeightOverlayVisible(visible) {
+  heightOverlayVisible = visible !== false;
+  const layer = document.querySelector('.height-layer');
+  if (layer) layer.style.display = heightOverlayVisible ? '' : 'none';
+}
+
+/** 同层连通区域：每个台地只放一个 z 角标，避免逐格铺满 */
+function collectHeightRegions(mapConfig) {
+  const hm = mapConfig.heightMap;
+  if (!hm) return [];
+  const seen = new Set();
+  const regions = [];
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (const [startKey, z] of hm) {
+    if (z <= 0 || seen.has(startKey)) continue;
+    const stack = [startKey];
+    const cells = [];
+    seen.add(startKey);
+    while (stack.length) {
+      const key = stack.pop();
+      const [col, row] = key.split(',').map(Number);
+      cells.push({ col, row });
+      for (const [dc, dr] of dirs) {
+        const nk = `${col + dc},${row + dr}`;
+        if (seen.has(nk) || hm.get(nk) !== z) continue;
+        seen.add(nk);
+        stack.push(nk);
+      }
+    }
+    regions.push({ z, cells });
+  }
+  return regions;
+}
+
+/** 绘制高度层。崖壁边 = 与 4 向相邻格落差 ≥2 的一侧 */
+function renderHeightOverlay(layer, mapConfig, cellW, cellH) {
+  const hm = mapConfig.heightMap;
+  if (!hm || hm.size === 0) return;
+
+  // 台地淡色底（很淡，不遮背景图）
+  for (const [key, z] of hm) {
+    if (z <= 0) continue;
+    const [col, row] = key.split(',').map(Number);
+    const tint = document.createElement('div');
+    tint.style.cssText = `
+      position: absolute;
+      left: ${col * cellW}px;
+      top: ${row * cellH}px;
+      width: ${cellW}px;
+      height: ${cellH}px;
+      background: rgba(255, 214, 140, 0.07);
+    `;
+    layer.appendChild(tint);
+  }
+
+  // 崖壁边线
+  const edges = [
+    { dc: 1, dr: 0, x: cellW - 1.5, y: 0, w: 3, h: cellH },
+    { dc: -1, dr: 0, x: -1.5, y: 0, w: 3, h: cellH },
+    { dc: 0, dr: 1, x: 0, y: cellH - 1.5, w: cellW, h: 3 },
+    { dc: 0, dr: -1, x: 0, y: -1.5, w: cellW, h: 3 },
+  ];
+  for (const [key, z] of hm) {
+    if (z <= 0) continue;
+    const [col, row] = key.split(',').map(Number);
+    for (const e of edges) {
+      const nc = col + e.dc, nr = row + e.dr;
+      if (nc < 0 || nc >= mapConfig.grid_cols || nr < 0 || nr >= mapConfig.grid_rows) continue;
+      if (z - getCellZ(mapConfig, nc, nr) < 2) continue;
+      const line = document.createElement('div');
+      line.style.cssText = `
+        position: absolute;
+        left: ${col * cellW + e.x}px;
+        top: ${row * cellH + e.y}px;
+        width: ${e.w}px;
+        height: ${e.h}px;
+        background: rgba(255, 214, 140, 0.85);
+        box-shadow: 0 0 6px rgba(255, 214, 140, 0.55);
+      `;
+      layer.appendChild(line);
+    }
+  }
+
+  // 区域 z 角标（区域几何中心）
+  for (const region of collectHeightRegions(mapConfig)) {
+    const cx = region.cells.reduce((s, c) => s + c.col, 0) / region.cells.length;
+    const cy = region.cells.reduce((s, c) => s + c.row, 0) / region.cells.length;
+    const chip = document.createElement('div');
+    chip.textContent = `z=${region.z}`;
+    chip.style.cssText = `
+      position: absolute;
+      left: ${(cx + 0.5) * cellW}px;
+      top: ${(cy + 0.5) * cellH}px;
+      transform: translate(-50%, -50%);
+      padding: 1px 5px;
+      font-size: ${Math.max(9, Math.min(12, cellW * 0.28))}px;
+      font-weight: 700;
+      color: #f6e6c8;
+      background: rgba(61, 43, 31, 0.72);
+      border: 1px solid rgba(255, 214, 140, 0.7);
+      border-radius: 4px;
+      white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    `;
+    layer.appendChild(chip);
+  }
+}
+
 export function renderMap(container, mapConfig, widthPx, heightPx) {
   mapConfig.widthPx = widthPx;
   mapConfig.heightPx = heightPx;
   mapConfig.obstacleSet = buildObstacleSet(mapConfig.obstacles);
+  mapConfig.heightMap = buildHeightMap(mapConfig.heights);
 
   container.innerHTML = '';
   container.style.cssText = `
@@ -202,6 +330,22 @@ export function renderMap(container, mapConfig, widthPx, heightPx) {
     obstacleLayer.appendChild(marker);
   }
   container.appendChild(obstacleLayer);
+
+  // 高度可视化层（台地淡色底 + 崖壁边线 + z 角标；z-index 同障碍层，靠 DOM 顺序覆盖其上）
+  const heightLayer = document.createElement('div');
+  heightLayer.className = 'height-layer';
+  heightLayer.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    ${heightOverlayVisible ? '' : 'display: none;'}
+  `;
+  renderHeightOverlay(heightLayer, mapConfig, cellW, cellH);
+  container.appendChild(heightLayer);
 
   // 高亮层
   const highlightLayer = document.createElement('div');

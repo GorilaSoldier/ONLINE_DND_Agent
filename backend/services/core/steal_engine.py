@@ -25,8 +25,8 @@ from services.core.rules import (
 )
 
 # 四情况档位（巧手成功 margin 分档）
-FLAGRANTE_MAX_MARGIN = 3   # margin < 3 → 情况二（刚偷到被当场瞥见，人赃并获，立即对峙）
-DISCOVERED_MAX_MARGIN = 6  # 3 ≤ margin ≤ 6 → 情况四（延迟发现，5 秒反应期）；> 6 → 情况三（无事发生）
+FLAGRANTE_MARGIN = 0       # margin == 0（点数刚好等于 DC）→ 情况二（刚偷到被当场瞥见，人赃并获，立即对峙）
+DISCOVERED_MAX_MARGIN = 6  # 1 ≤ margin ≤ 6 → 情况四（延迟发现，5 秒反应期）；> 6 → 情况三（无事发生）
 
 SOCIAL_SKILLS = {"deception": "欺瞒", "intimidation": "威吓", "persuasion": "游说"}
 
@@ -185,8 +185,8 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
       - ② 巧手判定：DC = 目标被动感知+警觉
           失败 → 【情况一】警觉 +2、转敌对、NPC 生气骂人，不进入对峙（玩家自决去留）
           成功 → 得手，按 margin 分档：
-            margin < 3           → 【情况二】刚偷到被当场瞥见（人赃并获），立即对峙（flagrante）
-            3 ≤ margin ≤ 6       → 【情况四】延迟发现（5 秒反应期后质问，discovered）
+            margin == 0          → 【情况二】刚好卡在 DC 上被当场瞥见（人赃并获），立即对峙（flagrante）
+            1 ≤ margin ≤ 6       → 【情况四】延迟发现（5 秒反应期后质问，discovered）
             margin > 6           → 【情况三】无事发生
     target="item" 偷货架物品 item_id；target="gold" 偷钱袋金币。"""
     npc_name = _npc_name(state, npc_id)
@@ -199,21 +199,16 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
     if state.has_active_suspicion() or state.has_active_arrest():
         return {"success": False, "message": f"{pname}正被怀疑或被追捕，先应付眼前的事吧。", "gold": get_player_gold(state)}
 
-    # ── ① 前置潜行判定：未被在场目击者察觉（已处于隐匿状态则跳过）──
-    stealth_check = None
+    # ── ① 前置潜行检查：必须先潜行才能偷窃（未处于隐匿状态直接阻止，不自动掷骰）──
     if not state.has_stealth(npc_id):
-        stealth_dc = witness_stealth_dc(state)
-        stealth_check = roll_skill_check("stealth", character, stealth_dc)
-        if not stealth_check["success"]:
-            state.add_npc_alert(npc_id, 1)
-            noise = "弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
-            msg = f"{pname}悄悄靠近{npc_name}的摊位，但{noise}，只好先按兵不动。{npc_name}变得警觉了一些。"
-            state.add_history("player", f"我想偷{npc_name}的东西")
-            state.add_history("gm", msg)
-            return {
-                "success": False, "message": msg,
-                "check": stealth_check, "stealth_blocked": True, "gold": get_player_gold(state),
-            }
+        msg = (f"{pname}还没潜行，直接伸手会被发现。先潜行躲过在场目击者的目光，"
+               f"才能对{npc_name}下手。")
+        state.add_history("player", f"我想偷{npc_name}的东西")
+        state.add_history("gm", msg)
+        return {
+            "success": False, "message": msg,
+            "stealth_blocked": True, "gold": get_player_gold(state),
+        }
 
     # 目标确定（货架物品 / 钱袋金币）
     if target == "gold":
@@ -267,8 +262,8 @@ def merchant_steal(state, npc_id: str, character, item_id: Optional[str] = None,
     state.add_history("player", f"我偷偷拿走了{npc_name}的 {stolen_desc}")
     state.add_history("gm", f"{pname}悄悄偷走了{npc_name}的 {stolen_desc}。")
 
-    if margin < FLAGRANTE_MAX_MARGIN:
-        # 【情况二】刚偷到被当场瞥见 → 人赃并获，立即对峙（flagrante）
+    if margin <= FLAGRANTE_MARGIN:
+        # 【情况二】点数刚好等于 DC → 刚偷到被当场瞥见，人赃并获，立即对峙（flagrante）
         state.set_hostile(npc_id)
         state.set_suspicion(npc_id, stolen_ids, gold_amount=stolen_amount, mode="flagrante")
         return {
@@ -309,15 +304,12 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
     pname = _pname(state)
     changes = []
 
-    # ① 前置潜行判定（未处于隐匿状态时）
-    stealth_check = None
+    # ① 前置潜行检查：必须先潜行才能偷窃（未处于隐匿状态直接阻止，不自动掷骰）
     if not state.has_stealth(owner_id):
-        stealth_dc = witness_stealth_dc(state)
-        stealth_check = roll_skill_check("stealth", character, stealth_dc)
-        if not stealth_check["success"]:
-            state.add_npc_alert(owner_id, 1)
-            noise = "弄出了声响" if stealth_check["roll"] <= 10 else "对方似乎有所察觉"
-            return ({"gm_text": f"{pname}悄悄靠近，但{noise}，只好先按兵不动。", "checks": [stealth_check]}, changes)
+        msg = f"{pname}还没潜行，直接伸手会被发现。先潜行躲过在场目击者的目光，才能下手。"
+        state.add_history("player", f"我想偷 {item['name']}")
+        state.add_history("gm", msg)
+        return ({"gm_text": msg, "checks": []}, changes)
 
     # ② 巧手判定：DC = 主人被动感知+警觉（或物品 difficulty / AI 建议）
     dc = suggested_dc or item.get("difficulty") or (
@@ -367,6 +359,9 @@ def scene_item_steal(state, owner_id: str, character, item: dict, item_id: str,
                 "checks": [result],
                 "delayed_suspicion": {"npc_id": owner_id, "item_ids": [item_id]},
             }
+    # 装备类不进道具背包（StateManager 统一拦截），改由前端写入角色卡装备栏
+    if is_equipment_item(item):
+        rule["loot_equipment"] = item_id
     return rule, changes
 
 
